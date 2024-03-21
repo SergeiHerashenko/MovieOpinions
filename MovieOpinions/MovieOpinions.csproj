@@ -10,4 +10,8 @@
     <ProjectReference Include="..\MovieOpinions.Domain\MovieOpinions.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Content\Fonts\" />
+  </ItemGroup>
+
 </Project>

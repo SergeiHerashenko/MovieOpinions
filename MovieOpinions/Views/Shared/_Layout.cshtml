@@ -1,0 +1,20 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Background_Image_Style.css" type="text/css" />
+    @RenderSection("Style", required: false)
+</head>
+<body class="BackgroundImageStyle">
+    <div class="BackgroundBlurStyle">
+        @RenderBody()
+    </div>
+    @RenderSection("Script", required: false)
+</body>
+</html>
