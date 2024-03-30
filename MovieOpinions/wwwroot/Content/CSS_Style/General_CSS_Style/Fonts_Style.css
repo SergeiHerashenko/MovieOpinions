@@ -1,0 +1,17 @@
+﻿/* Визначення власного шрифту Akronim /Defining custom font Akronim/ */
+@font-face {
+    font-family: 'Akronim'; /* Встановлює ім'я шрифту /Sets the font name/ */
+    src: url(../../Fonts/Akronim-Regular.ttf) format('truetype'); /* Задає шлях до файлу шрифту та його формат /Specifies the font file path and format/ */
+}
+
+/* Визначення власного шрифту Spartan /Defining custom font Spartan/ */
+@font-face {
+    font-family: 'Spartan'; /* Встановлює ім'я шрифту /Sets the font name/ */
+    src: url(../../Fonts/LeagueSpartan-Regular.ttf) format('truetype'); /* Задає шлях до файлу шрифту та його формат /Specifies the font file path and format/ */
+}
+
+/* Визначення власного шрифту Spartan /Defining custom font Spartan/ */
+@font-face {
+    font-family: 'Roboto'; /* Встановлює ім'я шрифту /Sets the font name/ */
+    src: url(../../Fonts/Roboto-Black.ttf) format('truetype'); /* Задає шлях до файлу шрифту та його формат /Specifies the font file path and format/ */
+}

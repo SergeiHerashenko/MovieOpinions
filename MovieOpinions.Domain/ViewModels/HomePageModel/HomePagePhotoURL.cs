@@ -8,9 +8,9 @@ namespace MovieOpinions.Domain.ViewModels.HomePageModel
 {
     public class HomePagePhotoURL
     {
-        public string Photo_One { get; } = "../Content/Image/StartPage_Image/Image_One.png";
-        public string Photo_Two { get; } = "../Content/Image/StartPage_Image/Image_Two.png";
-        public string Photo_Three { get; } = "../Content/Image/StartPage_Image/Image_Three.png";
-        public string Photo_Four { get; } = "../Content/Image/StartPage_Image/Image_Four.png";
+        public string Photo_One { get; } = "../Content/Image/HomePage_Image/Image_One.png";
+        public string Photo_Two { get; } = "../Content/Image/HomePage_Image/Image_Two.png";
+        public string Photo_Three { get; } = "../Content/Image/HomePage_Image/Image_Three.png";
+        public string Photo_Four { get; } = "../Content/Image/HomePage_Image/Image_Four.png";
     }
 }

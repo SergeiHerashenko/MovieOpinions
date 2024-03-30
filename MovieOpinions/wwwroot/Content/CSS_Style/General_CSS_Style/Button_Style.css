@@ -1,0 +1,24 @@
+﻿/* Загальний стиль для кнопки /General style for the button/ */
+.GeneralButtonStyle {
+    border-radius: 12px; /* Закруглені кути кнопки /Rounded corners for the button/ */
+    background: #333; /* Колір фону кнопки /Background color of the button/ */
+    justify-content: center; /* Вирівнювання по горизонталі /Horizontal alignment/ */
+    align-items: center; /* Вирівнювання по вертикалі /Vertical alignment/ */
+    box-shadow: -12px -12px 24px 0px #1E1E1E inset, 12px 12px 24px 0px #3E3E3E inset; /* Тінь кнопки /Button shadow/ */
+    font-family: 'Roboto'; /* Встановлює шрифт тексту кнопки /Sets the font for the button text/ */
+    border: 1px solid #000; /* Рамка кнопки /Button border/ */
+    font-size: clamp(24px, 50%, 40px); /* Розмір тексту кнопки /Font size of the button/ */
+    color: #FF8304; /* Колір тексту кнопки /Text color of the button/ */
+    transition: 500ms; /* Анімація змін при наведенні /Transition for changes on hover/ */
+}
+
+    /* Стиль при наведенні на кнопку /Style on hover for the button/ */
+    .GeneralButtonStyle:hover {
+        border: 1px solid #FF8304; /* Зміна товщини рамки при наведенні /Change the border thickness on hover/ */
+    }
+
+    /* Стиль при натисканні на кнопку /Style on click for the button/ */
+    .GeneralButtonStyle:active {
+        box-shadow: -12px -12px 24px 0px #3E3E3E inset, 12px 12px 24px 0px #1E1E1E inset; /* Тінь кнопки при натисканні /Button shadow on click/ */
+        border: none; /* Видалення рамки при натисканні /Remove border on click/ */
+    }

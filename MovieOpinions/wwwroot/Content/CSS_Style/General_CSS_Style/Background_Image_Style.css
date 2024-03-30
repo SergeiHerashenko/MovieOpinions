@@ -10,8 +10,11 @@
 
 /* Клас для стилізації рамки та фону на сторінці сайту /A class for styling the frame and background on a site page/ */
 .BackgroundBlurStyle {
-    width: 100vw; /* Займає 100% ширини видимого вікна /Takes up 100% of the visible window width/ */
-    height: 100vh; /* Займає 100% висоти видимого вікна /Takes up 100% of the visible window height/ */
+    position: fixed; /* Встановлює фіксовану позицію блока відносно вікна браузера */
+    top: 0; /* Встановлює відстань від верхнього краю вікна браузера до блока */
+    left: 0; /* Встановлює відстань від лівого краю вікна браузера до блока */
+    width: 100%; /* Встановлює ширину блока на 100% ширини вікна браузера */
+    height: 100%; /* Встановлює висоту блока на 100% висоти вікна браузера */
     border: 2px solid #000; /* Рамка товщиною 2px, чорного кольору /A border with a thickness of 2px, black color/ */
     box-sizing: border-box; /* Розраховує ширину та висоту з урахуванням границі та поля /Calculates width and height including border and padding/ */
     background-color: rgba(51, 51, 51, 0.80); /* Фоновий колір з прозорістю /Background color with transparency/ */

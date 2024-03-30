@@ -1,0 +1,105 @@
+﻿/* Стиль для контенту сайта /Style for site content/ */
+.ContentSiteStyle {
+    display: flex; /* Встановлює властивість flex для використання flexbox /Sets the flex property to use flexbox/ */
+    max-width: 1200px; /* Максимальна ширина контенту сайту /Maximum width of site content/ */
+    height: calc(100% - 80px); /* Віднімаємо 80px (2 * 40px) від 100% висоти екрану */
+    margin-top: 40px; /* Встановлюємо відступ зверху в 40px /Set the indent from the top to 40px/ */
+    margin-bottom: 40px; /* Встановлюємо відступ знизу в 40px /We set the indent from the bottom to 40px/ */
+    margin-left: auto; /* Вирівнюємо лівий відступ по центру /Align the left margin to the center/ */
+    margin-right: auto; /* Вирівнюємо правий відступ по центру /Align the right margin to the center/ */
+}
+
+/* Стилі для секції з фотографіями /Styles for the photo section/ */
+.PhotoSectionStyle {
+    width: 50%; /* Встановити ширину секції з фотографіями на 50% від батьківського контейнера /Set the width of the photo section to 50% of the parent container/ */
+    display: flex; /* Використовувати flexbox для розташування дочірніх елементів /Use flexbox to arrange child elements/ */
+}
+
+/* Клас для стилізації фотозони / Class for styling the photo zone */
+.PhotoZoneStyle {
+    box-sizing: border-box; /* Задаємо box-sizing для врахування ширини границі та поля у визначенні розміру елемента / Set box-sizing to include border and padding width in element sizing */
+    height: 100%; /* Встановлюємо висоту блоку на 100% від висоти батьківського контейнера / Set the height of the block to 100% of the parent container height */
+    display: flex; /* Задаємо властивість flex для використання flex-контейнера /Set the flex property for using a flex container/ */
+    padding: 10px; /* Зовнішній відступ від тексту до рамки, 10px ширини вікна перегляду /External margin from text to the border, 10px of the viewport width/ */
+    flex-direction: column; /* Задаємо напрямок відображення дочірніх елементів у стовпчик /Set the direction of displaying child elements in a column/ */
+    justify-content: center; /* Вирівнюємо елементи по центру по вертикалі /Align elements to the center vertically/ */
+    align-items: center; /* Вирівнюємо елементи по центру по горизонталі /Align elements to the center horizontally/ */
+    align-self: stretch; /* Розтягує об'єкт на всю ширину контейнера /Stretch the object to the full width of the container/ */
+    border-radius: 8%; /* Радіус закруглення кутів, 8% від ширини/висоти елемента /Corner radius, 8% of the width/height of the element/ */
+    border: 0.2vw solid rgba(51, 51, 51, 0.50); /* Тонка рамка, 0.2% ширини вікна перегляду /Thin border, 0.2% of the viewport width/ */
+    background: #333; /* Колір фону /Background color/ */
+    box-shadow: -1.2vw -1.2vw 2.4vw 0px #3E3E3E, 1.2vw 1.2vw 2.4vw 0px #1E1E1E, -1.2vw -1.2vw 2.4vw 0px rgba(62, 62, 62, 0.25) inset, 1.2vw 1.2vw 2.4vw 0px rgba(30, 30, 30, 0.25) inset;
+}
+
+/* Стилізація для фотографій у зоні фотографій /Styling for photos within the photo zone/ */
+.PhotoStyle {
+    background-position: center center; /* Встановлює позицію зображення фону по центру /Sets the position of the background image in the center/ */
+    background-size: cover; /* Масштабує зображення фону, щоб воно покривало всю площу /Scales the background image to cover the entire area/ */
+    background-repeat: no-repeat; /* Вимикає повторення фонового зображення /Disable the repetition of the background image/ */
+    border-radius: 8%; /* Застосовує радіус закруглення в 8%, щоб створити закруглені кути /Apply a border-radius of 8% to create rounded corners/ */
+}
+
+/* Стилі для текстової секції /Styles for the text section/ */
+.TextSectionStyle {
+    flex: 1; /* Дозволити текстовій секції розширюватися і заповнювати доступний простір по вертикалі /Allow the text section to expand and fill the available space vertically/ */
+}
+
+/* Стиль для першого слова назви сайту /Style for the first word of the site name/ */
+.FirstNameTitularStyle {
+    font-family: 'Akronim'; /* Встановлює шрифт для тексту /Sets the font for the text/ */
+    color: #FF8304; /* Встановлює колір тексту /Sets the text color/ */
+    font-size: 13vh; /* Розмір шрифта у висоті видимого вікна /Font size in terms of the visible window height/ */
+    margin-left: 10%;
+}
+
+/* Стиль для другого слова назви сайту /Style for the second word of the site name/ */
+.SecondNameTitularStyle {
+    font-family: 'Akronim'; /* Встановлює шрифт для тексту /Sets the font for the text/ */
+    color: #FF8304; /* Встановлює колір тексту /Sets the text color/ */
+    font-size: 13vh; /* Розмір шрифта у висоті видимого вікна /Font size in terms of the visible window height/ */
+    margin-left: 14%; /* Встановлює лівий відступ відносно блоку-батька /Sets the left margin relative to the parent block/ */
+}
+
+/* Стилі для контейнера з текстовим описом /Styles for container with text description/ */
+.DescriptionZoneTextStyle {
+    display: inline-flex; /* Встановлюємо flex для використання контейнера flex /Set flex property for using a flex container/ */
+    padding: 10px; /* Зовнішній відступ від тексту до рамки, 10px від висоти вікна перегляду /External margin from text to the border/ */
+    flex-direction: column; /* Встановлюємо напрямок відображення дочірніх елементів у стовпчик /Set the direction of displaying child elements in a column/ */
+    justify-content: center; /* Вирівнюємо елементи по центру по вертикалі /Align elements to the center vertically/ */
+    align-items: center; /* Вирівнюємо елементи по центру по горизонталі /Align elements to the center horizontally/ */
+    border-radius: 2vw; /* Радіус закруглення кутів, 2% від висоти вікна перегляду /Corner radius, 2% of the viewport height/ */
+    border: 0.2vw solid rgba(51, 51, 51, 0.50); /* Тонка рамка, 0.2% ширини вікна перегляду /Thin border, 0.2% of the viewport width/ */
+    background: #333; /* Колір фону /Background color/ */
+    height: 32vh; /* Висота контейнера /Height of the container/ */
+    margin-left: 5%; /* Встановлює лівий відступ відносно блоку-батька /Sets the left margin relative to the parent block/ */
+    margin-right: 5%; /* Встановлює правий відступ відносно блоку-батька /Sets the right indent relative to the parent block/ */
+    box-shadow: -1.2vw -1.2vw 2.4vw 0px #3E3E3E, -1.2vw -1.2vw 2.4vw 0px rgba(62, 62, 62, 0.25) inset; /* Тінь блока, задана в відносних одиницях /Shadow of the block, specified in relative units/ */
+}
+
+/* Стилі для блока текстового опису /Styles for the text description block/ */
+.DescriptionTextStyle {
+    color: rgba(255, 245, 234, 0.80); /* Колір тексту /Text color/ */
+    font-family: 'Spartan'; /* Використовуваний шрифт /Used font/ */
+    border-radius: 2vw; /* Радіус закруглення кутів, 2% від ширини/висоти елемента /Corner radius, 2% of the width/height of the element/ */
+    border: 3px solid rgba(51, 51, 51, 0.50); /* Товста рамка, 3px ширини, 0.5% прозорості /Thick border, 3px width, 0.5% transparency/ */
+    background: #333; /* Колір фону /Background color/ */
+    display: flex; /* Використання flex для текстового опису /Using flex for text description/ */
+    padding: 1vw; /* Внутрішній відступ, 1% ширини вікна перегляду /Internal margin, 1% of the viewport width/ */
+    flex-direction: column; /* Напрямок відображення дочірніх елементів - стовпчик /Direction of displaying child elements - column/ */
+    align-items: center; /* Вирівнюємо елементи по центру по горизонталі /Align elements to the center horizontally/ */
+    justify-content: center; /* Вирівнюємо елементи по центру по вертикалі /Align elements to the center vertically/ */
+    box-shadow: -1.2vw -1.2vw 2.4vw 0px #3E3E3E, -1.2vw -1.2vw 2.4vw 0px rgba(62, 62, 62, 0.25) inset; /* Тінь блоку /Block shadow/ */
+    height: 100%; /* Висота елемента /Element height/ */
+    font-size: 2.5vh; /* Розмір шрифта /Font size/ */
+}
+
+
+.desktop{
+    display: flex;
+}
+
+@media (max-width: 1300px) {
+    .desktop{
+        display: none;
+    }
+}

@@ -10,5 +10,11 @@ namespace MovieOpinions.Controllers
             HomePageModel model = new HomePageModel();
             return View(model);
         }
+
+        [HttpGet]
+        public IActionResult RedirectToLoginPage()
+        {
+            return RedirectToAction("LoginPage", "LoginPage");
+        }
     }
 }
