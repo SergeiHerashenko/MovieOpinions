@@ -1,0 +1,25 @@
+﻿/* Стилі для зовнішнього вигляду текстового поля /Styles for the appearance of the text box/ */
+.TextBoxStyle {
+    border: none; /* Без границі /No limit/ */
+    outline: none; /* Без обведення /No stroke/ */
+    padding: 0px 7px; /* Відступи всередині поля вводу /Indentation inside the input field/ */
+    border-radius: 6px; /* Закруглені кути /Rounded corners/ */
+    color: rgba(255, 245, 234, 0.40); /* Колір тексту з прозорістю /Text color with transparency/ */
+    font-size: 21px; /* Розмір шрифту /Font size/ */
+    background-color: transparent; /* Прозорий фон /Transparent background/ */
+    /* Тінь для ефекту вигляду заглиблення та витіснення /Drop shadow for the effect of indentation and crowding out/ */
+    box-shadow: 1px 1px 3px 0px rgba(36, 36, 36, 0.90) inset, -1px -1px 2px 0px rgba(66, 66, 66, 0.90) inset, 1px -1px 2px 0px rgba(36, 36, 36, 0.20) inset, -1px 1px 2px 0px rgba(36, 36, 36, 0.20) inset, 5px 5px 13px 0px rgba(45, 45, 45, 0.90), -5px -5px 10px 0px rgba(55, 55, 55, 0.90), 5px -5px 10px 0px rgba(45, 45, 45, 0.20), -5px 5px 10px 0px rgba(45, 45, 45, 0.20);
+}
+
+    /* Стилі для фокусування текстового поля /Styles for text field focus/ */
+    .TextBoxStyle:focus {
+        color: rgba(255, 245, 234, 0.40); /* Колір тексту при фокусі з прозорістю /Text color when focused with transparency/ */
+        /* Тінь для ефекту вигляду заглиблення та витіснення /Drop shadow for the effect of indentation and crowding out/ */
+        box-shadow: 4px 4px 8px 0px #1E1E1E inset, -4px -4px 8px 0px rgba(77, 77, 77, 0.25) inset, 10px 10px 20px 0px #1E1E1E, -10px -10px 20px 0px #3C3C3C;
+    }
+
+        /* Стилі для переходу підпису при фокусуванні /Styles for caption transition on focus/ */
+        .TextBoxStyle:focus ~ .LabelStyle {
+            transition: 0.3s; /* Час тривалості анімації переходу /Transition animation duration time/ */
+            transform: translateY(-50px); /* Зсув підпису вгору при фокусуванні /Signature shift up when focusing/ */
+        }

@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using MovieOpinions.DAL.Interface;
+using MovieOpinions.DAL.Repositories;
+using MovieOpinions.Service.Implementations;
+using MovieOpinions.Service.Interfaces;
+
 public class Program
 {
     private static void Main(string[] args)
@@ -6,6 +12,15 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IAccountService, AccountService>();
+
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/LoginPage/LoginPage");
+                options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/LoginPage/LoginPage");
+            });
 
         var app = builder.Build();
 

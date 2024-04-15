@@ -1,0 +1,36 @@
+﻿/* Стиль модального вікна повідомлень /Modal message window style/ */
+.ModalMessageWindowStyle {
+    display: none; /* Приховує модальне вікно за замовчуванням /Hides the modal window by default/ */
+    position: fixed; /* Фіксована позиція вікна на екрані /Fixed position of the window on the screen/ */
+    z-index: 1; /* Визначає шар над іншими елементами на сторінці /Defines a layer above other elements on the page/ */
+    left: 0; /* Положення зліва на екрані /Position on the left of the screen/ */
+    top: 0; /* Положення зверху на екрані /Top position on the screen/ */
+    width: 100%; /* Повна ширина вікна /Full window width/ */
+    height: 100%; /* Повна висота вікна /Full window height/ */
+    overflow: auto; /* Дозволяє прокручувати вміст вікна, якщо він перевищує розмір вікна /Allows you to scroll the contents of the window if it exceeds the size of the window/ */
+    background-color: rgba(0,0,0,0.4); /* Півпрозорий чорний фон /Translucent black background/ */
+    border-radius: 20px; /* Заокруглення кутів вікна /Rounding the corners of the window/ */
+}
+
+/* Контент модального вікна повідомлень /Content of a modal message window/ */
+.ContentModalMessageWindowStyle {
+    margin: 15% auto; /* Зовнішній відступ від верхнього і нижнього краю відносно внутрішнього вмісту /Outer offset from the top and bottom edges relative to the inner content/ */
+    display: flex;
+    width: min(30vw, 600px); /* Ширина вікна, яка не перевищує 30% ширини вікна перегляду або 600px / Window width that does not exceed 30% of the viewport width or 600px / */
+    height: 20vh; /* Висота вікна /Window height/ */
+    padding: 24px 4px; /* Внутрішній відступ від верхнього і нижнього краю вмісту /Inner padding from the top and bottom edges of the content/ */
+    flex-direction: column; /* Орієнтація блоків у колонку /Orientation of blocks in a column/ */
+    justify-content: center; /* Вирівнювання контенту по центру вікна /Centering content within the window/ */
+    align-items: center; /* Вирівнювання контенту по центру вікна /Centering content within the window/ */
+    flex-shrink: 0; /* Забороняє вмісту зменшувати розмір блоку /Prevents content from reducing the size of the block/ */
+    border-radius: 14px; /* Заокруглення кутів блоку /Rounding the corners of the block/ */
+    border: 3px solid rgba(51, 51, 51, 0.50); /* Три пікселі товщиною рамки, напівпрозорий колір /Three-pixel border thickness, translucent color/ */
+    background: #333; /* Колір фону блоку /Background color of the block/ */
+    box-shadow: 12px 12px 24px 0px #3E3E3E, 12px 12px 24px 0px rgba(62, 62, 62, 0.25) inset; /* Тінь блоку /Block shadow/ */
+}
+
+.MessageTextStyle {
+    color: rgba(255, 245, 234, 0.80); /* Колір тексту /Text color/ */
+    font-family: 'Spartan'; /* Використовуваний шрифт /Used font/ */
+    font-size: min(2vw, 25px); /* Розмір шрифта /Font size/ */
+}

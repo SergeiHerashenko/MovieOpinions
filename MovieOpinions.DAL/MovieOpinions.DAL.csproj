@@ -1,15 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MovieOpinions.DAL\MovieOpinions.DAL.csproj" />
+    <PackageReference Include="Npgsql" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MovieOpinions.Domain\MovieOpinions.Domain.csproj" />
-    <ProjectReference Include="..\MovieOpinions.Service\MovieOpinions.Service.csproj" />
   </ItemGroup>
 
 </Project>
