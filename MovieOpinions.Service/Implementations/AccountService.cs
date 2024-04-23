@@ -60,9 +60,60 @@ namespace MovieOpinions.Service.Implementations
             }
         }
 
-        public Task<BaseResponse<ClaimsIdentity>> Register(RegisterModel registerModel)
+        public async Task<BaseResponse<ClaimsIdentity>> Register(RegisterModel registerModel)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var getUser = await _userRepository.GetUser(registerModel.Login);
+                if(getUser != null)
+                {
+                    return new BaseResponse<ClaimsIdentity>()
+                    {
+                        Description = "Користувач з таким логіном вже зареєстрований!"
+                    };
+                }
+
+                string PasswordKey = Guid.NewGuid().ToString();
+                string EncryptionPassword = await new HashPassword().GetHashedPassword(registerModel.Password, PasswordKey);
+
+                var newUser = new User()
+                {
+                    NameUser = registerModel.Login,
+                    PasswordUser = EncryptionPassword,
+                    PasswordSalt = PasswordKey,
+                    BlockedUser = false,
+                    DeleteUser = false,
+                };
+
+                var registerUser = await _userRepository.Create(newUser);
+
+                if (registerUser)
+                {
+                    var result = Authenticate(newUser);
+
+                    return new BaseResponse<ClaimsIdentity>()
+                    {
+                        Data = result,
+                        Description = "Користувач зареєстрований!",
+                        StatusCode = Domain.Enum.StatusCode.OK
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<ClaimsIdentity>()
+                    {
+                        Description = "Упс.. Виникла помилка, спробуйте пізніше!"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<ClaimsIdentity>()
+                {
+                    Description = ex.Message,
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError
+                };
+            }
         }
 
         private ClaimsIdentity Authenticate(User user)

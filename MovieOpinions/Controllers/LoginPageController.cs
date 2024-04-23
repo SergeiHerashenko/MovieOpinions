@@ -23,6 +23,12 @@ namespace MovieOpinions.Controllers
             return View(loginModel);
         }
 
+        [HttpGet]
+        public IActionResult RedirectToRegistrationPage()
+        {
+            return RedirectToAction("RegistrationPage", "RegistrationPage");
+        }
+
         [HttpPost]
         public async Task<IActionResult> LoginUser([FromBody] LoginModel formData)
         {
@@ -38,7 +44,7 @@ namespace MovieOpinions.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(response.Data));
 
-                return Json(new { redirectUrl = Url.Action("PrivateOfficesPage", "PrivateOfficesPage") });
+                return Json(new { redirectUrl = Url.Action("FilmPage", "FilmPage") });
             }
             else
             {

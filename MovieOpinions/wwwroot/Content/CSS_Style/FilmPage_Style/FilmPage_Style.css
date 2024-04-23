@@ -1,0 +1,161 @@
+﻿.ContentSiteStyle {
+    margin-top: 100px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 1fr;
+    gap: 30px;
+    padding-left: clamp(50px, 15vw, 350px);
+    padding-right: clamp(50px, 15vw, 350px);
+    align-items: center;
+}
+
+.LabelStyle {
+    padding-left: 10px;
+    transition: 0.3s;
+    pointer-events: none;
+    position: absolute;
+    color: rgba(255, 245, 234, 0.40);
+    font-size: 21px;
+}
+
+.PrivateOfficesIconStyle{
+    margin-left: auto;
+    height: 50px;
+}
+
+.SearchInformStyle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 20px;
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+
+.SortDropDownListStyle {
+    display: flex;
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+    font-size: 21px;
+    color: #FF8304;
+    border: 1px solid #000000;
+    padding-left: 20px;
+    font-family: 'Roboto';
+    background-color: #333333;
+    background-image: url('../../Image/трикутник.svg'); 
+    background-repeat: no-repeat; 
+    background-position: right center; 
+    background-size: 40px 40px; 
+    padding-right: 20px;
+    -webkit-appearance: none; 
+    -moz-appearance: none; 
+    appearance: none; 
+}
+
+.FilterStyle {
+    font-family: 'Roboto';
+    color: #FF8304;
+    font-size: clamp(13px, 3vw, 14px);
+    height: 340px;
+}
+
+    .FilterStyle a {
+        font-size: clamp(13px, 3vw, 18px);
+    }
+
+.genre {
+    overflow-y: auto;
+    height: 100%;
+}
+
+    .genre::-webkit-scrollbar {
+        width: 12px; /* Ширина полоси прокрутки */
+    }
+
+    .genre::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0);
+         /* Колір фону */
+    }
+
+    .genre::-webkit-scrollbar-thumb {
+        background: #888; /* Колір кнопки */
+        border-radius: 6px; /* Скругленість країв кнопки */
+    }
+
+.CheckBoxStyle {
+    margin: 13px 0;
+}
+
+    .CheckBoxStyle:hover {
+        background-color: rgba(51, 51, 51, 0.5);
+    }
+
+
+    .FilmFormRegionStyle {
+        display: flex;
+        grid-column-start: 2;
+        grid-column-end: 5;
+        grid-row-start: 2;
+        grid-row-end: 4;
+        border-radius: 30px;
+        background: #333;
+        border: 3px solid rgba(51, 51, 51, 0.50);
+        box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+.FilmFormStyle {
+    height: 95%;
+    width: 95%;
+    border-radius: 30px;
+    background: #333;
+    border: 3px solid rgba(51, 51, 51, 0.50);
+    box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 45px;
+}
+
+@media screen and (max-width: 1023px) {
+    .ContentSiteStyle {
+        margin-top: 40px;
+        grid-template-columns: 2fr 2fr 2fr 2fr;
+        gap: 10px;
+    }
+
+    .SearchInformStyle {
+        grid-column-start: 1;
+        grid-column-end: 5;
+    }
+
+    .SortDropDownListStyle {
+        grid-column-start: 1;
+        grid-column-end: 4;
+        font-size: 18px;
+    }
+
+    .GenreStyle {
+        height: 120px;
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 3;
+    }
+    .YearStyle {
+        height: 120px;
+        grid-column-start: 3;
+        grid-column-end: 5;
+        grid-row-start: 3;
+    }
+
+    .FilmFormRegionStyle {
+        grid-column-start: 1;
+        grid-column-end: 5;
+        grid-row-start: 4;
+        height: 300px
+    }
+}

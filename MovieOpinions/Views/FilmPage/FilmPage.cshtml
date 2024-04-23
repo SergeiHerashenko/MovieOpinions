@@ -1,0 +1,63 @@
+﻿@model MovieOpinions.Domain.ViewModels.FilmPageModel.FilmPageModel;
+
+@{
+    ViewBag.Title = "Фільми";
+}
+
+@section Style{
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Fonts_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Button_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/TextBox_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Modal_Window.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/FilmPage_Style/FilmPage_Style.css" />
+}
+
+<div class="ContentSiteStyle">
+    <div id="SearchInform" class="SearchInformStyle">
+        @Html.TextBoxFor(Model => Model.Search, "", new { @class = "TextBoxStyle", @style = "width: 100%; height: 50px;", @oninput="UpdateStyleBasedOnInput('SearchInform')" })
+        <label class="LabelStyle">Пошук</label>
+    </div>
+    @Html.DropDownListFor(Model => Model.SelectedSortOption, Model.SortOption, "Сортувати", new { @class = "SortDropDownListStyle custom-dropdown-arrow", id = "sortDropdown" })
+    <img class="PrivateOfficesIconStyle" src="~/Content/Image/PrivateOfficesIcon.svg"/>
+    <div class="FilterStyle GenreStyle">
+        <a>Фільтр за жанром</a>
+        <div class="genre">
+            @foreach (var genre in Model.GenreMovies)
+            {
+                <div class="CheckBoxStyle">
+                    <label>
+                        @Html.CheckBox("selectedGenres", false, new { value = genre })
+                        @genre
+                    </label>
+                </div>
+            }
+        </div>
+        
+    </div>
+    <div class="FilmFormRegionStyle">
+        <div class="FilmFormStyle">
+
+        </div>
+    </div>
+    <div class="FilterStyle YearStyle">
+        <a>Фільтр за роком</a>
+        <div class="genre">
+            @foreach (var year in Model.YearsMovies)
+            {
+                <div class="CheckBoxStyle">
+                    <label>
+                        @Html.CheckBox("selectedGenres", false, new { value = year })
+                        @year
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Script{
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/JavaScript/Update_Style_Based_On_Input.js"></script>
+    <script src="~/JavaScript/Send_Login_Form.js"></script>
+    <script src="~/JavaScript/Modal_Window/Close_Modal_Window.js"></script>
+}

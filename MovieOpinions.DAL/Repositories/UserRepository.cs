@@ -17,9 +17,33 @@ namespace MovieOpinions.DAL.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<bool> Create(User entity)
+        public async Task<bool> Create(User entity)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+            using(var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                    using (var command = new NpgsqlCommand("INSERT INTO User_Table (user_name, user_password, salt_password, delete_user, blocked_user)" +
+                                "VALUES (@n1, @q1, @w1, @p1, @a1)", conn))
+                    {
+                        command.Parameters.AddWithValue("n1", entity.NameUser);
+                        command.Parameters.AddWithValue("q1", entity.PasswordUser);
+                        command.Parameters.AddWithValue("w1", entity.PasswordSalt);
+                        command.Parameters.AddWithValue("p1", entity.DeleteUser);
+                        command.Parameters.AddWithValue("a1", entity.BlockedUser);
+
+                        command.ExecuteNonQuery();
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
         }
 
         public Task<bool> Delete(User entity)
@@ -43,15 +67,18 @@ namespace MovieOpinions.DAL.Repositories
 
                     using(var readerInformationUser = await getUserCommand.ExecuteReaderAsync())
                     {
-                        user = new User
+                        while (readerInformationUser.Read())
                         {
-                            IdUser = Convert.ToInt32(readerInformationUser["id_user"]),
-                            NameUser = readerInformationUser["user_name"].ToString(),
-                            PasswordUser = readerInformationUser["user_password"].ToString(),
-                            PasswordSalt = readerInformationUser["salt_password"].ToString(),
-                            DeleteUser = Convert.ToBoolean(readerInformationUser["delete_user"]),
-                            BlockedUser = Convert.ToBoolean(readerInformationUser["blocked_user"])
-                        };
+                            user = new User
+                            {
+                                IdUser = Convert.ToInt32(readerInformationUser["id_user"]),
+                                NameUser = readerInformationUser["user_name"].ToString(),
+                                PasswordUser = readerInformationUser["user_password"].ToString(),
+                                PasswordSalt = readerInformationUser["salt_password"].ToString(),
+                                DeleteUser = Convert.ToBoolean(readerInformationUser["delete_user"]),
+                                BlockedUser = Convert.ToBoolean(readerInformationUser["blocked_user"])
+                            };
+                        }
                     }
                 }
             }

@@ -1,0 +1,35 @@
+﻿.RegistrationFormRegionStyle {
+    height: 90%;
+    border-radius: 30px;
+    background: #333;
+    border: 3px solid rgba(51, 51, 51, 0.50);
+    box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.RegistrationFormStyle {
+    height: 95%;
+    width: 95%;
+    border-radius: 30px;
+    background: #333;
+    border: 3px solid rgba(51, 51, 51, 0.50);
+    box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 70px;
+}
+
+.LabelStyle {
+    font-size: 15px;
+    padding-left: 10px;
+    transition: 0.3s;
+    pointer-events: none;
+    position: absolute;
+    color: rgba(255, 245, 234, 0.40);
+    font-size: 21px;
+}

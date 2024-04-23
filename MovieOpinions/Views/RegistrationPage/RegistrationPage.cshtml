@@ -1,0 +1,46 @@
+﻿@model MovieOpinions.Domain.ViewModels.RegisterModel.RegisterModel;
+
+@{
+    ViewBag.Title = "Реєстрація";
+}
+
+@section Style{
+    <link rel="stylesheet" href="~/Content/CSS_Style/RegistrationPage_Style/RegistrationPage_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Fonts_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Button_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/TextBox_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Modal_Window.css" />
+}
+
+<div style="margin: 10% auto; height: calc(75vh - 2px); box-sizing: border-box; max-width: 500px">
+    <div class="RegistrationFormRegionStyle">
+        <div id="RegistrationForm" class="RegistrationFormStyle">
+            <div style="line-height: 35px; width: 100%; text-align: center; font-size: min(2vw, 30px); color: rgba(255, 245, 234, 0.40); font-family: Spartan;">
+                <a style="color:  #FF8304;">Вітаємо!</a>
+                <br>
+                <a style="color: rgba(255, 245, 234, 0.40);">Створіть акаунт</a>
+            </div>
+            <div id="Login" style="display: flex; flex-direction: column; justify-content: center;">
+                @Html.TextBoxFor(Model => Model.Login, "", new { @class = "TextBoxStyle", @style = "width: 300px; height: 50px;", @oninput="UpdateStyleBasedOnInput('Login')" })
+                <label class="LabelStyle">Придумайте логін</label>
+            </div>
+            <div id="Password" style="display: flex; flex-direction: column; justify-content: center;">
+                @Html.PasswordFor(Model => Model.Password, new { @class = "TextBoxStyle", @style = "width: 300px; height: 50px;", @oninput="UpdateStyleBasedOnInput('Password')" })
+                <label class="LabelStyle">Придумайте пароль</label>
+            </div>
+            <div id="PasswordConfirm" style="display: flex; flex-direction: column; justify-content: center;">
+                @Html.PasswordFor(Model => Model.PasswordConfirm, new { @class = "TextBoxStyle", @style = "width: 300px; height: 50px;", @oninput="UpdateStyleBasedOnInput('PasswordConfirm')" })
+                <label class="LabelStyle">Повторіть пароль</label>
+            </div>
+            <button class="GeneralButtonStyle" style="width: 250px; height: 50px; max-width: 300px" onclick="SendForm('RegistrationForm', 'RegistrationUser/RegistrationPageController')">Зареєструватися</button>
+        </div>
+    </div>
+    @Html.Partial("_ModalWindow");
+</div>
+
+@section Script{
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/JavaScript/Update_Style_Based_On_Input.js"></script>
+    <script src="~/JavaScript/Send_Login_Form.js"></script>
+    <script src="~/JavaScript/Modal_Window/Close_Modal_Window.js"></script>
+}
