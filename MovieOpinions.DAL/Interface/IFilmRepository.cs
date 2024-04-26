@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace MovieOpinions.DAL.Interface
 {
-    public interface IFilmRepository : IBaseRepository<Film>
+    public interface IFilmRepository : IBaseRepository<Films>
     {
-        Task<Film> GetMovieId(int id);
-        Task<IEnumerable<Film>> GetAll();
-        Task<Film> GetMovieName(string Name);
-        Task<Film> GetMovieYear(int year);
-        Task<Film> GetMovieGenre(string Genre);
+        Task<Films> GetMovieId(int id);
+        Task<List<Films>> GetAll();
+        Task<Films> GetMovieName(string Name);
+        Task<Films> GetMovieYear(int year);
+        Task<Films> GetMovieGenre(string Genre);
     }
 }

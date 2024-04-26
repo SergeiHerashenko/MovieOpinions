@@ -36,7 +36,26 @@
     </div>
     <div class="FilmFormRegionStyle">
         <div class="FilmFormStyle">
-
+            @foreach(var film in Model.Films)
+            {
+                <div class="FilmStyle">
+                    <div class="PhotoFilm">
+                        <div class="PosterFilm">
+                            <img src="@film.FilmImage" />
+                        </div>
+                        <div class="StarFilm">
+                        </div>
+                    </div>
+                    <div class="informFilm">
+                        <div>Назва фільму: <a href="">@film.NameFilm</a></div>
+                        <div>Жанр фільму: @string.Join(", ", film.GenreFilm)</div>
+                        <div>Рік виходу: @film.YearFilm</div>
+                        <div>Країна: @string.Join(", ", film.CountryFilm)</div>
+                        <div>Актори: @string.Join(", ", film.ActorFilm.Select(actor => $"{actor.FirstName} {actor.LastName}"))</div>
+                        <div>Про що фільм: @film.DescriptionFilm</div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
     <div class="FilterStyle YearStyle">

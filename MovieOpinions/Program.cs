@@ -16,6 +16,8 @@ public class Program
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IGenreRepository, GenreRepository>();
         builder.Services.AddScoped<IGenreService, GenreService>();
+        builder.Services.AddScoped<IFilmsServices, FilmsServices>();
+        builder.Services.AddScoped<IFilmRepository, FilmRepository>();
 
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>

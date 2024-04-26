@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Файл ConnectMovieOpinions.cs
+MovieOpinions.DAL/Connect_Database/ConnectMovieOpinions.cs

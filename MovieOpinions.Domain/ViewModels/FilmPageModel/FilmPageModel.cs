@@ -11,7 +11,7 @@ namespace MovieOpinions.Domain.ViewModels.FilmPageModel
     public class FilmPageModel
     {
         public string Search { get; set; }
-        public Film Films { get; set; }
+        public List<Films> Films { get; set; }
 
         public string SelectedSortOption { get; set; }
         public List<SelectListItem> SortOption { get; set; } = new List<SelectListItem>();
