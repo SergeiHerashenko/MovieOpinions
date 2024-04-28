@@ -1,26 +1,17 @@
-﻿.ContentSiteStyle {
-    margin-top: 100px;
-    display: grid;
-    grid-template-columns: 1fr 2fr 2fr 1fr;
-    gap: 30px;
+﻿.FormSiteStyle {
+    max-width: 1260px;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 100px;
     align-items: center;
-    max-width: 1260px;
+    padding: 0 30px;
+    gap: 20px;
 }
 
-.LabelStyle {
-    padding-left: 10px;
-    transition: 0.3s;
-    pointer-events: none;
-    position: absolute;
-    color: rgba(255, 245, 234, 0.40);
-    font-size: 21px;
-}
-
-.PrivateOfficesIconStyle{
-    margin-left: auto;
-    height: 50px;
+.HeaderStyle {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 1fr;
 }
 
 .SearchInformStyle {
@@ -30,6 +21,15 @@
     margin-right: 20px;
     grid-column-start: 1;
     grid-column-end: 3;
+}
+
+.LabelStyle {
+    padding-left: 10px;
+    transition: 0.3s;
+    pointer-events: none;
+    position: absolute;
+    color: rgba(255, 245, 234, 0.40);
+    font-size: 21px;
 }
 
 .SortDropDownListStyle {
@@ -43,70 +43,79 @@
     padding-left: 20px;
     font-family: 'Roboto';
     background-color: #333333;
-    background-image: url('../../Image/трикутник.svg'); 
-    background-repeat: no-repeat; 
-    background-position: right center; 
-    background-size: 40px 40px; 
+    background-image: url('../../Image/трикутник.svg');
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 40px 40px;
     padding-right: 20px;
-    -webkit-appearance: none; 
-    -moz-appearance: none; 
-    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.PrivateOfficesIconStyle {
+    grid-column-start: 4;
+    margin-left: auto;
+    height: 50px;
+}
+
+.FilterIconStyle {
+    display: none;
+}
+
+.ContentSiteStyle {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+}
+
+.FiltresStyle{
+    padding: 20px;
 }
 
 .FilterStyle {
-    font-family: 'Roboto';
-    color: #FF8304;
-    font-size: clamp(13px, 3vw, 14px);
-    height: 340px;
-}
-
-    .FilterStyle a {
-        font-size: clamp(13px, 3vw, 18px);
-    }
-
-.genre {
     overflow-y: auto;
-    height: 100%;
+    max-height: 300px;
+    padding: 0;
 }
 
-    .genre::-webkit-scrollbar {
-        width: 12px; /* Ширина полоси прокрутки */
+    .FilterStyle::-webkit-scrollbar {
+        width: 12px;
     }
 
-    .genre::-webkit-scrollbar-track {
+    .FilterStyle::-webkit-scrollbar-track {
         background: rgba(0, 0, 0, 0);
-         /* Колір фону */
     }
 
-    .genre::-webkit-scrollbar-thumb {
-        background: #888; /* Колір кнопки */
-        border-radius: 6px; /* Скругленість країв кнопки */
+    .FilterStyle::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 6px;
     }
 
 .CheckBoxStyle {
     margin: 13px 0;
+    color: #FF8304;
+    font-family: 'Roboto';
 }
 
     .CheckBoxStyle:hover {
         background-color: rgba(51, 51, 51, 0.5);
     }
 
-
-    .FilmFormRegionStyle {
-        display: flex;
-        grid-column-start: 2;
-        grid-column-end: 5;
-        grid-row-start: 2;
-        grid-row-end: 4;
-        border-radius: 30px;
-        background: #333;
-        border: 3px solid rgba(51, 51, 51, 0.50);
-        box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-    }
+.FilmFormRegionStyle {
+    margin: 20px;
+    display: flex;
+    grid-column-start: 2;
+    grid-column-end: 5;
+    border-radius: 30px;
+    background: #333;
+    border: 3px solid rgba(51, 51, 51, 0.50);
+    box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 640px;
+}
 
 .FilmFormStyle {
     height: 95%;
@@ -118,77 +127,153 @@
     display: flex;
     flex-direction: column;
     gap: 45px;
+    overflow-y: auto;
 }
 
-.FilmStyle {
+.GenreFilterStyle {
+    box-sizing: border-box;
+}
+
+.YearFilterStyle {
+    box-sizing: border-box;
+}
+
+summary {
+    font-family: 'Roboto';
+    color: #FF8304;
+    font-size: clamp(15px, 3vw, 18px);
+}
+
+.PosterFormStyle {
     width: 100%;
-    height: 70%;
+    height: 75%;
+    padding: 30px;
+    box-sizing: border-box;
     display: grid;
-    grid-template-columns: 2fr 3fr;
-    margin: 10px;
+    grid-template-columns: 1fr 3fr;
 }
 
-.PhotoFilm {
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-rows: 4fr 1fr;
-}
-
-.PosterFilm {
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    text-align: center;
-}
-
-.StarFilm {
-    width: 100%;
-    height: 100%;
-}
-
-.informFilm {
+.LeftZoneStyle{
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 5fr 1fr;
 }
+
+.PhotoZoneStyle{
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+    .PhotoZoneStyle img{
+        height: 300px;
+    }
+
+.StarsZoneStyle{
+    height: 100%;
+    width: 100%;
+}
+
+.InformationFilmStyle {
+    width: 100%;
+    height: 100%;
+    padding: 0 30px;
+    box-sizing: border-box;
+}
+
+.ElementInformationFilm {
+    padding: 10px 0;
+    font-size: 15px;
+    color: #FF8304;
+    font-family: 'Roboto';
+}
+
+    .ElementInformationFilm a {
+        color: white;
+        text-decoration: none;
+    }
 
 @media screen and (max-width: 1023px) {
-    .ContentSiteStyle {
-        margin-top: 40px;
-        grid-template-columns: 2fr 2fr 2fr 2fr;
+    .FormSiteStyle {
+        margin-right: auto;
+        margin-top: 50px;
+    }
+
+    .HeaderStyle {
+        grid-template-columns: 3fr 1fr 1fr;
         gap: 10px;
+        margin-top: 50px;
     }
 
     .SearchInformStyle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-right: 0px;
         grid-column-start: 1;
-        grid-column-end: 5;
+        grid-column-end: 4;
     }
 
     .SortDropDownListStyle {
-        grid-column-start: 1;
-        grid-column-end: 4;
-        font-size: 18px;
+        font-size: 15px;
     }
 
-    .GenreStyle {
-        height: 120px;
-        grid-column-start: 1;
-        grid-column-end: 3;
-        grid-row-start: 3;
-    }
-    .YearStyle {
-        height: 120px;
+    .PrivateOfficesIconStyle {
         grid-column-start: 3;
-        grid-column-end: 5;
-        grid-row-start: 3;
     }
 
+    .FilterIconStyle {
+        height: 50px;
+        display: block;
+        margin-left: auto;
+    }
+
+    .FiltresStyle{
+        display: none;
+    }
+
+    .ContentSiteStyle {
+        width: 100%;
+        display: block;
+    }
     .FilmFormRegionStyle {
-        grid-column-start: 1;
-        grid-column-end: 5;
-        grid-row-start: 4;
-        height: 300px
+        height: calc(100vh - 250px);
+    }
+
+    .PosterFormStyle{
+        display: block;
+        height: 100%;
+    }
+
+    .LeftZoneStyle {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        width: calc(150px, 50vw, 200px);
+        height: 200px;
+        width: 150px;
+        overflow: hidden;
+    }
+
+    .PhotoZoneStyle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; 
+        object-position: center;
+        overflow: hidden;
+        display: block;
+    }
+
+    .InformationFilmStyle {
+        width: 100%;
+        height: 100%;
+        padding: 0 5px;
+        box-sizing: border-box;
+    }
+
+    .ElementInformationFilm {
+        padding: 5px 0;
+        color: #FF8304;
+        font-family: 'Roboto';
+        font-size: 10px;
     }
 }

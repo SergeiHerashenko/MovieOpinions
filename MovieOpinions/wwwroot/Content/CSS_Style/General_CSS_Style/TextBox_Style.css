@@ -1,5 +1,6 @@
 ﻿/* Стилі для зовнішнього вигляду текстового поля /Styles for the appearance of the text box/ */
 .TextBoxStyle {
+    box-sizing: border-box; /* Враховувати розмір границь і padding в обчисленні розміру елемента /Take into account the size of borders and padding in the calculation of the size of the element/ */
     border: none; /* Без границі /No limit/ */
     outline: none; /* Без обведення /No stroke/ */
     padding: 0px 7px; /* Відступи всередині поля вводу /Indentation inside the input field/ */
