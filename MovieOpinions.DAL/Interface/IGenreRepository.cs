@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MovieOpinions.Domain.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace MovieOpinions.DAL.Interface
 {
     public interface IGenreRepository
     {
-        Task<IEnumerable<string>> GetGenre();
+        Task<BaseResponse<IEnumerable<string>>> GetGenre();
     }
 }

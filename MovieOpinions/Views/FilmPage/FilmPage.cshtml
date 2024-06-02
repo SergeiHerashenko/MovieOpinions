@@ -27,17 +27,24 @@
             <div class="GenreFilterStyle">
                 <details open>
                     <summary>Фільтр за жанром</summary>
-                    <ul class="FilterStyle">
-                        @foreach (var genre in Model.GenreMovies)
-                        {
-                            <li class="CheckBoxStyle">
-                                <label>
-                                    @Html.CheckBox("selectedGenres", false, new { value = genre })
-                                    @genre
-                                </label>
-                            </li>
-                        }
-                    </ul>
+                    @if(Model.GenreMovies == null)
+                    {
+                        <p>Упс... не вдалось завантажети данні</p>
+                    }
+                    else
+                    {
+                        <ul class="FilterStyle">
+                            @foreach (var genre in Model.GenreMovies)
+                            {
+                                <li class="CheckBoxStyle">
+                                    <label>
+                                        @Html.CheckBox("selectedGenres", false, new { value = genre })
+                                        @genre
+                                    </label>
+                                </li>
+                            }
+                        </ul>
+                    }
                 </details>
             </div>
             <div class="YearFilterStyle">

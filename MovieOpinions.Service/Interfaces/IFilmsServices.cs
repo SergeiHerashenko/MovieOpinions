@@ -1,4 +1,5 @@
 ﻿using MovieOpinions.Domain.Entity;
+using MovieOpinions.Domain.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace MovieOpinions.Service.Interfaces
 {
     public interface IFilmsServices
     {
-        Task<List<Films>> GetFilms();
+        Task<BaseResponse<List<Films>>> GetFilms();
     }
 }

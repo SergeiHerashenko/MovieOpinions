@@ -2,6 +2,7 @@
 using MovieOpinions.DAL.Interface;
 using MovieOpinions.Domain.Entity;
 using MovieOpinions.Domain.Entity.Actors;
+using MovieOpinions.Domain.Response;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace MovieOpinions.DAL.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<List<Films>> GetAll()
+        public async Task<BaseResponse<List<Films>>> GetAll()
         {
             List<Films> AllFilms = new List<Films>();
 
@@ -123,12 +124,21 @@ namespace MovieOpinions.DAL.Repositories
                         }
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    return new BaseResponse<List<Films>>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message,
+                        Data = null
+                    };
                 }
             }
-            return AllFilms;
+            return new BaseResponse<List<Films>>
+            {
+                StatusCode = Domain.Enum.StatusCode.OK,
+                Data = AllFilms
+            };
         }
 
         public Task<Films> GetMovieGenre(string Genre)

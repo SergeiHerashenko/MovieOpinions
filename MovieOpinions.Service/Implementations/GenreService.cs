@@ -1,4 +1,5 @@
 ﻿using MovieOpinions.DAL.Interface;
+using MovieOpinions.Domain.Response;
 using MovieOpinions.Service.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace MovieOpinions.Service.Implementations
             _genreRepository = genreRepository;
         }
 
-        public async Task<IEnumerable<string>> GetAllGenre()
+        public async Task<BaseResponse<IEnumerable<string>>> GetAllGenre()
         {
             return await _genreRepository.GetGenre();
         }

@@ -23,10 +23,26 @@ namespace MovieOpinions.Controllers
             var genre = await _genreService.GetAllGenre();
             var films = await _filmsService.GetFilms();
 
-            model.GenreMovies = genre;
+            if(genre.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                model.GenreMovies = genre.Data;
+            }
+            else
+            {
+                model.GenreMovies = null;
+            }
+
+            if (films.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                model.Films = films.Data;
+            }
+            else
+            {
+                model.Films = null;
+            }
+
             model.YearsMovies = new List<string> { "1960-1979", "1980-1999", "2000-2019", "2020", "2021", "2022", "2023", "2024" };            
             
-            model.Films = films;
             return View(model);
         }
     }

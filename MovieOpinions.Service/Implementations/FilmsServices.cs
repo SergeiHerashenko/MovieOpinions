@@ -1,5 +1,6 @@
 ﻿using MovieOpinions.DAL.Interface;
 using MovieOpinions.Domain.Entity;
+using MovieOpinions.Domain.Response;
 using MovieOpinions.Service.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace MovieOpinions.Service.Implementations
             _filmRepository = filmRepository;
         }
 
-        public async Task<List<Films>> GetFilms()
+        public async Task<BaseResponse<List<Films>>> GetFilms()
         {
             return await _filmRepository.GetAll();
         }

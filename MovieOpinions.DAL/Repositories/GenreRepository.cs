@@ -13,7 +13,7 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class GenreRepository : IGenreRepository
     {
-        public async Task<IEnumerable<string>> GetGenre()
+        public async Task<BaseResponse<IEnumerable<string>>> GetGenre()
         {
             List<string> genres = new List<string>();
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
@@ -35,11 +35,20 @@ namespace MovieOpinions.DAL.Repositories
                 }
                 catch(Exception ex)
                 {
-                    
+                    return new BaseResponse<IEnumerable<string>>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message,
+                        Data = null
+                    };
                 }
             }
 
-            return genres;
+            return new BaseResponse<IEnumerable<string>>
+            {
+                StatusCode = Domain.Enum.StatusCode.OK,
+                Data = genres
+            };
         }
     }
 }
