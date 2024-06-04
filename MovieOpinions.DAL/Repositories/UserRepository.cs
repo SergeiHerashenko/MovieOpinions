@@ -86,6 +86,40 @@ namespace MovieOpinions.DAL.Repositories
             return user;
         }
 
+        public async Task<User> GetUserId(int id)
+        {
+            ConnectMovieOpinions connectDatabase = new ConnectMovieOpinions();
+
+            User user = null;
+
+            using (var conn = new NpgsqlConnection(connectDatabase.ConnectMovieOpinionsDataBase()))
+            {
+                await conn.OpenAsync();
+
+                using (var getUserIdCommand = new NpgsqlCommand("SELECT id_user, user_name, user_password, salt_password, delete_user, blocked_user FROM User_Table WHERE id_user = @idUser", conn))
+                {
+                    getUserIdCommand.Parameters.AddWithValue("idUser", id);
+
+                    using (var readerInformationUser = await getUserIdCommand.ExecuteReaderAsync())
+                    {
+                        while (readerInformationUser.Read())
+                        {
+                            user = new User
+                            {
+                                IdUser = Convert.ToInt32(readerInformationUser["id_user"]),
+                                NameUser = readerInformationUser["user_name"].ToString(),
+                                PasswordUser = readerInformationUser["user_password"].ToString(),
+                                PasswordSalt = readerInformationUser["salt_password"].ToString(),
+                                DeleteUser = Convert.ToBoolean(readerInformationUser["delete_user"]),
+                                BlockedUser = Convert.ToBoolean(readerInformationUser["blocked_user"])
+                            };
+                        }
+                    }
+                }
+            }
+            return user;
+        }
+
         public Task<User> Update(User entity)
         {
             throw new NotImplementedException();

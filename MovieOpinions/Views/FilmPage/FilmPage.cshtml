@@ -79,7 +79,7 @@
                         <div class="InformationFilmStyle">
                             <div class="ElementInformationFilm">
                                 <label>Назва фільму: </label>
-                                <a href="">@film.NameFilm</a>
+                                @Html.ActionLink(@film.NameFilm, "DetailsFilm", "FilmPage", new { id = film.IdFilm })
                             </div>
                             <div class="ElementInformationFilm">
                                 <label>Жанр фільму: </label>

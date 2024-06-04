@@ -1,4 +1,5 @@
 ﻿using MovieOpinions.Domain.Entity.Comments;
+using MovieOpinions.Domain.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace MovieOpinions.DAL.Interface
     {
         Task<Answer> GetAnswerId(int id);
         Task<IEnumerable<Answer>> GetAnswerUser(int idUser);
+        Task<BaseResponse<IEnumerable<Answer>>> GetAnswerComment(int idComment);
     }
 }

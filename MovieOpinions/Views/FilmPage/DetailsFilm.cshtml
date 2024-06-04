@@ -1,0 +1,102 @@
+﻿@model MovieOpinions.Domain.Entity.Film;
+
+@{
+    ViewBag.Title = Model.NameFilm;
+}
+
+@section Style{
+    <link rel="stylesheet" href="~/Content/CSS_Style/DetailsFilm_Style/DetailsFilm_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Fonts_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Button_Style.css" />
+}
+
+<div class="ContentSiteStyle">
+    <div class="ZoneFilmStyle">
+        <div class="FormFilmStyle">
+            <div class="FilminformatioStyle">
+                <div class="PhotoFilmStyle">
+                    <img src="@Model.FilmImage" />
+                </div>
+                <div class="AboutFilmStyle">
+                    <div class="ElementInformationFilm">
+                        <label>Назва фільму: </label>
+                        @Html.ActionLink(@Model.NameFilm, "DetailsFilm", "FilmPage", new { id = Model.IdFilm })
+                    </div>
+                    <div class="ElementInformationFilm">
+                        <label>Жанр фільму: </label>
+                        <label>@string.Join(", ", Model.GenreFilm)</label>
+                    </div>
+                    <div class="ElementInformationFilm">
+                        <label>Рік фільму: </label>
+                        <label>@Model.YearFilm</label>
+                    </div>
+                    <div class="ElementInformationFilm">
+                        <label>Країна: </label>
+                        <label>@string.Join(", ", Model.CountryFilm)</label>
+                    </div>
+                    <div class="ElementInformationFilm">
+                        <label>Актори: </label>
+                        <label>@string.Join(", ", Model.ActorFilm.Select(actor => $"{actor.FirstName} {actor.LastName}"))</label>
+                    </div>
+                    <div class="ElementInformationFilm">
+                        <label>Опис: </label>
+                        <label>@Model.DescriptionFilm</label>
+                    </div>
+                </div>
+            </div>
+            @foreach (var comments in Model.CommentFilm)
+            {
+                <div class="CommentZoneStyle">
+                    <div class="CommentStyle">
+                        <div class="HeaderComment">
+                            <div class="NameUserStyle">
+                                <label>@comments.UserName пише:</label>
+                            </div>
+                            <div class="DateCommentStyle">
+                                <label>@comments.DateComment.ToString("dd.MM.yyyy")</label>
+                            </div>
+                        </div>
+                        <div class="TextCommentStyle">
+                            <label>@comments.TextComment</label>
+                        </div>
+                        <div class="ReactionPanelStyle">
+                            <button class="GeneralButtonStyle">Відповісти</button>
+                            <button class="GeneralButtonStyle">Редагувати коментар</button>
+                            <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
+                        </div>
+                        <div class="AnswerCommentStyle">
+                            @if (comments.AnswerComment != null && comments.AnswerComment.Count > 0)
+                            {
+                                <label class="answer-label" data-comment-id="@comments.IdComment">Показати @comments.AnswerComment.Count відповідь</label>
+                            }
+                        </div>
+                    </div>
+                    @if(comments.AnswerComment != null && comments.AnswerComment.Count > 0)
+                    {
+                        @foreach (var answers in comments.AnswerComment)
+                        {
+                            <div class="AnswerStyle" data-comment-id="@comments.IdComment">
+                                <div class="HeaderAnswer">
+                                    <div class="NameUserStyle">
+                                        <label>@answers.IdUserAnswer відповідіє:</label>
+                                    </div>
+                                </div>
+                                <div class="TextAnswerStyle">
+                                    <label>@answers.TextAnswer</label>
+                                </div>
+                                <div class="ReactionPanelStyle">
+                                    <button class="GeneralButtonStyle">Редагувати коментар</button>
+                                    <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Script{
+    <script src="~/JavaScript/DetailsFilm_Page/ShowAnswer.js"></script>
+}

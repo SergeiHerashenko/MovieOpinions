@@ -1,0 +1,177 @@
+﻿.ContentSiteStyle {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    align-items: center;
+    height: 90vh;
+}
+
+.ZoneFilmStyle {
+    margin: 20px;
+    display: flex;
+    border-radius: 30px;
+    background: #333;
+    border: 3px solid rgba(51, 51, 51, 0.50);
+    box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.FormFilmStyle {
+    height: 95%;
+    width: 95%;
+    border-radius: 30px;
+    background: #333;
+    border: 3px solid rgba(51, 51, 51, 0.50);
+    box-shadow: -12px -12px 24px 0px #3E3E3E, -12px -12px 24px 0px rgba(62, 62, 62, 0.25) inset;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+    width: 10px; 
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; 
+    border-radius: 20px
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+.FilminformatioStyle {
+    height: 50%;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
+
+.PhotoFilmStyle{
+    padding: 20px;
+}
+
+img{
+    border-radius: 20px;
+}
+
+.AboutFilmStyle{
+    padding: 20px;
+}
+
+.ElementInformationFilm {
+    padding: 10px 0;
+    font-size: 15px;
+    color: #FF8304;
+    font-family: 'Roboto';
+}
+
+    .ElementInformationFilm a {
+        color: white;
+        text-decoration: none;
+    }
+
+.CommentZoneStyle{
+    padding: 0 20px;
+}
+
+.CommentStyle{
+    background-color: #292929;
+    border-radius: 14px;
+    margin: 10px 0px;
+}
+
+.HeaderComment {
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.DateCommentStyle {
+    text-align: right;
+    font-family: 'Roboto';
+    padding: 10px 0;
+    font-size: 15px;
+    color: #FFF2E5;
+    opacity: 0.2;
+}
+
+.NameUserStyle {
+    font-family: 'Roboto';
+    padding: 10px 0;
+    font-size: 15px;
+    color: #FFCD9A;
+}
+
+.TextCommentStyle {
+    padding: 10px 20px;
+    font-size: 20px;
+    color: #FF8304;
+    font-family: 'Roboto';
+}
+
+.ReactionPanelStyle{
+    padding: 20px 50px;
+}
+
+    .ReactionPanelStyle button {
+        font-size: 15px;
+        height: 30px;
+    }
+
+.AnswerCommentStyle {
+    font-family: 'Roboto';
+    padding: 10px 0;
+    font-size: 15px;
+    color: #FFCD9A;
+    display: block; 
+    width: 200px; 
+    margin: 0 auto;
+    text-align: center;
+}
+
+    .AnswerCommentStyle:hover {
+        color: #ffffff;
+    }
+
+.AnswerStyle {
+    background-color: #666666;
+    border-radius: 14px;
+    border: 3px #333333;
+    margin: 10px 0px;
+    width: 90%;
+    overflow-x: hidden;
+    margin-left: auto;
+    max-height: 500px;
+    transition: max-height 1s, margin 0.5s;
+}
+
+    .AnswerStyle::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+.HeaderAnswer {
+    margin: 5px;
+}
+
+.TextAnswerStyle {
+    padding: 10px 20px;
+    font-size: 15px;
+    color: #FF8304;
+    font-family: 'Roboto';
+}
+
+.HideAnswers {
+    max-height: 0;
+    margin: 0;
+    margin-left: auto;
+}

@@ -23,5 +23,21 @@ namespace MovieOpinions.Service.Implementations
         {
             return await _filmRepository.GetAll();
         }
+
+        public async Task<BaseResponse<Film>> GetFilmId(int id)
+        {
+            var filmResponse = await _filmRepository.GetMovieId(id);
+
+            if (filmResponse.StatusCode != Domain.Enum.StatusCode.OK || filmResponse.Data == null)
+            {
+                return new BaseResponse<Film>
+                {
+                    StatusCode = filmResponse.StatusCode,
+                    Description = filmResponse.Description
+                };
+            }
+
+            return filmResponse;
+        }
     }
 }

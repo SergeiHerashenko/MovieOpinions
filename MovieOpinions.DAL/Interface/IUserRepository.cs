@@ -11,5 +11,6 @@ namespace MovieOpinions.DAL.Interface
     {
         Task<bool> BlockUser(User user);
         Task<User> GetUser(string LoginUser);
+        Task<User> GetUserId(int id);
     }
 }

@@ -18,6 +18,11 @@ public class Program
         builder.Services.AddScoped<IGenreService, GenreService>();
         builder.Services.AddScoped<IFilmsServices, FilmsServices>();
         builder.Services.AddScoped<IFilmRepository, FilmRepository>();
+        builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ICommentService, CommentService>();
+        builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
+        builder.Services.AddScoped<IAnswerService, AnswerService>();
 
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>

@@ -10,6 +10,5 @@ namespace MovieOpinions.Domain.Entity
     public class Film : Films
     {
         public List<Comment> CommentFilm { get; set; }
-        public List<Answer> AnswerFilm { get; set; }
     }
 }

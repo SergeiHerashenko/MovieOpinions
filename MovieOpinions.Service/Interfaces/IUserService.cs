@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace MovieOpinions.Service.Interfaces
 {
-    public interface IFilmsServices
+    public interface IUserService
     {
-        Task<BaseResponse<List<Films>>> GetFilms();
-        Task<BaseResponse<Film>> GetFilmId(int id);
+        Task<BaseResponse<User>> GetUserId(int userId);
     }
 }
