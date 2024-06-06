@@ -46,7 +46,7 @@
             </div>
             @foreach (var comments in Model.CommentFilm)
             {
-                <div class="CommentZoneStyle">
+                <div class="CommentZoneStyle" id="@comments.IdComment">
                     <div class="CommentStyle">
                         <div class="HeaderComment">
                             <div class="NameUserStyle">
@@ -63,6 +63,7 @@
                             <button class="GeneralButtonStyle">Відповісти</button>
                             <button class="GeneralButtonStyle">Редагувати коментар</button>
                             <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
+                            <button class="GeneralButtonStyle" style="float:right;">Видалити</button>
                         </div>
                         <div class="AnswerCommentStyle">
                             @if (comments.AnswerComment != null && comments.AnswerComment.Count > 0)
@@ -75,10 +76,10 @@
                     {
                         @foreach (var answers in comments.AnswerComment)
                         {
-                            <div class="AnswerStyle" data-comment-id="@comments.IdComment">
+                            <div class="AnswerStyle HideAnswers" data-comment-id="@comments.IdComment">
                                 <div class="HeaderAnswer">
                                     <div class="NameUserStyle">
-                                        <label>@answers.IdUserAnswer відповідіє:</label>
+                                        <label>@answers.NameUserAnswer відповідіє:</label>
                                     </div>
                                 </div>
                                 <div class="TextAnswerStyle">
@@ -87,6 +88,7 @@
                                 <div class="ReactionPanelStyle">
                                     <button class="GeneralButtonStyle">Редагувати коментар</button>
                                     <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
+                                    <button class="GeneralButtonStyle" style="float:right;">Видалити</button>
                                 </div>
                             </div>
                         }
@@ -98,5 +100,8 @@
 </div>
 
 @section Script{
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/ShowAnswer.js"></script>
+    <script src="~/JavaScript/DetailsFilm_Page/ReplyToComment.js"></script>
+    <script src="~/JavaScript/DetailsFilm_Page/UpdateCharCount.js"></script>
 }

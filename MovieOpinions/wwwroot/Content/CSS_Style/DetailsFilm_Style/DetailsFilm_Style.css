@@ -175,3 +175,52 @@ img{
     margin: 0;
     margin-left: auto;
 }
+
+.gridAnswer {
+    display: grid;
+    grid-template-rows: 1fr 3fr 1fr;
+}
+
+.AnswerStyle textarea {
+    font-size: 17px;
+    border-radius: 20px;
+    resize: none;
+    font-family: 'Roboto';
+    color: #FF8304;
+    background: #292929;
+    width: 95%;
+    height: 100%;
+    padding: 13px;
+    box-sizing: border-box;
+}
+
+    .AnswerStyle textarea:focus {
+        border: 2px solid;
+        outline: none;
+    }
+
+.BottomPanelStyle {
+    padding: 10px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .BottomPanelStyle button {
+        font-size: 15px;
+        height: 30px;
+    }
+
+.TextZone {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.AnswerCharStyle {
+    font-family: 'Roboto';
+    padding: 10px 0;
+    font-size: 15px;
+    color: #FFF2E5;
+    opacity: 0.5;
+}

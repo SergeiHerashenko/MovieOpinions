@@ -130,6 +130,23 @@
     overflow-y: auto;
 }
 
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 20px
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
 .GenreFilterStyle {
     box-sizing: border-box;
 }

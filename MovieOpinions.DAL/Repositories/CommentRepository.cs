@@ -35,7 +35,7 @@ namespace MovieOpinions.DAL.Repositories
                     await conn.OpenAsync();
                     using (var command = new NpgsqlCommand(
                         "SELECT id_comment, id_user, text_comment, date_comment, id_film " +
-                        "FROM comment_table " +
+                        "FROM Comment_Table " +
                         "WHERE id_film = @id_film", conn))
                     {
                         command.Parameters.AddWithValue("@id_film", idFilm);

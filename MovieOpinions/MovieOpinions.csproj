@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MovieOpinions.DAL\MovieOpinions.DAL.csproj" />
     <ProjectReference Include="..\MovieOpinions.Domain\MovieOpinions.Domain.csproj" />
     <ProjectReference Include="..\MovieOpinions.Service\MovieOpinions.Service.csproj" />
@@ -14,7 +22,10 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Content\Image_Actor\" />
-    <Folder Include="wwwroot\JavaScript\FilmPage_Script\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
   </ItemGroup>
 
 </Project>

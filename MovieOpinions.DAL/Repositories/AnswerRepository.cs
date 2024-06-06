@@ -36,7 +36,7 @@ namespace MovieOpinions.DAL.Repositories
                     await conn.OpenAsync();
                     using (var command = new NpgsqlCommand(
                         "SELECT id_answer, id_comment, text_answer, id_user " +
-                        "FROM answer_table " +
+                        "FROM Answer_Table " +
                         "WHERE id_comment = @id_comment", conn))
                     {
                         command.Parameters.AddWithValue("@id_comment", idComment);
@@ -57,6 +57,12 @@ namespace MovieOpinions.DAL.Repositories
                             }
                         }
                     }
+
+                    return new BaseResponse<IEnumerable<Answer>>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = answers
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -68,12 +74,6 @@ namespace MovieOpinions.DAL.Repositories
                     };
                 }
             }
-
-            return new BaseResponse<IEnumerable<Answer>>
-            {
-                StatusCode = Domain.Enum.StatusCode.OK,
-                Data = answers
-            };
         }
 
         public Task<Answer> GetAnswerId(int id)

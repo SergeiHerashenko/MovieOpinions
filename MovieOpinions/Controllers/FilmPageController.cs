@@ -88,6 +88,17 @@ namespace MovieOpinions.Controllers
                         foreach(var answer in answerResponse.Data)
                         {
                             comment.AnswerComment.Add(answer);
+
+                            var userAnswer = await _userService.GetUserId(answer.IdAnswer);
+
+                            if (answerResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                            {
+                                answer.NameUserAnswer = userAnswer.Data.NameUser;
+                            }
+                            else
+                            {
+                                answer.NameUserAnswer = userAnswer.Description;
+                            }
                         }
                     }
 
@@ -102,6 +113,46 @@ namespace MovieOpinions.Controllers
                 }
             }
             return View(film);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetSortedMovies([FromBody] List<string> selectedGenres)
+        {
+            var allMoviesResponse = await _filmsService.GetFilms();
+
+            if (allMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                var allMovies = allMoviesResponse.Data;
+
+                var filteredMovies = allMovies.Where(movie => movie.GenreFilm.Intersect(selectedGenres).Any()).ToList();
+
+                return Json(filteredMovies);
+            }
+            else
+            {
+                return Json(new { error = "Failed to fetch movies." });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AllMovies()
+        {
+            var allMoviesResponse = await _filmsService.GetFilms();
+
+            if (allMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return Json(allMoviesResponse.Data);
+            }
+            else
+            {
+                return Json(new { error = "Failed to fetch movies." });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetAnswerTemplate()
+        {
+            return PartialView("_AnswerTemplate");
         }
     }
 }
