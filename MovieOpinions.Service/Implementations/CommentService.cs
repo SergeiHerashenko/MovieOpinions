@@ -40,5 +40,23 @@ namespace MovieOpinions.Service.Implementations
                 };
             }
         }
+
+        public async Task<BaseResponse<Comment>> GetIdComment(int idComment)
+        {
+            var Comment = await _commentRepository.GetCommentId(idComment);
+
+            if(Comment.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return Comment;
+            }
+            else
+            {
+                return new BaseResponse<Comment>
+                {
+                    Description = "Коментар не знайдено",
+                    StatusCode= Domain.Enum.StatusCode.NotFound
+                };
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MovieOpinions.DAL.Connect_Database;
 using MovieOpinions.DAL.Interface;
+using MovieOpinions.Domain.Entity;
 using MovieOpinions.Domain.Entity.Comments;
 using MovieOpinions.Domain.Response;
 using Npgsql;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MovieOpinions.DAL.Repositories
 {
@@ -76,9 +78,53 @@ namespace MovieOpinions.DAL.Repositories
             };
         }
 
-        public Task<Comment> GetCommentId(int id)
+        public async Task<BaseResponse<Comment>> GetCommentId(int id)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+            Comment comment = null;
+            using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                    using (var command = new NpgsqlCommand(
+                        "SELECT id_comment, id_user, text_comment, id_film, date_comment " +
+                        "FROM Comment_Table " +
+                        "WHERE id_comment = @id_comment", conn))
+                    {
+                        command.Parameters.AddWithValue("@id_comment", id);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                comment = new Comment
+                                {
+                                    IdComment = Convert.ToInt32(reader["id_comment"]),
+                                    IdUserComment = Convert.ToInt32(reader["id_user"]),
+                                    TextComment = reader["text_comment"].ToString(),
+                                    IdFilm = Convert.ToInt32(reader["id_film"]),
+                                    DateComment = Convert.ToDateTime(reader["date_comment"])
+                                };
+                            }
+                        }
+                    }
+                    return new BaseResponse<Comment>() 
+                    { 
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = comment
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return new BaseResponse<Comment>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = ex.Message
+                    };
+                }
+            }
+
         }
 
         public Task<IEnumerable<Comment>> GetCommentsUser(int idUser)

@@ -9,9 +9,6 @@
     let userName = document.getElementById("UserName").textContent;
     userName = userName.replace(' відповідіє:', '').trim();
 
-    let pathArray = window.location.pathname.split('/');
-    let idFilm = pathArray[pathArray.length - 1];
-
     let DataAnswer = {
         TextAnswer: TextAnswer.value,
         IdComment: CommentId,
@@ -21,11 +18,13 @@
     
     $.ajax({
         type: "POST",
-        url: "/FilmPage/AddAnswerToComment/${idFilm}",
-        data: JSON.stringify(DataAnswer, idFilm),
+        url: "/FilmPage/AddAnswerToComment",
+        data: JSON.stringify(DataAnswer),
         contentType: "application/json",
         success: function (response) {
-           
+            if (response.redirectUrl) {
+                window.location.href = response.redirectUrl;
+            }
         }
     });
 }

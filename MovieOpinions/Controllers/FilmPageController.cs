@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MovieOpinions.Domain.Entity;
+using MovieOpinions.Domain.Entity.Comments;
 using MovieOpinions.Domain.ViewModels.FilmPageModel;
 using MovieOpinions.Service.Implementations;
 using MovieOpinions.Service.Interfaces;
@@ -89,7 +90,7 @@ namespace MovieOpinions.Controllers
                         {
                             comment.AnswerComment.Add(answer);
 
-                            var userAnswer = await _userService.GetUserId(answer.IdAnswer);
+                            var userAnswer = await _userService.GetUserId(answer.IdUserAnswer);
 
                             if (answerResponse.StatusCode == Domain.Enum.StatusCode.OK)
                             {
@@ -153,6 +154,28 @@ namespace MovieOpinions.Controllers
         public IActionResult GetAnswerTemplate()
         {
             return PartialView("_AnswerTemplate");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAnswerToComment([FromBody] Answer DataAnswer)
+        {
+            var idUserResult = await _userService.GetUser(DataAnswer.NameUserAnswer);
+
+            DataAnswer.IdUserAnswer = idUserResult.Data.IdUser;
+
+            var resulAddAnswer = await _answerService.AddAnswerDataBase(DataAnswer);
+
+            if(resulAddAnswer.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                var CommentFilm = await _commentService.GetIdComment(DataAnswer.IdComment);
+
+                if(CommentFilm.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    int idFilm = CommentFilm.Data.IdFilm;
+                    return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = idFilm }) });
+                }
+            }
+            return Json(new { errorMessage = "Виникла помилка при додаванні відповіді" });
         }
     }
 }

@@ -11,5 +11,6 @@ namespace MovieOpinions.Service.Interfaces
     public interface ICommentService
     {
         Task<BaseResponse<List<Comment>>> GetAllCommentFilm(int idFilm);
+        Task<BaseResponse<Comment>> GetIdComment(int idComment);
     }
 }

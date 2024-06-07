@@ -14,9 +14,40 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class AnswerRepository : IAnswerRepository
     {
-        public Task<BaseResponse<bool>> Create(Answer entity)
+        public async Task<BaseResponse<bool>> Create(Answer entity)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            try
+            {
+                using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+                {
+                    await conn.OpenAsync();
+                    using (var AddAnser = new NpgsqlCommand("INSERT INTO Answer_Table (id_comment, text_answer, id_user) VALUES (@ID_COMMENT, @TEXT_ANSWER, @ID_USER)", conn))
+                    {
+                        AddAnser.Parameters.AddWithValue("@ID_COMMENT", entity.IdComment);
+                        AddAnser.Parameters.AddWithValue("@TEXT_ANSWER", entity.TextAnswer);
+                        AddAnser.Parameters.AddWithValue("@ID_USER", entity.IdUserAnswer);
+
+                        await AddAnser.ExecuteNonQueryAsync();
+
+                        return new BaseResponse<bool>
+                        {
+                            StatusCode = Domain.Enum.StatusCode.OK,
+                            Data = true
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Data = false,
+                    Description = ex.Message
+                };
+            }
         }
 
         public Task<bool> Delete(Answer entity)
