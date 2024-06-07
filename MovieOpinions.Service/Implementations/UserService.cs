@@ -20,6 +20,28 @@ namespace MovieOpinions.Service.Implementations
             _userRepository = userRepository;
         }
 
+        public async Task<BaseResponse<User>> GetUser(string username)
+        {
+            var getUser = await _userRepository.GetUser(username);
+
+            if(getUser != null)
+            {
+                return new BaseResponse<User>
+                {
+                    StatusCode = StatusCode.OK,
+                    Data = getUser
+                };
+            }
+            else
+            {
+                return new BaseResponse<User> 
+                { 
+                    StatusCode = StatusCode.NotFound,
+                    Description = "Користувача не знайдено"
+                };
+            }
+        }
+
         public async Task<BaseResponse<User>> GetUserId(int userId)
         {
             var getUser = await _userRepository.GetUserId(userId);

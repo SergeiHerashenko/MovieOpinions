@@ -19,6 +19,11 @@ namespace MovieOpinions.Service.Implementations
             _answerRepository = answerRepository;
         }
 
+        public async Task<BaseResponse<bool>> AddAnswerDataBase(Answer answer)
+        {
+            return await _answerRepository.Create(answer);
+        }
+
         public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerToComment(int idComment)
         {
             return await _answerRepository.GetAnswerComment(idComment);

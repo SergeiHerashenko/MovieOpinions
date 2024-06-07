@@ -14,7 +14,7 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class AnswerRepository : IAnswerRepository
     {
-        public Task<bool> Create(Answer entity)
+        public Task<BaseResponse<bool>> Create(Answer entity)
         {
             throw new NotImplementedException();
         }

@@ -13,7 +13,7 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class CommentRepository : ICommentRepository
     {
-        public Task<bool> Create(Comment entity)
+        public Task<BaseResponse<bool>> Create(Comment entity)
         {
             throw new NotImplementedException();
         }

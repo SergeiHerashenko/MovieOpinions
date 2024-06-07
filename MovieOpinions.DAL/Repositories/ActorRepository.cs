@@ -1,6 +1,7 @@
 ﻿using MovieOpinions.DAL.Connect_Database;
 using MovieOpinions.DAL.Interface;
 using MovieOpinions.Domain.Entity.Actors;
+using MovieOpinions.Domain.Response;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class ActorRepository : IActorRepository
     {
-        public Task<bool> Create(Actor entity)
+        public Task<BaseResponse<bool>> Create(Actor entity)
         {
             throw new NotImplementedException();
         }

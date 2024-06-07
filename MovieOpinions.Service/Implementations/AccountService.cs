@@ -87,7 +87,7 @@ namespace MovieOpinions.Service.Implementations
 
                 var registerUser = await _userRepository.Create(newUser);
 
-                if (registerUser)
+                if (registerUser.StatusCode == Domain.Enum.StatusCode.OK)
                 {
                     var result = Authenticate(newUser);
 

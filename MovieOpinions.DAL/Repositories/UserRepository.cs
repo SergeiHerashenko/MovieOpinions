@@ -1,6 +1,7 @@
 ﻿using MovieOpinions.DAL.Connect_Database;
 using MovieOpinions.DAL.Interface;
 using MovieOpinions.Domain.Entity;
+using MovieOpinions.Domain.Response;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace MovieOpinions.DAL.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<bool> Create(User entity)
+        public async Task<BaseResponse<bool>> Create(User entity)
         {
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
             using(var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
@@ -37,11 +38,18 @@ namespace MovieOpinions.DAL.Repositories
                         command.ExecuteNonQuery();
                     }
 
-                    return true;
+                    return new BaseResponse<bool> 
+                    { 
+                        StatusCode = Domain.Enum.StatusCode.OK
+                    };
                 }
                 catch (Exception ex)
                 {
-                    return false;
+                    return new BaseResponse<bool>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
                 }
             }
         }

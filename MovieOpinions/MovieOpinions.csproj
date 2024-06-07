@@ -28,4 +28,8 @@
     <None Include="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.jQuery.Unobtrusive.Ajax" Version="3.2.6" />
+  </ItemGroup>
+
 </Project>
