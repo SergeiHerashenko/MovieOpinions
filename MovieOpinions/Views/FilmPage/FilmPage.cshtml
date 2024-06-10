@@ -20,7 +20,7 @@
         </div>
         @Html.DropDownListFor(Model => Model.SelectedSortOption, Model.SortOption, "Сортувати", new { @class = "SortDropDownListStyle", id = "sortDropdown" })
         <img class="FilterIconStyle" src="~/Content/Image/FilterIcon.png" />
-        <img class="PrivateOfficesIconStyle" src="~/Content/Image/PrivateOfficesIcon.svg" />
+        <img id="PreivateOffices" class="PrivateOfficesIconStyle" src="~/Content/Image/PrivateOfficesIcon.svg" onclick="OpenOffices()" />
     </div>
     <div class="ContentSiteStyle">
         <div class="FiltresStyle">
@@ -95,7 +95,14 @@
                             </div>
                             <div class="ElementInformationFilm">
                                 <label>Актори: </label>
-                                <label>@string.Join(", ", film.ActorFilm.Select(actor => $"{actor.FirstName} {actor.LastName}"))</label>
+                                @foreach (var actor in film.ActorFilm)
+                                {
+                                    @Html.ActionLink($"{actor.FirstName} {actor.LastName}", "DetailsActor", "FilmPage", new { id = actor.IdActor }, null)
+                                    @if (actor != film.ActorFilm.Last())
+                                    {
+                                        @: ,
+                                    }
+                                }
                             </div>
                             <div class="ElementInformationFilm">
                                 <label>Опис: </label>
@@ -115,4 +122,5 @@
     <script src="~/JavaScript/Send_Login_Form.js"></script>
     <script src="~/JavaScript/Modal_Window/Close_Modal_Window.js"></script>
     <script src="~/JavaScript/FilmPage_Script/MovieFilter.js"></script>
+    <script src="~/JavaScript/FilmPage_Script/OpenPrivateOffices.js"></script>
 }

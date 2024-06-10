@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace MovieOpinions.DAL.Interface
 {
-    public interface IFilmRepository : IBaseRepository<Films>
+    public interface IFilmRepository : IBaseRepository<Film>
     {
         Task<BaseResponse<Film>> GetMovieId(int id);
-        Task<BaseResponse<List<Films>>> GetAll();
-        Task<Film> GetMovieName(string Name);
-        Task<Films> GetMovieYear(int year);
-        Task<Films> GetMovieGenre(string Genre);
+        Task<BaseResponse<List<Film>>> GetAll();
+        Task<BaseResponse<Film>> GetMovieName(string Name);
+        Task<Film> GetMovieYear(int year);
+        Task<Film> GetMovieGenre(string Genre);
     }
 }

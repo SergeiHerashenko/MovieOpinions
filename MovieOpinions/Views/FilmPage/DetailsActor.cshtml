@@ -1,0 +1,23 @@
+﻿@model MovieOpinions.Domain.Entity.Actors.DetailedActor;
+
+@{
+    ViewBag.Title = Model.FirstName + " " + Model.LastName;
+}
+
+@section Style{
+    <link rel="stylesheet" href="~/Content/CSS_Style/DetailsActor_Style/DetailsActor_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Fonts_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Button_Style.css" />
+}
+
+<div class="ContentSiteStyle">
+    <div class="ZoneActorStyle">
+        <div class="FormActorStyle">
+            <div class="ActorInformatioStyle">
+                <div class="PhotoActorStyle">
+                    <img src="@Model.ActorImage" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

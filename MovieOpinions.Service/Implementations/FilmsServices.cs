@@ -19,7 +19,7 @@ namespace MovieOpinions.Service.Implementations
             _filmRepository = filmRepository;
         }
 
-        public async Task<BaseResponse<List<Films>>> GetFilms()
+        public async Task<BaseResponse<List<Film>>> GetFilms()
         {
             return await _filmRepository.GetAll();
         }

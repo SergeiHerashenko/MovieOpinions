@@ -24,6 +24,16 @@
         success: function (response) {
             if (response.redirectUrl) {
                 window.location.href = response.redirectUrl;
+            } else {
+                let ModalWindow = document.getElementById("ModalWindow");
+                ModalWindow.style.display = "block";
+                let Message = document.getElementById("Message");
+                console.log(response)
+                let lines = response.description.split('\n');
+                let formattedText = lines.join('<br>');
+                Message.innerHTML = formattedText;
+
+                isRedirectNeeded = response.isRedirectNeeded;
             }
         }
     });

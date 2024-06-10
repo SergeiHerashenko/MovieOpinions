@@ -10,5 +10,6 @@ namespace MovieOpinions.DAL.Interface
     public interface IActorRepository : IBaseRepository<Actor>
     {
         Task<Actor> GetActorName(string NameActor);
+        Task<DetailedActor> GetActorId(int idActor);
     }
 }

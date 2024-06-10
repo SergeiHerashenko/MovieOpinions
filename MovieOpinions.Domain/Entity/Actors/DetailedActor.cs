@@ -9,8 +9,9 @@ namespace MovieOpinions.Domain.Entity.Actors
     public class DetailedActor : Actor
     {
         public DateTime BirthdayActor { get; set; }
-        public IEnumerable<string> FilmActor { get; set; }
+        public IEnumerable<Film> FilmActor { get; set; }
         public IEnumerable<string> GenreActor { get; set; }
         public string CountryActor { get; set; }
+        public string ActorImage { get; set; }
     }
 }

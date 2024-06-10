@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="~/Content/CSS_Style/DetailsFilm_Style/DetailsFilm_Style.css" />
     <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Fonts_Style.css" />
     <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Button_Style.css" />
+    <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Modal_Window.css" />
 }
 
+@Html.Partial("_ModalWindow");
 <div class="ContentSiteStyle">
     <div class="ZoneFilmStyle">
         <div class="FormFilmStyle">
-            <div class="FilminformatioStyle">
+            <div class="FilmInformatioStyle">
                 <div class="PhotoFilmStyle">
                     <img src="@Model.FilmImage" />
                 </div>
@@ -36,7 +38,14 @@
                     </div>
                     <div class="ElementInformationFilm">
                         <label>Актори: </label>
-                        <label>@string.Join(", ", Model.ActorFilm.Select(actor => $"{actor.FirstName} {actor.LastName}"))</label>
+                        @foreach (var actor in Model.ActorFilm)
+                        {
+                            @Html.ActionLink($"{actor.FirstName} {actor.LastName}", "DetailsActor", "FilmPage", new { id = actor.IdActor })
+                            @if (actor != Model.ActorFilm.Last())
+                            {
+                                @: ,
+                            }
+                        }
                     </div>
                     <div class="ElementInformationFilm">
                         <label>Опис: </label>
@@ -105,4 +114,5 @@
     <script src="~/JavaScript/DetailsFilm_Page/ReplyToComment.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/UpdateCharCount.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/AddAnswer.js"></script>
+    <script src="~/JavaScript/Modal_Window/Close_Modal_Window.js"></script>
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MovieOpinions.Domain.Entity;
+using MovieOpinions.Domain.Entity.Actors;
 using MovieOpinions.Domain.Entity.Comments;
 using MovieOpinions.Domain.ViewModels.FilmPageModel;
 using MovieOpinions.Service.Implementations;
@@ -16,20 +17,22 @@ namespace MovieOpinions.Controllers
         private readonly IUserService _userService;
         private readonly ICommentService _commentService;
         private readonly IAnswerService _answerService;
+        private readonly IActorService _actorService;
 
-        public FilmPageController(IGenreService genreService, IFilmsServices filmsService, IUserService userService, ICommentService commentService, IAnswerService answerService)
+        public FilmPageController(IGenreService genreService, IFilmsServices filmsService, IUserService userService, ICommentService commentService, IAnswerService answerService, IActorService actorService)
         {
             _genreService = genreService;
             _filmsService = filmsService;
             _userService = userService;
             _commentService = commentService;
             _answerService = answerService;
+            _actorService = actorService;
         }
 
         public async Task<IActionResult> FilmPage()
         {
             FilmPageModel model = new FilmPageModel();
-            var genre = await _genreService.GetAllGenre();
+              var genre = await _genreService.GetAllGenre();
             var films = await _filmsService.GetFilms();
 
             if(genre.StatusCode == Domain.Enum.StatusCode.OK)
@@ -116,6 +119,28 @@ namespace MovieOpinions.Controllers
             return View(film);
         }
 
+        public async Task<IActionResult> DetailsActor(int id)
+        {
+            var getActor = await _actorService.GetActorById(id);
+
+            DetailedActor actor = null;
+
+            if(getActor.Data != null)
+            {
+                actor = new DetailedActor()
+                {
+                    LastName = getActor.Data.LastName,
+                    FirstName = getActor.Data.FirstName,
+                    BirthdayActor = getActor.Data.BirthdayActor,
+                    FilmActor = getActor.Data.FilmActor,
+                    GenreActor = getActor.Data.GenreActor,
+                    CountryActor = getActor.Data.CountryActor,
+                    ActorImage = getActor.Data.ActorImage,
+                };
+            }
+            return View(actor);
+        }
+
         [HttpPost]
         public async Task<IActionResult> GetSortedMovies([FromBody] List<string> selectedGenres)
         {
@@ -160,22 +185,27 @@ namespace MovieOpinions.Controllers
         public async Task<IActionResult> AddAnswerToComment([FromBody] Answer DataAnswer)
         {
             var idUserResult = await _userService.GetUser(DataAnswer.NameUserAnswer);
-
+            
             DataAnswer.IdUserAnswer = idUserResult.Data.IdUser;
-
+            
             var resulAddAnswer = await _answerService.AddAnswerDataBase(DataAnswer);
-
+            
             if(resulAddAnswer.StatusCode == Domain.Enum.StatusCode.OK)
             {
                 var CommentFilm = await _commentService.GetIdComment(DataAnswer.IdComment);
-
+            
                 if(CommentFilm.StatusCode == Domain.Enum.StatusCode.OK)
                 {
                     int idFilm = CommentFilm.Data.IdFilm;
                     return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = idFilm }) });
                 }
             }
-            return Json(new { errorMessage = "Виникла помилка при додаванні відповіді" });
+            return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
         }
+
+        //public async Task<IActionResult> OpenPrivateOffices()
+        //{
+        //    
+        //}
     }
 }

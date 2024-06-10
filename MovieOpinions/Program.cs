@@ -23,6 +23,8 @@ public class Program
         builder.Services.AddScoped<ICommentService, CommentService>();
         builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
         builder.Services.AddScoped<IAnswerService, AnswerService>();
+        builder.Services.AddScoped<IActorService, ActorService>();
+        builder.Services.AddScoped<IActorRepository, ActorRepository>();
 
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>

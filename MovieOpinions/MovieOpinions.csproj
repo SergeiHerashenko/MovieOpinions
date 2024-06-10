@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Content\Image_Actor\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
   </ItemGroup>
 

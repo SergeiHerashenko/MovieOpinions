@@ -1,4 +1,4 @@
-﻿using MovieOpinions.Domain.Entity;
+﻿using MovieOpinions.Domain.Entity.Actors;
 using MovieOpinions.Domain.Response;
 using System;
 using System.Collections.Generic;
@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace MovieOpinions.Service.Interfaces
 {
-    public interface IFilmsServices
+    public interface IActorService
     {
-        Task<BaseResponse<List<Film>>> GetFilms();
-        Task<BaseResponse<Film>> GetFilmId(int id);
+        Task<BaseResponse<DetailedActor>> GetActorById(int idActor);
     }
 }
