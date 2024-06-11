@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
+    <Content Remove="wwwroot\JavaScript\FilmPage_Script\MovieFilterGenre.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\JavaScript\FilmPage_Script\MovieFilter.js" />
+    <None Include="wwwroot\JavaScript\FilmPage_Script\MovieFilterGenre.js" />
   </ItemGroup>
 
   <ItemGroup>

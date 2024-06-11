@@ -129,6 +129,7 @@ namespace MovieOpinions.Controllers
             {
                 actor = new DetailedActor()
                 {
+                    IdActor = getActor.Data.IdActor,
                     LastName = getActor.Data.LastName,
                     FirstName = getActor.Data.FirstName,
                     BirthdayActor = getActor.Data.BirthdayActor,
@@ -142,7 +143,7 @@ namespace MovieOpinions.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetSortedMovies([FromBody] List<string> selectedGenres)
+        public async Task<IActionResult> GetSortedMoviesGenre([FromBody] List<string> selectedGenres)
         {
             var allMoviesResponse = await _filmsService.GetFilms();
 
@@ -156,7 +157,36 @@ namespace MovieOpinions.Controllers
             }
             else
             {
-                return Json(new { error = "Failed to fetch movies." });
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + allMoviesResponse.StatusCode });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetSortedMoviesYear([FromBody] List<string> selectedYear)
+        {
+            var allMoviesResponse = await _filmsService.GetFilms();
+
+            if (allMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                var allMovies = allMoviesResponse.Data;
+
+                var filteredMoviesYear = new List<Film>();
+
+                foreach (var item in selectedYear)
+                {
+                    var yearRangeParts = item.Split('-');
+                    int startYear = int.Parse(yearRangeParts[0]);
+                    int endYear = yearRangeParts.Length == 1 ? startYear : int.Parse(yearRangeParts[1]);
+
+                    filteredMoviesYear.AddRange(allMovies.Where(movie =>
+                        movie.YearFilm >= startYear && movie.YearFilm <= endYear));
+                }
+
+                return Json(filteredMoviesYear);
+            }
+            else
+            {
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + allMoviesResponse.StatusCode });
             }
         }
 
@@ -171,7 +201,7 @@ namespace MovieOpinions.Controllers
             }
             else
             {
-                return Json(new { error = "Failed to fetch movies." });
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + allMoviesResponse.StatusCode });
             }
         }
 

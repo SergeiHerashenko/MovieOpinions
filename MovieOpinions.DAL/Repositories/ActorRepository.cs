@@ -76,6 +76,7 @@ namespace MovieOpinions.DAL.Repositories
                             {
                                 actor = new DetailedActor()
                                 {
+                                    IdActor = Convert.ToInt32(reader["id_actor"]),
                                     FirstName = reader["first_name_actor"].ToString(),
                                     LastName = reader["last_name_actor"].ToString(),
                                     BirthdayActor = Convert.ToDateTime(reader["birthday_actor"]),
@@ -103,6 +104,7 @@ namespace MovieOpinions.DAL.Repositories
                                     };
                                     filmsList.Add(films);
                                 }
+                                actor.FilmActor = filmsList;
                             }
                         }
                     }

@@ -17,6 +17,42 @@
                 <div class="PhotoActorStyle">
                     <img src="@Model.ActorImage" />
                 </div>
+                <div class="AboutActorStyle">
+                    <div class="ElementInformationActor">
+                        <label>Ім'я актора': </label>
+                        @Html.ActionLink(Model.FirstName + " " + Model.LastName, "DetailsActor", "FilmPage", new { id = @Model.IdActor })
+                    </div>
+                    <div class="ElementInformationActor">
+                        <label>Жанри фільмів: </label>
+                        <label>@string.Join(", ", Model.GenreActor)</label>
+                    </div>
+                    <div class="ElementInformationActor">
+                        <label>Дата народження: </label>
+                        <label>@Model.BirthdayActor.ToString("dd.MM.yyyy")</label>
+                    </div>
+                    <div class="ElementInformationActor">
+                        <label>Країна: </label>
+                        <label>@string.Join(", ", Model.CountryActor)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="FilmActorStyle">
+                <div class="ElementInformationActor">
+                    <label>Фільми з @Model.FirstName @Model.LastName: </label>
+                    <div class="ActorFilmStyle"> 
+                        @foreach(var film in Model.FilmActor)
+                        {
+                            <div class="FilmPosterZoneStyle">
+                                <div class="PosterPhotoStyle">
+                                    <img src="@film.FilmImage" />
+                                </div>
+                                <div class="NamePosterStyle">
+                                    @Html.ActionLink(film.NameFilm, "DetailsFilm", "FilmPage", new { id = film.IdFilm })
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>

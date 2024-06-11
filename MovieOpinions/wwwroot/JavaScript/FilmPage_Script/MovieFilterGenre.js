@@ -1,11 +1,11 @@
-﻿// Отримуємо всі чекбокси
-let CheckBoxAll = document.querySelectorAll('input[type="checkbox"]');
+﻿// Отримуємо всі чекбокси жанрів
+let CheckBoxGenre = document.querySelectorAll('.GenreFilterStyle input[type="checkbox"]');
 
 // Масив обраних жанрів
 var selectedGenre = [];
 
 // Додаємо обробник подій для кожного чекбокса
-CheckBoxAll.forEach(function (checkbox) {
+CheckBoxGenre.forEach(function (checkbox) {
     checkbox.addEventListener("change", function () {
         // Якщо чекбокс вибраний, додаємо його значення до масиву жанрів
         if (this.checked) {
@@ -22,14 +22,32 @@ CheckBoxAll.forEach(function (checkbox) {
 // Функція для відправки вибраних жанрів на сервер
 function sendSelectedGenres(genres) {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "GetSortedMovies", true);
+    xhr.open("POST", "GetSortedMoviesGenre", true);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
     // Обробка відповіді від сервера
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            // Оновлення списку фільмів з отриманою відповіддю
-            updateMovieList(JSON.parse(xhr.responseText));
+            let response = JSON.parse(xhr.responseText);
+
+            if (response.error) {
+                // Отримуємо елемент модального вікна
+                let ModalWindow = document.getElementById("ModalWindow");
+                // Відображаємо модальне вікно
+                ModalWindow.style.display = "block";
+                // Отримуємо елемент для повідомлення
+                let Message = document.getElementById("Message");
+
+                // Форматуємо текст помилки для відображення
+                let lines = response.error.split('\n');
+                let formattedText = lines.join('<br>');
+                // Встановлюємо форматований текст помилки в модальне вікно
+                Message.innerHTML = formattedText;
+            }
+            else {
+                // Оновлюємо список фільмів з отриманою відповіддю
+                updateMovieList(JSON.parse(xhr.responseText));
+            }
         }
     };
 
@@ -84,7 +102,7 @@ function updateMovieList(movies) {
                 { label: "Жанр фільму: ", value: movie.genreFilm.join(", ") },
                 { label: "Рік фільму: ", value: movie.yearFilm },
                 { label: "Країна: ", value: movie.countryFilm.join(", ") },
-                { label: "Актори: ", value: movie.actorFilm.map(actor => `${actor.firstName} ${actor.lastName}`).join(", ") },
+                { label: "Актори: ", value: movie.actorFilm.map(actor => `<a href="/FilmPage/DetailsActor?id=${actor.idActor}">${actor.firstName} ${actor.lastName}</a>`).join(", ") },
                 { label: "Опис: ", value: movie.descriptionFilm }
             ];
 

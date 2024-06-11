@@ -64,7 +64,7 @@
 
     .PhotoFilmStyle img {
         border-radius: 20px;
-        object-fit: fill;
+        object-fit: contain;
         width: 100%;
         height: 100%;
     }

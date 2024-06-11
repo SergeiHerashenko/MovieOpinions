@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    $('.GeneralButtonStyle').click(function () {
+    $('.AnswerButton').click(function () {
         if ($('#IncompleteResponse').length > 0) { 
             return;
         }
