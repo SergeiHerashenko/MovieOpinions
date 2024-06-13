@@ -211,6 +211,12 @@ namespace MovieOpinions.Controllers
             return PartialView("_AnswerTemplate");
         }
 
+        [HttpGet]
+        public IActionResult GetCommentTemplate()
+        {
+            return PartialView("_CommentTemplate");
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddAnswerToComment([FromBody] Answer DataAnswer)
         {

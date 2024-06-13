@@ -28,7 +28,6 @@
                 let ModalWindow = document.getElementById("ModalWindow");
                 ModalWindow.style.display = "block";
                 let Message = document.getElementById("Message");
-                console.log(response)
                 let lines = response.description.split('\n');
                 let formattedText = lines.join('<br>');
                 Message.innerHTML = formattedText;

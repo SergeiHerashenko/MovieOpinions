@@ -1,14 +1,16 @@
-﻿<div class="AnswerStyle gridAnswer" style="height: 200px">
+﻿<div class="AnswerStyle grid" style="height: 200px">
     <div class="HeaderAnswer">
         <div class="NameUserStyle">
             <label id="UserName">@User.Identity.Name відповідіє:</label>
         </div>
     </div>
     <div class="TextZone">
-        <textarea maxlength='1000' id="AnswerText" placeholder="Ваша відповідь" oninput="updateCharCount()"></textarea>
+        <textarea maxlength='1000' id="AnswerText" placeholder="Ваша відповідь" oninput="updateCharCount('#AnswerText', '#AnswerChar')"></textarea>
     </div>
     <div class="BottomPanelStyle">
-        <div id="AnswerChar" class="AnswerCharStyle">Залишилось символів: 1000/1000</div>
-        <button class="GeneralButtonStyle" onclick="AddAnswer()">Надіслати</button>
+        <div id="AnswerChar" class="CharStyle">Залишилось символів: 1000/1000</div><div>
+            <button class="GeneralButtonStyle" onclick="RemoveAnswerPanel()">Відмінити</button>
+            <button class="GeneralButtonStyle" onclick="AddAnswer()">Надіслати</button>
+        </div>
     </div>
 </div>

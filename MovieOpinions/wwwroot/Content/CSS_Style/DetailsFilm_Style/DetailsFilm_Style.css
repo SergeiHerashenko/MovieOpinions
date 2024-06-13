@@ -21,6 +21,8 @@
 }
 
 .FormFilmStyle {
+    display: grid;
+    grid-template-rows: 1fr auto;
     height: 95%;
     width: 95%;
     border-radius: 30px;
@@ -152,12 +154,13 @@
     background-color: #666666;
     border-radius: 14px;
     border: 3px #333333;
-    margin: 10px 0px;
     width: 90%;
+    margin: 10px 0;
     overflow-x: hidden;
     margin-left: auto;
     max-height: 500px;
     transition: max-height 1s, margin 0.5s;
+    overflow: hidden;
 }
 
     .AnswerStyle::-webkit-scrollbar {
@@ -182,7 +185,7 @@
     margin-left: auto;
 }
 
-.gridAnswer {
+.grid {
     display: grid;
     grid-template-rows: 1fr 3fr 1fr;
 }
@@ -223,10 +226,99 @@
     align-items: center;
 }
 
-.AnswerCharStyle {
+.CharStyle {
     font-family: 'Roboto';
     padding: 10px 0;
     font-size: 15px;
     color: #FFF2E5;
     opacity: 0.5;
+}
+
+.FilmAndCommentZoneStyle {
+    overflow: auto;
+}
+
+.ZoneTextCommentStyle {
+    background-color: transparent;
+    padding: 10px;
+    display: block;
+}
+
+    .ZoneTextCommentStyle button {
+        font-size: 20px;
+    }
+
+.AddCommentButtonStyle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.CommentTemplateStyle {
+    background-color: #292929;
+    border-radius: 14px;
+    margin: 0px auto;
+    width: 90%;
+}
+
+    .CommentTemplateStyle textarea {
+        font-size: 17px;
+        border-radius: 20px;
+        resize: none;
+        font-family: 'Roboto';
+        color: #FF8304;
+        background: #292929;
+        width: 95%;
+        height: 100%;
+        padding: 13px;
+        box-sizing: border-box;
+    }
+
+        .CommentTemplateStyle textarea:focus {
+            border: 2px solid;
+            outline: none;
+        }
+
+.HeaderTemplateComment {
+    margin: 5px;
+}
+
+@keyframes slideOut {
+    0% {
+        height: 220px;
+    }
+
+    100% {
+        height: 0px;
+    }
+}
+
+.SlideOutStyle {
+    animation: slideOut 0.3s ease-out forwards;
+    overflow: hidden;
+}
+
+@keyframes slideIn {
+    0% {
+        height: 0px;
+    }
+
+    100% {
+        height: 220px;
+    }
+}
+
+.SlideInStyle {
+    animation: slideIn 0.3s ease-out forwards;
+    overflow: hidden;
+}
+
+.NotCommentStyle {
+    font-family: 'Roboto';
+    padding: 10px 0;
+    font-size: 20px;
+    color: #FFCD9A;
+    text-align: center;
 }

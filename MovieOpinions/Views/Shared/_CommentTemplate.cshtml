@@ -1,0 +1,17 @@
+﻿<div id="IncompleteComment" class="CommentTemplateStyle grid" style="height: 46vh">
+    <div class="HeaderTemplateComment">
+        <div class="NameUserStyle">
+            <label id="UserName">@User.Identity.Name пише:</label>
+        </div>
+    </div>
+    <div class="TextZone">
+        <textarea maxlength='1000' id="CommentText" placeholder="Ваш коментар" oninput="updateCharCount('#CommentText', '#CommentChar')"></textarea>
+    </div>
+    <div class="BottomPanelStyle">
+        <div id="CommentChar" class="CharStyle">Залишилось символів: 1000/1000</div>
+        <div>
+            <button class="GeneralButtonStyle" onclick="RemoveCommentPanel()">Відмінити</button>
+            <button class="GeneralButtonStyle" onclick="">Надіслати</button>
+        </div>
+    </div>
+</div>
