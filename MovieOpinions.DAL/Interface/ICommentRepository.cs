@@ -10,8 +10,8 @@ namespace MovieOpinions.DAL.Interface
 {
     public interface ICommentRepository : IBaseRepository<Comment>
     {
-        Task<BaseResponse<List<Comment>>> GetCommentFilm(int idFilm);
-        Task<BaseResponse<Comment>> GetCommentId(int id);
-        Task<IEnumerable<Comment>> GetCommentsUser(int idUser);
+        Task<BaseResponse<List<Comment>>> GetCommentFilm(int IdFilm);
+        Task<BaseResponse<Comment>> GetCommentId(int Id);
+        Task<BaseResponse<IEnumerable<Comment>>> GetCommentsUser(int IdUser);
     }
 }

@@ -11,6 +11,7 @@ namespace MovieOpinions.Service.Interfaces
     public interface IFilmsServices
     {
         Task<BaseResponse<List<Film>>> GetFilms();
-        Task<BaseResponse<Film>> GetFilmId(int id);
+        Task<BaseResponse<Film>> GetFilmId(int Id);
+        Task<BaseResponse<Film>> GetFilmName(string NameFilm);
     }
 }

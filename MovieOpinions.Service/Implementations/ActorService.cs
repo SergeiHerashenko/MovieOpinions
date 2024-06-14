@@ -19,25 +19,48 @@ namespace MovieOpinions.Service.Implementations
             _actorRepository = actorRepository;
         }
 
-        public async Task<BaseResponse<DetailedActor>> GetActorById(int idActor)
+        public async Task<BaseResponse<DetailedActor>> GetActorById(int IdActor)
         {
-            var getActor = await _actorRepository.GetActorId(idActor);
+            var GetActor = await _actorRepository.GetActorId(IdActor);
 
-            if (getActor == null)
+            if(GetActor.Data != null)
             {
+                DetailedActor actor = new DetailedActor()
+                {
+                    IdActor = GetActor.Data.IdActor,
+                    LastName = GetActor.Data.LastName,
+                    FirstName = GetActor.Data.FirstName,
+                    BirthdayActor = GetActor.Data.BirthdayActor,
+                    FilmActor = GetActor.Data.FilmActor,
+                    GenreActor = GetActor.Data.GenreActor,
+                    CountryActor = GetActor.Data.CountryActor,
+                    ActorImage = GetActor.Data.ActorImage,
+                };
+
                 return new BaseResponse<DetailedActor>()
                 {
-                    Description = "Актор не знайдений",
-                    StatusCode = Domain.Enum.StatusCode.NotFound
+                    StatusCode = Domain.Enum.StatusCode.OK,
+                    Data = actor
                 };
             }
             else
             {
-                return new BaseResponse<DetailedActor>()
+                if(GetActor.StatusCode == Domain.Enum.StatusCode.OK)
                 {
-                    StatusCode = Domain.Enum.StatusCode.OK,
-                    Data = getActor
-                };
+                    return new BaseResponse<DetailedActor>()
+                    {
+                        Description = "Актор не знайдений",
+                        StatusCode = GetActor.StatusCode
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<DetailedActor>()
+                    {
+                        Description = GetActor.Description,
+                        StatusCode = GetActor.StatusCode
+                    };
+                }
             }
         }
     }

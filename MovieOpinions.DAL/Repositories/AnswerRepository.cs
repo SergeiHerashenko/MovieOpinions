@@ -14,7 +14,7 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class AnswerRepository : IAnswerRepository
     {
-        public async Task<BaseResponse<bool>> Create(Answer entity)
+        public async Task<BaseResponse<bool>> Create(Answer Entity)
         {
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
 
@@ -25,9 +25,9 @@ namespace MovieOpinions.DAL.Repositories
                     await conn.OpenAsync();
                     using (var AddAnser = new NpgsqlCommand("INSERT INTO Answer_Table (id_comment, text_answer, id_user) VALUES (@ID_COMMENT, @TEXT_ANSWER, @ID_USER)", conn))
                     {
-                        AddAnser.Parameters.AddWithValue("@ID_COMMENT", entity.IdComment);
-                        AddAnser.Parameters.AddWithValue("@TEXT_ANSWER", entity.TextAnswer);
-                        AddAnser.Parameters.AddWithValue("@ID_USER", entity.IdUserAnswer);
+                        AddAnser.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);
+                        AddAnser.Parameters.AddWithValue("@TEXT_ANSWER", Entity.TextAnswer);
+                        AddAnser.Parameters.AddWithValue("@ID_USER", Entity.IdUserAnswer);
 
                         await AddAnser.ExecuteNonQueryAsync();
 
@@ -50,12 +50,12 @@ namespace MovieOpinions.DAL.Repositories
             }
         }
 
-        public Task<bool> Delete(Answer entity)
+        public async Task<BaseResponse<bool>> Delete(Answer Entity)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerComment(int idComment)
+        public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerComment(int IdComment)
         {
             List<Answer> answers = new List<Answer>();
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
@@ -65,23 +65,23 @@ namespace MovieOpinions.DAL.Repositories
                 try
                 {
                     await conn.OpenAsync();
-                    using (var command = new NpgsqlCommand(
+                    using (var GetAnswer = new NpgsqlCommand(
                         "SELECT id_answer, id_comment, text_answer, id_user " +
                         "FROM Answer_Table " +
                         "WHERE id_comment = @id_comment", conn))
                     {
-                        command.Parameters.AddWithValue("@id_comment", idComment);
+                        GetAnswer.Parameters.AddWithValue("@id_comment", IdComment);
 
-                        using (var reader = await command.ExecuteReaderAsync())
+                        using (var Reader = await GetAnswer.ExecuteReaderAsync())
                         {
-                            while (await reader.ReadAsync())
+                            while (await Reader.ReadAsync())
                             {
                                 Answer answer = new Answer
                                 {
-                                    IdAnswer = Convert.ToInt32(reader["id_answer"]),
-                                    IdComment = Convert.ToInt32(reader["id_comment"]),
-                                    TextAnswer = reader["text_answer"].ToString(),
-                                    IdUserAnswer = Convert.ToInt32(reader["id_user"])
+                                    IdAnswer = Convert.ToInt32(Reader["id_answer"]),
+                                    IdComment = Convert.ToInt32(Reader["id_comment"]),
+                                    TextAnswer = Reader["text_answer"].ToString(),
+                                    IdUserAnswer = Convert.ToInt32(Reader["id_user"])
                                 };
 
                                 answers.Add(answer);
@@ -107,17 +107,17 @@ namespace MovieOpinions.DAL.Repositories
             }
         }
 
-        public Task<Answer> GetAnswerId(int id)
+        public async Task<BaseResponse<Answer>> GetAnswerId(int Id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Answer>> GetAnswerUser(int idUser)
+        public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerUser(int IdUser)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Answer> Update(Answer entity)
+        public async Task<BaseResponse<Answer>> Update(Answer Entity)
         {
             throw new NotImplementedException();
         }

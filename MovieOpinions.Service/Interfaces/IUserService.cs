@@ -10,7 +10,7 @@ namespace MovieOpinions.Service.Interfaces
 {
     public interface IUserService
     {
-        Task<BaseResponse<User>> GetUserId(int userId);
-        Task<BaseResponse<User>> GetUser(string username);
+        Task<BaseResponse<User>> GetUserId(int UserId);
+        Task<BaseResponse<User>> GetUser(string UserName);
     }
 }

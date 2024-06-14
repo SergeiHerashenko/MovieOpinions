@@ -9,8 +9,8 @@ namespace MovieOpinions.DAL.Interface
 {
     public interface IBaseRepository<T>
     {
-        Task<BaseResponse<bool>> Create(T entity);
-        Task<bool> Delete(T entity);
-        Task<T> Update(T entity);
+        Task<BaseResponse<bool>> Create(T Entity);
+        Task<BaseResponse<bool>> Delete(T Entity);
+        Task<BaseResponse<T>> Update(T Entity);
     }
 }

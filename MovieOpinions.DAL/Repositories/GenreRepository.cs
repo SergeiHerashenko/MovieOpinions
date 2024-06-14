@@ -22,13 +22,13 @@ namespace MovieOpinions.DAL.Repositories
                 try
                 {
                     await conn.OpenAsync();
-                    using (var command = new NpgsqlCommand("SELECT name_genre FROM Genre_Table", conn))
+                    using (var GetGenreAll = new NpgsqlCommand("SELECT name_genre FROM Genre_Table", conn))
                     {
-                        using (var reader = await command.ExecuteReaderAsync())
+                        using (var Reader = await GetGenreAll.ExecuteReaderAsync())
                         {
-                            while (reader.Read())
+                            while (Reader.Read())
                             {
-                                genres.Add(reader.GetString(0));
+                                genres.Add(Reader.GetString(0));
                             }
                         }
                     }
@@ -38,8 +38,7 @@ namespace MovieOpinions.DAL.Repositories
                     return new BaseResponse<IEnumerable<string>>
                     {
                         StatusCode = Domain.Enum.StatusCode.InternalServerError,
-                        Description = ex.Message,
-                        Data = null
+                        Description = ex.Message
                     };
                 }
             }

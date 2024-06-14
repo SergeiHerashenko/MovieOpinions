@@ -19,43 +19,91 @@ namespace MovieOpinions.Service.Implementations
             _commentRepository = commentRepository;
         }
 
-        public async Task<BaseResponse<List<Comment>>> GetAllCommentFilm(int idFilm)
+        public async Task<BaseResponse<bool>> AddCommentDataBase(Comment comment)
         {
-            var commentsResponse = await _commentRepository.GetCommentFilm(idFilm);
+            var AddComment = await _commentRepository.Create(comment);
 
-            if(commentsResponse == null)
+            if (AddComment.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                return new BaseResponse<List<Comment>> 
-                { 
-                    Description = "Коментарів немає",
-                    StatusCode = Domain.Enum.StatusCode.NotFound
+                return new BaseResponse<bool>
+                {
+                    Description = "Коментар додано",
+                    StatusCode = Domain.Enum.StatusCode.OK
                 };
             }
             else
             {
-                return new BaseResponse<List<Comment>>
+                return new BaseResponse<bool>
                 {
-                    StatusCode = Domain.Enum.StatusCode.OK,
-                    Data = commentsResponse.Data
+                    Description = "Коментар не додано",
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError
                 };
             }
         }
 
-        public async Task<BaseResponse<Comment>> GetIdComment(int idComment)
+        public async Task<BaseResponse<List<Comment>>> GetAllCommentFilm(int IdFilm)
         {
-            var Comment = await _commentRepository.GetCommentId(idComment);
+            var CommentsResponse = await _commentRepository.GetCommentFilm(IdFilm);
 
-            if(Comment.StatusCode == Domain.Enum.StatusCode.OK)
+            if(CommentsResponse.StatusCode != Domain.Enum.StatusCode.OK)
             {
-                return Comment;
+                return new BaseResponse<List<Comment>>
+                {
+                    Description = CommentsResponse.Description,
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError
+                };
             }
             else
             {
+                if(CommentsResponse.Data.Count != 0)
+                {
+                    return new BaseResponse<List<Comment>>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = CommentsResponse.Data
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<List<Comment>>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Коментарів не знайдено"
+                    };
+                }
+            }
+        }
+
+        public async Task<BaseResponse<Comment>> GetIdComment(int IdComment)
+        {
+            var Comment = await _commentRepository.GetCommentId(IdComment);
+
+            if(Comment.Data != null)
+            {
                 return new BaseResponse<Comment>
                 {
-                    Description = "Коментар не знайдено",
-                    StatusCode= Domain.Enum.StatusCode.NotFound
+                    Data = Comment.Data,
+                    StatusCode = Domain.Enum.StatusCode.OK
                 };
+            }
+            else
+            {
+                if(Comment.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return new BaseResponse<Comment>
+                    {
+                        Description = "Коментар не знайдено",
+                        StatusCode = Domain.Enum.StatusCode.NotFound
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<Comment>
+                    {
+                        Description = Comment.Description,
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError
+                    };
+                }
             }
         }
     }

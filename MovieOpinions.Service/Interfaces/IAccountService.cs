@@ -12,7 +12,7 @@ namespace MovieOpinions.Service.Interfaces
 {
     public interface IAccountService
     {
-        Task<BaseResponse<ClaimsIdentity>> Login(LoginModel loginModel);
-        Task<BaseResponse<ClaimsIdentity>> Register(RegisterModel registerModel);
+        Task<BaseResponse<ClaimsIdentity>> Login(LoginModel LoginModel);
+        Task<BaseResponse<ClaimsIdentity>> Register(RegisterModel RegisterModel);
     }
 }

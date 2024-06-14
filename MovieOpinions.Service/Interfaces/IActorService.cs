@@ -10,6 +10,6 @@ namespace MovieOpinions.Service.Interfaces
 {
     public interface IActorService
     {
-        Task<BaseResponse<DetailedActor>> GetActorById(int idActor);
+        Task<BaseResponse<DetailedActor>> GetActorById(int IdActor);
     }
 }

@@ -32,22 +32,22 @@ namespace MovieOpinions.Controllers
         public async Task<IActionResult> FilmPage()
         {
             FilmPageModel model = new FilmPageModel();
-              var genre = await _genreService.GetAllGenre();
-            var films = await _filmsService.GetFilms();
+            var GenreAll = await _genreService.GetAllGenre();
+            var AllFilms = await _filmsService.GetFilms();
 
-            if(genre.StatusCode == Domain.Enum.StatusCode.OK)
+            if(GenreAll.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                model.GenreMovies = genre.Data;
+                model.GenreMovies = GenreAll.Data;
             }
             else
             {
                 model.GenreMovies = null;
             }
 
-            if (films.StatusCode == Domain.Enum.StatusCode.OK)
+            if (AllFilms.StatusCode == Domain.Enum.StatusCode.OK)
             {
                 
-                model.Films = films.Data;
+                model.Films = AllFilms.Data;
             }
             else
             {
@@ -59,149 +59,145 @@ namespace MovieOpinions.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> DetailsFilm(int id)
+        public async Task<IActionResult> DetailsFilm(int Id)
         {
-            var detailsFilm = await _filmsService.GetFilmId(id);
-            var commentFilm = await _commentService.GetAllCommentFilm(id);
+            var DetailsFilm = await _filmsService.GetFilmId(Id);
+            var CommentFilm = await _commentService.GetAllCommentFilm(Id);
 
             Film film = null;
 
-            if (detailsFilm.Data != null)
+            if (DetailsFilm.Data != null)
             {
                 film = new Film()
                 {
-                    IdFilm = detailsFilm.Data.IdFilm,
-                    NameFilm = detailsFilm.Data.NameFilm,
-                    YearFilm = detailsFilm.Data.YearFilm,
-                    DescriptionFilm = detailsFilm.Data.DescriptionFilm,
-                    ActorFilm = detailsFilm.Data.ActorFilm,
-                    GenreFilm = detailsFilm.Data.GenreFilm,
-                    CountryFilm = detailsFilm.Data.CountryFilm,
-                    RatingFilm = detailsFilm.Data.RatingFilm,
-                    FilmImage = detailsFilm.Data.FilmImage,
-                    CommentFilm = commentFilm.Data
+                    IdFilm = DetailsFilm.Data.IdFilm,
+                    NameFilm = DetailsFilm.Data.NameFilm,
+                    YearFilm = DetailsFilm.Data.YearFilm,
+                    DescriptionFilm = DetailsFilm.Data.DescriptionFilm,
+                    ActorFilm = DetailsFilm.Data.ActorFilm,
+                    GenreFilm = DetailsFilm.Data.GenreFilm,
+                    CountryFilm = DetailsFilm.Data.CountryFilm,
+                    RatingFilm = DetailsFilm.Data.RatingFilm,
+                    FilmImage = DetailsFilm.Data.FilmImage,
+                    CommentFilm = CommentFilm.Data
                 };
 
                 foreach (var comment in film.CommentFilm)
                 {
-                    var userResponse = await _userService.GetUserId(comment.IdUserComment);
-                    var answerResponse = await _answerService.GetAnswerToComment(comment.IdComment);
+                    var UserResponse = await _userService.GetUserId(comment.IdUserComment);
+                    var AnswerResponse = await _answerService.GetAnswerToComment(comment.IdComment);
 
-                    if(answerResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                    if(AnswerResponse.StatusCode == Domain.Enum.StatusCode.OK)
                     {
-                        foreach(var answer in answerResponse.Data)
+                        foreach(var answer in AnswerResponse.Data)
                         {
                             comment.AnswerComment.Add(answer);
 
-                            var userAnswer = await _userService.GetUserId(answer.IdUserAnswer);
+                            var UserAnswer = await _userService.GetUserId(answer.IdUserAnswer);
 
-                            if (answerResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                            if (AnswerResponse.StatusCode == Domain.Enum.StatusCode.OK)
                             {
-                                answer.NameUserAnswer = userAnswer.Data.NameUser;
+                                answer.NameUserAnswer = UserAnswer.Data.NameUser;
                             }
                             else
                             {
-                                answer.NameUserAnswer = userAnswer.Description;
+                                answer.NameUserAnswer = UserAnswer.Description;
                             }
                         }
                     }
 
-                    if (userResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                    if (UserResponse.StatusCode == Domain.Enum.StatusCode.OK)
                     {
-                        comment.UserName = userResponse.Data.NameUser; 
+                        comment.UserName = UserResponse.Data.NameUser; 
                     }
                     else
                     {
-                        comment.UserName = userResponse.Description;
+                        comment.UserName = UserResponse.Description;
                     }
                 }
+                return View(film);
             }
-            return View(film);
+            else
+            {
+                return View("_ErrorPage");
+            }
         }
 
         public async Task<IActionResult> DetailsActor(int id)
         {
-            var getActor = await _actorService.GetActorById(id);
+            var GetActor = await _actorService.GetActorById(id);
 
-            DetailedActor actor = null;
-
-            if(getActor.Data != null)
+            if(GetActor.Data != null)
             {
-                actor = new DetailedActor()
-                {
-                    IdActor = getActor.Data.IdActor,
-                    LastName = getActor.Data.LastName,
-                    FirstName = getActor.Data.FirstName,
-                    BirthdayActor = getActor.Data.BirthdayActor,
-                    FilmActor = getActor.Data.FilmActor,
-                    GenreActor = getActor.Data.GenreActor,
-                    CountryActor = getActor.Data.CountryActor,
-                    ActorImage = getActor.Data.ActorImage,
-                };
+                return View(GetActor.Data);
             }
-            return View(actor);
+            else
+            {
+                return View("_ErrorPage");
+            }
+
         }
 
         [HttpPost]
         public async Task<IActionResult> GetSortedMoviesGenre([FromBody] List<string> selectedGenres)
         {
-            var allMoviesResponse = await _filmsService.GetFilms();
+            var AllMoviesResponse = await _filmsService.GetFilms();
 
-            if (allMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            if (AllMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                var allMovies = allMoviesResponse.Data;
+                var AllMovies = AllMoviesResponse.Data;
 
-                var filteredMovies = allMovies.Where(movie => movie.GenreFilm.Intersect(selectedGenres).Any()).ToList();
+                var FilteredMovies = AllMovies.Where(movie => movie.GenreFilm.Intersect(selectedGenres).Any()).ToList();
 
-                return Json(filteredMovies);
+                return Json(FilteredMovies);
             }
             else
             {
-                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + allMoviesResponse.StatusCode });
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + AllMoviesResponse.StatusCode });
             }
         }
 
         [HttpPost]
         public async Task<IActionResult> GetSortedMoviesYear([FromBody] List<string> selectedYear)
         {
-            var allMoviesResponse = await _filmsService.GetFilms();
+            var AllMoviesResponse = await _filmsService.GetFilms();
 
-            if (allMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            if (AllMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                var allMovies = allMoviesResponse.Data;
+                var AllMovies = AllMoviesResponse.Data;
 
-                var filteredMoviesYear = new List<Film>();
+                var FilteredMoviesYear = new List<Film>();
 
-                foreach (var item in selectedYear)
+                foreach (var Item in selectedYear)
                 {
-                    var yearRangeParts = item.Split('-');
-                    int startYear = int.Parse(yearRangeParts[0]);
-                    int endYear = yearRangeParts.Length == 1 ? startYear : int.Parse(yearRangeParts[1]);
+                    var YearRangeParts = Item.Split('-');
+                    int StartYear = int.Parse(YearRangeParts[0]);
+                    int EndYear = YearRangeParts.Length == 1 ? StartYear : int.Parse(YearRangeParts[1]);
 
-                    filteredMoviesYear.AddRange(allMovies.Where(movie =>
-                        movie.YearFilm >= startYear && movie.YearFilm <= endYear));
+                    FilteredMoviesYear.AddRange(AllMovies.Where(Movie =>
+                        Movie.YearFilm >= StartYear && Movie.YearFilm <= EndYear));
                 }
 
-                return Json(filteredMoviesYear);
+                return Json(FilteredMoviesYear);
             }
             else
             {
-                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + allMoviesResponse.StatusCode });
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + AllMoviesResponse.StatusCode });
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> AllMovies()
         {
-            var allMoviesResponse = await _filmsService.GetFilms();
+            var AllMoviesResponse = await _filmsService.GetFilms();
 
-            if (allMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            if (AllMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                return Json(allMoviesResponse.Data);
+                return Json(AllMoviesResponse.Data);
             }
             else
             {
-                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + allMoviesResponse.StatusCode });
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + AllMoviesResponse.StatusCode });
             }
         }
 
@@ -220,28 +216,50 @@ namespace MovieOpinions.Controllers
         [HttpPost]
         public async Task<IActionResult> AddAnswerToComment([FromBody] Answer DataAnswer)
         {
-            var idUserResult = await _userService.GetUser(DataAnswer.NameUserAnswer);
+            var IdUserResult = await _userService.GetUser(DataAnswer.NameUserAnswer);
             
-            DataAnswer.IdUserAnswer = idUserResult.Data.IdUser;
+            DataAnswer.IdUserAnswer = IdUserResult.Data.IdUser;
             
-            var resulAddAnswer = await _answerService.AddAnswerDataBase(DataAnswer);
+            var ResulAddAnswer = await _answerService.AddAnswerDataBase(DataAnswer);
             
-            if(resulAddAnswer.StatusCode == Domain.Enum.StatusCode.OK)
+            if(ResulAddAnswer.StatusCode == Domain.Enum.StatusCode.OK)
             {
                 var CommentFilm = await _commentService.GetIdComment(DataAnswer.IdComment);
             
                 if(CommentFilm.StatusCode == Domain.Enum.StatusCode.OK)
                 {
-                    int idFilm = CommentFilm.Data.IdFilm;
-                    return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = idFilm }) });
+                    int IdFilm = CommentFilm.Data.IdFilm;
+                    return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = IdFilm }) });
                 }
             }
-            return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" + " " + ResulAddAnswer.StatusCode });
         }
 
         //public async Task<IActionResult> OpenPrivateOffices()
         //{
         //    
         //}
+
+        public async Task<IActionResult> AddCommentToFilm([FromBody] Comment DataComment, string NameFilm)
+        {
+            var IdUserResult = await _userService.GetUser(DataComment.UserName);
+            
+            DataComment.IdUserComment = IdUserResult.Data.IdUser;
+
+            var IdFilm = await _filmsService.GetFilmName(NameFilm);
+
+            DataComment.IdFilm = IdFilm.Data.IdFilm;
+
+            var AddCommentDataBase = await _commentService.AddCommentDataBase(DataComment);
+
+            if(AddCommentDataBase.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = IdFilm.Data.IdFilm }) });
+            }
+            else
+            {
+                return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" + " " + AddCommentDataBase.StatusCode });
+            }
+        }
     }
 }

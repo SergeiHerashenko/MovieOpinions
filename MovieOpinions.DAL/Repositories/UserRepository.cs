@@ -13,12 +13,12 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public Task<bool> BlockUser(User user)
+        public async Task<BaseResponse<bool>> BlockUser(User user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<BaseResponse<bool>> Create(User entity)
+        public async Task<BaseResponse<bool>> Create(User Entity)
         {
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
             using(var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
@@ -26,16 +26,16 @@ namespace MovieOpinions.DAL.Repositories
                 try
                 {
                     await conn.OpenAsync();
-                    using (var command = new NpgsqlCommand("INSERT INTO User_Table (user_name, user_password, salt_password, delete_user, blocked_user)" +
+                    using (var CreateUser = new NpgsqlCommand("INSERT INTO User_Table (user_name, user_password, salt_password, delete_user, blocked_user)" +
                                 "VALUES (@n1, @q1, @w1, @p1, @a1)", conn))
                     {
-                        command.Parameters.AddWithValue("n1", entity.NameUser);
-                        command.Parameters.AddWithValue("q1", entity.PasswordUser);
-                        command.Parameters.AddWithValue("w1", entity.PasswordSalt);
-                        command.Parameters.AddWithValue("p1", entity.DeleteUser);
-                        command.Parameters.AddWithValue("a1", entity.BlockedUser);
+                        CreateUser.Parameters.AddWithValue("n1", Entity.NameUser);
+                        CreateUser.Parameters.AddWithValue("q1", Entity.PasswordUser);
+                        CreateUser.Parameters.AddWithValue("w1", Entity.PasswordSalt);
+                        CreateUser.Parameters.AddWithValue("p1", Entity.DeleteUser);
+                        CreateUser.Parameters.AddWithValue("a1", Entity.BlockedUser);
 
-                        command.ExecuteNonQuery();
+                        CreateUser.ExecuteNonQuery();
                     }
 
                     return new BaseResponse<bool> 
@@ -54,12 +54,12 @@ namespace MovieOpinions.DAL.Repositories
             }
         }
 
-        public Task<bool> Delete(User entity)
+        public async Task<BaseResponse<bool>> Delete(User Entity)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User> GetUser(string LoginUser)
+        public async Task<BaseResponse<User>> GetUser(string LoginUser)
         {
             User user = null;
 
@@ -67,34 +67,50 @@ namespace MovieOpinions.DAL.Repositories
 
             using (var conn = new NpgsqlConnection(connectDatabase.ConnectMovieOpinionsDataBase()))
             {
-                await conn.OpenAsync();
-
-                using(var getUserCommand = new NpgsqlCommand("SELECT * FROM User_Table WHERE user_name = @LoginUser", conn))
+                try
                 {
-                    getUserCommand.Parameters.AddWithValue("@LoginUser", LoginUser);
+                    await conn.OpenAsync();
 
-                    using(var readerInformationUser = await getUserCommand.ExecuteReaderAsync())
+                    using (var GetUserCommand = new NpgsqlCommand("SELECT * FROM User_Table WHERE user_name = @LoginUser", conn))
                     {
-                        while (readerInformationUser.Read())
+                        GetUserCommand.Parameters.AddWithValue("@LoginUser", LoginUser);
+
+                        using (var ReaderInformationUser = await GetUserCommand.ExecuteReaderAsync())
                         {
-                            user = new User
+                            while (ReaderInformationUser.Read())
                             {
-                                IdUser = Convert.ToInt32(readerInformationUser["id_user"]),
-                                NameUser = readerInformationUser["user_name"].ToString(),
-                                PasswordUser = readerInformationUser["user_password"].ToString(),
-                                PasswordSalt = readerInformationUser["salt_password"].ToString(),
-                                DeleteUser = Convert.ToBoolean(readerInformationUser["delete_user"]),
-                                BlockedUser = Convert.ToBoolean(readerInformationUser["blocked_user"])
-                            };
+                                user = new User
+                                {
+                                    IdUser = Convert.ToInt32(ReaderInformationUser["id_user"]),
+                                    NameUser = ReaderInformationUser["user_name"].ToString(),
+                                    PasswordUser = ReaderInformationUser["user_password"].ToString(),
+                                    PasswordSalt = ReaderInformationUser["salt_password"].ToString(),
+                                    DeleteUser = Convert.ToBoolean(ReaderInformationUser["delete_user"]),
+                                    BlockedUser = Convert.ToBoolean(ReaderInformationUser["blocked_user"])
+                                };
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    return new BaseResponse<User>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
+                }
+                
             }
 
-            return user;
+            return new BaseResponse<User>() 
+            {
+                StatusCode = Domain.Enum.StatusCode.OK,
+                Data = user
+            };
         }
 
-        public async Task<User> GetUserId(int id)
+        public async Task<BaseResponse<User>> GetUserId(int Id)
         {
             ConnectMovieOpinions connectDatabase = new ConnectMovieOpinions();
 
@@ -102,33 +118,48 @@ namespace MovieOpinions.DAL.Repositories
 
             using (var conn = new NpgsqlConnection(connectDatabase.ConnectMovieOpinionsDataBase()))
             {
-                await conn.OpenAsync();
-
-                using (var getUserIdCommand = new NpgsqlCommand("SELECT id_user, user_name, user_password, salt_password, delete_user, blocked_user FROM User_Table WHERE id_user = @idUser", conn))
+                try
                 {
-                    getUserIdCommand.Parameters.AddWithValue("idUser", id);
+                    await conn.OpenAsync();
 
-                    using (var readerInformationUser = await getUserIdCommand.ExecuteReaderAsync())
+                    using (var GetUserIdCommand = new NpgsqlCommand("SELECT id_user, user_name, user_password, salt_password, delete_user, blocked_user FROM User_Table WHERE id_user = @idUser", conn))
                     {
-                        while (readerInformationUser.Read())
+                        GetUserIdCommand.Parameters.AddWithValue("idUser", Id);
+
+                        using (var ReaderInformationUser = await GetUserIdCommand.ExecuteReaderAsync())
                         {
-                            user = new User
+                            while (ReaderInformationUser.Read())
                             {
-                                IdUser = Convert.ToInt32(readerInformationUser["id_user"]),
-                                NameUser = readerInformationUser["user_name"].ToString(),
-                                PasswordUser = readerInformationUser["user_password"].ToString(),
-                                PasswordSalt = readerInformationUser["salt_password"].ToString(),
-                                DeleteUser = Convert.ToBoolean(readerInformationUser["delete_user"]),
-                                BlockedUser = Convert.ToBoolean(readerInformationUser["blocked_user"])
-                            };
+                                user = new User
+                                {
+                                    IdUser = Convert.ToInt32(ReaderInformationUser["id_user"]),
+                                    NameUser = ReaderInformationUser["user_name"].ToString(),
+                                    PasswordUser = ReaderInformationUser["user_password"].ToString(),
+                                    PasswordSalt = ReaderInformationUser["salt_password"].ToString(),
+                                    DeleteUser = Convert.ToBoolean(ReaderInformationUser["delete_user"]),
+                                    BlockedUser = Convert.ToBoolean(ReaderInformationUser["blocked_user"])
+                                };
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    return new BaseResponse<User>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
+                }
             }
-            return user;
+            return new BaseResponse<User>() 
+            {
+                StatusCode = Domain.Enum.StatusCode.OK,
+                Data = user
+            };
         }
 
-        public Task<User> Update(User entity)
+        public async Task<BaseResponse<User>> Update(User Entity)
         {
             throw new NotImplementedException();
         }

@@ -20,58 +20,70 @@ namespace MovieOpinions.Service.Implementations
             _userRepository = userRepository;
         }
 
-        public async Task<BaseResponse<User>> GetUser(string username)
+        public async Task<BaseResponse<User>> GetUser(string UserName)
         {
-            var getUser = await _userRepository.GetUser(username);
+            var GetUser = await _userRepository.GetUser(UserName);
 
-            if(getUser != null)
+            if(GetUser.Data != null)
             {
                 return new BaseResponse<User>
                 {
                     StatusCode = StatusCode.OK,
-                    Data = getUser
+                    Data = GetUser.Data
                 };
             }
             else
             {
-                return new BaseResponse<User> 
-                { 
-                    StatusCode = StatusCode.NotFound,
-                    Description = "Користувача не знайдено"
-                };
+                if(GetUser.StatusCode == StatusCode.OK)
+                {
+                    return new BaseResponse<User>
+                    {
+                        StatusCode = StatusCode.NotFound,
+                        Description = "Користувача не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<User>
+                    {
+                        StatusCode = StatusCode.InternalServerError,
+                        Description = GetUser.Description
+                    };
+                }
             }
         }
 
         public async Task<BaseResponse<User>> GetUserId(int userId)
         {
-            var getUser = await _userRepository.GetUserId(userId);
+            var GetIdUser = await _userRepository.GetUserId(userId);
 
-            if (getUser == null)
+            if (GetIdUser.Data != null)
             {
-                return CreateResponse(StatusCode.NotFound, "Unknown");
+                return new BaseResponse<User>
+                {
+                    StatusCode = StatusCode.OK,
+                    Data = GetIdUser.Data
+                };
             }
-
-            if (getUser.BlockedUser)
+            else
             {
-                return CreateResponse(StatusCode.BlockedUser, "Заблокований користувач");
+                if (GetIdUser.StatusCode == StatusCode.OK)
+                {
+                    return new BaseResponse<User>
+                    {
+                        StatusCode = StatusCode.NotFound,
+                        Description = "Користувача не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<User>
+                    {
+                        StatusCode = StatusCode.InternalServerError,
+                        Description = GetIdUser.Description
+                    };
+                }
             }
-
-            if (getUser.DeleteUser)
-            {
-                return CreateResponse(StatusCode.DeleteUser, "Видалений користувач");
-            }
-
-            return CreateResponse(StatusCode.OK, data: getUser);
-        }
-
-        private BaseResponse<User> CreateResponse(StatusCode statusCode, string description = null, User data = null)
-        {
-            return new BaseResponse<User>
-            {
-                StatusCode = statusCode,
-                Description = description,
-                Data = data
-            };
         }
     }
 }

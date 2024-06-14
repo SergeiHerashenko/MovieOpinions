@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MovieOpinions.Domain.Entity;
+using MovieOpinions.Domain.Response;
 
 namespace MovieOpinions.DAL.Interface
 {
     public interface IUserRepository : IBaseRepository<User>
     {
-        Task<bool> BlockUser(User user);
-        Task<User> GetUser(string LoginUser);
-        Task<User> GetUserId(int id);
+        Task<BaseResponse<bool>> BlockUser(User user);
+        Task<BaseResponse<User>> GetUser(string LoginUser);
+        Task<BaseResponse<User>> GetUserId(int Id);
     }
 }

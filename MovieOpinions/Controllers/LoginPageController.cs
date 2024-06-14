@@ -30,25 +30,25 @@ namespace MovieOpinions.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginUser([FromBody] LoginModel formData)
+        public async Task<IActionResult> LoginUser([FromBody] LoginModel FormData)
         {
-            if(string.IsNullOrWhiteSpace(formData.LoginUser) || string.IsNullOrWhiteSpace(formData.PasswordUser))
+            if(string.IsNullOrWhiteSpace(FormData.LoginUser) || string.IsNullOrWhiteSpace(FormData.PasswordUser))
             {
                 return Json(new { description = "Поле логіну або паролю пусте.\nБудь-ласка перевірте інформацію" });
             }
 
-            var response = await _accountService.Login(formData);
+            var Response = await _accountService.Login(FormData);
 
-            if(response.StatusCode == Domain.Enum.StatusCode.OK)
+            if(Response.StatusCode == Domain.Enum.StatusCode.OK)
             {
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(response.Data));
+                        new ClaimsPrincipal(Response.Data));
 
                 return Json(new { redirectUrl = Url.Action("FilmPage", "FilmPage") });
             }
             else
             {
-                return Json(new { response.Description });
+                return Json(new { Response.Description });
             }
         }
     }

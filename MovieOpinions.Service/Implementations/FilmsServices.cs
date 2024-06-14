@@ -21,23 +21,101 @@ namespace MovieOpinions.Service.Implementations
 
         public async Task<BaseResponse<List<Film>>> GetFilms()
         {
-            return await _filmRepository.GetAll();
+            var GetAllFilms = await _filmRepository.GetAll();
+
+            if (GetAllFilms.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                if (GetAllFilms.Data != null)
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = GetAllFilms.Data
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільмів не знайдено"
+                    };
+                }
+            }
+            else
+            {
+                return new BaseResponse<List<Film>>()
+                {
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Description = GetAllFilms.Description
+                };
+            }
         }
 
-        public async Task<BaseResponse<Film>> GetFilmId(int id)
+        public async Task<BaseResponse<Film>> GetFilmId(int Id)
         {
-            var filmResponse = await _filmRepository.GetMovieId(id);
+            var FilmIdResponse = await _filmRepository.GetMovieId(Id);
 
-            if (filmResponse.StatusCode != Domain.Enum.StatusCode.OK || filmResponse.Data == null)
+            if (FilmIdResponse.StatusCode == Domain.Enum.StatusCode.OK && FilmIdResponse.Data != null)
             {
                 return new BaseResponse<Film>
                 {
-                    StatusCode = filmResponse.StatusCode,
-                    Description = filmResponse.Description
+                    StatusCode = Domain.Enum.StatusCode.OK,
+                    Data = FilmIdResponse.Data
                 };
             }
+            else
+            {
+                if (FilmIdResponse.Data == null)
+                {
+                    return new BaseResponse<Film>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільм не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<Film>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = FilmIdResponse.Description
+                    };
+                }
+            }
+        }
 
-            return filmResponse;
+        public async Task<BaseResponse<Film>> GetFilmName(string NameFilm)
+        {
+            var FilmName = await _filmRepository.GetMovieName(NameFilm);
+
+            if (FilmName.StatusCode == Domain.Enum.StatusCode.OK || FilmName.Data != null)
+            {
+                return new BaseResponse<Film>
+                {
+                    StatusCode = Domain.Enum.StatusCode.OK,
+                    Data = FilmName.Data
+                };
+            }
+            else
+            {
+                if (FilmName.Data == null)
+                {
+                    return new BaseResponse<Film>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільм не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<Film>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = FilmName.Description
+                    };
+                }
+            }
         }
     }
 }

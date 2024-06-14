@@ -15,19 +15,19 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class FilmRepository : IFilmRepository
     {
-        public Task<BaseResponse<bool>> Create(Film entity)
+        public async Task<BaseResponse<bool>> Create(Film Entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> Delete(Film entity)
+        public async Task<BaseResponse<bool>> Delete(Film Entity)
         {
             throw new NotImplementedException();
         }
 
         public async Task<BaseResponse<List<Film>>> GetAll()
         {
-            List<Film> AllFilms = new List<Film>();
+            List<Film> allFilms = new List<Film>();
 
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
 
@@ -69,57 +69,57 @@ namespace MovieOpinions.DAL.Repositories
                             "Film_Table.description_film"
                         , conn))
                     {
-                        using(var reader = await GetAllFilms.ExecuteReaderAsync())
+                        using(var Reader = await GetAllFilms.ExecuteReaderAsync())
                         {
-                            while (reader.Read())
+                            while (Reader.Read())
                             {
 
                                  Film film = new Film()
                                 {
-                                    IdFilm = Convert.ToInt32(reader["id_film"]),
-                                    NameFilm = reader["name_film"].ToString(),
-                                    YearFilm = Convert.ToInt32(reader["year_film"]),
-                                    DescriptionFilm = reader["description_film"].ToString()
+                                    IdFilm = Convert.ToInt32(Reader["id_film"]),
+                                    NameFilm = Reader["name_film"].ToString(),
+                                    YearFilm = Convert.ToInt32(Reader["year_film"]),
+                                    DescriptionFilm = Reader["description_film"].ToString()
                                 };
 
-                                var ActorsName = reader["actors"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                                var ActorsName = Reader["actors"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
                                 List<Actor> actors = new List<Actor>();
                                 foreach(string NameActor in ActorsName)
                                 {
                                     var Actor = await new ActorRepository().GetActorName(NameActor);
                                     Actor actor = new Actor
                                     {
-                                        IdActor = Actor.IdActor,
-                                        FirstName = Actor.FirstName,
-                                        LastName = Actor.LastName,
+                                        IdActor = Actor.Data.IdActor,
+                                        FirstName = Actor.Data.FirstName,
+                                        LastName = Actor.Data.LastName,
                                     };
                                     actors.Add(actor);
                                 }
                                 film.ActorFilm = actors;
 
-                                string[] GenreNames = reader["genres"].ToString().Split(", ");
+                                string[] GenreNames = Reader["genres"].ToString().Split(", ");
                                 film.GenreFilm = GenreNames.ToList();
 
-                                string[] CountryNames = reader["countries"].ToString().Split(", ");
+                                string[] CountryNames = Reader["countries"].ToString().Split(", ");
                                 film.CountryFilm = CountryNames.ToList();
 
-                                string[] ratingStrings = reader["ratings"].ToString().Split(", ");
+                                string[] RatingStrings = Reader["ratings"].ToString().Split(", ");
                                 List<int> ratings = new List<int>();
 
-                                foreach (string ratingString in ratingStrings)
+                                foreach (string RatingString in RatingStrings)
                                 {
-                                    if (int.TryParse(ratingString, out int rating))
+                                    if (int.TryParse(RatingString, out int rating))
                                     {
                                         ratings.Add(rating);
                                     }
                                 }
                                 film.RatingFilm = ratings != null && ratings.Any() ? ratings.Sum() / (double)ratings.Count : 0;
 
-                                string[] words = Regex.Split(film.NameFilm, @"\W+");
-                                string filmImage = $"/Content/Image_Films/{string.Join("_", words)}.jpg";
-                                film.FilmImage = filmImage;
+                                string[] Words = Regex.Split(film.NameFilm, @"\W+");
+                                string FilmImage = $"/Content/Image_Films/{string.Join("_", Words)}.jpg";
+                                film.FilmImage = FilmImage;
 
-                                AllFilms.Add(film);
+                                allFilms.Add(film);
                             }
                         }
                     }
@@ -129,24 +129,24 @@ namespace MovieOpinions.DAL.Repositories
                     return new BaseResponse<List<Film>>
                     {
                         StatusCode = Domain.Enum.StatusCode.InternalServerError,
-                        Description = ex.Message,
-                        Data = null
+                        Description = ex.Message
                     };
                 }
             }
+
             return new BaseResponse<List<Film>>
             {
                 StatusCode = Domain.Enum.StatusCode.OK,
-                Data = AllFilms
+                Data = allFilms
             };
         }
 
-        public Task<Film> GetMovieGenre(string Genre)
+        public async Task<BaseResponse<Film>> GetMovieGenre(string Genre)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<BaseResponse<Film>> GetMovieId(int id)
+        public async Task<BaseResponse<Film>> GetMovieId(int Id)
         {
             Film film = null;
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
@@ -157,7 +157,7 @@ namespace MovieOpinions.DAL.Repositories
                 {
                     await conn.OpenAsync();
 
-                    using (var GetFilm = new NpgsqlCommand(
+                    using (var GetFilmId = new NpgsqlCommand(
                         "SELECT " +
                             "Film_Table.id_film, " +
                             "Film_Table.name_film, " +
@@ -192,57 +192,57 @@ namespace MovieOpinions.DAL.Repositories
                             "Film_Table.description_film"
                         , conn))
                     {
-                        GetFilm.Parameters.AddWithValue("@id_film", id);
+                        GetFilmId.Parameters.AddWithValue("@id_film", Id);
 
-                        using (var reader = await GetFilm.ExecuteReaderAsync())
+                        using (var Reader = await GetFilmId.ExecuteReaderAsync())
                         {
-                            while (reader.Read())
+                            while (Reader.Read())
                             {
 
                                 film = new Film()
                                 {
-                                    IdFilm = Convert.ToInt32(reader["id_film"]),
-                                    NameFilm = reader["name_film"].ToString(),
-                                    YearFilm = Convert.ToInt32(reader["year_film"]),
-                                    DescriptionFilm = reader["description_film"].ToString()
+                                    IdFilm = Convert.ToInt32(Reader["id_film"]),
+                                    NameFilm = Reader["name_film"].ToString(),
+                                    YearFilm = Convert.ToInt32(Reader["year_film"]),
+                                    DescriptionFilm = Reader["description_film"].ToString()
                                 };
 
-                                var ActorsName = reader["actors"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                                var ActorsName = Reader["actors"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
                                 List<Actor> actors = new List<Actor>();
                                 foreach (string NameActor in ActorsName)
                                 {
                                     var Actor = await new ActorRepository().GetActorName(NameActor);
                                     Actor actor = new Actor
                                     {
-                                        IdActor = Actor.IdActor,
-                                        FirstName = Actor.FirstName,
-                                        LastName = Actor.LastName,
+                                        IdActor = Actor.Data.IdActor,
+                                        FirstName = Actor.Data.FirstName,
+                                        LastName = Actor.Data.LastName,
                                     };
                                     actors.Add(actor);
                                 }
                                 film.ActorFilm = actors;
 
-                                string[] GenreNames = reader["genres"].ToString().Split(", ");
+                                string[] GenreNames = Reader["genres"].ToString().Split(", ");
                                 film.GenreFilm = GenreNames.ToList();
 
-                                string[] CountryNames = reader["countries"].ToString().Split(", ");
+                                string[] CountryNames = Reader["countries"].ToString().Split(", ");
                                 film.CountryFilm = CountryNames.ToList();
 
-                                string[] ratingStrings = reader["ratings"].ToString().Split(", ");
+                                string[] RatingStrings = Reader["ratings"].ToString().Split(", ");
                                 List<int> ratings = new List<int>();
 
-                                foreach (string ratingString in ratingStrings)
+                                foreach (string RatingString in RatingStrings)
                                 {
-                                    if (int.TryParse(ratingString, out int rating))
+                                    if (int.TryParse(RatingString, out int rating))
                                     {
                                         ratings.Add(rating);
                                     }
                                 }
                                 film.RatingFilm = ratings != null && ratings.Any() ? ratings.Sum() / (double)ratings.Count : 0;
 
-                                string[] words = Regex.Split(film.NameFilm, @"\W+");
-                                string filmImage = $"/Content/Image_Films/{string.Join("_", words)}.jpg";
-                                film.FilmImage = filmImage;
+                                string[] Words = Regex.Split(film.NameFilm, @"\W+");
+                                string FilmImage = $"/Content/Image_Films/{string.Join("_", Words)}.jpg";
+                                film.FilmImage = FilmImage;
                             }
                         }
                     }
@@ -252,8 +252,7 @@ namespace MovieOpinions.DAL.Repositories
                     return new BaseResponse<Film>
                     {
                         StatusCode = Domain.Enum.StatusCode.InternalServerError,
-                        Description = ex.Message,
-                        Data = null
+                        Description = ex.Message
                     };
                 }
 
@@ -276,7 +275,7 @@ namespace MovieOpinions.DAL.Repositories
                 {
                     await conn.OpenAsync();
 
-                    using (var GetFilm = new NpgsqlCommand(
+                    using (var GetFilmName = new NpgsqlCommand(
                         "SELECT " +
                             "Film_Table.id_film, " +
                             "Film_Table.name_film, " +
@@ -311,57 +310,57 @@ namespace MovieOpinions.DAL.Repositories
                             "Film_Table.description_film"
                         , conn))
                     {
-                        GetFilm.Parameters.AddWithValue("@name_film", Name);
+                        GetFilmName.Parameters.AddWithValue("@name_film", Name);
 
-                        using (var reader = await GetFilm.ExecuteReaderAsync())
+                        using (var Reader = await GetFilmName.ExecuteReaderAsync())
                         {
-                            while (reader.Read())
+                            while (Reader.Read())
                             {
 
                                 film = new Film()
                                 {
-                                    IdFilm = Convert.ToInt32(reader["id_film"]),
-                                    NameFilm = reader["name_film"].ToString(),
-                                    YearFilm = Convert.ToInt32(reader["year_film"]),
-                                    DescriptionFilm = reader["description_film"].ToString()
+                                    IdFilm = Convert.ToInt32(Reader["id_film"]),
+                                    NameFilm = Reader["name_film"].ToString(),
+                                    YearFilm = Convert.ToInt32(Reader["year_film"]),
+                                    DescriptionFilm = Reader["description_film"].ToString()
                                 };
 
-                                var ActorsName = reader["actors"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                                var ActorsName = Reader["actors"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
                                 List<Actor> actors = new List<Actor>();
                                 foreach (string NameActor in ActorsName)
                                 {
                                     var Actor = await new ActorRepository().GetActorName(NameActor);
                                     Actor actor = new Actor
                                     {
-                                        IdActor = Actor.IdActor,
-                                        FirstName = Actor.FirstName,
-                                        LastName = Actor.LastName,
+                                        IdActor = Actor.Data.IdActor,
+                                        FirstName = Actor.Data.FirstName,
+                                        LastName = Actor.Data.LastName,
                                     };
                                     actors.Add(actor);
                                 }
                                 film.ActorFilm = actors;
 
-                                string[] GenreNames = reader["genres"].ToString().Split(", ");
+                                string[] GenreNames = Reader["genres"].ToString().Split(", ");
                                 film.GenreFilm = GenreNames.ToList();
 
-                                string[] CountryNames = reader["countries"].ToString().Split(", ");
+                                string[] CountryNames = Reader["countries"].ToString().Split(", ");
                                 film.CountryFilm = CountryNames.ToList();
 
-                                string[] ratingStrings = reader["ratings"].ToString().Split(", ");
+                                string[] RatingStrings = Reader["ratings"].ToString().Split(", ");
                                 List<int> ratings = new List<int>();
 
-                                foreach (string ratingString in ratingStrings)
+                                foreach (string RatingString in RatingStrings)
                                 {
-                                    if (int.TryParse(ratingString, out int rating))
+                                    if (int.TryParse(RatingString, out int rating))
                                     {
                                         ratings.Add(rating);
                                     }
                                 }
                                 film.RatingFilm = ratings != null && ratings.Any() ? ratings.Sum() / (double)ratings.Count : 0;
 
-                                string[] words = Regex.Split(film.NameFilm, @"\W+");
-                                string filmImage = $"/Content/Image_Films/{string.Join("_", words)}.jpg";
-                                film.FilmImage = filmImage;
+                                string[] Words = Regex.Split(film.NameFilm, @"\W+");
+                                string FilmImage = $"/Content/Image_Films/{string.Join("_", Words)}.jpg";
+                                film.FilmImage = FilmImage;
                             }
                         }
                     }
@@ -371,8 +370,7 @@ namespace MovieOpinions.DAL.Repositories
                     return new BaseResponse<Film>
                     {
                         StatusCode = Domain.Enum.StatusCode.InternalServerError,
-                        Description = ex.Message,
-                        Data = null
+                        Description = ex.Message
                     };
                 }
 
@@ -384,12 +382,12 @@ namespace MovieOpinions.DAL.Repositories
             }
         }
 
-        public Task<Film> GetMovieYear(int year)
+        public async Task<BaseResponse<Film>> GetMovieYear(int Year)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Film> Update(Film entity)
+        public async Task<BaseResponse<Film>> Update(Film Entity)
         {
             throw new NotImplementedException();
         }

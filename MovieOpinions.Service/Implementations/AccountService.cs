@@ -23,23 +23,23 @@ namespace MovieOpinions.Service.Implementations
             _userRepository = userRepository;
         }
 
-        public async Task<BaseResponse<ClaimsIdentity>> Login(LoginModel loginModel)
+        public async Task<BaseResponse<ClaimsIdentity>> Login(LoginModel LoginModel)
         {
             try
             {
-                var user = await _userRepository.GetUser(loginModel.LoginUser);
+                var GetUser = await _userRepository.GetUser(LoginModel.LoginUser);
                 
-                if(user != null)
+                if(GetUser.Data != null)
                 {
-                    bool isPasswordCorrect = await new CheckingCorrectnessPassword().VerifyPassword(loginModel.PasswordUser, user.PasswordSalt, user.PasswordUser);
+                    bool IsPasswordCorrect = await new CheckingCorrectnessPassword().VerifyPassword(LoginModel.PasswordUser, GetUser.Data.PasswordSalt, GetUser.Data.PasswordUser);
 
-                    if (isPasswordCorrect)
+                    if (IsPasswordCorrect)
                     {
-                        var result = Authenticate(user);
+                        var Result = Authenticate(GetUser.Data);
 
                         return new BaseResponse<ClaimsIdentity>()
                         {
-                            Data = result,
+                            Data = Result,
                             StatusCode = Domain.Enum.StatusCode.OK
                         };
                     }
@@ -47,6 +47,7 @@ namespace MovieOpinions.Service.Implementations
 
                 return new BaseResponse<ClaimsIdentity>()
                 {
+                    StatusCode = Domain.Enum.StatusCode.NotFound,
                     Description = "Невірний логін або пароль!"
                 };
             }
@@ -60,40 +61,41 @@ namespace MovieOpinions.Service.Implementations
             }
         }
 
-        public async Task<BaseResponse<ClaimsIdentity>> Register(RegisterModel registerModel)
+        public async Task<BaseResponse<ClaimsIdentity>> Register(RegisterModel RegisterModel)
         {
             try
             {
-                var getUser = await _userRepository.GetUser(registerModel.Login);
-                if(getUser != null)
+                var GetUser = await _userRepository.GetUser(RegisterModel.Login);
+                if(GetUser.Data != null)
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
-                        Description = "Користувач з таким логіном вже зареєстрований!"
+                        Description = "Користувач з таким логіном вже зареєстрований!",
+                        StatusCode = Domain.Enum.StatusCode.Conflict
                     };
                 }
 
                 string PasswordKey = Guid.NewGuid().ToString();
-                string EncryptionPassword = await new HashPassword().GetHashedPassword(registerModel.Password, PasswordKey);
+                string EncryptionPassword = await new HashPassword().GetHashedPassword(RegisterModel.Password, PasswordKey);
 
-                var newUser = new User()
+                var NewUser = new User()
                 {
-                    NameUser = registerModel.Login,
+                    NameUser = RegisterModel.Login,
                     PasswordUser = EncryptionPassword,
                     PasswordSalt = PasswordKey,
                     BlockedUser = false,
                     DeleteUser = false,
                 };
 
-                var registerUser = await _userRepository.Create(newUser);
+                var RegisterUser = await _userRepository.Create(NewUser);
 
-                if (registerUser.StatusCode == Domain.Enum.StatusCode.OK)
+                if (RegisterUser.StatusCode == Domain.Enum.StatusCode.OK)
                 {
-                    var result = Authenticate(newUser);
+                    var Result = Authenticate(NewUser);
 
                     return new BaseResponse<ClaimsIdentity>()
                     {
-                        Data = result,
+                        Data = Result,
                         Description = "Користувач зареєстрований!",
                         StatusCode = Domain.Enum.StatusCode.OK
                     };
@@ -102,7 +104,8 @@ namespace MovieOpinions.Service.Implementations
                 {
                     return new BaseResponse<ClaimsIdentity>()
                     {
-                        Description = "Упс.. Виникла помилка, спробуйте пізніше!"
+                        Description = "Упс.. Виникла помилка, спробуйте пізніше!",
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError
                     };
                 }
             }

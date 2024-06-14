@@ -11,9 +11,9 @@ namespace MovieOpinions.Domain.Helpers
         public async Task<bool> VerifyPassword(string EnteredPassword, string PasswordKey, string StoredHash)
         {
             // Шифруємо введений пароль з використанням ключа (солі)
-            string enteredHash = await new HashPassword().GetHashedPassword(EnteredPassword, PasswordKey);
+            string EnteredHash = await new HashPassword().GetHashedPassword(EnteredPassword, PasswordKey);
             // Порівнюємо отриманий хеш зі збереженим хешем
-            return StoredHash.Equals(enteredHash);
+            return StoredHash.Equals(EnteredHash);
         }
     }
 }

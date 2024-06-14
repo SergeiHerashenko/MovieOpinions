@@ -6,7 +6,7 @@
     // Отримуємо id цього батьківського елемента
     let CommentId = parentCommentZone ? parentCommentZone.id : null;
 
-    let userName = document.getElementById("UserName").textContent;
+    let userName = parentCommentZone.querySelector("#UserName").textContent;
     userName = userName.replace(' відповідіє:', '').trim();
 
     let DataAnswer = {
@@ -15,7 +15,6 @@
         NameUserAnswer: userName
     };
 
-    
     $.ajax({
         type: "POST",
         url: "/FilmPage/AddAnswerToComment",
@@ -31,7 +30,7 @@
                 let lines = response.description.split('\n');
                 let formattedText = lines.join('<br>');
                 Message.innerHTML = formattedText;
-
+    
                 isRedirectNeeded = response.isRedirectNeeded;
             }
         }

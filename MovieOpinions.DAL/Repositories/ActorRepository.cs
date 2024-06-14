@@ -15,19 +15,19 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class ActorRepository : IActorRepository
     {
-        public Task<BaseResponse<bool>> Create(Actor entity)
+        public async Task<BaseResponse<bool>> Create(Actor Entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> Delete(Actor entity)
+        public async Task<BaseResponse<bool>> Delete(Actor Entity)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<DetailedActor> GetActorId(int idActor)
+        public async Task<BaseResponse<DetailedActor>> GetActorId(int IdActor)
         {
-            DetailedActor actor = new DetailedActor();
+            DetailedActor actor = null;
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
 
             using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
@@ -68,33 +68,33 @@ namespace MovieOpinions.DAL.Repositories
                             "Country_Table.name_country;"
                         , conn))
                     {
-                        getActorId.Parameters.AddWithValue("@idActor", idActor);
+                        getActorId.Parameters.AddWithValue("@idActor", IdActor);
 
-                        using(var reader = await getActorId.ExecuteReaderAsync())
+                        using(var Reader = await getActorId.ExecuteReaderAsync())
                         {
-                            if (reader.Read())
+                            if (Reader.Read())
                             {
                                 actor = new DetailedActor()
                                 {
-                                    IdActor = Convert.ToInt32(reader["id_actor"]),
-                                    FirstName = reader["first_name_actor"].ToString(),
-                                    LastName = reader["last_name_actor"].ToString(),
-                                    BirthdayActor = Convert.ToDateTime(reader["birthday_actor"]),
-                                    CountryActor = reader["name_country"].ToString()
+                                    IdActor = Convert.ToInt32(Reader["id_actor"]),
+                                    FirstName = Reader["first_name_actor"].ToString(),
+                                    LastName = Reader["last_name_actor"].ToString(),
+                                    BirthdayActor = Convert.ToDateTime(Reader["birthday_actor"]),
+                                    CountryActor = Reader["name_country"].ToString()
                                 };
 
-                                string[] genreActor = reader["GenreActor"].ToString().Split(", ");
-                                actor.GenreActor = genreActor;
+                                string[] GenreActor = Reader["GenreActor"].ToString().Split(", ");
+                                actor.GenreActor = GenreActor;
 
-                                string[] words = new string[] { actor.FirstName, actor.LastName };
-                                string actorImage = $"/Content/Image_Actor/{string.Join("_", words)}.jpg";
-                                actor.ActorImage = actorImage;
+                                string[] Words = new string[] { actor.FirstName, actor.LastName };
+                                string ActorImage = $"/Content/Image_Actor/{string.Join("_", Words)}.jpg";
+                                actor.ActorImage = ActorImage;
 
-                                var filmActor = reader["FilmActor"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                                var filmActor = Reader["FilmActor"].ToString().Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
                                 List<Film> filmsList = new List<Film>();
-                                foreach(var film in filmActor)
+                                foreach(var Film in filmActor)
                                 {
-                                    var FilmsName = await new FilmRepository().GetMovieName(film);
+                                    var FilmsName = await new FilmRepository().GetMovieName(Film);
 
                                     Film films = new Film()
                                     {
@@ -109,18 +109,26 @@ namespace MovieOpinions.DAL.Repositories
                         }
                     }
 
-                    return actor;
+                    return new BaseResponse<DetailedActor>() 
+                    { 
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = actor
+                    };
                 }
                 catch (Exception ex)
                 {
-                    return actor;
+                    return new BaseResponse<DetailedActor>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
                 }
             }
         }
 
-        public async Task<Actor> GetActorName(string NameActor)
+        public async Task<BaseResponse<Actor>> GetActorName(string NameActor)
         {
-            string[] parts = NameActor.Split(' ');
+            string[] Parts = NameActor.Split(' ');
             Actor actor = new Actor();
 
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
@@ -132,32 +140,40 @@ namespace MovieOpinions.DAL.Repositories
                 {
                     using (var GetActor = new NpgsqlCommand("SELECT id_actor, first_name_actor, last_name_actor FROM Actor_Table WHERE first_name_actor = @FirstName AND last_name_actor = @LastName", conn))
                     {
-                        GetActor.Parameters.AddWithValue("FirstName", parts[0]);
-                        GetActor.Parameters.AddWithValue("LastName", parts[1]);
+                        GetActor.Parameters.AddWithValue("FirstName", Parts[0]);
+                        GetActor.Parameters.AddWithValue("LastName", Parts[1]);
 
-                        using (var reader = await GetActor.ExecuteReaderAsync())
+                        using (var Reader = await GetActor.ExecuteReaderAsync())
                         {
-                            while (await reader.ReadAsync())
+                            while (await Reader.ReadAsync())
                             {
-                                int actorId = Convert.ToInt32(reader["id_actor"]);
+                                int ActorId = Convert.ToInt32(Reader["id_actor"]);
 
-                                actor.FirstName = parts[0];
-                                actor.LastName = parts[1];
-                                actor.IdActor = actorId;
+                                actor.FirstName = Parts[0];
+                                actor.LastName = Parts[1];
+                                actor.IdActor = ActorId;
                             }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    return new BaseResponse<Actor>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
                 }
             }
 
-            return actor;
+            return new BaseResponse<Actor>() 
+            { 
+                StatusCode = Domain.Enum.StatusCode.OK,
+                Data = actor
+            };
         }
 
-        public Task<Actor> Update(Actor entity)
+        public async Task<BaseResponse<Actor>> Update(Actor Entity)
         {
             throw new NotImplementedException();
         }

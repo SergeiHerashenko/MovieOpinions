@@ -15,17 +15,48 @@ namespace MovieOpinions.DAL.Repositories
 {
     public class CommentRepository : ICommentRepository
     {
-        public Task<BaseResponse<bool>> Create(Comment entity)
+        public async Task<BaseResponse<bool>> Create(Comment Entity)
+        {
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            try
+            {
+                using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+                {
+                    await conn.OpenAsync();
+                    using (var AddComment = new NpgsqlCommand("INSERT INTO Comment_Table (id_user, text_comment, id_film, date_comment) VALUES (@ID_USER, @TEXT_COMMENT, @ID_FILM, now())", conn))
+                    {
+                        AddComment.Parameters.AddWithValue("@ID_USER", Entity.IdUserComment);
+                        AddComment.Parameters.AddWithValue("@TEXT_COMMENT", Entity.TextComment);
+                        AddComment.Parameters.AddWithValue("@ID_FILM", Entity.IdFilm);
+
+                        await AddComment.ExecuteNonQueryAsync();
+
+                        return new BaseResponse<bool>
+                        {
+                            StatusCode = Domain.Enum.StatusCode.OK,
+                            Data = true
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Data = false,
+                    Description = ex.Message
+                };
+            }
+        }
+
+        public async Task<BaseResponse<bool>> Delete(Comment Entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> Delete(Comment entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<BaseResponse<List<Comment>>> GetCommentFilm(int idFilm)
+        public async Task<BaseResponse<List<Comment>>> GetCommentFilm(int IdFilm)
         {
             List<Comment> comments = new List<Comment>();
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
@@ -35,24 +66,24 @@ namespace MovieOpinions.DAL.Repositories
                 try
                 {
                     await conn.OpenAsync();
-                    using (var command = new NpgsqlCommand(
+                    using (var GetFilmComment = new NpgsqlCommand(
                         "SELECT id_comment, id_user, text_comment, date_comment, id_film " +
                         "FROM Comment_Table " +
                         "WHERE id_film = @id_film", conn))
                     {
-                        command.Parameters.AddWithValue("@id_film", idFilm);
+                        GetFilmComment.Parameters.AddWithValue("@id_film", IdFilm);
 
-                        using (var reader = await command.ExecuteReaderAsync())
+                        using (var Reader = await GetFilmComment.ExecuteReaderAsync())
                         {
-                            while (await reader.ReadAsync())
+                            while (await Reader.ReadAsync())
                             {
                                 Comment comment = new Comment
                                 {
-                                    IdComment = Convert.ToInt32(reader["id_comment"]),
-                                    IdUserComment = Convert.ToInt32(reader["id_user"]),
-                                    TextComment = reader["text_comment"].ToString(),
-                                    IdFilm = Convert.ToInt32(reader["id_film"]),
-                                    DateComment = Convert.ToDateTime(reader["date_comment"])
+                                    IdComment = Convert.ToInt32(Reader["id_comment"]),
+                                    IdUserComment = Convert.ToInt32(Reader["id_user"]),
+                                    TextComment = Reader["text_comment"].ToString(),
+                                    IdFilm = Convert.ToInt32(Reader["id_film"]),
+                                    DateComment = Convert.ToDateTime(Reader["date_comment"])
                                 };
 
                                 comments.Add(comment);
@@ -65,8 +96,7 @@ namespace MovieOpinions.DAL.Repositories
                     return new BaseResponse<List<Comment>>
                     {
                         StatusCode = Domain.Enum.StatusCode.InternalServerError,
-                        Description = ex.Message,
-                        Data = null
+                        Description = ex.Message
                     };
                 }
             }
@@ -78,7 +108,7 @@ namespace MovieOpinions.DAL.Repositories
             };
         }
 
-        public async Task<BaseResponse<Comment>> GetCommentId(int id)
+        public async Task<BaseResponse<Comment>> GetCommentId(int Id)
         {
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
             Comment comment = null;
@@ -87,30 +117,30 @@ namespace MovieOpinions.DAL.Repositories
                 try
                 {
                     await conn.OpenAsync();
-                    using (var command = new NpgsqlCommand(
+                    using (var GetIdComment = new NpgsqlCommand(
                         "SELECT id_comment, id_user, text_comment, id_film, date_comment " +
                         "FROM Comment_Table " +
                         "WHERE id_comment = @id_comment", conn))
                     {
-                        command.Parameters.AddWithValue("@id_comment", id);
+                        GetIdComment.Parameters.AddWithValue("@id_comment", Id);
 
-                        using (var reader = await command.ExecuteReaderAsync())
+                        using (var Reader = await GetIdComment.ExecuteReaderAsync())
                         {
-                            if (await reader.ReadAsync())
+                            if (await Reader.ReadAsync())
                             {
                                 comment = new Comment
                                 {
-                                    IdComment = Convert.ToInt32(reader["id_comment"]),
-                                    IdUserComment = Convert.ToInt32(reader["id_user"]),
-                                    TextComment = reader["text_comment"].ToString(),
-                                    IdFilm = Convert.ToInt32(reader["id_film"]),
-                                    DateComment = Convert.ToDateTime(reader["date_comment"])
+                                    IdComment = Convert.ToInt32(Reader["id_comment"]),
+                                    IdUserComment = Convert.ToInt32(Reader["id_user"]),
+                                    TextComment = Reader["text_comment"].ToString(),
+                                    IdFilm = Convert.ToInt32(Reader["id_film"]),
+                                    DateComment = Convert.ToDateTime(Reader["date_comment"])
                                 };
                             }
                         }
                     }
-                    return new BaseResponse<Comment>() 
-                    { 
+                    return new BaseResponse<Comment>()
+                    {
                         StatusCode = Domain.Enum.StatusCode.OK,
                         Data = comment
                     };
@@ -127,12 +157,12 @@ namespace MovieOpinions.DAL.Repositories
 
         }
 
-        public Task<IEnumerable<Comment>> GetCommentsUser(int idUser)
+        public async Task<BaseResponse<IEnumerable<Comment>>> GetCommentsUser(int IdUser)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Comment> Update(Comment entity)
+        public async Task<BaseResponse<Comment>> Update(Comment entity)
         {
             throw new NotImplementedException();
         }

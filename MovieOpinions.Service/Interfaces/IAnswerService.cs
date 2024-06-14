@@ -10,7 +10,7 @@ namespace MovieOpinions.Service.Interfaces
 {
     public interface IAnswerService
     {
-        Task<BaseResponse<IEnumerable<Answer>>> GetAnswerToComment(int idComment);
+        Task<BaseResponse<IEnumerable<Answer>>> GetAnswerToComment(int IdComment);
         Task<BaseResponse<bool>> AddAnswerDataBase(Answer answer);
     }
 }

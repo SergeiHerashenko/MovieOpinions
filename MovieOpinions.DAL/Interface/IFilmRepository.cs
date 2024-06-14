@@ -10,10 +10,10 @@ namespace MovieOpinions.DAL.Interface
 {
     public interface IFilmRepository : IBaseRepository<Film>
     {
-        Task<BaseResponse<Film>> GetMovieId(int id);
+        Task<BaseResponse<Film>> GetMovieId(int Id);
         Task<BaseResponse<List<Film>>> GetAll();
         Task<BaseResponse<Film>> GetMovieName(string Name);
-        Task<Film> GetMovieYear(int year);
-        Task<Film> GetMovieGenre(string Genre);
+        Task<BaseResponse<Film>> GetMovieYear(int Year);
+        Task<BaseResponse<Film>> GetMovieGenre(string Genre);
     }
 }

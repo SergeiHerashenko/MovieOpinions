@@ -10,7 +10,8 @@ namespace MovieOpinions.Service.Interfaces
 {
     public interface ICommentService
     {
-        Task<BaseResponse<List<Comment>>> GetAllCommentFilm(int idFilm);
-        Task<BaseResponse<Comment>> GetIdComment(int idComment);
+        Task<BaseResponse<List<Comment>>> GetAllCommentFilm(int IdFilm);
+        Task<BaseResponse<Comment>> GetIdComment(int IdComment);
+        Task<BaseResponse<bool>> AddCommentDataBase(Comment comment);
     }
 }

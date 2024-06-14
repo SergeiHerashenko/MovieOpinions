@@ -6,6 +6,7 @@
         InternalServerError = 500,
         BlockedUser = 423,
         DeleteUser = 410,
-        NotFound = 404
+        NotFound = 404,
+        Conflict = 409
     }
 }

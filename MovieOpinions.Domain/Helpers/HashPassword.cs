@@ -12,11 +12,11 @@ namespace MovieOpinions.Domain.Helpers
         public async Task<string> GetHashedPassword(string PasswordUser, string PasswordKey)
         {
             // Перетворюємо пароль та ключ в масив байтів
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(PasswordUser + PasswordKey);
+            byte[] PasswordBytes = Encoding.UTF8.GetBytes(PasswordUser + PasswordKey);
             // Обчислюємо хеш SHA-256 для об'єднаного масиву байтів паролю та ключа
-            byte[] hashBytes = await Task.Run(() => new SHA256Managed().ComputeHash(passwordBytes));
+            byte[] HashBytes = await Task.Run(() => new SHA256Managed().ComputeHash(PasswordBytes));
             // Перетворюємо масив байтів хешу в рядок Base64
-            string HashedPassword = Convert.ToBase64String(hashBytes);
+            string HashedPassword = Convert.ToBase64String(HashBytes);
             // Повертаємо хешований пароль у вигляді рядка
             return HashedPassword;
         }

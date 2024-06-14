@@ -20,7 +20,25 @@ namespace MovieOpinions.Service.Implementations
 
         public async Task<BaseResponse<IEnumerable<string>>> GetAllGenre()
         {
-            return await _genreRepository.GetGenre();
+            var getGenres = await _genreRepository.GetGenre();
+
+            if (getGenres == null)
+            {
+                return new BaseResponse<IEnumerable<string>>()
+                {
+                    Description = "Жанрів не знайдено.",
+                    StatusCode = Domain.Enum.StatusCode.NotFound
+                };
+            }
+
+            return new BaseResponse<IEnumerable<string>>()
+            {
+                Data = getGenres.StatusCode == Domain.Enum.StatusCode.OK ? getGenres.Data : null,
+                Description = getGenres.Description,
+                StatusCode = getGenres.StatusCode == Domain.Enum.StatusCode.OK
+                    ? Domain.Enum.StatusCode.OK
+                    : Domain.Enum.StatusCode.InternalServerError
+            };
         }
     }
 }
