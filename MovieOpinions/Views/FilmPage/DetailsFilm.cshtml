@@ -94,7 +94,7 @@
                             {
                                 @foreach (var answers in comments.AnswerComment)
                                 {
-                                    <div class="AnswerStyle HideAnswers" data-comment-id="@comments.IdComment">
+                                    <div class="AnswerStyle HideAnswers" data-comment-id="@comments.IdComment" id="@answers.IdAnswer">
                                         <div class="HeaderAnswer">
                                             <div class="NameUserStyle">
                                                 <label>@answers.NameUserAnswer відповідіє:</label>
@@ -106,7 +106,7 @@
                                         <div class="ReactionPanelStyle">
                                             @if (@User.Identity.Name == answers.NameUserAnswer)
                                             {
-                                                <button class="GeneralButtonStyle">Редагувати відповідь</button>
+                                                <button class="GeneralButtonStyle" onclick="GetAnswerChangeForm(this)">Редагувати відповідь</button>
                                             }
                                             <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
                                             @if (@User.Identity.Name == answers.NameUserAnswer)

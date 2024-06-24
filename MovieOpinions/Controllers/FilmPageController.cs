@@ -263,9 +263,15 @@ namespace MovieOpinions.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetRedactionForm()
+        public IActionResult GetRedactionCommentForm()
         {
-            return PartialView("_Redaction");
+            return PartialView("_RedactionComment");
+        }
+
+        [HttpGet]
+        public IActionResult GetRedactionAnswerForm()
+        {
+            return PartialView("_RedactionAnswer");
         }
 
         public async Task<IActionResult> ChangeComment([FromBody] Comment DataComment)
@@ -280,6 +286,11 @@ namespace MovieOpinions.Controllers
             {
                 return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
             }
+        }
+
+        public async Task<IActionResult> ChangeAnswer([FromBody] Answer DataAnswer)
+        {
+            
         }
     }
 }

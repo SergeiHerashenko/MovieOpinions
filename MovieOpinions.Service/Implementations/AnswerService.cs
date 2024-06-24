@@ -38,6 +38,11 @@ namespace MovieOpinions.Service.Implementations
             };
         }
 
+        public async Task<BaseResponse<Answer>> EditAnswer(Answer Entity)
+        {
+            var UpdateAnswer = _answerRepository.Update();
+        }
+
         public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerToComment(int IdComment)
         {
             var GetAnswer = await _answerRepository.GetAnswerComment(IdComment);

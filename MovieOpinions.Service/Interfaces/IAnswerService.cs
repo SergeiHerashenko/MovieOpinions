@@ -12,5 +12,6 @@ namespace MovieOpinions.Service.Interfaces
     {
         Task<BaseResponse<IEnumerable<Answer>>> GetAnswerToComment(int IdComment);
         Task<BaseResponse<bool>> AddAnswerDataBase(Answer answer);
+        Task<BaseResponse<Answer>> EditAnswer(Answer Entity);
     }
 }
