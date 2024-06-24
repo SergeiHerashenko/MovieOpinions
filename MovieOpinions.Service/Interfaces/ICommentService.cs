@@ -13,5 +13,6 @@ namespace MovieOpinions.Service.Interfaces
         Task<BaseResponse<List<Comment>>> GetAllCommentFilm(int IdFilm);
         Task<BaseResponse<Comment>> GetIdComment(int IdComment);
         Task<BaseResponse<bool>> AddCommentDataBase(Comment comment);
+        Task<BaseResponse<Comment>> EditComment(Comment comment);
     }
 }

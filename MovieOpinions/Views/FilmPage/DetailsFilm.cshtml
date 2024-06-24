@@ -54,7 +54,7 @@
                         </div>
                     </div>
                 </div>
-                @if (Model.CommentFilm.Count > 0)
+                @if (Model.CommentFilm != null)
                 {
                     @foreach (var comments in Model.CommentFilm)
                     {
@@ -75,7 +75,7 @@
                                     <button class="GeneralButtonStyle AnswerButton">Відповісти</button>
                                     @if (@User.Identity.Name == comments.UserName)
                                     {
-                                        <button class="GeneralButtonStyle">Редагувати коментар</button>
+                                        <button class="GeneralButtonStyle" onclick="GetCommentChangeForm(this)">Редагувати коментар</button>
                                     }
                                     <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
                                     @if (@User.Identity.Name == comments.UserName)
@@ -129,7 +129,7 @@
             </div>
             <div class="ZoneTextCommentStyle">
                 <div class="AddCommentButtonStyle">
-                    <button class="GeneralButtonStyle CommentAdd">Додати коментар</button>
+                    <button class="GeneralButtonStyle CommentAdd">Додати коментар</button> 
                 </div>
             </div>
         </div>
@@ -146,4 +146,5 @@
     <script src="~/JavaScript/DetailsFilm_Page/AddPanelComment.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/RemovePanel.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/AddComment.js"></script>
+    <script src="~/JavaScript/DetailsFilm_Page/Redaction.js"></script>
 }

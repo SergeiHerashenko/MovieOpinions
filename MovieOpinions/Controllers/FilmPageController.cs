@@ -261,5 +261,25 @@ namespace MovieOpinions.Controllers
                 return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" + " " + AddCommentDataBase.StatusCode });
             }
         }
+
+        [HttpGet]
+        public IActionResult GetRedactionForm()
+        {
+            return PartialView("_Redaction");
+        }
+
+        public async Task<IActionResult> ChangeComment([FromBody] Comment DataComment)
+        {
+            var UpdateComment = await _commentService.EditComment(DataComment);
+
+            if(UpdateComment.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = UpdateComment.Data.IdFilm }) });
+            }
+            else
+            {
+                return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            }
+        }
     }
 }

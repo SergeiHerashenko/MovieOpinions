@@ -12,8 +12,6 @@
 
     let filmName = filmNameElement ? filmNameElement.textContent : '';
 
-    console.log(filmName);
-
     let DataComment = {
         UserName: userName,
         TextComment: CommentText.value

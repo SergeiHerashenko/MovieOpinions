@@ -98,7 +98,7 @@
 }
 
 .HeaderComment {
-    margin: 5px;
+    margin: 10px;
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
@@ -204,6 +204,24 @@
 }
 
     .AnswerStyle textarea:focus {
+        border: 2px solid;
+        outline: none;
+    }
+
+.CommentStyle textarea {
+    font-size: 17px;
+    border-radius: 20px;
+    resize: none;
+    font-family: 'Roboto';
+    color: #FF8304;
+    background: #292929;
+    width: 95%;
+    height: 100%;
+    padding: 13px;
+    box-sizing: border-box;
+}
+
+    .CommentStyle textarea:focus {
         border: 2px solid;
         outline: none;
     }

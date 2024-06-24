@@ -162,9 +162,66 @@ namespace MovieOpinions.DAL.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<BaseResponse<Comment>> Update(Comment entity)
+        public async Task<BaseResponse<Comment>> Update(Comment Entity)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+            using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                    using(var UpdateComment = new NpgsqlCommand(
+                        "UPDATE Comment_Table " +
+                        "SET text_comment = @TEXT_COMMENT " +
+                        "WHERE id_comment = @ID_COMMENT", conn))
+                    {
+                        UpdateComment.Parameters.AddWithValue("@TEXT_COMMENT", Entity.TextComment);
+                        UpdateComment.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);
+
+                        await UpdateComment.ExecuteNonQueryAsync();
+                    }
+
+                    using (var GetComment = new NpgsqlCommand(
+                        "SELECT " +
+                            "id_comment, id_user, text_comment, id_film, date_comment " +
+                        "FROM " +
+                            "Comment_Table " +
+                        "WHERE " +
+                            "id_comment = @ID_COMMENT", conn))
+                    {
+                        GetComment.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);
+
+                        using(var Reader = await GetComment.ExecuteReaderAsync())
+                        {
+                            await Reader.ReadAsync();
+                            var UpdatedComment = new Comment
+                            {
+                                IdComment = Entity.IdComment,
+                                IdUserComment = Convert.ToInt32(Reader["id_user"]),
+                                TextComment = Reader["text_comment"].ToString(),
+                                IdFilm = Convert.ToInt32(Reader["id_film"]),
+                                DateComment = Convert.ToDateTime(Reader["date_comment"]),
+                                AnswerComment = null
+                            };
+
+                            return new BaseResponse<Comment>
+                            {
+                                Data = UpdatedComment,
+                                StatusCode = Domain.Enum.StatusCode.OK
+                            };
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new BaseResponse<Comment>
+                    {
+                        Data = null,
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
+                }
+            }
         }
     }
 }

@@ -57,10 +57,12 @@ namespace MovieOpinions.Service.Implementations
             {
                 if(CommentsResponse.Data.Count != 0)
                 {
+                    var SortedComment = CommentsResponse.Data.OrderBy(c => c.IdComment).ToList();
+
                     return new BaseResponse<List<Comment>>
                     {
                         StatusCode = Domain.Enum.StatusCode.OK,
-                        Data = CommentsResponse.Data
+                        Data = SortedComment
                     };
                 }
                 else
@@ -104,6 +106,29 @@ namespace MovieOpinions.Service.Implementations
                         StatusCode = Domain.Enum.StatusCode.InternalServerError
                     };
                 }
+            }
+        }
+
+        public async Task<BaseResponse<Comment>> EditComment(Comment comment)
+        {
+            var CommentResponse = await _commentRepository.Update(comment);
+
+            if(CommentResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return new BaseResponse<Comment>()
+                {
+                    StatusCode = Domain.Enum.StatusCode.OK,
+                    Data = CommentResponse.Data
+                };
+            }
+            else
+            {
+                return new BaseResponse<Comment>()
+                {
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Data = null,
+                    Description = CommentResponse.Description
+                };
             }
         }
     }
