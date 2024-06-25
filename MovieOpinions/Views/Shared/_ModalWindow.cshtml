@@ -5,7 +5,10 @@
         <p id="Message" class="MessageTextStyle" style="text-align:center;">
             <!-- Поле для повідомлення про помилку /Error message field/ -->
         </p>
-        <!-- Кнопка закриття модального вікна помилки /Button to close the error modal window/-->
-        <button class="GeneralButtonStyle" id="ButtonCloseModalMessageWindow" onclick="CloseModalWindow('ButtonCloseModalMessageWindow', 'ModalWindow')" style="width: 150px; height: 50px; max-width: 300px">Зрозуміло!</button>
+        <div style="display: flex; gap: 25px;">
+            <!-- Кнопка закриття модального вікна помилки /Button to close the error modal window/-->
+            <button class="GeneralButtonStyle" id="ButtonCloseModalMessageWindow" onclick="CloseModalWindow('ButtonCloseModalMessageWindow', 'ModalWindow')" style="width: 150px; height: 50px; max-width: 300px">Зрозуміло!</button>
+            <button class="GeneralButtonStyle" id="ConfirmButton" style="display: none">Підтвердити</button>
+        </div>
     </div>
 </div>

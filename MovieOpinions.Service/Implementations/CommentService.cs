@@ -131,5 +131,10 @@ namespace MovieOpinions.Service.Implementations
                 };
             }
         }
+
+        public async Task<BaseResponse<Comment>> DeleteComment(Comment Entity)
+        {
+            var DeleteComment = await _commentRepository.Delete(Entity);
+        }
     }
 }

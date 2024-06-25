@@ -306,5 +306,10 @@ namespace MovieOpinions.Controllers
 
             return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = CommentIdResult.Data.IdFilm }) });
         }
+
+        public async Task<IActionResult> DeleteComment(Comment DataComment)
+        {
+            
+        }
     }
 }

@@ -14,5 +14,6 @@ namespace MovieOpinions.Service.Interfaces
         Task<BaseResponse<Comment>> GetIdComment(int IdComment);
         Task<BaseResponse<bool>> AddCommentDataBase(Comment comment);
         Task<BaseResponse<Comment>> EditComment(Comment comment);
+        Task<BaseResponse<Comment>> DeleteComment(Comment Entity);
     }
 }

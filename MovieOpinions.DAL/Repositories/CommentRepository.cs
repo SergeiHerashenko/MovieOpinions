@@ -53,7 +53,20 @@ namespace MovieOpinions.DAL.Repositories
 
         public async Task<BaseResponse<bool>> Delete(Comment Entity)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            using(var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
         }
 
         public async Task<BaseResponse<List<Comment>>> GetCommentFilm(int IdFilm)
