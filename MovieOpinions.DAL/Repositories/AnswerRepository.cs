@@ -119,7 +119,65 @@ namespace MovieOpinions.DAL.Repositories
 
         public async Task<BaseResponse<Answer>> Update(Answer Entity)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                    using (var UpdateAnswer = new NpgsqlCommand(
+                        "UPDATE " +
+                            "Answer_Table " +
+                        "SET " +
+                            "text_answer = @TEXT_ANSWER " +
+                        "WHERE " +
+                            "id_answer = @ID_ANSWER", conn))
+                    {
+                        UpdateAnswer.Parameters.AddWithValue("@TEXT_ANSWER", Entity.TextAnswer);
+                        UpdateAnswer.Parameters.AddWithValue("@ID_ANSWER", Entity.IdAnswer);
+
+                        await UpdateAnswer.ExecuteNonQueryAsync();
+                    }
+
+                    using(var GetAnswer = new NpgsqlCommand(
+                        "SELECT " +
+                            "id_answer, id_comment, text_answer, id_user " +
+                        "FROM " +
+                            "Answer_Table " +
+                        "WHERE " +
+                            "id_answer = @ID_ANSWER", conn))
+                    {
+                        GetAnswer.Parameters.AddWithValue("@ID_ANSWER", Entity.IdAnswer);
+
+                        using (var Reader = await GetAnswer.ExecuteReaderAsync())
+                        {
+                            await Reader.ReadAsync();
+                            var UpdatedAnswer = new Answer
+                            {
+                                IdAnswer = Entity.IdAnswer,
+                                IdComment = Convert.ToInt32(Reader["id_comment"]),
+                                TextAnswer = Reader["text_answer"].ToString(),
+                                IdUserAnswer = Convert.ToInt32(Reader["id_user"])
+                            };
+
+                            return new BaseResponse<Answer>
+                            {
+                                Data = UpdatedAnswer,
+                                StatusCode = Domain.Enum.StatusCode.OK
+                            };
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    return new BaseResponse<Answer>
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
+                }
+            }
         }
     }
 }

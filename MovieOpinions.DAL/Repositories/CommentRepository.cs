@@ -171,9 +171,12 @@ namespace MovieOpinions.DAL.Repositories
                 {
                     await conn.OpenAsync();
                     using(var UpdateComment = new NpgsqlCommand(
-                        "UPDATE Comment_Table " +
-                        "SET text_comment = @TEXT_COMMENT " +
-                        "WHERE id_comment = @ID_COMMENT", conn))
+                        "UPDATE " +
+                            "Comment_Table " +
+                        "SET " +
+                            "text_comment = @TEXT_COMMENT " +
+                        "WHERE " +
+                            "id_comment = @ID_COMMENT", conn))
                     {
                         UpdateComment.Parameters.AddWithValue("@TEXT_COMMENT", Entity.TextComment);
                         UpdateComment.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);

@@ -290,7 +290,21 @@ namespace MovieOpinions.Controllers
 
         public async Task<IActionResult> ChangeAnswer([FromBody] Answer DataAnswer)
         {
-            
+            var UpdateAnswer = await _answerService.EditAnswer(DataAnswer);
+
+            if(UpdateAnswer.StatusCode != Domain.Enum.StatusCode.OK)
+            {
+                return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            }
+
+            var CommentIdResult = await _commentService.GetIdComment(UpdateAnswer.Data.IdComment);
+
+            if(CommentIdResult.StatusCode != Domain.Enum.StatusCode.OK)
+            {
+                return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            }
+
+            return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = CommentIdResult.Data.IdFilm }) });
         }
     }
 }

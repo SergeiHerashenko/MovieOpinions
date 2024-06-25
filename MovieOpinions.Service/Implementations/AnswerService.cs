@@ -40,7 +40,24 @@ namespace MovieOpinions.Service.Implementations
 
         public async Task<BaseResponse<Answer>> EditAnswer(Answer Entity)
         {
-            var UpdateAnswer = _answerRepository.Update();
+            var UpdateAnswer = await _answerRepository.Update(Entity);
+
+            if(UpdateAnswer.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return new BaseResponse<Answer>()
+                {
+                    Data = UpdateAnswer.Data,
+                    StatusCode = Domain.Enum.StatusCode.OK
+                };
+            }
+            else
+            {
+                return new BaseResponse<Answer>()
+                {
+                    Description = UpdateAnswer.Description,
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError
+                };
+            }
         }
 
         public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerToComment(int IdComment)
