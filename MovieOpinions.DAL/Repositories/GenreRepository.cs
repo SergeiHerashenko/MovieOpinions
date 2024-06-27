@@ -49,5 +49,53 @@ namespace MovieOpinions.DAL.Repositories
                 Data = genres
             };
         }
+
+        public async Task<BaseResponse<IEnumerable<int>>> GetGenreId(IEnumerable<string> NameGenre)
+        {
+            List<int> idGenres = new List<int>();
+
+            string NameGenreString = string.Join(", ", NameGenre.Select(genre => $"'{genre}'"));
+
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            using(var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+
+                    using(var GetGenreId = new NpgsqlCommand(
+                        "SELECT " +
+                            "id_genre " +
+                        "FROM " +
+                            "Genre_Table " +
+                        "WHERE " +
+                            $"name_genre IN ({NameGenreString})", conn))
+                    {
+                        using (var Reader = await GetGenreId.ExecuteReaderAsync())
+                        {
+                            while (Reader.Read())
+                            {
+                                idGenres.Add(Convert.ToInt32(Reader["id_genre"]));
+                            }
+                        }
+                    }
+
+                    return new BaseResponse<IEnumerable<int>>()
+                    {
+                        Data = idGenres,
+                        StatusCode = Domain.Enum.StatusCode.OK
+                    };
+                }
+                catch(Exception ex)
+                {
+                    return new BaseResponse<IEnumerable<int>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message
+                    };
+                }
+            }
+        }
     }
 }

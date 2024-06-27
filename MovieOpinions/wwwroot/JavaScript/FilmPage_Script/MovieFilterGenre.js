@@ -63,6 +63,7 @@ function sendSelectedGenres(genres) {
 
 // Функція для оновлення списку фільмів на сторінці
 function updateMovieList(movies) {
+    
     // Отримуємо контейнери для фільмів
     let movieContainers = document.querySelectorAll(".FilmFormStyle");
 

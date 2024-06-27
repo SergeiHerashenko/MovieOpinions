@@ -13,5 +13,6 @@ namespace MovieOpinions.DAL.Interface
         Task<BaseResponse<List<Comment>>> GetCommentFilm(int IdFilm);
         Task<BaseResponse<Comment>> GetCommentId(int Id);
         Task<BaseResponse<IEnumerable<Comment>>> GetCommentsUser(int IdUser);
+        Task<BaseResponse<Comment>> SaveDeleteComment(Comment Entity);
     }
 }

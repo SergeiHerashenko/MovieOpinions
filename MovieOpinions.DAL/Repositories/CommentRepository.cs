@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Xml.Linq;
 
 namespace MovieOpinions.DAL.Repositories
@@ -55,16 +56,37 @@ namespace MovieOpinions.DAL.Repositories
         {
             ConnectMovieOpinions connect = new ConnectMovieOpinions();
 
-            using(var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
             {
                 try
                 {
                     await conn.OpenAsync();
 
-                }
-                catch (Exception ex)
-                {
+                    using (var DeleteComment = new NpgsqlCommand(
+                        "DELETE FROM " +
+                            "Comment_Table " +
+                        "WHERE " +
+                            "id_comment = @ID_COMMENT;", conn))
+                    {
+                        DeleteComment.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);
 
+                        await DeleteComment.ExecuteNonQueryAsync();
+                    }
+
+                    return new BaseResponse<bool>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = true
+                    };
+                }
+                catch(Exception ex)
+                {
+                    return new BaseResponse<bool>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message,
+                        Data = false
+                    };
                 }
             }
         }
@@ -173,6 +195,47 @@ namespace MovieOpinions.DAL.Repositories
         public async Task<BaseResponse<IEnumerable<Comment>>> GetCommentsUser(int IdUser)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<BaseResponse<Comment>> SaveDeleteComment(Comment Entity)
+        {
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            try
+            {
+                using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+                {
+                    await conn.OpenAsync();
+                    using (var SaveComment = new NpgsqlCommand(
+                        "INSERT INTO " +
+                            "Delete_Comment (id_comment, id_user, text_comment, id_film, date_comment) " +
+                        "VALUES " +
+                            "(@ID_COMMENT, @ID_USER, @TEXT_COMMENT, @ID_FILM, @DATE_COMMENT);", conn))
+                    {
+                        SaveComment.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);
+                        SaveComment.Parameters.AddWithValue("@ID_USER", Entity.IdUserComment);
+                        SaveComment.Parameters.AddWithValue("@TEXT_COMMENT", Entity.TextComment);
+                        SaveComment.Parameters.AddWithValue("@ID_FILM", Entity.IdFilm);
+                        SaveComment.Parameters.AddWithValue("@DATE_COMMENT", Entity.DateComment);
+
+                        await SaveComment.ExecuteNonQueryAsync();
+
+                        return new BaseResponse<Comment>
+                        {
+                            StatusCode = Domain.Enum.StatusCode.OK,
+                            Data = Entity
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<Comment>
+                {
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Description = ex.Message
+                };
+            }
         }
 
         public async Task<BaseResponse<Comment>> Update(Comment Entity)

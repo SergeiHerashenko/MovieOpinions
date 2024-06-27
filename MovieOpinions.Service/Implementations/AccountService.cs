@@ -29,7 +29,7 @@ namespace MovieOpinions.Service.Implementations
             {
                 var GetUser = await _userRepository.GetUser(LoginModel.LoginUser);
                 
-                if(GetUser.Data != null)
+                if(GetUser.Data != null && GetUser.StatusCode == Domain.Enum.StatusCode.OK)
                 {
                     bool IsPasswordCorrect = await new CheckingCorrectnessPassword().VerifyPassword(LoginModel.PasswordUser, GetUser.Data.PasswordSalt, GetUser.Data.PasswordUser);
 
@@ -41,6 +41,17 @@ namespace MovieOpinions.Service.Implementations
                         {
                             Data = Result,
                             StatusCode = Domain.Enum.StatusCode.OK
+                        };
+                    }
+                }
+                else
+                {
+                    if(GetUser.StatusCode != Domain.Enum.StatusCode.OK)
+                    {
+                        return new BaseResponse<ClaimsIdentity>()
+                        {
+                            StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                            Description = "Сталася помилка серверу, спробуйте пізніше"
                         };
                     }
                 }

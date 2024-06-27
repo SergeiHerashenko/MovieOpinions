@@ -40,5 +40,38 @@ namespace MovieOpinions.Service.Implementations
                     : Domain.Enum.StatusCode.InternalServerError
             };
         }
+
+        public async Task<BaseResponse<IEnumerable<int>>> GetIdGenre(IEnumerable<string> GenreName)
+        {
+            var GetGenreId = await _genreRepository.GetGenreId(GenreName);
+
+            if(GetGenreId.StatusCode == Domain.Enum.StatusCode.OK && GetGenreId.Data != null)
+            {
+                return new BaseResponse<IEnumerable<int>>()
+                {
+                    StatusCode = Domain.Enum.StatusCode.OK,
+                    Data = GetGenreId.Data,
+                };
+            }
+            else
+            {
+                if(GetGenreId.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return new BaseResponse<IEnumerable<int>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Жанрів не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<IEnumerable<int>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = GetGenreId.Description
+                    };
+                }
+            }
+        }
     }
 }

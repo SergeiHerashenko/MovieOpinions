@@ -82,37 +82,40 @@ namespace MovieOpinions.Controllers
                     CommentFilm = CommentFilm.Data
                 };
 
-                foreach (var comment in film.CommentFilm)
+                if(film.CommentFilm != null)
                 {
-                    var UserResponse = await _userService.GetUserId(comment.IdUserComment);
-                    var AnswerResponse = await _answerService.GetAnswerToComment(comment.IdComment);
-
-                    if(AnswerResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                    foreach (var comment in film.CommentFilm)
                     {
-                        foreach(var answer in AnswerResponse.Data)
+                        var UserResponse = await _userService.GetUserId(comment.IdUserComment);
+                        var AnswerResponse = await _answerService.GetAnswerToComment(comment.IdComment);
+
+                        if (AnswerResponse.StatusCode == Domain.Enum.StatusCode.OK)
                         {
-                            comment.AnswerComment.Add(answer);
-
-                            var UserAnswer = await _userService.GetUserId(answer.IdUserAnswer);
-
-                            if (AnswerResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                            foreach (var answer in AnswerResponse.Data)
                             {
-                                answer.NameUserAnswer = UserAnswer.Data.NameUser;
-                            }
-                            else
-                            {
-                                answer.NameUserAnswer = UserAnswer.Description;
+                                comment.AnswerComment.Add(answer);
+
+                                var UserAnswer = await _userService.GetUserId(answer.IdUserAnswer);
+
+                                if (AnswerResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                                {
+                                    answer.NameUserAnswer = UserAnswer.Data.NameUser;
+                                }
+                                else
+                                {
+                                    answer.NameUserAnswer = UserAnswer.Description;
+                                }
                             }
                         }
-                    }
 
-                    if (UserResponse.StatusCode == Domain.Enum.StatusCode.OK)
-                    {
-                        comment.UserName = UserResponse.Data.NameUser; 
-                    }
-                    else
-                    {
-                        comment.UserName = UserResponse.Description;
+                        if (UserResponse.StatusCode == Domain.Enum.StatusCode.OK)
+                        {
+                            comment.UserName = UserResponse.Data.NameUser;
+                        }
+                        else
+                        {
+                            comment.UserName = UserResponse.Description;
+                        }
                     }
                 }
                 return View(film);
@@ -141,19 +144,29 @@ namespace MovieOpinions.Controllers
         [HttpPost]
         public async Task<IActionResult> GetSortedMoviesGenre([FromBody] List<string> selectedGenres)
         {
-            var AllMoviesResponse = await _filmsService.GetFilms();
+            var GetIdGenre = await _genreService.GetIdGenre(selectedGenres);
 
-            if (AllMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            if(GetIdGenre.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                var AllMovies = AllMoviesResponse.Data;
+                var GetFilmByGenre = await _filmsService.GetFilmByGenre(GetIdGenre.Data);
 
-                var FilteredMovies = AllMovies.Where(movie => movie.GenreFilm.Intersect(selectedGenres).Any()).ToList();
+                if(GetFilmByGenre.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return Json(GetFilmByGenre.Data);
+                }
+                else
+                {
+                    if(GetFilmByGenre.StatusCode == Domain.Enum.StatusCode.NotFound)
+                    {
+                        return Json(new { error = "Фільмів не знайдено" });
+                    }
 
-                return Json(FilteredMovies);
+                    return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + GetFilmByGenre.StatusCode });
+                }
             }
             else
             {
-                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + AllMoviesResponse.StatusCode });
+                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + GetIdGenre.StatusCode });
             }
         }
 
@@ -307,9 +320,17 @@ namespace MovieOpinions.Controllers
             return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = CommentIdResult.Data.IdFilm }) });
         }
 
-        public async Task<IActionResult> DeleteComment(Comment DataComment)
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment([FromBody] Comment DataComment)
         {
-            
+            var DeleteComment = await _commentService.DeleteComment(DataComment);
+
+            if(DeleteComment.StatusCode != Domain.Enum.StatusCode.OK)
+            {
+                return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            }
+
+            return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = DeleteComment.Data.IdFilm }) });
         }
     }
 }

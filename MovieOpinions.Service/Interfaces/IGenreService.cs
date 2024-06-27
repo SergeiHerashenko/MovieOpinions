@@ -10,5 +10,6 @@ namespace MovieOpinions.Service.Interfaces
     public interface IGenreService
     {
         Task<BaseResponse<IEnumerable<string>>> GetAllGenre();
+        Task<BaseResponse<IEnumerable<int>>> GetIdGenre(IEnumerable<string> GenreName);
     }
 }

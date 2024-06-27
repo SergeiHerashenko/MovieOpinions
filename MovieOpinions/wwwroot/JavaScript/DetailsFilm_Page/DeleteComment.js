@@ -15,18 +15,26 @@ function DeleteCommentUser(button) {
 };
 
 ConfirmButton.addEventListener("click", function () {
-
-    let DataComment = {
+    let CommentData = {
         IdComment: ParentDiv
     };
 
     $.ajax({
         type: "POST",
         url: "/FilmPage/DeleteComment",
-        data: JSON.stringify(DataComment),
+        data: JSON.stringify(CommentData),
         contentType: "application/json",
         success: function (response) {
-            console.log(response)
+            if (response.redirectUrl) {
+                window.location.href = response.redirectUrl;
+            } else {
+                let ModalWindow = document.getElementById("ModalWindow");
+                ModalWindow.style.display = "block";
+                let Message = document.getElementById("Message");
+                let lines = response.description.split('\n');
+                let formattedText = lines.join('<br>');
+                Message.innerHTML = formattedText;
+            }
         }
     });
 });

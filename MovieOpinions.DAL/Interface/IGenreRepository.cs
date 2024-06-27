@@ -10,5 +10,6 @@ namespace MovieOpinions.DAL.Interface
     public interface IGenreRepository
     {
         Task<BaseResponse<IEnumerable<string>>> GetGenre();
+        Task<BaseResponse<IEnumerable<int>>> GetGenreId(IEnumerable<string> NameGenre);
     }
 }

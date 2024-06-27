@@ -117,5 +117,43 @@ namespace MovieOpinions.Service.Implementations
                 }
             }
         }
+
+        public async Task<BaseResponse<List<Film>>> GetFilmByGenre(IEnumerable<int> IdGenre)
+        {
+            var GetMoviesByGenre = await _filmRepository.GetMovieGenre(IdGenre);
+
+            if(GetMoviesByGenre.StatusCode == Domain.Enum.StatusCode.OK && GetMoviesByGenre.Data.Count > 0)
+            {
+                return new BaseResponse<List<Film>>()
+                {
+                    Data = GetMoviesByGenre.Data,
+                    StatusCode = Domain.Enum.StatusCode.OK
+                };
+            }
+            else
+            {
+                if(GetMoviesByGenre.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільмів не знайде"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = GetMoviesByGenre.Description
+                    };
+                }
+            }
+        }
+
+        public Task<BaseResponse<List<Film>>> GetFilmByYear(int Year)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

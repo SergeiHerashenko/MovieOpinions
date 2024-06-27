@@ -134,7 +134,39 @@ namespace MovieOpinions.Service.Implementations
 
         public async Task<BaseResponse<Comment>> DeleteComment(Comment Entity)
         {
-            var DeleteComment = await _commentRepository.Delete(Entity);
+            var GetComment = await _commentRepository.GetCommentId(Entity.IdComment);
+
+            if(GetComment.Data != null && GetComment.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                var SaveComment = await _commentRepository.SaveDeleteComment(GetComment.Data);
+
+                if(SaveComment.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    var DeleteComment = await _commentRepository.Delete(SaveComment.Data);
+
+                    return new BaseResponse<Comment>()
+                    {
+                        Data= SaveComment.Data,
+                        StatusCode = Domain.Enum.StatusCode.OK
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<Comment>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = SaveComment.Description
+                    };
+                }
+            }
+            else
+            {
+                return new BaseResponse<Comment>()
+                {
+                    StatusCode = Domain.Enum.StatusCode.NotFound,
+                    Description = "Коментар не знайдено"
+                };
+            }
         }
     }
 }
