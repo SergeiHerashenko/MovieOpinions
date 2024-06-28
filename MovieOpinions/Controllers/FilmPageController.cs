@@ -322,7 +322,7 @@ namespace MovieOpinions.Controllers
         [HttpPost]
         public async Task<IActionResult> SearchInformation([FromBody] string DataSearch)
         {
-            string Text = DataSearch;
+            
             return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
         }
     }

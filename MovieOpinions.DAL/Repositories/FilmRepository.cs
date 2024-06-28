@@ -614,6 +614,11 @@ namespace MovieOpinions.DAL.Repositories
 
         }
 
+        public Task<BaseResponse<List<Film>>> SearchByPartialName(string PartialName)
+        {
+            
+        }
+
         public async Task<BaseResponse<Film>> Update(Film Entity)
         {
             throw new NotImplementedException();

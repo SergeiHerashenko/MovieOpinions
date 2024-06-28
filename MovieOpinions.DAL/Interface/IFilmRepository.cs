@@ -15,5 +15,6 @@ namespace MovieOpinions.DAL.Interface
         Task<BaseResponse<Film>> GetMovieName(string Name);
         Task<BaseResponse<List<Film>>> GetMovieYear(IEnumerable<string> Year);
         Task<BaseResponse<List<Film>>> GetMovieGenre(IEnumerable<int> Genre);
+        Task<BaseResponse<List<Film>>> SearchByPartialName(string PartialName);
     }
 }

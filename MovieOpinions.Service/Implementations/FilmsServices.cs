@@ -183,5 +183,10 @@ namespace MovieOpinions.Service.Implementations
                 }
             }
         }
+
+        public Task<BaseResponse<List<Film>>> SearchByPartialName(string PartialName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
