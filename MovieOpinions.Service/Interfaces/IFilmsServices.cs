@@ -14,6 +14,6 @@ namespace MovieOpinions.Service.Interfaces
         Task<BaseResponse<Film>> GetFilmId(int Id);
         Task<BaseResponse<Film>> GetFilmName(string NameFilm);
         Task<BaseResponse<List<Film>>> GetFilmByGenre(IEnumerable<int> IdGenre);
-        Task<BaseResponse<List<Film>>> GetFilmByYear(int Year);
+        Task<BaseResponse<List<Film>>> GetFilmByYear(IEnumerable<string> Year);
     }
 }

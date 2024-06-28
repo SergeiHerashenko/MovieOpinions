@@ -137,7 +137,7 @@ namespace MovieOpinions.Service.Implementations
                     return new BaseResponse<List<Film>>()
                     {
                         StatusCode = Domain.Enum.StatusCode.NotFound,
-                        Description = "Фільмів не знайде"
+                        Description = "Фільмів не знайдено"
                     };
                 }
                 else
@@ -151,9 +151,37 @@ namespace MovieOpinions.Service.Implementations
             }
         }
 
-        public Task<BaseResponse<List<Film>>> GetFilmByYear(int Year)
+        public async Task<BaseResponse<List<Film>>> GetFilmByYear(IEnumerable<string> Year)
         {
-            throw new NotImplementedException();
+            var GetMoviesByYear = await _filmRepository.GetMovieYear(Year);
+
+            if (GetMoviesByYear.StatusCode == Domain.Enum.StatusCode.OK && GetMoviesByYear.Data.Count > 0)
+            {
+                return new BaseResponse<List<Film>>()
+                {
+                    Data = GetMoviesByYear.Data,
+                    StatusCode = Domain.Enum.StatusCode.OK
+                };
+            }
+            else
+            {
+                if (GetMoviesByYear.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільмів не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = "Помилка серверу" + " " + GetMoviesByYear.Description
+                    };
+                }
+            }
         }
     }
 }

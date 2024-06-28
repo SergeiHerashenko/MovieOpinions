@@ -173,29 +173,15 @@ namespace MovieOpinions.Controllers
         [HttpPost]
         public async Task<IActionResult> GetSortedMoviesYear([FromBody] List<string> selectedYear)
         {
-            var AllMoviesResponse = await _filmsService.GetFilms();
+            var GetSelectedFilm = await _filmsService.GetFilmByYear(selectedYear);
 
-            if (AllMoviesResponse.StatusCode == Domain.Enum.StatusCode.OK)
+            if(GetSelectedFilm.StatusCode == Domain.Enum.StatusCode.OK)
             {
-                var AllMovies = AllMoviesResponse.Data;
-
-                var FilteredMoviesYear = new List<Film>();
-
-                foreach (var Item in selectedYear)
-                {
-                    var YearRangeParts = Item.Split('-');
-                    int StartYear = int.Parse(YearRangeParts[0]);
-                    int EndYear = YearRangeParts.Length == 1 ? StartYear : int.Parse(YearRangeParts[1]);
-
-                    FilteredMoviesYear.AddRange(AllMovies.Where(Movie =>
-                        Movie.YearFilm >= StartYear && Movie.YearFilm <= EndYear));
-                }
-
-                return Json(FilteredMoviesYear);
+                return Json(GetSelectedFilm.Data);
             }
             else
             {
-                return Json(new { error = "Помилка сервера. Спробуйте пізніше." + " " + AllMoviesResponse.StatusCode });
+                return Json(new { error =  GetSelectedFilm.Description });
             }
         }
 
@@ -331,6 +317,13 @@ namespace MovieOpinions.Controllers
             }
 
             return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = DeleteComment.Data.IdFilm }) });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SearchInformation([FromBody] string DataSearch)
+        {
+            string Text = DataSearch;
+            return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
         }
     }
 }

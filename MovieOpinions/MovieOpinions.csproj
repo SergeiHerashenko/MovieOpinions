@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\JavaScript\FilmPage_Script\MovieFilterGenre.js" />
+    <Content Remove="wwwroot\JavaScript\FilmPage_Script\SearchInformation.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\JavaScript\FilmPage_Script\SearchInformation.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +23,7 @@
 
   <ItemGroup>
     <None Include="wwwroot\JavaScript\FilmPage_Script\MovieFilterGenre.js" />
+    <None Include="wwwroot\JavaScript\FilmPage_Script\SearchInformation.js" />
   </ItemGroup>
 
   <ItemGroup>

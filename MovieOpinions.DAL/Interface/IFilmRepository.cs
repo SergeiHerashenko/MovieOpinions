@@ -13,7 +13,7 @@ namespace MovieOpinions.DAL.Interface
         Task<BaseResponse<Film>> GetMovieId(int Id);
         Task<BaseResponse<List<Film>>> GetAll();
         Task<BaseResponse<Film>> GetMovieName(string Name);
-        Task<BaseResponse<List<Film>>> GetMovieYear(int Year);
+        Task<BaseResponse<List<Film>>> GetMovieYear(IEnumerable<string> Year);
         Task<BaseResponse<List<Film>>> GetMovieGenre(IEnumerable<int> Genre);
     }
 }
