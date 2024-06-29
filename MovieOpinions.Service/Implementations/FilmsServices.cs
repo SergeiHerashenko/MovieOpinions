@@ -216,5 +216,70 @@ namespace MovieOpinions.Service.Implementations
                 }
             }
         }
+
+        public async Task<BaseResponse<List<Film>>> SortingFilm(string SortElement)
+        {
+            var GetAllFilm = await _filmRepository.GetAll();
+
+            if(GetAllFilm.StatusCode == Domain.Enum.StatusCode.OK && GetAllFilm.Data.Count > 0)
+            {
+                switch (SortElement)
+                {
+                    case "Alphabetical":
+                        var AlphabeticalSortedFilms = GetAllFilm.Data.OrderBy(film => film.NameFilm).ToList();
+                        return new BaseResponse<List<Film>>()
+                        {
+                            Data = AlphabeticalSortedFilms,
+                            StatusCode = Domain.Enum.StatusCode.OK
+                        };
+                    case "YearOld":
+                        var YearOldSortedFilms = GetAllFilm.Data.OrderBy(film => film.YearFilm).ToList();
+                        return new BaseResponse<List<Film>>()
+                        {
+                            Data = YearOldSortedFilms,
+                            StatusCode = Domain.Enum.StatusCode.OK
+                        };
+                    case "YearNew":
+                        var YearNewSortedFilms = GetAllFilm.Data.OrderByDescending(film => film.YearFilm).ToList();
+                        return new BaseResponse<List<Film>>()
+                        {
+                            Data = YearNewSortedFilms,
+                            StatusCode = Domain.Enum.StatusCode.OK
+                        };
+                    case "Popularity":
+                        var PopularitySortedFilm = GetAllFilm.Data.OrderBy(film => film.RatingFilm).ToList();
+                        return new BaseResponse<List<Film>>()
+                        {
+                            Data = PopularitySortedFilm,
+                            StatusCode = Domain.Enum.StatusCode.OK
+                        };
+                    default:
+                        return new BaseResponse<List<Film>>()
+                        {
+                            Data = GetAllFilm.Data,
+                            StatusCode = Domain.Enum.StatusCode.OK
+                        };
+                }
+            }
+            else
+            {
+                if(GetAllFilm.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільмів не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = "Помилка серверу!"
+                    };
+                }
+            }
+        }
     }
 }

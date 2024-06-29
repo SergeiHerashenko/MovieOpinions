@@ -341,5 +341,25 @@ namespace MovieOpinions.Controllers
             }
             
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SortingMovies([FromBody] string SortElement)
+        {
+            var GetSortFilm = await _filmsService.SortingFilm(SortElement);
+
+            if(GetSortFilm.StatusCode == Domain.Enum.StatusCode.OK )
+            {
+                return Json(GetSortFilm.Data);
+            }
+            else
+            {
+                if(GetSortFilm.StatusCode == Domain.Enum.StatusCode.NotFound)
+                {
+                    return Json(new { NotFound = "Фільмів не знайдено" });
+                }
+
+                return Json(new { error = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            }
+        }
     }
 }

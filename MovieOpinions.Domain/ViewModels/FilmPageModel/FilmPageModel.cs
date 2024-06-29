@@ -22,7 +22,8 @@ namespace MovieOpinions.Domain.ViewModels.FilmPageModel
         public FilmPageModel()
         {
             SortOption.Add(new SelectListItem { Value = "Alphabetical", Text = "за алфавітом" });
-            SortOption.Add(new SelectListItem { Value = "Year", Text = "за роком" });
+            SortOption.Add(new SelectListItem { Value = "YearOld", Text = "за роком (спочатку давніші)" });
+            SortOption.Add(new SelectListItem { Value = "YearNew", Text = "за роком (спочатку новіші)" });
             SortOption.Add(new SelectListItem { Value = "Popularity", Text = "за популярністю" });
         }
     }
