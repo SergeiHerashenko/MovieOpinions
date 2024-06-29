@@ -322,8 +322,24 @@ namespace MovieOpinions.Controllers
         [HttpPost]
         public async Task<IActionResult> SearchInformation([FromBody] string DataSearch)
         {
+            var SearcInform = await _filmsService.SearchByPartialName(DataSearch);
+
+            if(SearcInform.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return Json(SearcInform.Data);
+            }
+            else
+            {
+                if(SearcInform.StatusCode == Domain.Enum.StatusCode.InternalServerError)
+                {
+                    return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+                }
+                else
+                {
+                    return Json(new { description = "ФІльмів не знайдено!" });
+                }
+            }
             
-            return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
         }
     }
 }

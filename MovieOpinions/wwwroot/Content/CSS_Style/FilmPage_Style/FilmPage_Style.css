@@ -220,6 +220,11 @@ p {
         text-decoration: none;
     }
 
+mark {
+    color: black;
+    background-color: #FF8304;
+}
+
 @media screen and (max-width: 1023px) {
     .FormSiteStyle {
         margin-right: auto;

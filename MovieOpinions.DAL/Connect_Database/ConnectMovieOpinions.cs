@@ -12,7 +12,7 @@ namespace MovieOpinions.DAL.Connect_Database
         public string Host { get; private set; } = "";
 
         // Ім'я користувача бази даних /Database username/
-        public string User { get; private set; } = "";
+        public string User { get; private set; } = "posgres";
 
         // Пароль для підключення до бази даних /Password to connect to the database/
         public string Password { get; private set; } = "";

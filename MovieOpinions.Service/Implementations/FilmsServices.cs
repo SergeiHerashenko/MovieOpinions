@@ -184,9 +184,37 @@ namespace MovieOpinions.Service.Implementations
             }
         }
 
-        public Task<BaseResponse<List<Film>>> SearchByPartialName(string PartialName)
+        public async Task<BaseResponse<List<Film>>> SearchByPartialName(string PartialName)
         {
-            throw new NotImplementedException();
+            var SearchFilm = await _filmRepository.SearchByPartialName(PartialName);
+
+            if(SearchFilm.Data != null && SearchFilm.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                return new BaseResponse<List<Film>>()
+                {
+                    Data = SearchFilm.Data,
+                    StatusCode = Domain.Enum.StatusCode.OK
+                };
+            }
+            else
+            {
+                if(SearchFilm.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Фільмів не знайдено"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<List<Film>>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = "Помилка серверу спробуйте пізніше"
+                    };
+                }
+            }
         }
     }
 }
