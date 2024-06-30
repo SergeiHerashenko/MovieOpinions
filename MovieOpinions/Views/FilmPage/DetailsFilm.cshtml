@@ -80,7 +80,7 @@
                                     <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
                                     @if (@User.Identity.Name == comments.UserName)
                                     {
-                                        <button class="GeneralButtonStyle" style="float:right;" onclick="DeleteCommentUser(this)">Видалити</button>
+                                        <button class="GeneralButtonStyle" style="float:right;" onclick="ShowModalWindow(this, 'Comment')">Видалити</button>
                                     }
                                 </div>
                                 <div class="AnswerCommentStyle">
@@ -111,7 +111,7 @@
                                             <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
                                             @if (@User.Identity.Name == answers.NameUserAnswer)
                                             {
-                                                <button class="GeneralButtonStyle" style="float:right;">Видалити</button>
+                                                <button class="GeneralButtonStyle" style="float:right;" onclick="ShowModalWindow(this, 'Answer')">Видалити</button>
                                             }
                                         </div>
                                     </div>
@@ -147,5 +147,5 @@
     <script src="~/JavaScript/DetailsFilm_Page/RemovePanel.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/AddComment.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/Redaction.js"></script>
-    <script src="~/JavaScript/DetailsFilm_Page/DeleteComment.js"></script>
+    <script src="~/JavaScript/DetailsFilm_Page/DeleteCommentOrAnswer.js"></script>
 }
