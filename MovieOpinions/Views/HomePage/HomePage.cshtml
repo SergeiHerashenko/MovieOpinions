@@ -11,65 +11,40 @@
 }
 
 <div class="ContentSiteStyle">
-    <!-- Розділ фотографій /Photo section/ -->
-    <div class="PhotoSectionStyle desktop">
-        <!-- Ліва половина /Left half/ -->
-        <div style="width: 50%; height: 100%; display: flex; flex-direction: column; gap: 2vw; padding-right: 1vw;">
-            <!-- Верхній блок /Top block/ -->
-            <div style="width: 100%; height: 35%;">
-                <div class="PhotoZoneStyle">
-                    <!-- Фото 1 /Photo 1/ -->
-                    <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_One); width: 100%; height: 100%;"></div>
-                </div>
+    <div class="PhotoSectionStyle Desktop">
+        <div class="LeftPhotoStyle">
+            <div class="PhotoZoneStyle">
+                <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_One); width: 100%; height: 100%;"></div>
             </div>
-            <!-- Нижній блок /Bottom block/ -->
-            <div style="width: 100%; height: 65%; ">
-                <div class="PhotoZoneStyle">
-                    <!-- Фото 2 /Photo 2/ -->
-                    <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_Two); width: 100%; height: 100%;"></div>
-                </div>
+            <div class="PhotoZoneStyle">
+                <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_Two); width: 100%; height: 100%;"></div>
             </div>
         </div>
-        <!-- Права половина /Right half/ -->
-        <div style="width: 50%; height: 100%; display: flex; flex-direction: column; gap: 2vw; padding-left: 1vw; ">
-            <!-- Верхній блок /Top block/ -->
-            <div style="width: 100%; height: 65%; ">
-                <div class="PhotoZoneStyle">
-                    <!-- Фото 3 /Photo 3/ -->
-                    <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_Three); width: 100%; height: 100%;"></div>
-                </div>
+        <div class="RightPhotoStyle">
+            <div class="PhotoZoneStyle">
+                <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_Three); width: 100%; height: 100%;"></div>
             </div>
-            <!-- Нижній блок /Bottom block/ -->
-            <div style="width: 100%; height: 35%; ">
-                <div class="PhotoZoneStyle">
-                    <!-- Фото 4 /Photo 4/ -->
-                    <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_Four); width: 100%; height: 100%;"></div>
-                </div>
+            <div class="PhotoZoneStyle">
+                <div class="PhotoStyle" style="background-image: url(@Model.PhotoSite[0].Photo_Four); width: 100%; height: 100%;"></div>
             </div>
         </div>
     </div>
-    <!-- Розділ тексту /Text section/ -->
     <div class="TextSectionStyle">
-        <div style="height: 30%; width: 100%">
-            <!-- Заголовок першого слова назви сайту /Title of the first word of the site name/ -->
+        <div class="NameSiteSectionStyle">
             <div class="FirstNameTitularStyle">
                 @Model.NameSite[0].FirstWord
             </div>
-            <!-- Заголовок другого слова назви сайту /Title of the second word of the site name/ -->
             <div class="SecondNameTitularStyle">
                 @Model.NameSite[0].SecondWord
             </div>
-            <!-- Зона з описом тексту /Zone with text description/ -->
-            <div class="DescriptionZoneTextStyle">
-                <!-- Текст опису сайту /Site description text/ -->
-                <div class="DescriptionTextStyle">
-                    @Model.DescriptionText
-                </div>
+        </div>
+        <div class="DescriptionZoneTextStyle">
+            <div class="DescriptionTextStyle">
+                @Model.DescriptionText
             </div>
-            <!-- Кнопка для переходу на сторінку входу /Button to go to the login page/ -->
-            <div style="display: flex; justify-content: center; align-items: center; text-align: center; margin-top: 5%;">
-                <button class="GeneralButtonStyle" style="width: 230px; height: 50px;" onclick="location.href='@Url.Action("RedirectToLoginPage", "HomePage")'">Увійти</button>
-            </div>
+        </div>
+        <div class="ButtonLoginStyle">
+            <button class="GeneralButtonStyle" onclick="location.href='@Url.Action("RedirectToLoginPage", "HomePage")'">Увійти</button>
         </div>
     </div>
 </div>
