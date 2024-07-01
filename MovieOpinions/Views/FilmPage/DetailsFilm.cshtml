@@ -12,6 +12,7 @@
 }
 
 @Html.Partial("_ModalWindow");
+@Html.Partial("_WindowComplaint");
 <div class="ContentSiteStyle">
     <div class="ZoneFilmStyle">
         <div class="FormFilmStyle">
@@ -77,7 +78,7 @@
                                     {
                                         <button class="GeneralButtonStyle" onclick="GetCommentChangeForm(this)">Редагувати коментар</button>
                                     }
-                                    <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
+                                    <button class="GeneralButtonStyle" onclick="ShowWindowComplaint()">Поскаржитися на коментар</button>
                                     @if (@User.Identity.Name == comments.UserName)
                                     {
                                         <button class="GeneralButtonStyle" style="float:right;" onclick="ShowModalWindow(this, 'Comment')">Видалити</button>
@@ -108,7 +109,7 @@
                                             {
                                                 <button class="GeneralButtonStyle" onclick="GetAnswerChangeForm(this)">Редагувати відповідь</button>
                                             }
-                                            <button class="GeneralButtonStyle">Поскаржитися на коментар</button>
+                                            <button class="GeneralButtonStyle">Поскаржитися на відповідь</button>
                                             @if (@User.Identity.Name == answers.NameUserAnswer)
                                             {
                                                 <button class="GeneralButtonStyle" style="float:right;" onclick="ShowModalWindow(this, 'Answer')">Видалити</button>
@@ -148,4 +149,5 @@
     <script src="~/JavaScript/DetailsFilm_Page/AddComment.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/Redaction.js"></script>
     <script src="~/JavaScript/DetailsFilm_Page/DeleteCommentOrAnswer.js"></script>
+    <script src="~/JavaScript/DetailsFilm_Page/OpenWindowComplaint.js"></script>
 }

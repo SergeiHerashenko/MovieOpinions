@@ -38,6 +38,43 @@ namespace MovieOpinions.Service.Implementations
             };
         }
 
+        public async Task<BaseResponse<Answer>> DeleteAnswer(Answer Entity)
+        {
+            var GetAnswer = await _answerRepository.GetAnswerId(Entity.IdAnswer);
+
+            if(GetAnswer.Data != null && GetAnswer.StatusCode == Domain.Enum.StatusCode.OK)
+            {
+                var SaveAnswer = await _answerRepository.SaveDeleteAnswer(GetAnswer.Data);
+
+                if(SaveAnswer.StatusCode == Domain.Enum.StatusCode.OK)
+                {
+                    var DeleteAnswer = await _answerRepository.Delete(SaveAnswer.Data);
+
+                    return new BaseResponse<Answer>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = SaveAnswer.Data
+                    };
+                }
+                else
+                {
+                    return new BaseResponse<Answer>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = SaveAnswer.Description
+                    };
+                }
+            }
+            else
+            {
+                return new BaseResponse<Answer>()
+                {
+                    StatusCode = Domain.Enum.StatusCode.NotFound,
+                    Description = "Відповідь не знайдено"
+                };
+            }
+        }
+
         public async Task<BaseResponse<Answer>> EditAnswer(Answer Entity)
         {
             var UpdateAnswer = await _answerRepository.Update(Entity);

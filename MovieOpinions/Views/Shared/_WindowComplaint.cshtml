@@ -1,0 +1,24 @@
+﻿<!-- Модальне вікно для відображення скарги /A modal window for displaying complaint/ -->
+<div id="ModalWindowComplaint" class="ModalMessageWindowStyle">
+    <!-- Контент модального вікна скарги /Content of a modal message complaint/ -->
+    <div id="ContentModalWindowComplaint" class="ContentModalMessageWindowStyle">
+        <p id="MessageComplaint" class="MessageTextStyle" style="text-align:center;">
+            <!-- Поле для повідомлення про помилку /Error message field/ -->
+        </p>
+
+        <ul>
+            <li class="CheckBoxStyle">
+                <label>
+                    <input type="checkbox" />
+                    Нецензурна лексика
+                </label>
+            </li>
+        </ul>
+        
+        
+        <div style="display: flex; gap: 25px;" id="ButtonModalWindow">
+            <!-- Кнопка закриття модального вікна помилки /Button to close the error modal window/-->
+            <button class="GeneralButtonStyle" id="ButtonCloseModalMessageWindow" onclick="CloseModalWindow('ButtonCloseModalMessageWindow', 'ModalWindow')" style="width: 150px; height: 50px; max-width: 300px">Зрозуміло!</button>
+        </div>
+    </div>
+</div>

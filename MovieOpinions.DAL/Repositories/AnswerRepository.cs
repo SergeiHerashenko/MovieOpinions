@@ -52,7 +52,41 @@ namespace MovieOpinions.DAL.Repositories
 
         public async Task<BaseResponse<bool>> Delete(Answer Entity)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+
+                    using (var DeleteAnswer = new NpgsqlCommand(
+                        "DELETE FROM " +
+                            "Answer_Table " +
+                        "WHERE " +
+                            "id_answer = @ID_ANSWER;", conn))
+                    {
+                        DeleteAnswer.Parameters.AddWithValue("@ID_ANSWER", Entity.IdAnswer);
+
+                        await DeleteAnswer.ExecuteNonQueryAsync();
+                    }
+
+                    return new BaseResponse<bool>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = true
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return new BaseResponse<bool>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                        Description = ex.Message,
+                        Data = false
+                    };
+                }
+            }
         }
 
         public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerComment(int IdComment)
@@ -109,12 +143,94 @@ namespace MovieOpinions.DAL.Repositories
 
         public async Task<BaseResponse<Answer>> GetAnswerId(int Id)
         {
-            throw new NotImplementedException();
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+            Answer answer = null;
+            using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                    using (var GetIdAnswer = new NpgsqlCommand(
+                        "SELECT id_answer, id_comment, text_answer, id_user " +
+                        "FROM Answer_Table " +
+                        "WHERE id_answer = @ID_ANSWER", conn))
+                    {
+                        GetIdAnswer.Parameters.AddWithValue("@ID_ANSWER", Id);
+
+                        using (var Reader = await GetIdAnswer.ExecuteReaderAsync())
+                        {
+                            if (await Reader.ReadAsync())
+                            {
+                                answer = new Answer
+                                {
+                                    IdAnswer = Convert.ToInt32(Reader["id_answer"]),
+                                    IdComment = Convert.ToInt32(Reader["id_comment"]),
+                                    TextAnswer = Reader["text_answer"].ToString(),
+                                    IdUserAnswer = Convert.ToInt32(Reader["id_user"])
+                                };
+                            }
+                        }
+                    }
+                    return new BaseResponse<Answer>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.OK,
+                        Data = answer
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return new BaseResponse<Answer>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = ex.Message
+                    };
+                }
+            }
         }
 
         public async Task<BaseResponse<IEnumerable<Answer>>> GetAnswerUser(int IdUser)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<BaseResponse<Answer>> SaveDeleteAnswer(Answer Entity)
+        {
+            ConnectMovieOpinions connect = new ConnectMovieOpinions();
+
+            try
+            {
+                using (var conn = new NpgsqlConnection(connect.ConnectMovieOpinionsDataBase()))
+                {
+                    await conn.OpenAsync();
+                    using (var SaveAnswer = new NpgsqlCommand(
+                        "INSERT INTO " +
+                            "Delete_Answer (id_answer, id_comment, text_answer, id_user) " +
+                        "VALUES " +
+                            "(@ID_ANSWER, @ID_COMMENT, @TEXT_ANSWER, @ID_USER);", conn))
+                    {
+                        SaveAnswer.Parameters.AddWithValue("@ID_ANSWER", Entity.IdAnswer);
+                        SaveAnswer.Parameters.AddWithValue("@ID_COMMENT", Entity.IdComment);
+                        SaveAnswer.Parameters.AddWithValue("@TEXT_ANSWER", Entity.TextAnswer);
+                        SaveAnswer.Parameters.AddWithValue("@ID_USER", Entity.IdUserAnswer);
+
+                        await SaveAnswer.ExecuteNonQueryAsync();
+
+                        return new BaseResponse<Answer>
+                        {
+                            StatusCode = Domain.Enum.StatusCode.OK,
+                            Data = Entity
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<Answer>
+                {
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Description = ex.Message
+                };
+            }
         }
 
         public async Task<BaseResponse<Answer>> Update(Answer Entity)

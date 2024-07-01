@@ -361,5 +361,20 @@ namespace MovieOpinions.Controllers
                 return Json(new { error = "Виникла помилка, будь-ласка спробуйте пізніше!" });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAnswer([FromBody] Answer DataAnswer, string NameFilm)
+        {
+            var DeleteAnswer = await _answerService.DeleteAnswer(DataAnswer);
+
+            if (DeleteAnswer.StatusCode != Domain.Enum.StatusCode.OK)
+            {
+                return Json(new { description = "Виникла помилка, будь-ласка спробуйте пізніше!" });
+            }
+
+            var GetIdFilm = await _filmsService.GetFilmName(NameFilm);
+
+            return Json(new { redirectUrl = Url.Action("DetailsFilm", new { id = GetIdFilm.Data.IdFilm }) });
+        }
     }
 }
