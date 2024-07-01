@@ -1,4 +1,5 @@
-﻿using MovieOpinions.DAL.Interface;
+﻿using Microsoft.AspNetCore.Mvc;
+using MovieOpinions.DAL.Interface;
 using MovieOpinions.Domain.Entity;
 using MovieOpinions.Domain.Helpers;
 using MovieOpinions.Domain.Response;
@@ -29,37 +30,48 @@ namespace MovieOpinions.Service.Implementations
             {
                 var GetUser = await _userRepository.GetUser(LoginModel.LoginUser);
                 
-                if(GetUser.Data != null && GetUser.StatusCode == Domain.Enum.StatusCode.OK)
+                if(GetUser.StatusCode == Domain.Enum.StatusCode.OK)
                 {
                     bool IsPasswordCorrect = await new CheckingCorrectnessPassword().VerifyPassword(LoginModel.PasswordUser, GetUser.Data.PasswordSalt, GetUser.Data.PasswordUser);
 
                     if (IsPasswordCorrect)
                     {
-                        var Result = Authenticate(GetUser.Data);
-
-                        return new BaseResponse<ClaimsIdentity>()
+                        if (GetUser.Data.BlockedUser != true)
                         {
-                            Data = Result,
-                            StatusCode = Domain.Enum.StatusCode.OK
-                        };
+                            var Result = Authenticate(GetUser.Data);
+
+                            return new BaseResponse<ClaimsIdentity>()
+                            {
+                                Data = Result,
+                                StatusCode = Domain.Enum.StatusCode.OK
+                            };
+                        }
+                        else
+                        {
+                            return new BaseResponse<ClaimsIdentity>()
+                            {
+                                Description = "Користувач заблокований!",
+                                StatusCode = Domain.Enum.StatusCode.BlockedUser
+                            };
+                        }
                     }
                 }
                 else
                 {
-                    if(GetUser.StatusCode != Domain.Enum.StatusCode.OK)
+                    if(GetUser.StatusCode == Domain.Enum.StatusCode.NotFound)
                     {
                         return new BaseResponse<ClaimsIdentity>()
                         {
-                            StatusCode = Domain.Enum.StatusCode.InternalServerError,
-                            Description = "Сталася помилка серверу, спробуйте пізніше"
+                            StatusCode = Domain.Enum.StatusCode.NotFound,
+                            Description = "Невірний логін або пароль!"
                         };
                     }
                 }
 
                 return new BaseResponse<ClaimsIdentity>()
                 {
-                    StatusCode = Domain.Enum.StatusCode.NotFound,
-                    Description = "Невірний логін або пароль!"
+                    StatusCode = Domain.Enum.StatusCode.InternalServerError,
+                    Description = "Сталася помилка серверу, спробуйте пізніше"
                 };
             }
             catch (Exception ex)

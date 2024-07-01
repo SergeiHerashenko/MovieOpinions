@@ -61,8 +61,6 @@ namespace MovieOpinions.DAL.Repositories
 
         public async Task<BaseResponse<User>> GetUser(string LoginUser)
         {
-            User user = null;
-
             ConnectMovieOpinions connectDatabase = new ConnectMovieOpinions();
 
             using (var conn = new NpgsqlConnection(connectDatabase.ConnectMovieOpinionsDataBase()))
@@ -79,7 +77,7 @@ namespace MovieOpinions.DAL.Repositories
                         {
                             while (ReaderInformationUser.Read())
                             {
-                                user = new User
+                                User user = new User
                                 {
                                     IdUser = Convert.ToInt32(ReaderInformationUser["id_user"]),
                                     NameUser = ReaderInformationUser["user_name"].ToString(),
@@ -88,9 +86,21 @@ namespace MovieOpinions.DAL.Repositories
                                     DeleteUser = Convert.ToBoolean(ReaderInformationUser["delete_user"]),
                                     BlockedUser = Convert.ToBoolean(ReaderInformationUser["blocked_user"])
                                 };
+
+                                return new BaseResponse<User>()
+                                {
+                                    Data = user,
+                                    StatusCode = Domain.Enum.StatusCode.OK
+                                };
                             }
                         }
                     }
+
+                    return new BaseResponse<User>()
+                    {
+                        StatusCode = Domain.Enum.StatusCode.NotFound,
+                        Description = "Користувача не знайдено"
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -102,12 +112,6 @@ namespace MovieOpinions.DAL.Repositories
                 }
                 
             }
-
-            return new BaseResponse<User>() 
-            {
-                StatusCode = Domain.Enum.StatusCode.OK,
-                Data = user
-            };
         }
 
         public async Task<BaseResponse<User>> GetUserId(int Id)

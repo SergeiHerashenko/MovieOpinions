@@ -12,29 +12,30 @@
     <link rel="stylesheet" href="~/Content/CSS_Style/General_CSS_Style/Modal_Window.css" />
 }
 
-<div style="margin: 10% auto; height: calc(75vh - 2px); box-sizing: border-box; max-width: 500px">
-    <div class="LoginFormRegionStyle">
-        <div id="LoginForm" class="LoginFormStyle">
-            <div style="line-height: 35px; text-align: center; font-size: 25px; color: rgba(255, 245, 234, 0.40); font-family: Spartan;">
-                <a style="color:  #FF8304;">Вітаємо!</a>
-                <br>
-                <a style="color: rgba(255, 245, 234, 0.40);">Увійдіть в систему</a>
-            </div>
-            <div id="LoginUser" style="display: flex; flex-direction: column; justify-content: center;">
-                @Html.TextBoxFor(Model => Model.LoginUser, "", new { @class = "TextBoxStyle", @style = "width: 300px; height: 50px;", @oninput="UpdateStyleBasedOnInput('LoginUser')" })
-                <label class="LabelStyle">Логін</label>
-            </div>
-            <div id="PasswordUser" style="display: flex; flex-direction: column; justify-content: center;">
-                @Html.PasswordFor(Model => Model.PasswordUser, new { @class = "TextBoxStyle", @style = "width: 300px; height: 50px;", @oninput="UpdateStyleBasedOnInput('PasswordUser')" })
-                <label class="LabelStyle">Пароль</label>
-            </div>
-            <button class="GeneralButtonStyle" style="width: 150px; height: 50px; max-width: 300px" onclick="SendForm('LoginForm', 'LoginUser/LoginPageController')">Увійти</button>
-            <div style="display: flex; flex-direction: column; justify-content: center;">
-                <label style="color: #FF8304; font-size: 25px; font-family: Spartan; ">Досі не зареєстровані?</label>
-                <a href="@Url.Action("RedirectToRegistrationPage", "LoginPage")" style="text-align: center; font-size: 25px; color: rgba(255, 245, 234, 0.40); font-family: Spartan; ">Зареєструватися</a>
-            </div>
+<div class="LoginFormRegionStyle">
+    <div id="LoginForm" class="LoginFormStyle">
+        <div class="WelcomStyle">
+            <p>Вітаємо!</p>
+            <a>Увійдіть в систему</a>
         </div>
-    </div>
+        <div class="CenteredStyle" id="LoginUser">
+            @Html.TextBoxFor(Model => Model.LoginUser, "", new { @class = "TextBoxStyle", 
+                                                                 @oninput = "UpdateStyleBasedOnInput('LoginUser')" })
+            <label class="LabelStyle">Логін</label>
+        </div>
+        <div class="CenteredStyle MobileStyle" id="PasswordUser">
+            @Html.PasswordFor(Model => Model.PasswordUser, new { @class = "TextBoxStyle", 
+                                                                 @oninput = "UpdateStyleBasedOnInput('PasswordUser')" })
+            <label class="LabelStyle">Пароль</label>
+        </div>
+        <div class="CenteredStyle">
+            <p>Досі не зареєстровані?</p>
+            <a href="@Url.Action("RedirectToRegistrationPage", "LoginPage")">Зареєструватися</a>
+        </div>
+        <div class="LoginButtonStyle">
+            <button class="GeneralButtonStyle" onclick="SendForm('LoginForm', 'LoginUser/LoginPageController')">Увійти</button>
+        </div>
+     </div>
     @Html.Partial("_ModalWindow");
 </div>
 

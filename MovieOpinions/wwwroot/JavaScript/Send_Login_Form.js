@@ -1,34 +1,32 @@
 ﻿function SendForm(FormId, URL) {
-    let form = document.getElementById(FormId);
+    let Form = document.getElementById(FormId);
 
     // Отримати всі поля форми
-    let formElements = form.querySelectorAll('input');
+    let FormElements = Form.querySelectorAll('input');
     // Створити об'єкт для збереження значень полів
-    let formData = {};
+    let DataForm = {};
 
     // Перебрати всі поля форми
-    for (let i = 0; i < formElements.length; i++) {
-        formData[formElements[i].id] = formElements[i].value;
+    for (let i = 0; i < FormElements.length; i++) {
+        DataForm[FormElements[i].id] = FormElements[i].value;
     }
 
     $.ajax({
         type: "POST",
         url: URL,
-        data: JSON.stringify(formData),
+        data: JSON.stringify(DataForm),
         contentType: "application/json",
-        success: function (response) {
-            if (response.redirectUrl) {
-                window.location.href = response.redirectUrl;
+        success: function (Response) {
+            if (Response.RedirectUrl) {
+                window.location.href = Response.RedirectUrl;
             } else {
                 let ModalWindow = document.getElementById("ModalWindow");
                 ModalWindow.style.display = "block";
                 let Message = document.getElementById("Message");
 
-                let lines = response.description.split('\n');
-                let formattedText = lines.join('<br>');
-                Message.innerHTML = formattedText;
-
-                isRedirectNeeded = response.isRedirectNeeded;
+                let Lines = response.description.split('\n');
+                let FormattedText = Lines.join('<br>');
+                Message.innerHTML = FormattedText;
             }
         }
     });

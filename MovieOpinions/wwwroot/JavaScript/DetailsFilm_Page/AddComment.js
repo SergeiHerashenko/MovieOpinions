@@ -33,8 +33,6 @@
                 let lines = response.description.split('\n');
                 let formattedText = lines.join('<br>');
                 Message.innerHTML = formattedText;
-                
-                isRedirectNeeded = response.isRedirectNeeded;
             }
         }
     });

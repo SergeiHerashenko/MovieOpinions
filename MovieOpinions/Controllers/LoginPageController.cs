@@ -44,7 +44,7 @@ namespace MovieOpinions.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(Response.Data));
 
-                return Json(new { redirectUrl = Url.Action("FilmPage", "FilmPage") });
+                return Json(new { RedirectUrl = Url.Action("FilmPage", "FilmPage") });
             }
             else
             {
