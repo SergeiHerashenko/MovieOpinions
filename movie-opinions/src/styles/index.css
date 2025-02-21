@@ -1,0 +1,23 @@
+/* Стилізації фонового зображення /Stylization of the background image/ */
+body {
+    background-image: url(/public/Image/Background_Image.png); /* Встановлює зображення фону сайту /Sets the background image of the site/ */
+    background-position: center center; /* Встановлює позицію зображення фону по центру /Sets the position of the background image in the center/ */
+    background-size: cover; /* Масштабує зображення фону, щоб воно покривало всю площу /Scales the background image to cover the entire area/ */
+    background-repeat: no-repeat; /* Вимикає повторення зображення фону /Disables background image repetition/ */
+    background-attachment: fixed; /* Фіксує позицію зображення фону при прокручуванні сторінки /Fixes the position of the background image when scrolling the page/ */
+    margin: 0; /* Знімає зовнішні відступи /Removes external margins/ */
+}
+
+/* Ефект розмитого фону /Blurred background effect/ */
+body::before {
+    content: ''; /* Створює порожній елемент для ефекту розмитого фону /Creates an empty element for the blurred background effect */
+    position: fixed; /* Встановлює фіксовану позицію цього елемента на екрані /Sets the fixed position of this element on the screen */
+    top: 0; /* Встановлює відстань від верхнього краю вікна браузера до цього елемента /Sets the distance from the top edge of the browser window */
+    left: 0; /* Встановлює відстань від лівого краю вікна браузера до цього елемента /Sets the distance from the left edge of the browser window */
+    width: 100vw; /* Встановлює ширину елемента на всю ширину вікна браузера /Sets the width of the element to the full width of the browser window */
+    height: 100vh; /* Встановлює висоту елемента на всю висоту вікна браузера /Sets the height of the element to the full height of the browser window */
+    border: 2px solid #000; /* Створює чорну рамку товщиною 2px /Creates a black border with a thickness of 2px */
+    box-sizing: border-box; /* Враховує рамки та відступи в розмірах елемента /Includes border and padding in the element's dimensions */
+    background-color: rgba(51, 51, 51, 0.80); /* Встановлює прозорий чорний фон для елемента /Sets a semi-transparent black background for the element */
+    z-index: -1; /* Встановлює елемент позаду основного вмісту /Sets the element behind the main content */
+}
