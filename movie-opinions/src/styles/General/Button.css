@@ -1,0 +1,29 @@
+.button {
+    cursor: pointer;
+    box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #444,
+    inset -5px -5px 10px #222;
+    border: var(--background-color) solid 1px;
+    color: var(--text-color);
+    background-color: rgb(49, 49, 49);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-family: var(--font-family-regular);
+}
+
+@media (hover: hover) {
+    .button:hover {
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #222,
+        inset -5px -5px 10px #444;
+        color: #d6d6d6;
+        transition: 500ms;
+    }
+}
+
+@media (hover: none) {
+    .button:active {
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #222,
+        inset -5px -5px 10px #444;
+        color: #d6d6d6;
+        transition: 500ms;
+    }
+}

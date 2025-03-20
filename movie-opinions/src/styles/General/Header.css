@@ -1,0 +1,187 @@
+:root {
+    --background-color: #333;
+    --text-color: #ddd;
+    --accent-color: #FF8304;
+    --font-family-regular: "Arsenal-Regular";
+    --font-family-italic: "Arsenal-Italic";
+    --font-family-logo: 'Akronim';
+    --header-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #444,
+                      inset -5px -5px 10px #222;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1% auto;
+    border: var(--background-color) solid 1px;
+    background: var(--background-color);
+    padding: 20px 40px;
+    border-radius: 15px;
+    box-shadow: var(--header-shadow);
+    max-width: 1900px;
+}
+
+.header__logo {
+    font-family: var(--font-family-logo); 
+    color: var(--accent-color); 
+    font-size: clamp(20px, 2vw, 40px);
+}
+
+.header__menu{
+    list-style: none;
+    display: flex;
+    padding: 0;
+}
+
+.header__menu a {
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: 0.3s;
+    font-family: var(--font-family-italic);
+    font-size: 15px;
+}
+
+.button--login {
+    width: 100px;
+    height: 40px;
+    font-size: 16px;
+}
+
+.button--register {
+    width: 150px;
+    height: 40px;
+    font-size: 16px;
+}
+
+@media (hover: hover) {
+    .header__menu a:hover {
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #222,
+        inset -5px -5px 10px #444;
+    }
+
+    .header__menu-Login-mobile:hover,
+    .header__menu-mobile:hover {
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #222,
+        inset -5px -5px 10px #444;
+        color: var(--accent-color);
+        transition: 500ms;
+    }
+}
+
+@media (hover: none) {
+    .header__menu a:active {
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #222,
+        inset -5px -5px 10px #444;
+    }
+
+    .header__menu-Login-mobile:active,
+    .header__menu-mobile:active {
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #222,
+        inset -5px -5px 10px #444;
+        color: var(--accent-color);
+        transition: 500ms;
+    }
+}
+
+@media (max-width: 2050px) {
+
+    .header {
+        margin: 1% 3%; /* Змінюємо відступи для менших екранів */
+    }
+}
+
+@media (min-width: 1200px) {
+    .header__menu {
+        gap: 20px;
+    }
+
+    .header__auth{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .header__menu-Login-mobile,
+    .header__menu-mobile {
+        background: none;
+        border: none;
+        color: #ddd;
+        font-size: 30px;
+        cursor: pointer;
+        display: none;
+    }
+}
+
+@media (max-width: 1199px)  {
+    .header__menu{
+        gap: 25px;
+        flex-direction: column;
+    }
+
+    .header__menu-Login-mobile,
+    .header__menu-mobile {
+        display: block;
+        background-color: rgb(49, 49, 49);
+        border: var(--background-color) solid 2px;
+        color: #FF8304; 
+        cursor: pointer; 
+        border-radius: 20px;
+        width: 40px;
+        height: 40px;
+        box-shadow: -5px -5px 15px #444, 5px 5px 15px #222, inset 5px 5px 10px #444,
+        inset -5px -5px 10px #222;
+        transition: all 0.3s ease; 
+    }
+
+    .header__nav {
+        display: none;
+    }
+
+    .header__nav.open {
+        position: absolute;
+        top: 100px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        display: block;
+        width: 150px;
+        margin-left: 3%;
+        border-radius: 20px;
+        background: var(--background-color);
+        padding: 20px 40px;
+        box-shadow: var(--header-shadow);
+    }
+
+    .header__auth {
+        display: none;
+    }
+
+    .header__auth.open {
+        align-items: center;
+        position: absolute;
+        top: 100px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        display: flex;
+        gap: 15px;
+        justify-content: center; 
+        flex-direction: column;
+        width: 150px;
+        margin-left: auto;
+        margin-right: 3%;
+        border-radius: 20px;
+        background: var(--background-color);
+        padding: 20px 40px;
+        box-shadow: var(--header-shadow);
+    }
+    
+    .header__img{
+        width: 20px;
+        height: 20px;
+    }
+}

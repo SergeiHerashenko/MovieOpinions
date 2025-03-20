@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'Akronim'; /* Встановлює ім'я шрифту /Sets the font name/ */
+    src: url(../../../public/Fonts/Akronim-Regular.ttf) format('truetype'); /* Задає шлях до файлу шрифту та його формат /Specifies the font file path and format/ */
+}
+
+@font-face {
+    font-family: 'Arsenal-Regular'; /* Встановлює ім'я шрифту /Sets the font name/ */
+    src: url(../../../public/Fonts/Arsenal-Regular.otf) format('truetype'); /* Задає шлях до файлу шрифту та його формат /Specifies the font file path and format/ */
+}
+
+@font-face {
+    font-family: 'Arsenal-Italic'; /* Встановлює ім'я шрифту /Sets the font name/ */
+    src: url(../../../public/Fonts/Arsenal-Italic.otf) format('truetype'); /* Задає шлях до файлу шрифту та його формат /Specifies the font file path and format/ */
+}

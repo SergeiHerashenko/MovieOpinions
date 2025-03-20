@@ -1,9 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieOpinions", "MovieOpinions\MovieOpinions.csproj", "{50AA4609-B46C-4C77-926E-FD3565FBFDCC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{E41D4CD4-D655-47DE-A287-14F0F77A1FE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieOpinions.Domain", "MovieOpinions.Domain\MovieOpinions.Domain.csproj", "{40D1C563-FBFC-4A8C-9FD5-1427442204A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{472945BF-3885-456D-B62D-4FECAE5112E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieOpinions.DAL", "MovieOpinions.DAL\MovieOpinions.DAL.csproj", "{A52207EA-F07B-4ADC-A270-CA203F9F84AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{E897030E-820D-4D22-978A-CBE34946163A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieOpinions.Service", "MovieOpinions.Service\MovieOpinions.Service.csproj", "{57F39ED6-4A2B-4179-819D-DEFFEC9921A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +27,25 @@ Global
 		{50AA4609-B46C-4C77-926E-FD3565FBFDCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50AA4609-B46C-4C77-926E-FD3565FBFDCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50AA4609-B46C-4C77-926E-FD3565FBFDCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40D1C563-FBFC-4A8C-9FD5-1427442204A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D1C563-FBFC-4A8C-9FD5-1427442204A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D1C563-FBFC-4A8C-9FD5-1427442204A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D1C563-FBFC-4A8C-9FD5-1427442204A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A52207EA-F07B-4ADC-A270-CA203F9F84AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A52207EA-F07B-4ADC-A270-CA203F9F84AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A52207EA-F07B-4ADC-A270-CA203F9F84AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A52207EA-F07B-4ADC-A270-CA203F9F84AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57F39ED6-4A2B-4179-819D-DEFFEC9921A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57F39ED6-4A2B-4179-819D-DEFFEC9921A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57F39ED6-4A2B-4179-819D-DEFFEC9921A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57F39ED6-4A2B-4179-819D-DEFFEC9921A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{40D1C563-FBFC-4A8C-9FD5-1427442204A2} = {E41D4CD4-D655-47DE-A287-14F0F77A1FE3}
+		{A52207EA-F07B-4ADC-A270-CA203F9F84AF} = {472945BF-3885-456D-B62D-4FECAE5112E2}
+		{57F39ED6-4A2B-4179-819D-DEFFEC9921A2} = {E897030E-820D-4D22-978A-CBE34946163A}
 	EndGlobalSection
 EndGlobal
