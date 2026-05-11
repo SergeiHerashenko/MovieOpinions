@@ -32,8 +32,27 @@ namespace Authorization.Domain.Entities
 
         private const int MaxFailedAttempts = 3;
 
+        #region Creation
         private User(Login login, Password password, Role role) : base()
         {
+            if (login is null)
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty, 
+                    $"{nameof(login)} validation failed: value is null. Entity {nameof(User)}!"
+                );
+
+            if (password is null)
+                throw new ValidationDomainException(
+                    ErrorCodes.PasswordError.Empty, 
+                    $"{nameof(password)} validation failed: value is null. Entity {nameof(User)}!"
+                );
+
+            if (role != Role.User)
+                throw new ValidationDomainException(
+                    ErrorCodes.GeneralError.OperationNotAllowed, 
+                    $"User creation rejected due to invalid role. Entity {nameof(User)}!"
+                );
+
             Login = login;
             Password = password;
             Role = role;
@@ -46,7 +65,21 @@ namespace Authorization.Domain.Entities
             IsDeleted = false;
         }
 
-        private User(Guid id,
+        public static User CreateNewUser(Login login, Password password, Role role)
+        {
+            var user = new User(login, password, role);
+
+            user.AddDomainEvent(
+                new UserRegisteredEvent(user.Id, user.Login.Value, user.Login.Type, user.CreatedAt)
+            );
+
+            return user;
+        }
+        #endregion
+
+        #region Restore
+        private User(
+            Guid id,
             DateTime createdAt,
             Login login,
             Password password,
@@ -60,6 +93,18 @@ namespace Authorization.Domain.Entities
             bool isDeleted)
             : base(id, createdAt)
         {
+            if (login is null)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(login.Value)} during {nameof(User)} entity reconstruction!"
+                );
+
+            if (password is null)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(password)} during {nameof(User)} entity reconstruction!"
+                );
+
             Login = login;
             Password = password;
             Role = role;
@@ -70,24 +115,6 @@ namespace Authorization.Domain.Entities
             FailedLoginAttempts = failedLoginAttempts;
             IsBlocked = isBlocked;
             IsDeleted = isDeleted;
-        }
-
-        public static User CreateNewUser(Login login, Password password, Role role)
-        {
-            if (login == null)
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Логін є обов'язковим!");
-
-            if (password == null)
-                throw new ValidationDomainException(ErrorCodes.PasswordError.Empty, "Пароль є обов'язковим!");
-
-            if (role != Role.User)
-                throw new ValidationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Обліковий запис можна створити тільки з роллю User!");
-
-            var user = new User(login, password, role);
-
-            user.AddDomainEvent(new UserRegisteredEvent(user.Id, user.Login.Value, user.Login.Type, user.CreatedAt));
-
-            return user;
         }
 
         public static User Restore(Guid id, 
@@ -103,27 +130,23 @@ namespace Authorization.Domain.Entities
             bool isBlocked,
             bool isDeleted)
         {
-            if (login == null)
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Логін є обов'язковим для відновлення.");
-              
-            if (password == null)
-                throw new ValidationDomainException(ErrorCodes.PasswordError.Empty, "Пароль є обов'язковим для відновлення.");
-
             return new User(id, createdAt, login, password, role, updateAt, lastLoginAt, lastLoginIp, isConfirmed, failedLoginAttempts, isBlocked, isDeleted);
         }
+        #endregion
 
+        #region Behavior
         public void ChangeLogin(Login newLogin, DateTime updateTime)
         {
-            if (newLogin == null)
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Логін є обов'язковим!");
+            if (newLogin is null)
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty,
+                    $"The {nameof(newLogin)} is required!"
+                );
 
-            if (IsDeleted)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Deleted, "Не можна змінювати логін видаленого користувача!");
+            EnsureActive();
 
-            if (IsBlocked)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Blocked, "Не можна змінювати логін заблокованого користувача!");
-
-            if (Login == newLogin) return;
+            if (Login == newLogin)
+                return;
 
             var oldLogin = Login.Value;
 
@@ -131,34 +154,38 @@ namespace Authorization.Domain.Entities
             IsLoginConfirmed = false;
             UpdatedAt = updateTime;
 
-            AddDomainEvent(new UserLoginChangedEvent(Id, oldLogin, newLogin.Value, newLogin.Type, updateTime)); 
+            AddDomainEvent(
+                new UserLoginChangedEvent(Id, oldLogin, newLogin.Value, newLogin.Type, updateTime)
+            );
         }
 
         public void ChangePassword(Password newPassword, DateTime updateTime)
         {
-            if (newPassword == null)
-                throw new ValidationDomainException(ErrorCodes.PasswordError.Empty, "Пароль є обов'язковим!");
+            if (newPassword is null)
+                throw new ValidationDomainException(
+                    ErrorCodes.PasswordError.Empty,
+                    $"The {nameof(newPassword)} is required!"
+                );
 
-            if (IsDeleted)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Deleted, "Не можна змінювати пароль видаленого користувача!");
+            EnsureActive();
 
-            if (IsBlocked)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Blocked, "Не можна змінювати пароль заблокованого користувача!");
-
-            if (Password == newPassword) return;
+            if (Password == newPassword) 
+                return;
 
             Password = newPassword;
             UpdatedAt = updateTime;
 
-            AddDomainEvent(new UserPasswordChangedEvent(Id, updateTime));
+            AddDomainEvent(
+                new UserPasswordChangedEvent(Id, updateTime)
+            );
         }
 
         public void ConfirmLogin(DateTime updateTime)
         {
-            if (IsDeleted)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Deleted, "Неможливо підтвердити логін видаленого користувача.");
+            EnsureNotDeleted();
 
-            if (IsLoginConfirmed) return;
+            if (IsLoginConfirmed) 
+                return;
 
             IsLoginConfirmed = true;
             UpdatedAt = updateTime;
@@ -166,34 +193,40 @@ namespace Authorization.Domain.Entities
 
         public void Block(DateTime updateTime, string reason)
         {
-            if (IsDeleted)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Deleted, "Неможливо заблокувати видаленого користувача.");
+            EnsureNotDeleted();
 
-            if (IsBlocked) return;
+            if (IsBlocked) 
+                return;
 
             IsBlocked = true;
             UpdatedAt = updateTime;
 
-            AddDomainEvent(new UserBlockedEvent(Id, reason, updateTime));
+            AddDomainEvent(
+                new UserBlockedEvent(Id, reason, updateTime)
+            );
         }
 
         public void RecordFailedLoginAttempt(DateTime updateTime)
         {
-            if (IsBlocked || IsDeleted) return;
+            if (IsBlocked || IsDeleted)
+                return;
 
             FailedLoginAttempts++;
             UpdatedAt = updateTime;
 
             if (FailedLoginAttempts >= MaxFailedAttempts)
             {
-                Block(updateTime, "Автоматичне блокування після 3 невдалих спроб входу");
+                Block(updateTime, "Max failed login attempts exceeded!");
             }
         }
 
         public void LoginSuccess(string ip, DateTime loginTime)
         {
             if (IsDeleted || IsBlocked)
-                throw new InvalidStateDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Неможливо виконати вхід для заблокованого або видаленого користувача.");
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.GeneralError.OperationNotAllowed,
+                    $"Login operation not allowed for blocked or deleted user. Entity {nameof(User)}!"
+                );
 
             FailedLoginAttempts = 0;
 
@@ -201,17 +234,45 @@ namespace Authorization.Domain.Entities
             LastLoginIp = ip;
             UpdatedAt = loginTime;
 
-            AddDomainEvent(new UserLoggedInEvent(Id, ip, loginTime));
+            AddDomainEvent(
+                new UserLoggedInEvent(Id, ip, loginTime)
+            );
         }
 
         public void Delete(DateTime updateTime)
         {
-            if (IsDeleted) return;
+            if (IsDeleted)
+                return;
 
             IsDeleted = true;
             UpdatedAt = updateTime;
 
-            AddDomainEvent(new UserDeletedEvent(Id, updateTime));
+            AddDomainEvent(
+                new UserDeletedEvent(Id, updateTime)
+            );
         }
+        #endregion
+
+        #region Guards
+        private void EnsureActive()
+        {
+            EnsureNotDeleted();
+
+            if (IsBlocked)
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.AccountStatusError.Blocked,
+                    $"Operation not allowed for blocked user. Entity {nameof(User)}!"
+                );
+        }
+
+        private void EnsureNotDeleted()
+        {
+            if (IsDeleted)
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.AccountStatusError.Deleted,
+                    $"Operation not allowed for deleted user. Entity {nameof(User)}!"
+                );
+        }
+        #endregion
     }
 }

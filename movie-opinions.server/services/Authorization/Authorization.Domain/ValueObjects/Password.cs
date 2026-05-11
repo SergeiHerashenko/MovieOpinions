@@ -5,19 +5,22 @@ namespace Authorization.Domain.ValueObjects
 {
     public sealed class Password
     {
-        public string Hash { get; }
+        public string Value { get; }
 
-        private Password(string hash)
+        private Password(string value)
         {
-            Hash = hash;
+            Value = value;
         }
 
-        public static Password Create(string hash)
+        public static Password Create(string value)
         {
-            if (string.IsNullOrWhiteSpace(hash))
-                throw new ValidationDomainException(ErrorCodes.PasswordError.Empty, "Пароль не може бути пустим!");
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ValidationDomainException(
+                    ErrorCodes.PasswordError.Empty,
+                    $"Password cannot be empty. Entity {nameof(Password)}!"
+                );
 
-            return new Password(hash);
+            return new Password(value);
         }
 
         public override string ToString() => "********";

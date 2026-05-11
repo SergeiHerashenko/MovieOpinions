@@ -13,21 +13,20 @@ namespace Authorization.Domain.Entities
 
         public string? Reason { get; private set; }
 
+        #region Creation
         private UserDeletion(Guid userId, string login, string? reason) : base()
         {
             if (userId == Guid.Empty)
-                throw new ValidationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Помилка отримання ідентифікатора користувача!");
+                throw new ValidationDomainException(
+                    ErrorCodes.IdentifierError.Empty, 
+                    $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserDeletion)}!"
+                );
 
-            UserId = userId;
-            Login = login;
-            Reason = reason;
-        }
-
-        private UserDeletion(Guid id, Guid userId, string login, string? reason, DateTime createdAt)
-            : base(id, createdAt)
-        {
-            if (userId == Guid.Empty || userId == Guid.Empty)
-                throw new ValidationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Помилка отримання ідентифікатора користувача!");
+            if (login is null)
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty,
+                    $"{nameof(login)} validation failed: value is null. Entity {nameof(UserDeletion)}!"
+                );
 
             UserId = userId;
             Login = login;
@@ -37,21 +36,46 @@ namespace Authorization.Domain.Entities
         public static UserDeletion CreateForDeletedUser(User user, string? reason, DateTime now)
         {
             if (user.IsDeleted)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Deleted, "Користувач вже видалений.");
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.AccountStatusError.Deleted,
+                    $"Operation not allowed for deleted user. Entity {nameof(UserDeletion)}!"
+                );
 
-            var userDeletion =  new UserDeletion(user.Id, user.Login.Value, reason);
+            var userDeletion = new UserDeletion(user.Id, user.Login.Value, reason);
 
-            userDeletion.AddDomainEvent(new UserAccountDeletionRequestedEvent(user.Id, user.Login.Value, reason, now));
+            userDeletion.AddDomainEvent(
+                new UserAccountDeletionRequestedEvent(user.Id, user.Login.Value, reason, now)
+            );
 
             return userDeletion;
+        }
+        #endregion
+
+        #region Restore
+        private UserDeletion(Guid id, Guid userId, string login, string? reason, DateTime createdAt)
+            : base(id, createdAt)
+        {
+            if (userId == Guid.Empty)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(userId)} during {nameof(UserDeletion)} entity reconstruction!"
+                );
+
+            if (login is null)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(login)} during {nameof(UserDeletion)} entity reconstruction!"
+                );
+
+            UserId = userId;
+            Login = login;
+            Reason = reason;
         }
 
         public static UserDeletion Restore(Guid id, Guid userId, string login, string? reason, DateTime createdAt)
         {
-            if (id == Guid.Empty || userId == Guid.Empty)
-                throw new ValidationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Помилка отримання ідентифікатора користувача!");
-
             return new UserDeletion(id, userId, login, reason, createdAt);
         }
+        #endregion
     }
 }

@@ -19,9 +19,22 @@ namespace Authorization.Domain.Entities
 
         public bool IsActive { get; private set; }
 
+        #region Creation
         private UserRestriction(Guid userId, string login, string? reason, string nameBannedBy, DateTime? expiresAt)
-            : base()
+           : base()
         {
+            if (userId == Guid.Empty)
+                throw new ValidationDomainException(
+                    ErrorCodes.IdentifierError.Empty,
+                    $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserRestriction)}!"
+                );
+
+            if (login is null)
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty,
+                    $"{nameof(login)} validation failed: value is null. Entity {nameof(UserRestriction)}!"
+                );
+
             UserId = userId;
             Login = login;
             Reason = reason;
@@ -30,7 +43,33 @@ namespace Authorization.Domain.Entities
             IsActive = true;
         }
 
-        private UserRestriction(Guid id,
+        public static UserRestriction CreateRestrictionForUser(User user, string? reason, string nameBannedBy, DateTime? expiresAt, DateTime now)
+        {
+            if (user.IsBlocked)
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.AccountStatusError.Blocked, 
+                    $"User is already blocked and cannot receive additional restrictions. Entity {nameof(UserRestriction)}!"
+                );
+
+            if (expiresAt.HasValue && expiresAt.Value <= now)
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.GeneralError.OperationNotAllowed, 
+                    $"Restriction expiration date must be set to a future time. Entity {nameof(UserRestriction)}!"
+                );
+
+            var userRestriction = new UserRestriction(user.Id, user.Login.Value, reason, nameBannedBy, expiresAt);
+
+            userRestriction.AddDomainEvent(new 
+                UserRestrictionRequestedEvent(user.Id, reason, nameBannedBy, expiresAt, now)
+            );
+
+            return userRestriction;
+        }
+        #endregion
+
+        #region Restore
+        private UserRestriction(
+            Guid id,
             Guid userId,
             string login,
             string? reason,
@@ -40,27 +79,24 @@ namespace Authorization.Domain.Entities
             bool isActive)
             : base(id, createdAt)
         {
+            if (userId == Guid.Empty)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(userId)} during {nameof(UserRestriction)} entity reconstruction!"
+                );
+
+            if (login is null)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(login)} during {nameof(UserRestriction)} entity reconstruction!"
+                );
+
             UserId = userId;
             Login = login;
             Reason = reason;
             NameBannedBy = nameBannedBy;
             ExpiresAt = expiresAt;
             IsActive = isActive;
-        }
-
-        public static UserRestriction CreateRestrictionForUser(User user, string? reason, string nameBannedBy, DateTime? expiresAt, DateTime now)
-        {
-            if (user.IsBlocked)
-                throw new InvalidStateDomainException(ErrorCodes.AccountStatusError.Blocked, "Користувач вже має активне блокування!");
-
-            if (expiresAt.HasValue && expiresAt.Value <= now)
-                throw new BusinessRuleViolationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Дата закінчення обмеження має бути в майбутньому.");
-
-            var userRestriction = new UserRestriction(user.Id, user.Login.Value, reason, nameBannedBy, expiresAt);
-
-            userRestriction.AddDomainEvent(new UserRestrictionRequestedEvent(user.Id, reason, nameBannedBy,  expiresAt, now));
-
-            return userRestriction;
         }
 
         public static UserRestriction Restore(Guid id,
@@ -74,7 +110,9 @@ namespace Authorization.Domain.Entities
         {
             return new UserRestriction(id, userId, login, reason, nameBannedBy, createdAt, expiresAt, isActive);
         }
+        #endregion
 
+        #region Behavior
         public void Deactivate()
         {
             if (!IsActive)
@@ -86,5 +124,6 @@ namespace Authorization.Domain.Entities
         public bool IsExpired(DateTime now) => ExpiresAt.HasValue && now >= ExpiresAt.Value;
 
         public bool IsCurrentlyActive(DateTime now) => IsActive && !IsExpired(now);
+        #endregion
     }
 }

@@ -20,7 +20,7 @@ namespace Authorization.Domain.Common
         protected BaseEntity(Guid id, DateTime createdAt)
         {
             if(id == Guid.Empty) 
-                throw new ValidationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Помилка отримання ідентифікатора користувача!");
+                throw new DataInconsistencyDomainException(ErrorCodes.RestoreError.NullReference, "Invalid entity identifier!");
 
             Id = id;
             CreatedAt = createdAt;

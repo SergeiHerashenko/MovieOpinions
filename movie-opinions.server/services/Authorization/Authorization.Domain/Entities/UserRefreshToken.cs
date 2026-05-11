@@ -2,6 +2,7 @@
 using Authorization.Domain.Errors;
 using Authorization.Domain.Exceptions;
 using Authorization.Domain.ValueObjects;
+using Authorization.Domain.ValueObjects.Login;
 
 namespace Authorization.Domain.Entities
 {
@@ -25,9 +26,22 @@ namespace Authorization.Domain.Entities
 
         public bool IsRevoked { get; private set; }
 
+        #region Creation
         private UserRefreshToken(Guid userId, string refreshToken, DeviceInfo deviceInfo, string ipAddress, string? city)
             : base()
         {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                throw new ValidationDomainException(
+                    ErrorCodes.TokenError.TokenEmpty,
+                    $"{nameof(refreshToken)} validation failed: value is null. Entity {nameof(UserRefreshToken)}!"
+                );
+
+            if (userId == Guid.Empty)
+                throw new ValidationDomainException(
+                    ErrorCodes.IdentifierError.Empty,
+                    $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserRefreshToken)}!"
+                );
+
             UserId = userId;
             RefreshToken = refreshToken;
             DeviceInfo = deviceInfo;
@@ -38,7 +52,15 @@ namespace Authorization.Domain.Entities
             IsRevoked = false;
         }
 
-        private UserRefreshToken(Guid id,
+        public static UserRefreshToken CreateRefreshToken(Guid userId, string refreshToken, DeviceInfo deviceInfo, string ipAddress, string? city)
+        {
+            return new UserRefreshToken(userId, refreshToken, deviceInfo, ipAddress, city);
+        }
+        #endregion
+
+        #region Restore
+        private UserRefreshToken(
+            Guid id,
             Guid userId,
             string refreshToken,
             DeviceInfo deviceInfo,
@@ -50,6 +72,18 @@ namespace Authorization.Domain.Entities
             bool isRevoked)
             : base(id, createdAt)
         {
+            if (userId == Guid.Empty)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(userId)} during {nameof(UserRefreshToken)} entity reconstruction!"
+                );
+
+            if (refreshToken is null)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(refreshToken)} during {nameof(UserDeletion)} entity reconstruction!"
+                );
+
             UserId = userId;
             RefreshToken = refreshToken;
             DeviceInfo = deviceInfo;
@@ -58,17 +92,6 @@ namespace Authorization.Domain.Entities
             ExpiresAt = expiresAt;
             IsUsed = isUsed;
             IsRevoked = isRevoked;
-        }
-
-        public static UserRefreshToken CreateRefreshToken(Guid userId, string refreshToken, DeviceInfo deviceInfo, string ipAddress, string? city)
-        {
-            if (string.IsNullOrWhiteSpace(refreshToken))
-                throw new SecurityDomainException(ErrorCodes.TokenError.TokenEmpty, "Токен не може бути порожнім.");
-
-            if (userId == Guid.Empty)
-                throw new BusinessRuleViolationDomainException(ErrorCodes.GeneralError.OperationNotAllowed, "Помилка ідентифікації користувача.");
-
-            return new UserRefreshToken(userId, refreshToken, deviceInfo, ipAddress, city);
         }
 
         public static UserRefreshToken Restore(Guid id,
@@ -84,7 +107,9 @@ namespace Authorization.Domain.Entities
         {
             return new UserRefreshToken(id, userId, refreshToken, deviceInfo, ipAddress, city, expiresAt, createdAt, isUsed, isRevoked);
         }
+        #endregion
 
+        #region Behavior
         public void Revoke()
         {
             if (IsRevoked) return;
@@ -94,10 +119,15 @@ namespace Authorization.Domain.Entities
         public void Use(DateTime now)
         {
             if (!IsActive(now))
-                throw new SecurityDomainException(ErrorCodes.TokenError.TokenInvalid, "Токен вже недійсний");
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.TokenError.TokenInvalid,
+                    "Refresh token is no longer active!"
+                );
+
             IsUsed = true;
         }
 
         public bool IsActive(DateTime now) => !IsUsed && !IsRevoked && now < ExpiresAt;
+        #endregion
     }
 }

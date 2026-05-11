@@ -26,7 +26,9 @@ namespace Authorization.Domain.Entities
 
         public bool IsConfirmed { get; private set; }
 
-        private UserPendingChange(Guid userId,
+        #region Creation
+        private UserPendingChange(
+            Guid userId,
             string confirmationToken,
             UserChangeType userChangeType,
             Password? newPassword,
@@ -34,10 +36,16 @@ namespace Authorization.Domain.Entities
             : base()
         {
             if (userId == Guid.Empty)
-                throw new ValidationDomainException(ErrorCodes.UserPendingChangeError.InvalidUserId, "Невалідний ідентифікатор користувача!");
+                throw new ValidationDomainException(
+                    ErrorCodes.IdentifierError.Empty,
+                    $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserPendingChange)}!"
+                );
 
             if (string.IsNullOrWhiteSpace(confirmationToken))
-                throw new ValidationDomainException(ErrorCodes.UserPendingChangeError.InvalidConfirmToken, "Токен підтвердження не може бути порожнім!");
+                throw new ValidationDomainException(
+                    ErrorCodes.UserPendingChangeError.InvalidConfirmToken,
+                    $"{nameof(confirmationToken)} validation failed: value is null. Entity {nameof(UserPendingChange)}!"
+                );
 
             UserId = userId;
             ConfirmationToken = confirmationToken;
@@ -48,7 +56,32 @@ namespace Authorization.Domain.Entities
             IsConfirmed = false;
         }
 
-        private UserPendingChange(Guid id,
+        public static UserPendingChange CreateLoginChange(Guid userId, string confirmationToken, Login newLogin)
+        {
+            var userPendingChange = new UserPendingChange(userId, confirmationToken, UserChangeType.LoginChange, null, newLogin);
+
+            userPendingChange.AddDomainEvent(
+                new UserLoginChangeRequestedEvent(userId, confirmationToken, userPendingChange.CreatedAt)
+            );
+
+            return userPendingChange;
+        }
+
+        public static UserPendingChange CreatePasswordChange(Guid userId, string confirmationToken, Password newPassword)
+        {
+            var userPendingChange = new UserPendingChange(userId, confirmationToken, UserChangeType.PasswordChange, newPassword, null);
+
+            userPendingChange.AddDomainEvent(
+                new UserPasswordChangeRequestedEvent(userId, confirmationToken, userPendingChange.CreatedAt)
+            );
+
+            return userPendingChange;
+        }
+        #endregion
+
+        #region Restore
+        private UserPendingChange(
+            Guid id,
             Guid userId,
             string confirmationToken,
             UserChangeType userChangeType,
@@ -59,6 +92,18 @@ namespace Authorization.Domain.Entities
             DateTime createdAt)
             : base(id, createdAt)
         {
+            if (userId == Guid.Empty)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(userId)} during {nameof(UserPendingChange)} entity reconstruction!"
+                );
+
+            if (confirmationToken is null)
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Missing required field {nameof(confirmationToken)} during {nameof(UserPendingChange)} entity reconstruction!"
+                );
+
             UserId = userId;
             ConfirmationToken = confirmationToken;
             UserChangeType = userChangeType;
@@ -66,24 +111,6 @@ namespace Authorization.Domain.Entities
             NewLogin = newLogin;
             ExpiresAt = expiresAt;
             IsConfirmed = isConfirmed;
-        }
-
-        public static UserPendingChange CreateLoginChange(Guid userId, string confirmationToken, Login newLogin)
-        {
-            var userPendingChange = new UserPendingChange(userId, confirmationToken, UserChangeType.LoginChange, null, newLogin);
-
-            userPendingChange.AddDomainEvent(new UserLoginChangeRequestedEvent(userId, confirmationToken, userPendingChange.CreatedAt));
-
-            return userPendingChange;
-        }
-
-        public static UserPendingChange CreatePasswordChange(Guid userId, string confirmationToken, Password newPassword)
-        {
-            var userPendingChange = new UserPendingChange(userId, confirmationToken, UserChangeType.PasswordChange, newPassword, null);
-
-            userPendingChange.AddDomainEvent(new UserPasswordChangeRequestedEvent(userId, confirmationToken, userPendingChange.CreatedAt));
-
-            return userPendingChange;
         }
 
         public static UserPendingChange Restore(Guid id,
@@ -98,7 +125,9 @@ namespace Authorization.Domain.Entities
         {
             return new UserPendingChange(id, userId, confirmationToken, userChangeType, newPassword, newLogin, expiresAt, isConfirmed, createdAt);
         }
+        #endregion
 
+        #region Behavior
         public bool CanBeConfirmed(string token, DateTime now)
         {
             return !IsConfirmed &&
@@ -109,9 +138,13 @@ namespace Authorization.Domain.Entities
         public void Confirm(string token, DateTime now)
         {
             if (!CanBeConfirmed(token, now))
-                throw new BusinessRuleViolationDomainException(ErrorCodes.TokenError.TokenExpired, "Токен недійсний, прострочений або вже використаний.");
+                throw new BusinessRuleViolationDomainException(
+                    ErrorCodes.TokenError.TokenExpired, 
+                    "Cannot confirm pending change because token is invalid, expired, or already used!"
+                );
 
             IsConfirmed = true;
         }
+        #endregion
     }
 }

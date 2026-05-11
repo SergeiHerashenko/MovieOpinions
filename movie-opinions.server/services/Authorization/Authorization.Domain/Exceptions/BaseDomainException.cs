@@ -4,16 +4,16 @@
     {
         public string ErrorCode { get; }
 
-        protected BaseDomainException(string? code, string? message)
-            : base(string.IsNullOrWhiteSpace(message) ? "Виникла помилка бізнес-логікию." : message)
+        protected BaseDomainException(string code, string? technicalMessage = null)
+            : base(technicalMessage)
         {
-            ErrorCode = string.IsNullOrEmpty(code) ? "UNKNOWN_ERROR" : code;
+            ErrorCode = code;
         }
 
-        protected BaseDomainException(string? code, string? message, Exception innerException)
-            : base(string.IsNullOrWhiteSpace(message) ? "Виникла помилка бізнес-логікию." : message, innerException)
+        protected BaseDomainException(string code, string? technicalMessage, Exception innerException)
+            : base(technicalMessage, innerException)
         {
-            ErrorCode = string.IsNullOrEmpty(code) ? "UNKNOWN_ERROR" : code;
+            ErrorCode = code;
         }
     }
 }

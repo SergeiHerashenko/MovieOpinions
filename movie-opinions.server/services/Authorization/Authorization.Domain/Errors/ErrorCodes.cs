@@ -6,21 +6,21 @@
         {
             public const string Invalid = "LOGIN_INVALID";
 
+            public const string InvalidEmail = "EMAIL_INVALID";
+
+            public const string InvalidPhone = "PHONE_INVALID";
+
             public const string Empty = "LOGIN_EMPTY";
         }
 
         public static class PasswordError
         {
             public const string Empty = "PASSWORD_EMPTY";
-
-            public const string Short = "PASSWORD_SHORT";
-
-            public const string Invalid = "PASSWORD_INVALID";
         }
 
-        public static class RoleError
+        public static class IdentifierError
         {
-            public const string Empty = "ROLE_EMPTY";
+            public const string Empty = "IDENTIFIER_EMPTY";
         }
 
         public static class AccountStatusError
@@ -37,8 +37,6 @@
 
         public static class UserPendingChangeError
         {
-            public const string InvalidUserId = "USER_PENDING_CHANGE_INVALID_USER_ID";
-
             public const string InvalidConfirmToken = "INVALID_CONFIRM_TOKEN";
         }
 
@@ -49,6 +47,11 @@
             public const string TokenInvalid = "TOKEN_INVALID";
 
             public const string TokenExpired = "TOKEN_EXPIRED";
+        }
+
+        public static class RestoreError
+        {
+            public const string NullReference = "NULL_REFERENCE";
         }
     }
 }

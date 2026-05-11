@@ -24,7 +24,10 @@ namespace Authorization.Domain.ValueObjects.Login
         public static Login Create(string rawLogin)
         {
             if (string.IsNullOrWhiteSpace(rawLogin))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Логін не може бути порожнім!");
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty,
+                    $"{nameof(rawLogin)} validation failed: value is null. Entity {nameof(Login)}!"
+                );
 
             if (Email.TryCreate(rawLogin, out var email))
                 return FromEmail(email!);
@@ -32,7 +35,10 @@ namespace Authorization.Domain.ValueObjects.Login
             if (Phone.TryCreate(rawLogin, out var phone))
                 return FromPhone(phone!);
 
-            throw new ValidationDomainException(ErrorCodes.LoginError.Invalid, "Невідомий формат логіна. Очікується Email або Телефон у міжнародному форматі!");
+            throw new ValidationDomainException(
+                ErrorCodes.LoginError.InvalidEmail, 
+                $"Invalid login format. Expected Email. Entity {nameof(Login)}!"
+            );
         }
 
         public static Login Restore(string value, LoginType type)
@@ -41,7 +47,10 @@ namespace Authorization.Domain.ValueObjects.Login
             {
                 LoginType.Email => new(value, LoginType.Email),
                 LoginType.Phone => new(value, LoginType.Phone),
-                _ => throw new ValidationDomainException(nameof(type), "Невідомий тип логіна")
+                _ => throw new DataInconsistencyDomainException(
+                    ErrorCodes.GeneralError.OperationNotAllowed, 
+                    $"Unknown login type. Entity {nameof(Login)}!"
+                )
             };
         }
 
@@ -50,14 +59,6 @@ namespace Authorization.Domain.ValueObjects.Login
         public bool IsEmail => Type == LoginType.Email;
 
         public bool IsPhone => Type == LoginType.Phone;
-
-        public Email AsEmail() => IsEmail
-            ? Email.Restore(Value)
-            : throw new InvalidOperationException("LoginIdentifier не є Email");
-
-        public Phone AsPhone() => IsPhone
-            ? Phone.Restore(Value)
-            : throw new InvalidOperationException("LoginIdentifier не є Phone");
 
         public override bool Equals(object? obj)
         {

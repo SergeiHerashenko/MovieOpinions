@@ -15,12 +15,18 @@ namespace Authorization.Domain.ValueObjects.Login
         public static Phone Create(string rawPhone)
         {
             if (string.IsNullOrWhiteSpace(rawPhone))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Email не може бути порожнім!");
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty,
+                    $"{nameof(rawPhone)} validation failed: value is null. Entity {nameof(Phone)}!"
+                );
 
             var cleaned = CleanPhoneNumber(rawPhone);
 
             if (!IsValidE164(cleaned))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Invalid, "Невірний формат телефону. Очікується міжнародний формат (+380501234567)!");
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.InvalidPhone,
+                    $"Invalid phone format. Expected E.164 format. Entity {nameof(Phone)}!"
+                );
 
             return new Phone(cleaned);
         }
@@ -28,7 +34,10 @@ namespace Authorization.Domain.ValueObjects.Login
         public static Phone Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value) || !IsValidE164(value))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Invalid, "Невалідний телефон при відновленні.");
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference,
+                    $"Invalid phone format on restore. Entity {nameof(Phone)}!"
+                );
 
             return new Phone(value);
         }

@@ -1,4 +1,5 @@
-﻿using Authorization.Domain.Errors;
+﻿using Authorization.Domain.Entities;
+using Authorization.Domain.Errors;
 using Authorization.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
@@ -19,12 +20,18 @@ namespace Authorization.Domain.ValueObjects.Login
         public static Email Create(string rawEmail)
         {
             if (string.IsNullOrWhiteSpace(rawEmail))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Email не може бути порожнім!");
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Empty,
+                    $"{nameof(rawEmail)} validation failed: value is null. Entity {nameof(Email)}!"
+                );
 
             var trimmed = rawEmail.Trim();
 
             if (!EmailRegex.IsMatch(trimmed))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Invalid, "Невірний формат email!");
+                throw new ValidationDomainException(
+                    ErrorCodes.LoginError.Invalid, 
+                    $"Invalid email format. Entity {nameof(Email)}!"
+                );
 
             var normalized = trimmed.ToLowerInvariant();
 
@@ -34,14 +41,18 @@ namespace Authorization.Domain.ValueObjects.Login
         public static Email Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ValidationDomainException(ErrorCodes.LoginError.Empty, "Email не може бути порожнім при відновленні!");
+                throw new DataInconsistencyDomainException(
+                    ErrorCodes.RestoreError.NullReference, 
+                    $"Email cannot be empty on restore. Entity {nameof(Email)}!"
+                );
 
             return new Email(value.ToLowerInvariant());
         }
 
         public static bool IsValidFormat(string rawEmail)
         {
-            if (string.IsNullOrWhiteSpace(rawEmail)) return false;
+            if (string.IsNullOrWhiteSpace(rawEmail)) 
+                return false;
 
             return EmailRegex.IsMatch(rawEmail.Trim());
         }
