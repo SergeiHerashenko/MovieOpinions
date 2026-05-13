@@ -8,7 +8,7 @@
 
         public string? Reason { get; }
 
-        public UserAccountDeletionRequestedEvent(Guid userId, string login, string? reason, DateTime deleteTime)
+        public UserAccountDeletionRequestedEvent(Guid userId, string login, string? reason, DateTimeOffset deleteTime)
             : base(deleteTime)
         {
             UserId = userId;

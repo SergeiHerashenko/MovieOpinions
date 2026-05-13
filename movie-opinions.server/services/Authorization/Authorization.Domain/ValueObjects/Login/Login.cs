@@ -25,7 +25,7 @@ namespace Authorization.Domain.ValueObjects.Login
         {
             if (string.IsNullOrWhiteSpace(rawLogin))
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty,
+                    DomainErrorCodes.LoginError.Empty,
                     $"{nameof(rawLogin)} validation failed: value is null. Entity {nameof(Login)}!"
                 );
 
@@ -36,7 +36,7 @@ namespace Authorization.Domain.ValueObjects.Login
                 return FromPhone(phone!);
 
             throw new ValidationDomainException(
-                ErrorCodes.LoginError.InvalidEmail, 
+                DomainErrorCodes.LoginError.InvalidEmail, 
                 $"Invalid login format. Expected Email. Entity {nameof(Login)}!"
             );
         }
@@ -48,7 +48,7 @@ namespace Authorization.Domain.ValueObjects.Login
                 LoginType.Email => new(value, LoginType.Email),
                 LoginType.Phone => new(value, LoginType.Phone),
                 _ => throw new DataInconsistencyDomainException(
-                    ErrorCodes.GeneralError.OperationNotAllowed, 
+                    DomainErrorCodes.GeneralError.OperationNotAllowed, 
                     $"Unknown login type. Entity {nameof(Login)}!"
                 )
             };

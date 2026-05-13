@@ -15,23 +15,23 @@ namespace Authorization.Domain.Entities
 
         public string NameBannedBy { get; private set; }
 
-        public DateTime? ExpiresAt { get; private set; }
+        public DateTimeOffset? ExpiresAt { get; private set; }
 
         public bool IsActive { get; private set; }
 
         #region Creation
-        private UserRestriction(Guid userId, string login, string? reason, string nameBannedBy, DateTime? expiresAt)
+        private UserRestriction(Guid userId, string login, string? reason, string nameBannedBy, DateTimeOffset? expiresAt)
            : base()
         {
             if (userId == Guid.Empty)
                 throw new ValidationDomainException(
-                    ErrorCodes.IdentifierError.Empty,
+                    DomainErrorCodes.IdentifierError.Empty,
                     $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserRestriction)}!"
                 );
 
             if (login is null)
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty,
+                    DomainErrorCodes.LoginError.Empty,
                     $"{nameof(login)} validation failed: value is null. Entity {nameof(UserRestriction)}!"
                 );
 
@@ -43,17 +43,17 @@ namespace Authorization.Domain.Entities
             IsActive = true;
         }
 
-        public static UserRestriction CreateRestrictionForUser(User user, string? reason, string nameBannedBy, DateTime? expiresAt, DateTime now)
+        public static UserRestriction CreateRestrictionForUser(User user, string? reason, string nameBannedBy, DateTimeOffset? expiresAt, DateTimeOffset now)
         {
             if (user.IsBlocked)
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.AccountStatusError.Blocked, 
+                    DomainErrorCodes.AccountStatusError.Blocked, 
                     $"User is already blocked and cannot receive additional restrictions. Entity {nameof(UserRestriction)}!"
                 );
 
             if (expiresAt.HasValue && expiresAt.Value <= now)
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.GeneralError.OperationNotAllowed, 
+                    DomainErrorCodes.GeneralError.OperationNotAllowed, 
                     $"Restriction expiration date must be set to a future time. Entity {nameof(UserRestriction)}!"
                 );
 
@@ -74,20 +74,20 @@ namespace Authorization.Domain.Entities
             string login,
             string? reason,
             string nameBannedBy,
-            DateTime createdAt,
-            DateTime? expiresAt,
+            DateTimeOffset createdAt,
+            DateTimeOffset? expiresAt,
             bool isActive)
             : base(id, createdAt)
         {
             if (userId == Guid.Empty)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(userId)} during {nameof(UserRestriction)} entity reconstruction!"
                 );
 
             if (login is null)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(login)} during {nameof(UserRestriction)} entity reconstruction!"
                 );
 
@@ -104,8 +104,8 @@ namespace Authorization.Domain.Entities
             string login,
             string? reason,
             string nameBannedBy,
-            DateTime createdAt,
-            DateTime? expiresAt,
+            DateTimeOffset createdAt,
+            DateTimeOffset? expiresAt,
             bool isActive)
         {
             return new UserRestriction(id, userId, login, reason, nameBannedBy, createdAt, expiresAt, isActive);
@@ -121,9 +121,9 @@ namespace Authorization.Domain.Entities
             IsActive = false;
         }
 
-        public bool IsExpired(DateTime now) => ExpiresAt.HasValue && now >= ExpiresAt.Value;
+        public bool IsExpired(DateTimeOffset now) => ExpiresAt.HasValue && now >= ExpiresAt.Value;
 
-        public bool IsCurrentlyActive(DateTime now) => IsActive && !IsExpired(now);
+        public bool IsCurrentlyActive(DateTimeOffset now) => IsActive && !IsExpired(now);
         #endregion
     }
 }

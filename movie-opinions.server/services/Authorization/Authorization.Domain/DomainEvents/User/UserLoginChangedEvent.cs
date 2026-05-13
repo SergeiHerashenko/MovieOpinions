@@ -12,7 +12,7 @@ namespace Authorization.Domain.DomainEvents.User
 
         public LoginType NewLoginType { get; }
 
-        public UserLoginChangedEvent(Guid userId, string oldLogin, string newLogin, LoginType newLoginType, DateTime dateTime)
+        public UserLoginChangedEvent(Guid userId, string oldLogin, string newLogin, LoginType newLoginType, DateTimeOffset dateTime)
             : base(dateTime)
         {
             UserId = userId;

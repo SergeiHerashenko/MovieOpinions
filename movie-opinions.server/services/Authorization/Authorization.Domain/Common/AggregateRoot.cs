@@ -6,7 +6,7 @@ namespace Authorization.Domain.Common
     {
         protected AggregateRoot() : base() { }
 
-        protected AggregateRoot(Guid id, DateTime createdAt)
+        protected AggregateRoot(Guid id, DateTimeOffset createdAt)
             : base(id, createdAt) { }
 
         private readonly List<IDomainEvent> _domainEvents = new();

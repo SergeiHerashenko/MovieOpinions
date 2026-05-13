@@ -21,8 +21,6 @@
     <Folder Include="Features\Auth\Register\Confirm\" />
     <Folder Include="Features\User\" />
     <Folder Include="Interfaces\Security\JWT\" />
-    <Folder Include="Interfaces\Time\" />
-    <Folder Include="Exceptions\" />
   </ItemGroup>
 
   <ItemGroup>

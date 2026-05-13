@@ -6,7 +6,7 @@
 
         public string? Login {  get; }
 
-        public UserPendingRegistrationRequestedEvent(Guid userId, string? login, DateTime dateTime)
+        public UserPendingRegistrationRequestedEvent(Guid userId, string? login, DateTimeOffset dateTime)
             : base(dateTime)
         {
             UserId = userId;

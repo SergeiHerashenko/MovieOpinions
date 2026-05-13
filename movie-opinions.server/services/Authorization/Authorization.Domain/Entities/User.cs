@@ -16,9 +16,9 @@ namespace Authorization.Domain.Entities
 
         public Role Role { get; private set; }
 
-        public DateTime? UpdatedAt { get; private set; }
+        public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public DateTime? LastLoginAt { get; private set; }
+        public DateTimeOffset? LastLoginAt { get; private set; }
 
         public string? LastLoginIp { get; private set; }
 
@@ -37,19 +37,19 @@ namespace Authorization.Domain.Entities
         {
             if (login is null)
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty, 
+                    DomainErrorCodes.LoginError.Empty, 
                     $"{nameof(login)} validation failed: value is null. Entity {nameof(User)}!"
                 );
 
             if (password is null)
                 throw new ValidationDomainException(
-                    ErrorCodes.PasswordError.Empty, 
+                    DomainErrorCodes.PasswordError.Empty, 
                     $"{nameof(password)} validation failed: value is null. Entity {nameof(User)}!"
                 );
 
             if (role != Role.User)
                 throw new ValidationDomainException(
-                    ErrorCodes.GeneralError.OperationNotAllowed, 
+                    DomainErrorCodes.GeneralError.OperationNotAllowed, 
                     $"User creation rejected due to invalid role. Entity {nameof(User)}!"
                 );
 
@@ -80,12 +80,12 @@ namespace Authorization.Domain.Entities
         #region Restore
         private User(
             Guid id,
-            DateTime createdAt,
+            DateTimeOffset createdAt,
             Login login,
             Password password,
             Role role,
-            DateTime? updateAt,
-            DateTime? lastLoginAt,
+            DateTimeOffset? updateAt,
+            DateTimeOffset? lastLoginAt,
             string? lastLoginIp,
             bool isConfirmed,
             int failedLoginAttempts,
@@ -95,13 +95,13 @@ namespace Authorization.Domain.Entities
         {
             if (login is null)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(login.Value)} during {nameof(User)} entity reconstruction!"
                 );
 
             if (password is null)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(password)} during {nameof(User)} entity reconstruction!"
                 );
 
@@ -117,13 +117,13 @@ namespace Authorization.Domain.Entities
             IsDeleted = isDeleted;
         }
 
-        public static User Restore(Guid id, 
-            DateTime createdAt, 
+        public static User Restore(Guid id,
+            DateTimeOffset createdAt, 
             Login login,
             Password password, 
-            Role role, 
-            DateTime? updateAt,
-            DateTime? lastLoginAt,
+            Role role,
+            DateTimeOffset? updateAt,
+            DateTimeOffset? lastLoginAt,
             string? lastLoginIp,
             bool isConfirmed,
             int failedLoginAttempts,
@@ -135,11 +135,11 @@ namespace Authorization.Domain.Entities
         #endregion
 
         #region Behavior
-        public void ChangeLogin(Login newLogin, DateTime updateTime)
+        public void ChangeLogin(Login newLogin, DateTimeOffset updateTime)
         {
             if (newLogin is null)
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty,
+                    DomainErrorCodes.LoginError.Empty,
                     $"The {nameof(newLogin)} is required!"
                 );
 
@@ -159,11 +159,11 @@ namespace Authorization.Domain.Entities
             );
         }
 
-        public void ChangePassword(Password newPassword, DateTime updateTime)
+        public void ChangePassword(Password newPassword, DateTimeOffset updateTime)
         {
             if (newPassword is null)
                 throw new ValidationDomainException(
-                    ErrorCodes.PasswordError.Empty,
+                    DomainErrorCodes.PasswordError.Empty,
                     $"The {nameof(newPassword)} is required!"
                 );
 
@@ -180,7 +180,7 @@ namespace Authorization.Domain.Entities
             );
         }
 
-        public void ConfirmLogin(DateTime updateTime)
+        public void ConfirmLogin(DateTimeOffset updateTime)
         {
             EnsureNotDeleted();
 
@@ -191,7 +191,7 @@ namespace Authorization.Domain.Entities
             UpdatedAt = updateTime;
         }
 
-        public void Block(DateTime updateTime, string reason)
+        public void Block(DateTimeOffset updateTime, string reason)
         {
             EnsureNotDeleted();
 
@@ -206,7 +206,7 @@ namespace Authorization.Domain.Entities
             );
         }
 
-        public void RecordFailedLoginAttempt(DateTime updateTime)
+        public void RecordFailedLoginAttempt(DateTimeOffset updateTime)
         {
             if (IsBlocked || IsDeleted)
                 return;
@@ -220,11 +220,11 @@ namespace Authorization.Domain.Entities
             }
         }
 
-        public void LoginSuccess(string ip, DateTime loginTime)
+        public void LoginSuccess(string ip, DateTimeOffset loginTime)
         {
             if (IsDeleted || IsBlocked)
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.GeneralError.OperationNotAllowed,
+                    DomainErrorCodes.GeneralError.OperationNotAllowed,
                     $"Login operation not allowed for blocked or deleted user. Entity {nameof(User)}!"
                 );
 
@@ -239,7 +239,7 @@ namespace Authorization.Domain.Entities
             );
         }
 
-        public void Delete(DateTime updateTime)
+        public void Delete(DateTimeOffset updateTime)
         {
             if (IsDeleted)
                 return;
@@ -260,7 +260,7 @@ namespace Authorization.Domain.Entities
 
             if (IsBlocked)
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.AccountStatusError.Blocked,
+                    DomainErrorCodes.AccountStatusError.Blocked,
                     $"Operation not allowed for blocked user. Entity {nameof(User)}!"
                 );
         }
@@ -269,7 +269,7 @@ namespace Authorization.Domain.Entities
         {
             if (IsDeleted)
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.AccountStatusError.Deleted,
+                    DomainErrorCodes.AccountStatusError.Deleted,
                     $"Operation not allowed for deleted user. Entity {nameof(User)}!"
                 );
         }

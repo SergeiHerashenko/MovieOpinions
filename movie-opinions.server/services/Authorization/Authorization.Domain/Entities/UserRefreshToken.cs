@@ -20,7 +20,7 @@ namespace Authorization.Domain.Entities
 
         public string? City { get; private set; }
 
-        public DateTime ExpiresAt { get; private set; }
+        public DateTimeOffset ExpiresAt { get; private set; }
 
         public bool IsUsed { get; private set; }
 
@@ -32,13 +32,13 @@ namespace Authorization.Domain.Entities
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
                 throw new ValidationDomainException(
-                    ErrorCodes.TokenError.TokenEmpty,
+                    DomainErrorCodes.TokenError.TokenEmpty,
                     $"{nameof(refreshToken)} validation failed: value is null. Entity {nameof(UserRefreshToken)}!"
                 );
 
             if (userId == Guid.Empty)
                 throw new ValidationDomainException(
-                    ErrorCodes.IdentifierError.Empty,
+                    DomainErrorCodes.IdentifierError.Empty,
                     $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserRefreshToken)}!"
                 );
 
@@ -66,21 +66,21 @@ namespace Authorization.Domain.Entities
             DeviceInfo deviceInfo,
             string ipAddress,
             string? city,
-            DateTime expiresAt,
-            DateTime createdAt,
+            DateTimeOffset expiresAt,
+            DateTimeOffset createdAt,
             bool isUsed,
             bool isRevoked)
             : base(id, createdAt)
         {
             if (userId == Guid.Empty)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(userId)} during {nameof(UserRefreshToken)} entity reconstruction!"
                 );
 
             if (refreshToken is null)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(refreshToken)} during {nameof(UserDeletion)} entity reconstruction!"
                 );
 
@@ -100,8 +100,8 @@ namespace Authorization.Domain.Entities
             DeviceInfo deviceInfo,
             string ipAddress,
             string? city,
-            DateTime expiresAt,
-            DateTime createdAt,
+            DateTimeOffset expiresAt,
+            DateTimeOffset createdAt,
             bool isUsed,
             bool isRevoked)
         {
@@ -116,18 +116,18 @@ namespace Authorization.Domain.Entities
             IsRevoked = true;
         }
 
-        public void Use(DateTime now)
+        public void Use(DateTimeOffset now)
         {
             if (!IsActive(now))
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.TokenError.TokenInvalid,
+                    DomainErrorCodes.TokenError.TokenInvalid,
                     "Refresh token is no longer active!"
                 );
 
             IsUsed = true;
         }
 
-        public bool IsActive(DateTime now) => !IsUsed && !IsRevoked && now < ExpiresAt;
+        public bool IsActive(DateTimeOffset now) => !IsUsed && !IsRevoked && now < ExpiresAt;
         #endregion
     }
 }

@@ -8,11 +8,11 @@
 
         public string NameBannedBy { get; }
 
-        public DateTime? ExpiresAt { get; }
+        public DateTimeOffset? ExpiresAt { get; }
 
-        public DateTime CreatedAt { get; }
+        public DateTimeOffset CreatedAt { get; }
 
-        public UserRestrictionRequestedEvent(Guid userId, string? reason, string nameBannedBy, DateTime? expiresAt, DateTime createdAt)
+        public UserRestrictionRequestedEvent(Guid userId, string? reason, string nameBannedBy, DateTimeOffset? expiresAt, DateTimeOffset createdAt)
             : base(createdAt)
         {
             UserId = userId;

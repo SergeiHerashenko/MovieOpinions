@@ -21,7 +21,7 @@ namespace Authorization.Domain.ValueObjects.Login
         {
             if (string.IsNullOrWhiteSpace(rawEmail))
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty,
+                    DomainErrorCodes.LoginError.Empty,
                     $"{nameof(rawEmail)} validation failed: value is null. Entity {nameof(Email)}!"
                 );
 
@@ -29,7 +29,7 @@ namespace Authorization.Domain.ValueObjects.Login
 
             if (!EmailRegex.IsMatch(trimmed))
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Invalid, 
+                    DomainErrorCodes.LoginError.Invalid, 
                     $"Invalid email format. Entity {nameof(Email)}!"
                 );
 
@@ -42,7 +42,7 @@ namespace Authorization.Domain.ValueObjects.Login
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference, 
+                    DomainErrorCodes.RestoreError.NullReference, 
                     $"Email cannot be empty on restore. Entity {nameof(Email)}!"
                 );
 

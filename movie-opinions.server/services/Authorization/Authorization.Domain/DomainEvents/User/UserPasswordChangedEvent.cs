@@ -4,7 +4,7 @@
     {
         public Guid UserId { get; }
 
-        public UserPasswordChangedEvent(Guid userId, DateTime dateTime)
+        public UserPasswordChangedEvent(Guid userId, DateTimeOffset dateTime)
             : base(dateTime)
         {
             UserId = userId;

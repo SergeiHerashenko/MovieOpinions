@@ -1,8 +1,10 @@
-﻿using Authorization.Application.Interfaces.Context;
+﻿using Authorization.Application.Exceptions;
+using Authorization.Application.Interfaces.Context;
 using Authorization.Application.Interfaces.Errors;
 using Authorization.Domain.Errors;
 using Authorization.Domain.Exceptions;
 using Authorization.ErrorHandling;
+using Authorization.Infrastructure.Exceptions;
 using Authorization.Response;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
@@ -14,17 +16,14 @@ namespace Authorization.Middleware
         private readonly ILogger<AuthExceptionHandler> _logger;
         private readonly IErrorMessageProvider _errorMessageProvider;
         private readonly IErrorStatusCodeMapper _errorStatusCodeMapper;
-        private readonly IUserContext _userContext;
 
         public AuthExceptionHandler(
             ILogger<AuthExceptionHandler> logger,
             IErrorMessageProvider errorMessageProvider,
-            IErrorStatusCodeMapper errorStatusCodeMapper,
-            IUserContext userContext)
+            IErrorStatusCodeMapper errorStatusCodeMapper)
         {
             _logger = logger;
             _errorMessageProvider = errorMessageProvider;
-            _userContext = userContext;
             _errorStatusCodeMapper = errorStatusCodeMapper;
         }
 
@@ -33,7 +32,9 @@ namespace Authorization.Middleware
             Exception exception,
             CancellationToken cancellationToken)
         {
-            if(exception is ValidationException validationException)
+            var _userContext = httpContext.RequestServices.GetRequiredService<IUserContext>();
+
+            if (exception is ValidationException validationException)
             {
                 var errors = validationException.Errors
                     .Select(e => e.ErrorMessage)
@@ -91,6 +92,9 @@ namespace Authorization.Middleware
                 BusinessRuleViolationDomainException ex => ex.ErrorCode,
                 DataInconsistencyDomainException ex => ex.ErrorCode,
                 ValidationDomainException ex => ex.ErrorCode,
+                MissingRateLimitConfigurationException ex => ex.ErrorCode,
+                RateLimitExceededException ex => ex.ErrorCode,
+                AlreadyExistsException ex => ex.ErrorCode,
                 _ => "INTERNAL_ERROR"
             };
         }

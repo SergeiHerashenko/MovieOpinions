@@ -22,7 +22,7 @@ namespace Authorization.Domain.Entities
 
         public Login? NewLogin { get; private set; }
 
-        public DateTime ExpiresAt { get; private set; }
+        public DateTimeOffset ExpiresAt { get; private set; }
 
         public bool IsConfirmed { get; private set; }
 
@@ -37,13 +37,13 @@ namespace Authorization.Domain.Entities
         {
             if (userId == Guid.Empty)
                 throw new ValidationDomainException(
-                    ErrorCodes.IdentifierError.Empty,
+                    DomainErrorCodes.IdentifierError.Empty,
                     $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserPendingChange)}!"
                 );
 
             if (string.IsNullOrWhiteSpace(confirmationToken))
                 throw new ValidationDomainException(
-                    ErrorCodes.UserPendingChangeError.InvalidConfirmToken,
+                    DomainErrorCodes.UserPendingChangeError.InvalidConfirmToken,
                     $"{nameof(confirmationToken)} validation failed: value is null. Entity {nameof(UserPendingChange)}!"
                 );
 
@@ -87,20 +87,20 @@ namespace Authorization.Domain.Entities
             UserChangeType userChangeType,
             Password? newPassword,
             Login? newLogin,
-            DateTime expiresAt,
+            DateTimeOffset expiresAt,
             bool isConfirmed,
-            DateTime createdAt)
+            DateTimeOffset createdAt)
             : base(id, createdAt)
         {
             if (userId == Guid.Empty)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(userId)} during {nameof(UserPendingChange)} entity reconstruction!"
                 );
 
             if (confirmationToken is null)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(confirmationToken)} during {nameof(UserPendingChange)} entity reconstruction!"
                 );
 
@@ -119,27 +119,27 @@ namespace Authorization.Domain.Entities
             UserChangeType userChangeType,
             Password? newPassword,
             Login? newLogin,
-            DateTime expiresAt,
+            DateTimeOffset expiresAt,
             bool isConfirmed,
-            DateTime createdAt)
+            DateTimeOffset createdAt)
         {
             return new UserPendingChange(id, userId, confirmationToken, userChangeType, newPassword, newLogin, expiresAt, isConfirmed, createdAt);
         }
         #endregion
 
         #region Behavior
-        public bool CanBeConfirmed(string token, DateTime now)
+        public bool CanBeConfirmed(string token, DateTimeOffset now)
         {
             return !IsConfirmed &&
                    ConfirmationToken == token &&
                    ExpiresAt > now;
         }
 
-        public void Confirm(string token, DateTime now)
+        public void Confirm(string token, DateTimeOffset now)
         {
             if (!CanBeConfirmed(token, now))
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.TokenError.TokenExpired, 
+                    DomainErrorCodes.TokenError.TokenExpired, 
                     "Cannot confirm pending change because token is invalid, expired, or already used!"
                 );
 

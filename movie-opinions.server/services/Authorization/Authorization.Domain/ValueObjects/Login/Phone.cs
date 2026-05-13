@@ -16,7 +16,7 @@ namespace Authorization.Domain.ValueObjects.Login
         {
             if (string.IsNullOrWhiteSpace(rawPhone))
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty,
+                    DomainErrorCodes.LoginError.Empty,
                     $"{nameof(rawPhone)} validation failed: value is null. Entity {nameof(Phone)}!"
                 );
 
@@ -24,7 +24,7 @@ namespace Authorization.Domain.ValueObjects.Login
 
             if (!IsValidE164(cleaned))
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.InvalidPhone,
+                    DomainErrorCodes.LoginError.InvalidPhone,
                     $"Invalid phone format. Expected E.164 format. Entity {nameof(Phone)}!"
                 );
 
@@ -35,7 +35,7 @@ namespace Authorization.Domain.ValueObjects.Login
         {
             if (string.IsNullOrWhiteSpace(value) || !IsValidE164(value))
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Invalid phone format on restore. Entity {nameof(Phone)}!"
                 );
 

@@ -6,9 +6,9 @@
 
         public string IpAddress { get; }
 
-        public DateTime LoginTime { get; }
+        public DateTimeOffset LoginTime { get; }
 
-        public UserLoggedInEvent(Guid userId, string ipAddress, DateTime loginTime)
+        public UserLoggedInEvent(Guid userId, string ipAddress, DateTimeOffset loginTime)
             : base(loginTime)
         {
             UserId = userId;

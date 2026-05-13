@@ -2,9 +2,9 @@
 {
     public class DomainEvent : IDomainEvent
     {
-        public DateTime OccurredOn { get; }
+        public DateTimeOffset OccurredOn { get; }
 
-        protected DomainEvent(DateTime occurredOn)
+        protected DomainEvent(DateTimeOffset occurredOn)
         {
             OccurredOn = occurredOn;
         }

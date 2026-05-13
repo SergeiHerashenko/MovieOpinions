@@ -16,7 +16,7 @@ namespace Authorization.Domain.ValueObjects
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ValidationDomainException(
-                    ErrorCodes.PasswordError.Empty,
+                    DomainErrorCodes.PasswordError.Empty,
                     $"Password cannot be empty. Entity {nameof(Password)}!"
                 );
 

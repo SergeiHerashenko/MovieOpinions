@@ -6,7 +6,7 @@
 
         public string Reason { get; }
 
-        public UserBlockedEvent(Guid userId, string reason, DateTime dateTime)
+        public UserBlockedEvent(Guid userId, string reason, DateTimeOffset dateTime)
             : base(dateTime)
         {
             UserId = userId;

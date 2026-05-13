@@ -1,4 +1,5 @@
-﻿using Authorization.Application.Interfaces.Errors;
+﻿using Authorization.Application.Errors;
+using Authorization.Application.Interfaces.Errors;
 using Authorization.Domain.Errors;
 
 namespace Authorization.Infrastructure.Errors
@@ -8,75 +9,89 @@ namespace Authorization.Infrastructure.Errors
         private static readonly Dictionary<string, Dictionary<string, string>> _messages = new()
         {
             // LOGIN
-            [ErrorCodes.LoginError.Invalid] = new()
+            [DomainErrorCodes.LoginError.Invalid] = new()
             {
                 ["uk"] = "Невірний формат логіну",
                 ["en"] = "Invalid login format"
             },
-            [ErrorCodes.LoginError.InvalidEmail] = new()
+            [DomainErrorCodes.LoginError.InvalidEmail] = new()
             {
                 ["uk"] = "Невірний формат email",
                 ["en"] = "Invalid email format"
             },
-            [ErrorCodes.LoginError.InvalidPhone] = new()
+            [DomainErrorCodes.LoginError.InvalidPhone] = new()
             {
                 ["uk"] = "Невірний формат телефону",
                 ["en"] = "Invalid phone format"
             },
-            [ErrorCodes.LoginError.Empty] = new()
+            [DomainErrorCodes.LoginError.Empty] = new()
             {
                 ["uk"] = "Логін є обов'язковим",
                 ["en"] = "Login is required"
             },
 
             // PASSWORD
-            [ErrorCodes.PasswordError.Empty] = new()
+            [DomainErrorCodes.PasswordError.Empty] = new()
             {
                 ["uk"] = "Пароль є обов'язковим",
                 ["en"] = "Password is required"
             },
 
             // ACCOUNT STATUS
-            [ErrorCodes.AccountStatusError.Blocked] = new()
+            [DomainErrorCodes.AccountStatusError.Blocked] = new()
             {
                 ["uk"] = "Користувач заблокований",
                 ["en"] = "User is blocked"
             },
-            [ErrorCodes.AccountStatusError.Deleted] = new()
+            [DomainErrorCodes.AccountStatusError.Deleted] = new()
             {
                 ["uk"] = "Користувач видалений",
                 ["en"] = "User is deleted"
             },
 
             // GENERAL
-            [ErrorCodes.GeneralError.OperationNotAllowed] = new()
+            [DomainErrorCodes.GeneralError.OperationNotAllowed] = new()
             {
                 ["uk"] = "Операція заборонена",
                 ["en"] = "Operation is not allowed"
             },
 
             // USER PENDING CHANGE
-            [ErrorCodes.UserPendingChangeError.InvalidConfirmToken] = new()
+            [DomainErrorCodes.UserPendingChangeError.InvalidConfirmToken] = new()
             {
                 ["uk"] = "Невірний токен підтвердження",
                 ["en"] = "Invalid confirmation token"
             },
 
             // TOKEN
-            [ErrorCodes.TokenError.TokenEmpty] = new()
+            [DomainErrorCodes.TokenError.TokenEmpty] = new()
             {
                 ["uk"] = "Токен не може бути порожнім",
                 ["en"] = "Token cannot be empty"
             },
-            [ErrorCodes.TokenError.TokenInvalid] = new()
+            [DomainErrorCodes.TokenError.TokenInvalid] = new()
             {
                 ["uk"] = "Токен недійсний",
                 ["en"] = "Token is invalid"
             },
-            [ErrorCodes.TokenError.TokenExpired] = new()
+            [DomainErrorCodes.TokenError.TokenExpired] = new()
             {
                 ["uk"] = "Термін дії токена завершився",
                 ["en"] = "Token has expired"
+            },
+
+            // Infrastructure Layer
+            [InfrastructureErrorCodes.RateLimitError.TooManyAttempts] = new()
+            {
+                ["uk"] = "Занадто багато спроб. Спробуйте пізніше",
+                ["en"] = "Too many attempts"
+            },
+
+            // Application Layer
+            [ApplicationErrorCodes.ErrorUser.UserAlreadyExists] = new()
+            {
+                ["uk"] = "Користувач з таким логіном вже існує",
+                ["en"] = "A user with this login already exists."
             }
         };
 

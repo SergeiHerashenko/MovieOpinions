@@ -4,9 +4,9 @@
     {
         public Guid UserId { get; }
 
-        public DateTime DeleteTime { get; }
+        public DateTimeOffset DeleteTime { get; }
 
-        public UserDeletedEvent(Guid userId, DateTime deleteTime)
+        public UserDeletedEvent(Guid userId, DateTimeOffset deleteTime)
             : base(deleteTime)
         {
             UserId = userId;

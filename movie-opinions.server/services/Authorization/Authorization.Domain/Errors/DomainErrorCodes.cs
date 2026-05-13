@@ -1,6 +1,6 @@
 ﻿namespace Authorization.Domain.Errors
 {
-    public  static class ErrorCodes
+    public static class DomainErrorCodes
     {
         public static class LoginError
         {

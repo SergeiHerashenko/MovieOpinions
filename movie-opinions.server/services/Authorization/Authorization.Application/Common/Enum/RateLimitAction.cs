@@ -2,8 +2,11 @@
 {
     public enum RateLimitAction
     {
-        Register, 
+        Registration,
         Login,
+        TwoFactor,
+        PasswordChange,
+        LoginChange,
         ConfirmToken
     }
 }

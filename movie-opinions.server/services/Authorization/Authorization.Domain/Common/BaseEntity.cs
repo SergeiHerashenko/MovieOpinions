@@ -7,20 +7,20 @@ namespace Authorization.Domain.Common
     {
         public Guid Id { get; protected set; }
 
-        public DateTime CreatedAt { get; protected set; }
+        public DateTimeOffset CreatedAt { get; protected set; }
 
         // 1. Конструктор для створення сутності (Народження)
         protected BaseEntity()
         {
             Id = Guid.NewGuid();
-            CreatedAt = DateTime.UtcNow;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
 
         // 2. Конструктор для читання (Відродження)
-        protected BaseEntity(Guid id, DateTime createdAt)
+        protected BaseEntity(Guid id, DateTimeOffset createdAt)
         {
             if(id == Guid.Empty) 
-                throw new DataInconsistencyDomainException(ErrorCodes.RestoreError.NullReference, "Invalid entity identifier!");
+                throw new DataInconsistencyDomainException(DomainErrorCodes.RestoreError.NullReference, "Invalid entity identifier!");
 
             Id = id;
             CreatedAt = createdAt;

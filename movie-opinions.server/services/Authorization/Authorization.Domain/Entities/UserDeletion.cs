@@ -18,13 +18,13 @@ namespace Authorization.Domain.Entities
         {
             if (userId == Guid.Empty)
                 throw new ValidationDomainException(
-                    ErrorCodes.IdentifierError.Empty, 
+                    DomainErrorCodes.IdentifierError.Empty, 
                     $"{nameof(userId)} validation failed: value is null. Entity {nameof(UserDeletion)}!"
                 );
 
             if (login is null)
                 throw new ValidationDomainException(
-                    ErrorCodes.LoginError.Empty,
+                    DomainErrorCodes.LoginError.Empty,
                     $"{nameof(login)} validation failed: value is null. Entity {nameof(UserDeletion)}!"
                 );
 
@@ -33,11 +33,11 @@ namespace Authorization.Domain.Entities
             Reason = reason;
         }
 
-        public static UserDeletion CreateForDeletedUser(User user, string? reason, DateTime now)
+        public static UserDeletion CreateForDeletedUser(User user, string? reason, DateTimeOffset now)
         {
             if (user.IsDeleted)
                 throw new BusinessRuleViolationDomainException(
-                    ErrorCodes.AccountStatusError.Deleted,
+                    DomainErrorCodes.AccountStatusError.Deleted,
                     $"Operation not allowed for deleted user. Entity {nameof(UserDeletion)}!"
                 );
 
@@ -52,18 +52,18 @@ namespace Authorization.Domain.Entities
         #endregion
 
         #region Restore
-        private UserDeletion(Guid id, Guid userId, string login, string? reason, DateTime createdAt)
+        private UserDeletion(Guid id, Guid userId, string login, string? reason, DateTimeOffset createdAt)
             : base(id, createdAt)
         {
             if (userId == Guid.Empty)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(userId)} during {nameof(UserDeletion)} entity reconstruction!"
                 );
 
             if (login is null)
                 throw new DataInconsistencyDomainException(
-                    ErrorCodes.RestoreError.NullReference,
+                    DomainErrorCodes.RestoreError.NullReference,
                     $"Missing required field {nameof(login)} during {nameof(UserDeletion)} entity reconstruction!"
                 );
 
@@ -72,7 +72,7 @@ namespace Authorization.Domain.Entities
             Reason = reason;
         }
 
-        public static UserDeletion Restore(Guid id, Guid userId, string login, string? reason, DateTime createdAt)
+        public static UserDeletion Restore(Guid id, Guid userId, string login, string? reason, DateTimeOffset createdAt)
         {
             return new UserDeletion(id, userId, login, reason, createdAt);
         }

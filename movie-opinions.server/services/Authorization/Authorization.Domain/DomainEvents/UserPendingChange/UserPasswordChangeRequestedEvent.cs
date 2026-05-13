@@ -6,7 +6,7 @@
 
         public string ConfirmToken { get; }
 
-        public UserPasswordChangeRequestedEvent(Guid userId, string confirmToken, DateTime dateTime)
+        public UserPasswordChangeRequestedEvent(Guid userId, string confirmToken, DateTimeOffset dateTime)
             : base(dateTime)
         {
             UserId = userId;
