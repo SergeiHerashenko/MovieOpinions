@@ -4,26 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>a408acb5-5785-42d1-bd7d-a91ea64de490</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.24" />
-	<PackageReference Include="Serilog" Version="4.3.1" />
-	<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-	<PackageReference Include="Serilog.Expressions" Version="5.0.0" />
-	<PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-	<PackageReference Include="Serilog.Filters.Expressions" Version="2.1.0" />
-	<PackageReference Include="Serilog.Settings.Configuration" Version="10.0.0" />
-	<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-	<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Authorization.Application\Authorization.Application.csproj" />
-    <ProjectReference Include="..\Authorization.Domain\Authorization.Domain.csproj" />
-    <ProjectReference Include="..\Authorization.Infrastructure\Authorization.Infrastructure.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>
