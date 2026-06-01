@@ -3,7 +3,7 @@
     public static class EmailError
     {
         public static Error Empty
-            => new(ErrorCodes.EmailError.Empty, "Email cannot be empty!", ErrorType.EmptyValue);
+            => new(ErrorCodes.EmailError.EmptyEmail, "Email cannot be empty!", ErrorType.EmptyValue);
 
         public static Error InvalidFormat
             => new(ErrorCodes.EmailError.InvalidFormat, "Invalid email format!", ErrorType.Validation);

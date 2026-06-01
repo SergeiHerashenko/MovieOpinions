@@ -10,6 +10,10 @@
 
         Validation,
 
-        BusinessRuleViolation
+        BusinessRuleViolation,
+
+        Forbidden,
+
+        Conflict
     }
 }

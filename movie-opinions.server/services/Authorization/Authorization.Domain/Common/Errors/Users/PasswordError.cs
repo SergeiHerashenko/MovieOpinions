@@ -3,6 +3,6 @@
     public static class PasswordError
     {
         public static Error Empty
-            => new(ErrorCodes.PasswordError.Empty, "Password cannot be empty!", ErrorType.EmptyValue);
+            => new(ErrorCodes.PasswordError.EmptyPassword, "Password cannot be empty!", ErrorType.EmptyValue);
     }
 }

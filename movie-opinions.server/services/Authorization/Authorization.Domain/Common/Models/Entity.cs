@@ -7,16 +7,21 @@
 
         public TId Id { get; protected set; }
 
+        public DateTimeOffset CreatedAt { get; protected set; }
+
         public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
         protected Entity(TId id)
         {
             Id = id;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
 
-        #pragma warning disable CS8618
-        protected Entity() { }
-        #pragma warning restore CS8618
+        protected Entity(TId id, DateTimeOffset createdAt)
+        {
+            Id = id;
+            CreatedAt = createdAt;
+        }
 
         public override bool Equals(object? obj)
         {

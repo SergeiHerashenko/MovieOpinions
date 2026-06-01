@@ -11,7 +11,7 @@
 
         public static class EmailError
         {
-            public const string Empty = "EMAIL_EMPTY";
+            public const string EmptyEmail = "EMAIL_EMPTY";
 
             public const string InvalidFormat = "EMAIL_INVALID_FORMAT";
 
@@ -35,7 +35,7 @@
 
         public static class PasswordError
         {
-            public const string Empty = "PASSWORD_EMPTY";
+            public const string EmptyPassword = "PASSWORD_EMPTY";
         }
 
         public static class DataInconsistencyError
@@ -43,6 +43,25 @@
             public const string Inconsistency = "INCONSISTENCY_DATA";
 
             public const string UnsupportedType = "UNSUPPORTED_TYPE";
+        }
+
+        public static class UserError
+        {
+            public static string Empty = "EMPTY_CONTENT_IN_ENTITY";
+
+            public static string OperationIsNotAllowed = "OPERATION_IS_NOT_ALLOWED";
+        }
+
+        public static class AccountStatusError
+        {
+            public static string AccountBlocked = "ACCOUNT_BLOCKED";
+
+            public static string AccountDeleted = "ACCOUNT_DELETED";
+        }
+
+        public static class ChangeError
+        {
+            public static string UpdateNotRequired = "UPDATE_NOT_REQUIRED";
         }
     }
 }

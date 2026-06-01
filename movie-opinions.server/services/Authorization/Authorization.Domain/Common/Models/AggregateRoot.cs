@@ -4,13 +4,9 @@
         where TId : AggregateRootId<TIdType>
     {
         protected AggregateRoot(TId id)
-            : base(id)
-        {
-            Id = id;
-        }
+            : base(id) { }
 
-        #pragma warning disable CS8618
-        protected AggregateRoot() { }
-        #pragma warning restore CS8618
+        protected AggregateRoot(TId id, DateTimeOffset createdAt)
+            : base(id, createdAt) { }
     }
 }

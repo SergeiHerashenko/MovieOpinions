@@ -1,4 +1,5 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
+using Authorization.Domain.Common.Exceptions;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 
@@ -19,6 +20,24 @@ namespace Authorization.Domain.Users.ValueObjects
                 return Result<Password>.Failure(PasswordError.Empty);
 
             return Result<Password>.Success(new Password(hashPassword));
+        }
+
+        public static Password Restore(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw DomainDataInconsistencyException.EmptyOnRestore(
+                    $"Password cannot be empty on restore. Entity {nameof(Password)}!",
+                     new Dictionary<string, object>
+                     {
+                         ["entity"] = nameof(Password),
+                         ["operation"] = "restore",
+                         ["value"] = value,
+                     }
+                );
+            }
+
+            return new Password(value);
         }
 
         public override IEnumerable<object> GetEqualityComponents()

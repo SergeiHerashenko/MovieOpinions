@@ -1,5 +1,4 @@
-﻿using Authorization.Domain.Results;
-using Authorization.Domain.Users.ValueObjects.PhoneUser;
+﻿using Authorization.Domain.Users.ValueObjects.PhoneUser;
 
 namespace Authorization.Domain.Users.ValueObjects.LoginUser
 {

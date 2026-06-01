@@ -1,20 +1,20 @@
 ﻿using Authorization.Domain.Common.Exceptions;
 using Authorization.Domain.Common.Models;
 
-namespace Authorization.Domain.Users.ValueObjects
+namespace Authorization.Domain.UsersDeletion.ValueObjects
 {
-    public sealed class UserId : AggregateRootId<Guid>
+    public sealed class UserDeletionId : AggregateRootId<Guid>
     {
         public override Guid Value { get; protected set; }
 
-        private UserId(Guid value)
+        private UserDeletionId(Guid value)
         {
             if (value == Guid.Empty)
                 throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity because identifier is invalid (empty GUID). Entity {nameof(UserId)}",
+                    $"Cannot restore entity because identifier is invalid (empty GUID). Entity {nameof(UserDeletionId)}",
                     new Dictionary<string, object>
                     {
-                        ["entity"] = nameof(UserId),
+                        ["entity"] = nameof(UserDeletionId),
                         ["operation"] = "restore",
                         ["value"] = value
                     }
@@ -23,12 +23,12 @@ namespace Authorization.Domain.Users.ValueObjects
             Value = value;
         }
 
-        public static UserId CreateUnique()
+        public static UserDeletionId CreateUnique()
         {
             return new(Guid.NewGuid());
         }
 
-        public static UserId Restore(Guid value)
+        public static UserDeletionId Restore(Guid value)
         {
             return new(value);
         }
@@ -38,7 +38,7 @@ namespace Authorization.Domain.Users.ValueObjects
             yield return Value;
         }
 
-        public static implicit operator Guid(UserId data)
+        public static implicit operator Guid(UserDeletionId data)
             => data.Value;
     }
 }
