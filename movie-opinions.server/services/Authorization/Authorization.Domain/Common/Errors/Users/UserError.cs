@@ -5,26 +5,37 @@
         public static Error Empty(string fieldName)
             => new(ErrorCodes.UserError.Empty,
                    $"Validation failed: value is null or empty. Entity {fieldName}",
-                   ErrorType.EmptyValue);
+                   ErrorType.EmptyValue
+            );
 
         public static Error OperationIsNotAllowed(string message)
             => new(ErrorCodes.UserError.OperationIsNotAllowed,
                    $"Operation is not allowed. Details {message}",
-                   ErrorType.InvalidOperation);
+                   ErrorType.InvalidOperation
+            );
 
         public static Error UserIsBlocked
             => new(ErrorCodes.AccountStatusError.AccountBlocked,
                    "Operation not allowed for blocked user!",
-                   ErrorType.Forbidden);
+                   ErrorType.Forbidden
+            );
 
         public static Error UserIsDeleted
             => new(ErrorCodes.AccountStatusError.AccountDeleted,
                    "Operation not allowed for deleted user!",
-                   ErrorType.Forbidden);
+                   ErrorType.Forbidden
+            );
 
         public static Error NoChangesDetected(string message)
             => new(ErrorCodes.ChangeError.UpdateNotRequired,
                    $"{message}",
-                   ErrorType.Conflict);
+                   ErrorType.Conflict
+            );
+
+        public static Error RestoreIsNotAllowed(DateTimeOffset dateDeleted)
+            => new(ErrorCodes.AccountStatusError.AccountIsNotRestore,
+                $"Account deleted permanently. Date deleted: {dateDeleted}",
+                ErrorType.Forbidden
+            );
     }
 }

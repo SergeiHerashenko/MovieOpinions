@@ -1,0 +1,43 @@
+﻿using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Models;
+using System.Security.Cryptography;
+
+namespace Authorization.Domain.UsersPendingChange.ValueObjects
+{
+    public sealed class ConfirmationToken : ValueObject
+    {
+        public string Value { get; }
+
+        private const int TOKEN_BYTES = 64;
+
+        private ConfirmationToken(string value) => Value = value;
+
+        public static ConfirmationToken CreateUnique()
+        {
+            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(TOKEN_BYTES));
+
+            return new ConfirmationToken(token);
+        }
+
+        public static ConfirmationToken Restore(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw DomainDataInconsistencyException.EmptyOnRestore(
+                    $"Missing required field {nameof(value)} during {nameof(ConfirmationToken)} entity reconstruction!",
+                    new Dictionary<string, object>
+                    {
+                        ["entity"] = nameof(ConfirmationToken),
+                        ["field"] = nameof(value),
+                        ["operation"] = "restore",
+                    }
+                );
+
+            return new ConfirmationToken(value);
+        }
+
+        public override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+    }
+}

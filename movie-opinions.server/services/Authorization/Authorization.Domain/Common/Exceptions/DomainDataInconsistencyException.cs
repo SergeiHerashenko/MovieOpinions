@@ -38,5 +38,19 @@ namespace Authorization.Domain.Common.Exceptions
                 innerException
             );
         }
+
+        public static DomainDataInconsistencyException InvalidValue(
+            string message,
+            IReadOnlyDictionary<string, object>? context = null,
+            Exception? innerException = null)
+        {
+            return new(
+                ErrorCodes.DataInconsistencyError.InvalidState,
+                ErrorType.BusinessRuleViolation,
+                message,
+                context,
+                innerException
+            );
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace Authorization.Domain.Users.ValueObjects.LoginUser
                 LoginType.Email => EmailLogin.Restore(value),
                 LoginType.Phone => PhoneLogin.Restore(countryCode!, value),
                 _ => throw DomainDataInconsistencyException.UnsupportedDiscriminator(
-                    $"Unsupported 'LoginType' during Login restoration. Value is not mapped to any known Login subtype. Entity {nameof(Login)}!",
+                    $"Unsupported {nameof(LoginType)} during Login restoration. Value is not mapped to any known Login subtype. Entity {nameof(Login)}!",
                     new Dictionary<string, object>
                     {
                         ["entity"] = nameof(Login),

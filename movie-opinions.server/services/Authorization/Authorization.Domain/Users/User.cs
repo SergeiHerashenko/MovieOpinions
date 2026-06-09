@@ -3,6 +3,7 @@ using Authorization.Domain.Common.Exceptions;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.DomainEvents.User;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 
@@ -132,7 +133,7 @@ namespace Authorization.Domain.Users
                     }
                 );
 
-            if(!Enum.IsDefined(typeof(Role), role))
+            if (!Enum.IsDefined(typeof(Role), role))
             {
                 throw DomainDataInconsistencyException.UnsupportedDiscriminator(
                     $"Invalid Role value during restore: {role}",
@@ -304,18 +305,19 @@ namespace Authorization.Domain.Users
             return Result.Success();
         }
 
-        public Result Undelete(DateTimeOffset updateTime)
+        public Result Undelete(DateTimeOffset restoreUntil, DateTimeOffset now)
         {
-            var access = ProvideAccess();
+            if(!IsDeleted)
+                return Result.Success();
 
-            if (access.IsSuccess)
-                return access;
+            if (restoreUntil < now)
+                return Result.Failure(UserError.RestoreIsNotAllowed(restoreUntil));
 
             IsDeleted = false;
-            UpdatedAt = updateTime;
+            UpdatedAt = now;
 
             AddDomainEvent(
-                new UserUndeleteEvent(Id, Login, updateTime)
+                new UserUndeleteEvent(Id, Login, now)
             );
 
             return Result.Success();
