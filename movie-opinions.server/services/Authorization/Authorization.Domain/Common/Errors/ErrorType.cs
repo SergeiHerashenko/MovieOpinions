@@ -2,15 +2,15 @@
 {
     public enum ErrorType
     {
+        EmptyValue,
+
+        BusinessRuleViolation,
+
         InvariantViolation,
 
         InvalidOperation,
 
-        EmptyValue,
-
         Validation,
-
-        BusinessRuleViolation,
 
         Forbidden,
 

@@ -9,6 +9,8 @@
             public const string UnsupportedType = "UNSUPPORTED_TYPE";
 
             public const string InvalidState = "INVALID_STATE";
+
+            public const string InvalidValue = "INVALID_VALUE";
         }
 
         public static class ResultError
@@ -86,6 +88,15 @@
             public static string TokenRevoked = "TOKEN_REVOKED";
 
             public static string InvalidType = "INVALID_TYPE";
+        }
+
+        public static class RestrictionError
+        {
+            public static string EmptyValue = "EMPTY_VALUE";
+
+            public static string ShortDay = "SHORT_DAY";
+
+            public static string InvalidTime = "INVALID_TIME";
         }
     }
 }

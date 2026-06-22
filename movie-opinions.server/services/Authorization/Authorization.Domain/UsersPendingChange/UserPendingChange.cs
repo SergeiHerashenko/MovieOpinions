@@ -44,10 +44,10 @@ namespace Authorization.Domain.UsersPendingChange
         public static Result<UserPendingChange> Create(UserId userId, UserChange userChange)
         {
             if (userId is null)
-                return Result<UserPendingChange>.Failure(UserError.Empty($"{nameof(UserPendingChange)}, field {nameof(userId)}"));
+                return Result<UserPendingChange>.Failure(UserError.Empty(nameof(userId), nameof(UserPendingChange)));
 
             if(userChange is null)
-                return Result<UserPendingChange>.Failure(UserError.Empty($"{nameof(UserPendingChange)}, field {nameof(userChange)}"));
+                return Result<UserPendingChange>.Failure(UserError.Empty(nameof(userChange), nameof(UserPendingChange)));
 
             var pendingChange = new UserPendingChange(
                 UserPendingChangeId.CreateUnique(), 
@@ -105,24 +105,19 @@ namespace Authorization.Domain.UsersPendingChange
             DateTimeOffset createdAt)
         {
             if (userPendingChangeId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"{nameof(UserPendingChange)}, field {nameof(userPendingChangeId)}");
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(userPendingChangeId));
 
             if(userId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"{nameof(UserPendingChange)}, field {nameof(userId)}");
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(userId));
 
             if (confirmationToken is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"{nameof(UserPendingChange)}, field {nameof(confirmationToken)}");
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(confirmationToken));
 
             if (userChange is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"{nameof(UserPendingChange)}, field {nameof(userChange)}");
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(userChange));
 
             if (expiresAt <= createdAt)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"{nameof(UserPendingChange)}: ExpiresAt must be after CreatedAt",
+                throw DomainDataInconsistencyException.ConsistencyViolation<UserPendingChange>(
                     new Dictionary<string, object>
                     {
                         ["expiresAt"] = expiresAt,
@@ -173,14 +168,8 @@ namespace Authorization.Domain.UsersPendingChange
         {
             if (!Enum.IsDefined(changeStatus))
             {
-                throw DomainDataInconsistencyException.UnsupportedDiscriminator(
-                    $"Unknown {nameof(ChangeStatus)} value: {changeStatus}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(ChangeStatus),
-                        ["operation"] = "restore",
-                        ["ChangeStatus"] = changeStatus,
-                    }
+                throw DomainDataInconsistencyException.UnsupportedDiscriminator<UserPendingChange>(
+                    changeStatus.ToString()
                 );
             }
 
@@ -188,88 +177,42 @@ namespace Authorization.Domain.UsersPendingChange
             {
                 case ChangeStatus.Active:
                     if (confirmationTime is not null)
-                        throw DomainDataInconsistencyException.InvalidValue(
-                            $"Invalid {nameof(UserPendingChange)} state: {nameof(ChangeStatus.Active)} must not contain {nameof(confirmationTime)}!",
-                            new Dictionary<string, object>
-                            {
-                                ["entity"] = nameof(UserPendingChange),
-                                ["status"] = changeStatus,
-                                ["field"] = nameof(confirmationTime),
-                                ["actual"] = confirmationTime,
-                                ["expected"] = "null",
-                                ["aggregateId"] = userPendingChangeId.Value,
-                            }
+                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
+                            nameof(confirmationTime),
+                            value: confirmationTime.ToString()
                         );
 
                     if (expiredAt is not null)
-                        throw DomainDataInconsistencyException.InvalidValue(
-                            $"Invalid {nameof(UserPendingChange)} state: {nameof(ChangeStatus.Active)} must not contain {nameof(expiredAt)}.",
-                            new Dictionary<string, object>
-                            {
-                                ["entity"] = nameof(UserPendingChange),
-                                ["status"] = changeStatus,
-                                ["field"] = nameof(expiredAt),
-                                ["actual"] = expiredAt,
-                                ["expected"] = "null",
-                                ["aggregateId"] = userPendingChangeId.Value,
-                            }
+                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
+                            nameof(expiredAt),
+                            value: expiredAt.ToString()
                         );
                     break;
 
                 case ChangeStatus.Confirmed:
                     if (confirmationTime is null)
-                        throw DomainDataInconsistencyException.InvalidValue(
-                            $"Invalid {nameof(UserPendingChange)} state: {nameof(ChangeStatus.Confirmed)} requires {nameof(confirmationTime)} to be set!",
-                            new Dictionary<string, object>
-                            {
-                                ["entity"] = nameof(UserPendingChange),
-                                ["status"] = changeStatus,
-                                ["field"] = nameof(confirmationTime),
-                                ["expected"] = "not null",
-                                ["aggregateId"] = userPendingChangeId.Value,
-                            }
+                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
+                            nameof(confirmationTime),
+                            value: confirmationTime.ToString()
                         );
 
                     if (expiredAt is not null)
-                        throw DomainDataInconsistencyException.InvalidValue(
-                            $"Invalid {nameof(UserPendingChange)} state: {nameof(ChangeStatus.Confirmed)} must not contain {nameof(expiredAt)}!",
-                            new Dictionary<string, object>
-                            {
-                                ["entity"] = nameof(UserPendingChange),
-                                ["status"] = changeStatus,
-                                ["field"] = nameof(expiredAt),
-                                ["expected"] = "null",
-                                ["aggregateId"] = userPendingChangeId.Value,
-                            }
+                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
+                            nameof(expiredAt),
+                            value: expiredAt.ToString()
                         );
                     break;
 
                 case ChangeStatus.Expired:
                     if (confirmationTime is not null)
-                        throw DomainDataInconsistencyException.InvalidValue(
-                            $"Invalid {nameof(UserPendingChange)} state: {nameof(ChangeStatus.Expired)} must not contain {nameof(confirmationTime)}!",
-                            new Dictionary<string, object>
-                            {
-                                ["entity"] = nameof(UserPendingChange),
-                                ["status"] = changeStatus,
-                                ["field"] = nameof(confirmationTime),
-                                ["actual"] = confirmationTime,
-                                ["expected"] = "null",
-                                ["aggregateId"] = userPendingChangeId.Value,
-                            }
+                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
+                            nameof(confirmationTime),
+                            value: confirmationTime.ToString()
                         );
 
                     if (expiredAt is null)
-                        throw DomainDataInconsistencyException.InvalidValue(
-                            $"Invalid {nameof(UserPendingChange)} state: {nameof(ChangeStatus.Expired)} requires {nameof(expiredAt)} to be set!",
-                            new Dictionary<string, object>
-                            {
-                                ["entity"] = nameof(UserPendingChange),
-                                ["status"] = changeStatus,
-                                ["field"] = nameof(expiredAt),
-                                ["expected"] = "not null",
-                                ["aggregateId"] = userPendingChangeId.Value,
-                            }
+                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
+                            nameof(expiredAt)
                         );
                     break;
             }

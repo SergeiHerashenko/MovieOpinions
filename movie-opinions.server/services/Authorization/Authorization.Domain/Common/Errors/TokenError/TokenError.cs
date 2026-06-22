@@ -2,10 +2,11 @@
 {
     public static class TokenError
     {
-        public static Error Empty(string fieldName)
+        public static Error Empty(string field)
             => new(ErrorCodes.TokenError.EmptyValue,
-                   $"Validation failed: value is null or empty. Entity {fieldName}",
-                   ErrorType.EmptyValue);
+                   $"Failed to create token: field '{field}' cannot be empty!",
+                   ErrorType.EmptyValue
+            );
 
         public static Error InvalidFormat(string message)
             => new(ErrorCodes.TokenError.InvalidType,

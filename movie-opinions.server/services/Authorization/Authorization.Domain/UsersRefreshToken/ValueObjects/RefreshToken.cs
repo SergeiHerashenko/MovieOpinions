@@ -22,14 +22,8 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
         public static RefreshToken Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Missing required field {nameof(value)} during {nameof(RefreshToken)} entity reconstruction!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(RefreshToken),
-                        ["field"] = nameof(value),
-                        ["operation"] = "restore",
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<RefreshToken>(
+                    nameof(value)
                 );
 
             return new RefreshToken(value);

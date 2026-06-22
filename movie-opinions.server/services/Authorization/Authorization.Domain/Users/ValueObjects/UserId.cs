@@ -10,15 +10,7 @@ namespace Authorization.Domain.Users.ValueObjects
         private UserId(Guid value)
         {
             if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity because identifier is invalid (empty GUID). Entity {nameof(UserId)}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserId),
-                        ["operation"] = "restore",
-                        ["value"] = value
-                    }
-                );
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserId>(nameof(value));
 
             Value = value;
         }

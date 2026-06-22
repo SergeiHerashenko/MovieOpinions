@@ -26,14 +26,8 @@ namespace Authorization.Domain.Users.ValueObjects
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Password cannot be empty on restore. Entity {nameof(Password)}!",
-                     new Dictionary<string, object>
-                     {
-                         ["entity"] = nameof(Password),
-                         ["operation"] = "restore",
-                         ["value"] = value,
-                     }
+                throw DomainDataInconsistencyException.EmptyOnRestore<Password>(
+                    nameof(value)
                 );
             }
 

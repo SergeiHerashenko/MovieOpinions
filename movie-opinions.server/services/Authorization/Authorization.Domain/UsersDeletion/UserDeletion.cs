@@ -45,10 +45,10 @@ namespace Authorization.Domain.UsersDeletion
         public static Result<UserDeletion> Create(UserId userId, Login login, string? reason, DateTimeOffset deletedAt)
         {
             if (userId is null)
-                return Result<UserDeletion>.Failure(UserError.Empty(nameof(userId)));
+                return Result<UserDeletion>.Failure(UserError.Empty(nameof(userId), nameof(UserDeletion)));
 
             if (login is null)
-                return Result<UserDeletion>.Failure(UserError.Empty(nameof(login)));
+                return Result<UserDeletion>.Failure(UserError.Empty(nameof(login), nameof(UserDeletion)));
 
             var userDeletion = new UserDeletion(UserDeletionId.CreateUnique(), userId, login, reason, deletedAt);
 
@@ -97,37 +97,13 @@ namespace Authorization.Domain.UsersDeletion
             DateTimeOffset? updatedAt)
         {
             if (userDeletionId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity {nameof(UserDeletion)} because identifier {nameof(userDeletionId)} is invalid!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserDeletion),
-                        ["field"] = nameof(userDeletionId),
-                        ["operation"] = "restore"
-                    }
-                );
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletion>(nameof(userDeletionId));
 
             if (userId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity {nameof(UserDeletion)} because identifier {nameof(userId)} is invalid!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserDeletion),
-                        ["field"] = nameof(userId),
-                        ["operation"] = "restore"
-                    }
-                );
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletion>(nameof(userId));
 
             if (login is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity {nameof(UserDeletion)} because identifier {nameof(login)} is invalid!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserDeletion),
-                        ["field"] = nameof(login),
-                        ["operation"] = "restore"
-                    }
-                );
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletion>(nameof(login));
 
             return new UserDeletion(userDeletionId, userId, login, reason, deletedAt, createdAt, restoreUntil, restoredAt, deletionStatus, updatedAt);
         }

@@ -51,10 +51,10 @@ namespace Authorization.Domain.Users
         public static Result<User> Create(Login login, Password password, Role role)
         {
             if (login is null)
-                return Result<User>.Failure(UserError.Empty(nameof(Login)));
+                return Result<User>.Failure(UserError.Empty(nameof(Login), nameof(User)));
 
             if (password is null)
-                return Result<User>.Failure(UserError.Empty(nameof(Password)));
+                return Result<User>.Failure(UserError.Empty(nameof(Password), nameof(User)));
 
             if (role != Role.User)
             {
@@ -114,39 +114,35 @@ namespace Authorization.Domain.Users
             bool isDeleted)
         {
             if (userId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity because identifier is invalid (empty GUID). Entity {nameof(UserId)}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserId),
-                        ["operation"] = "restore"
-                    }
-                );
+                throw DomainDataInconsistencyException.EmptyOnRestore<User>(nameof(userId));
 
-            if (login is null || password is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity because fields {login} of {password} is invalid (empty or null). Entity {nameof(User)}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(User),
-                        ["operation"] = "restore"
-                    }
-                );
+            if (login is null)
+                throw DomainDataInconsistencyException.EmptyOnRestore<User>(nameof(login));
+
+            if(password is null)
+                throw DomainDataInconsistencyException.EmptyOnRestore<User>(nameof(password));
 
             if (!Enum.IsDefined(typeof(Role), role))
             {
-                throw DomainDataInconsistencyException.UnsupportedDiscriminator(
-                    $"Invalid Role value during restore: {role}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(User),
-                        ["operation"] = "restore",
-                        ["role"] = role
-                    }
+                throw DomainDataInconsistencyException.UnsupportedDiscriminator<User>(
+                    role.ToString()
                 );
             }
 
-            return new User(userId, createdAt, login, password, role, updateAt, lastLoginAt, lastLoginIp, isConfirmed, failedLoginAttempts, isBlocked, isDeleted);
+            return new User(
+                userId, 
+                createdAt, 
+                login, 
+                password, 
+                role, 
+                updateAt, 
+                lastLoginAt, 
+                lastLoginIp, 
+                isConfirmed, 
+                failedLoginAttempts, 
+                isBlocked, 
+                isDeleted
+            );
         }
         #endregion
 
@@ -159,7 +155,7 @@ namespace Authorization.Domain.Users
                 return access;
 
             if (newLogin is null)
-                return Result.Failure(UserError.Empty(nameof(newLogin)));
+                return Result.Failure(UserError.Empty(nameof(newLogin), nameof(User)));
 
             if (Login == newLogin)
                 return Result.Failure(UserError.NoChangesDetected($"The {newLogin} cannot be the same as the old login!"));
@@ -185,7 +181,7 @@ namespace Authorization.Domain.Users
                 return access;
 
             if(newPassword is null)
-                return Result.Failure(UserError.Empty(nameof(newPassword)));
+                return Result.Failure(UserError.Empty(nameof(newPassword), nameof(User)));
 
             if(newPassword == Password)
                 return Result.Failure(UserError.NoChangesDetected($"The {newPassword} cannot be the same as the old login!"));

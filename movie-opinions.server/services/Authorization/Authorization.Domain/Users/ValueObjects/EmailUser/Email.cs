@@ -45,14 +45,8 @@ namespace Authorization.Domain.Users.ValueObjects.EmailUser
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Email cannot be empty on restore. Entity {nameof(Email)}!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(Email),
-                        ["operation"] = "restore",
-                        ["value"] = value,
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<Email>(
+                    nameof(value)
                 );
             }
 

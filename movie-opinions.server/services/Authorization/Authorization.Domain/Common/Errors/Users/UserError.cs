@@ -2,9 +2,9 @@
 {
     public static class UserError
     {
-        public static Error Empty(string fieldName)
+        public static Error Empty(string fieldName, string entityName)
             => new(ErrorCodes.UserError.Empty,
-                   $"Validation failed: value is null or empty. Entity {fieldName}",
+                   $"Validation failed: value is null or empty. Field {fieldName}. Entity {entityName}!",
                    ErrorType.EmptyValue
             );
 

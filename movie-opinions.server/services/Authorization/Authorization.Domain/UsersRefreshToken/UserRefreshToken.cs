@@ -114,11 +114,11 @@ namespace Authorization.Domain.UsersRefreshToken
             DateTimeOffset createdAt,
             DateTimeOffset? revokedAt)
         {
-            EnsureNotNull(userRefreshTokenId, nameof(userRefreshTokenId));
-            EnsureNotNull(userId, nameof(userId));
-            EnsureNotNull(refreshToken, nameof(refreshToken));
-            EnsureNotNull(deviceInfo, nameof(deviceInfo));
-            EnsureNotNull(ipAddress, nameof(ipAddress));
+            EnsureNotNull<UserRefreshToken>(userRefreshTokenId, nameof(userRefreshTokenId));
+            EnsureNotNull<UserRefreshToken>(userId, nameof(userId));
+            EnsureNotNull<UserRefreshToken>(refreshToken, nameof(refreshToken));
+            EnsureNotNull<UserRefreshToken>(deviceInfo, nameof(deviceInfo));
+            EnsureNotNull<UserRefreshToken>(ipAddress, nameof(ipAddress));
 
             return new UserRefreshToken(userRefreshTokenId, userId, refreshToken, deviceInfo, ipAddress, city, tokenStatus, expiresAt, consumedAt, createdAt, revokedAt);
         }
@@ -166,17 +166,11 @@ namespace Authorization.Domain.UsersRefreshToken
         #endregion
 
         #region Guards
-        private static void EnsureNotNull(object? value, string name)
+        private static void EnsureNotNull<T>(object? value, string name)
         {
             if (value is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity {nameof(UserRefreshToken)} because identifier {name} is invalid!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserRefreshToken),
-                        ["field"] = name,
-                        ["operation"] = "restore"
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<T>(
+                    name
                 );
         }
 

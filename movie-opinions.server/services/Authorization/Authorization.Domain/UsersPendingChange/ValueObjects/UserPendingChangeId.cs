@@ -10,14 +10,8 @@ namespace Authorization.Domain.UsersPendingChange.ValueObjects
         private UserPendingChangeId(Guid value)
         {
             if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Cannot restore entity because identifier is invalid (empty GUID). Entity {nameof(UserPendingChangeId)}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserPendingChangeId),
-                        ["operation"] = "restore",
-                        ["value"] = value
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChangeId>(
+                    nameof(value)
                 );
 
             Value = value;

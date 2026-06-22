@@ -22,14 +22,8 @@ namespace Authorization.Domain.UsersPendingChange.ValueObjects
         public static ConfirmationToken Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Missing required field {nameof(value)} during {nameof(ConfirmationToken)} entity reconstruction!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(ConfirmationToken),
-                        ["field"] = nameof(value),
-                        ["operation"] = "restore",
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<ConfirmationToken>(
+                    nameof(value)
                 );
 
             return new ConfirmationToken(value);

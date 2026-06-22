@@ -29,26 +29,15 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
         public static IpAddress Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                "IP address is missing during restore",
-                new Dictionary<string, object>
-                {
-                    ["entity"] = nameof(IpAddress),
-                    ["field"] = nameof(value),
-                    ["operation"] = "restore"
-                });
+                throw DomainDataInconsistencyException.EmptyOnRestore<IpAddress>(
+                    nameof(value)
+                );
 
             value = Normalize(value);
 
             if (!IsValidIPv4(value))
-                throw DomainDataInconsistencyException.InvalidValue(
-                    $"Corrupted IP address in persistence: {value}",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(IpAddress),
-                        ["field"] = nameof(value),
-                        ["operation"] = "restore"
-                    }
+                throw DomainDataInconsistencyException.InvalidValue<IpAddress>(
+                    nameof(value)
                 );
 
             return new IpAddress(value);

@@ -49,15 +49,7 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Phone or country code cannot be empty on restore. Entity {nameof(Phone)}!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(Phone),
-                        ["operation"] = "restore",
-                        ["value"] = value
-                    }
-                );
+                throw DomainDataInconsistencyException.EmptyOnRestore<Phone>(nameof(value));
             }
 
             return new Phone(code, value);

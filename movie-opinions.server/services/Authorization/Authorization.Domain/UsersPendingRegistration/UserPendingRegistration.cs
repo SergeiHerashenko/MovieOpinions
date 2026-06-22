@@ -31,10 +31,10 @@ namespace Authorization.Domain.UsersPendingRegistration
         public static Result<UserPendingRegistration> Create(Login login, Password password)
         {
             if(login is null)
-                return Result<UserPendingRegistration>.Failure(UserError.Empty(nameof(login)));
+                return Result<UserPendingRegistration>.Failure(UserError.Empty(nameof(login), nameof(UserPendingRegistration)));
 
             if(password is null)
-                return Result<UserPendingRegistration>.Failure(UserError.Empty(nameof(password)));
+                return Result<UserPendingRegistration>.Failure(UserError.Empty(nameof(password), nameof(UserPendingRegistration)));
             
             var userRendingRegistration = new UserPendingRegistration(UserPendingRegistrationId.CreateUnique(), login, password);
 
@@ -72,27 +72,13 @@ namespace Authorization.Domain.UsersPendingRegistration
             DateTimeOffset expiresAt)
         {
             if (login is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Missing required field {nameof(login)} during {nameof(UserPendingRegistration)} entity reconstruction!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserPendingRegistration),
-                        ["entityId"] = userPendingRegistrationId.Value,
-                        ["field"] = nameof(login),
-                        ["operation"] = "restore",
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingRegistration>(
+                    nameof(login)
                 );
 
             if(password is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore(
-                    $"Missing required field {nameof(password)} during {nameof(UserPendingRegistration)} entity reconstruction!",
-                    new Dictionary<string, object>
-                    {
-                        ["entity"] = nameof(UserPendingRegistration),
-                        ["entityId"] = userPendingRegistrationId.Value,
-                        ["field"] = nameof(password),
-                        ["operation"] = "restore",
-                    }
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingRegistration>(
+                    nameof(password)
                 );
 
             return new UserPendingRegistration(userPendingRegistrationId, login, password, createdAt, expiresAt);
@@ -103,7 +89,7 @@ namespace Authorization.Domain.UsersPendingRegistration
         public Result Refresh(Password password, DateTimeOffset now)
         {
             if (password is null)
-                return Result.Failure(UserError.Empty(nameof(password)));
+                return Result.Failure(UserError.Empty(nameof(password), nameof(UserPendingRegistration)));
 
             Password = password;
             ExpiresAt = now.Add(ExpirationTime);

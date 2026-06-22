@@ -3,26 +3,26 @@ using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersRestriction.ValueObjects
 {
-    public sealed class UserRestrictionId : AggregateRootId<Guid>
+    public sealed class UserRestrictionSessionId : AggregateRootId<Guid>
     {
         public override Guid Value { get; protected set; }
 
-        private UserRestrictionId(Guid value)
+        private UserRestrictionSessionId(Guid value)
         {
-            if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserRestrictionId>(
+            if(value == Guid.Empty)
+                throw DomainDataInconsistencyException.EmptyOnRestore<UserRestrictionSessionId>(
                     nameof(value)
                 );
 
             Value = value;
         }
 
-        public static UserRestrictionId CreateUnique()
+        public static UserRestrictionSessionId CreateUnique()
         {
             return new(Guid.NewGuid());
         }
 
-        public static UserRestrictionId Restore(Guid value)
+        public static UserRestrictionSessionId Restore(Guid value)
         {
             return new(value);
         }
@@ -32,7 +32,7 @@ namespace Authorization.Domain.UsersRestriction.ValueObjects
             yield return Value;
         }
 
-        public static implicit operator Guid(UserRestrictionId data)
+        public static implicit operator Guid(UserRestrictionSessionId data)
             => data.Value;
     }
 }
