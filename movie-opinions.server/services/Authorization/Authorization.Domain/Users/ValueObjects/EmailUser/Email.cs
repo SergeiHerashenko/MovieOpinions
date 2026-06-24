@@ -21,22 +21,22 @@ namespace Authorization.Domain.Users.ValueObjects.EmailUser
         }
 
         #region Creation
-        public static Result<Email> Create(string rawEmail)
+        public static DomainResult<Email> Create(string rawEmail)
         {
             if (string.IsNullOrWhiteSpace(rawEmail))
-                return Result<Email>.Failure(EmailError.Empty);
+                return DomainResult<Email>.Failure(EmailError.Empty);
 
             var trimmed = rawEmail.Trim();
 
             if(trimmed.Length > MAX_LENGTH_EMAIL)
-                return Result<Email>.Failure(EmailError.TooLong);
+                return DomainResult<Email>.Failure(EmailError.TooLong);
 
             if (!EmailRegex.IsMatch(trimmed))
-                return Result<Email>.Failure(EmailError.InvalidFormat);
+                return DomainResult<Email>.Failure(EmailError.InvalidFormat);
 
             var normalized = trimmed.ToLowerInvariant();
 
-            return Result<Email>.Success(new Email(normalized));
+            return DomainResult<Email>.Success(new Email(normalized));
         }
         #endregion
 

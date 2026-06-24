@@ -3,7 +3,7 @@ using Authorization.Domain.Common.Exceptions;
 
 namespace Authorization.Domain.Results
 {
-    public class Result
+    public class DomainResult
     {
         public bool IsSuccess { get; }
 
@@ -11,7 +11,7 @@ namespace Authorization.Domain.Results
 
         public Error Error { get; }
 
-        protected Result(bool isSuccess, Error error)
+        protected DomainResult(bool isSuccess, Error error)
         {
             if(isSuccess && error != Error.None)
             {
@@ -19,6 +19,7 @@ namespace Authorization.Domain.Results
                     "Success result cannot have an error!",
                     new Dictionary<string, object>
                     {
+                        ["layer"] = "Domain",
                         ["isSuccess"] = isSuccess,
                         ["expected"] = "Success => Error.None",
                         ["actual"] = $"isSuccess={isSuccess}, error != None",
@@ -35,6 +36,7 @@ namespace Authorization.Domain.Results
                     "Failure result must have an error!",
                     new Dictionary<string, object>
                     {
+                        ["layer"] = "Domain",
                         ["isSuccess"] = isSuccess,
                         ["expected"] = "Failure => Error != None",
                         ["actual"] = $"isSuccess={isSuccess}, error=NONE",
@@ -48,12 +50,12 @@ namespace Authorization.Domain.Results
             Error = error;
         }
 
-        public static Result Success() => new(true, Error.None);
+        public static DomainResult Success() => new(true, Error.None);
 
-        public static Result Failure(Error error) => new(false, error);
+        public static DomainResult Failure(Error error) => new(false, error);
     }
 
-    public class Result<T> : Result
+    public class DomainResult<T> : DomainResult
     {
         private readonly T? _value;
 
@@ -63,6 +65,7 @@ namespace Authorization.Domain.Results
                 "Cannot access value of a failed result!",
                 new Dictionary<string, object>
                 {
+                    ["layer"] = "Domain",
                     ["isSuccess"] = IsSuccess,
                     ["expected"] = "IsSuccess == true to access Value",
                     ["actual"] = $"IsSuccess={IsSuccess}",
@@ -76,12 +79,12 @@ namespace Authorization.Domain.Results
                 }
             );
 
-        private Result(T value) : base(true, Error.None) => _value = value;
+        private DomainResult(T value) : base(true, Error.None) => _value = value;
 
-        private Result(Error error) : base(false, error) => _value = default;
+        private DomainResult(Error error) : base(false, error) => _value = default;
 
-        public static Result<T> Success(T value) => new(value);
+        public static DomainResult<T> Success(T value) => new(value);
 
-        public static new Result<T> Failure(Error error) => new(error);
+        public static new DomainResult<T> Failure(Error error) => new(error);
     }
 }

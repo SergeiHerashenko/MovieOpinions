@@ -16,14 +16,14 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
             Value = value;
         }
 
-        public static Result<IpAddress> Create(string value)
+        public static DomainResult<IpAddress> Create(string value)
         {
             value = Normalize(value);
 
             if (!IsValidIPv4(value))
-                return Result<IpAddress>.Failure(IpError.InvalidFormat($"Invalid IP address: {value}"));
+                return DomainResult<IpAddress>.Failure(IpError.InvalidFormat($"Invalid IP address: {value}"));
 
-            return Result<IpAddress>.Success(new IpAddress(value));
+            return DomainResult<IpAddress>.Success(new IpAddress(value));
         }
 
         public static IpAddress Restore(string value)

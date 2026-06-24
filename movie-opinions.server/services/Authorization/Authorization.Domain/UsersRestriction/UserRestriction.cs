@@ -35,15 +35,15 @@ namespace Authorization.Domain.UsersRestriction
             CancellationDate = null;
         }
 
-        public static Result<UserRestriction> Create(UserId userId, RestrictionType restrictionType, RestrictionRule restrictionRule)
+        public static DomainResult<UserRestriction> Create(UserId userId, RestrictionType restrictionType, RestrictionRule restrictionRule)
         {
             if (userId is null)
-                return Result<UserRestriction>.Failure(RestrictionError.Empty(nameof(userId), nameof(UserRestriction)));
+                return DomainResult<UserRestriction>.Failure(RestrictionError.Empty(nameof(userId), nameof(UserRestriction)));
 
             if(restrictionRule is null)
-                return Result<UserRestriction>.Failure(RestrictionError.Empty(nameof(restrictionRule), nameof(UserRestriction)));
+                return DomainResult<UserRestriction>.Failure(RestrictionError.Empty(nameof(restrictionRule), nameof(UserRestriction)));
 
-            return Result<UserRestriction>.Success(new UserRestriction(UserRestrictionId.CreateUnique(), userId, restrictionType, restrictionRule));
+            return DomainResult<UserRestriction>.Success(new UserRestriction(UserRestrictionId.CreateUnique(), userId, restrictionType, restrictionRule));
         }
         #endregion
 
@@ -100,18 +100,18 @@ namespace Authorization.Domain.UsersRestriction
         #endregion
 
         #region Behavior
-        public Result CancelRestriction(DateTimeOffset now)
+        public DomainResult CancelRestriction(DateTimeOffset now)
         {
             if (IsRevoked)
-                return Result.Success();
+                return DomainResult.Success();
 
             if (now < CreatedAt)
-                return Result.Failure(RestrictionError.WrongTime);
+                return DomainResult.Failure(RestrictionError.WrongTime);
 
             IsRevoked = true;
             CancellationDate = now;
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
         public DateTimeOffset GetExpirationDate()

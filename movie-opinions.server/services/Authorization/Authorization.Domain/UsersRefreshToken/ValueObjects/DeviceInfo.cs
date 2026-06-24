@@ -23,9 +23,9 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
             DeviceModel = deviceModel;
         }
 
-        public static Result<DeviceInfo> Create(string deviceType, string operatingSystem, string browser, string deviceModel)
+        public static DomainResult<DeviceInfo> Create(string deviceType, string operatingSystem, string browser, string deviceModel)
         {
-            return Result<DeviceInfo>.Success(new DeviceInfo(deviceType, operatingSystem, browser, deviceModel));
+            return DomainResult<DeviceInfo>.Success(new DeviceInfo(deviceType, operatingSystem, browser, deviceModel));
         }
 
         public string ToDisplayString()

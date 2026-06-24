@@ -51,18 +51,18 @@ namespace Authorization.Domain.UsersRefreshToken
             RevokedAt = null;
         }
 
-        public static Result<UserRefreshToken> Create(UserId userId, DeviceInfo deviceInfo, IpAddress ipAddress, string? city)
+        public static DomainResult<UserRefreshToken> Create(UserId userId, DeviceInfo deviceInfo, IpAddress ipAddress, string? city)
         {
             if (userId is null)
-                return Result<UserRefreshToken>.Failure(TokenError.Empty(nameof(userId)));
+                return DomainResult<UserRefreshToken>.Failure(TokenError.Empty(nameof(userId)));
 
             if (deviceInfo is null)
-                return Result<UserRefreshToken>.Failure(TokenError.Empty(nameof(deviceInfo)));
+                return DomainResult<UserRefreshToken>.Failure(TokenError.Empty(nameof(deviceInfo)));
 
             if (ipAddress is null)
-                return Result<UserRefreshToken>.Failure(TokenError.Empty(nameof(ipAddress)));
+                return DomainResult<UserRefreshToken>.Failure(TokenError.Empty(nameof(ipAddress)));
 
-            return Result<UserRefreshToken>.Success(
+            return DomainResult<UserRefreshToken>.Success(
                 new UserRefreshToken(
                     UserRefreshTokenId.CreateUnique(), 
                     userId, 
@@ -125,7 +125,7 @@ namespace Authorization.Domain.UsersRefreshToken
         #endregion
 
         #region Behavior
-        public Result Consume(DateTimeOffset now)
+        public DomainResult Consume(DateTimeOffset now)
         {
             if (Status != TokenStatus.Active)
                 return GetErrorForInvalidStatus(Status);
@@ -133,10 +133,10 @@ namespace Authorization.Domain.UsersRefreshToken
             Status = TokenStatus.Consumed;
             ConsumedAt = now;
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result Revoke(DateTimeOffset now)
+        public DomainResult Revoke(DateTimeOffset now)
         {
             if (Status != TokenStatus.Active)
                 return GetErrorForInvalidStatus(Status);
@@ -144,10 +144,10 @@ namespace Authorization.Domain.UsersRefreshToken
             Status = TokenStatus.Revoked;
             RevokedAt = now;
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result Expire(DateTimeOffset now)
+        public DomainResult Expire(DateTimeOffset now)
         {
             if (Status != TokenStatus.Active)
                 return GetErrorForInvalidStatus(Status);
@@ -156,10 +156,10 @@ namespace Authorization.Domain.UsersRefreshToken
             {
                 Status = TokenStatus.Expired;
 
-                return Result.Success();
+                return DomainResult.Success();
             }
 
-            return Result.Failure(TokenError.TokenIsActive("Token not yet expired"));
+            return DomainResult.Failure(TokenError.TokenIsActive("Token not yet expired"));
         }
 
         public bool IsActive() => Status == TokenStatus.Active;
@@ -174,12 +174,12 @@ namespace Authorization.Domain.UsersRefreshToken
                 );
         }
 
-        private static Result GetErrorForInvalidStatus(TokenStatus tokenStatus) => tokenStatus switch
+        private static DomainResult GetErrorForInvalidStatus(TokenStatus tokenStatus) => tokenStatus switch
         {
-            TokenStatus.Consumed => Result.Failure(TokenError.UsedToken("Token already used!")),
-            TokenStatus.Expired => Result.Failure(TokenError.ExpiredToken("The token's lifetime has expired!")),
-            TokenStatus.Revoked => Result.Failure(TokenError.RevokedToken("The token was manually revoked by the user or system")),
-            _ => Result.Failure(TokenError.InvalidFormat($"Unsupported token status: {tokenStatus}"))
+            TokenStatus.Consumed => DomainResult.Failure(TokenError.UsedToken("Token already used!")),
+            TokenStatus.Expired => DomainResult.Failure(TokenError.ExpiredToken("The token's lifetime has expired!")),
+            TokenStatus.Revoked => DomainResult.Failure(TokenError.RevokedToken("The token was manually revoked by the user or system")),
+            _ => DomainResult.Failure(TokenError.InvalidFormat($"Unsupported token status: {tokenStatus}"))
         };
         #endregion
     }

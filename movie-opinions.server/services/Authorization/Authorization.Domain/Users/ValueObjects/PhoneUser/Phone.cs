@@ -22,25 +22,25 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
         }
 
         #region Creation
-        public static Result<Phone> Create(CountryCode code, string rawPhone)
+        public static DomainResult<Phone> Create(CountryCode code, string rawPhone)
         {
             if (code is null)
-                return Result<Phone>.Failure(PhoneError.EmptyCode);
+                return DomainResult<Phone>.Failure(PhoneError.EmptyCode);
 
             if (string.IsNullOrWhiteSpace(rawPhone))
-                return Result<Phone>.Failure(PhoneError.EmptyPhone);
+                return DomainResult<Phone>.Failure(PhoneError.EmptyPhone);
 
             var cleanedPhone = CleanPhoneNumber(rawPhone);
 
             if (string.IsNullOrEmpty(cleanedPhone))
-                return Result<Phone>.Failure(PhoneError.PhoneInvalidFormat);
+                return DomainResult<Phone>.Failure(PhoneError.PhoneInvalidFormat);
 
             var isValid = IsValidPhoneNumber(cleanedPhone);
 
             if (!isValid.IsSuccess)
-                return Result<Phone>.Failure(isValid.Error);
+                return DomainResult<Phone>.Failure(isValid.Error);
 
-            return Result<Phone>.Success(new Phone(code, cleanedPhone));
+            return DomainResult<Phone>.Success(new Phone(code, cleanedPhone));
         }
         #endregion
 
@@ -65,18 +65,18 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
             return new string(phoneNumber.Where(char.IsDigit).ToArray());
         }
 
-        public static Result IsValidPhoneNumber(string phoneNumber)
+        public static DomainResult IsValidPhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrWhiteSpace(phoneNumber))
-                return Result.Failure(PhoneError.EmptyPhone);
+                return DomainResult.Failure(PhoneError.EmptyPhone);
 
             if (phoneNumber.Length < MIN_LENGTH_PHONE_NUMBER)
-                return Result.Failure(PhoneError.TooShort);
+                return DomainResult.Failure(PhoneError.TooShort);
 
             if (phoneNumber.Length > MAX_LENGTH_PHONE_NUMBER)
-                return Result.Failure(PhoneError.TooLong);
+                return DomainResult.Failure(PhoneError.TooLong);
 
-            return Result.Success();
+            return DomainResult.Success();
         }
         #endregion
 

@@ -42,13 +42,13 @@ namespace Authorization.Domain.UsersDeletion
             UpdatedAt = null;
         }
 
-        public static Result<UserDeletion> Create(UserId userId, Login login, string? reason, DateTimeOffset deletedAt)
+        public static DomainResult<UserDeletion> Create(UserId userId, Login login, string? reason, DateTimeOffset deletedAt)
         {
             if (userId is null)
-                return Result<UserDeletion>.Failure(UserError.Empty(nameof(userId), nameof(UserDeletion)));
+                return DomainResult<UserDeletion>.Failure(UserError.Empty(nameof(userId), nameof(UserDeletion)));
 
             if (login is null)
-                return Result<UserDeletion>.Failure(UserError.Empty(nameof(login), nameof(UserDeletion)));
+                return DomainResult<UserDeletion>.Failure(UserError.Empty(nameof(login), nameof(UserDeletion)));
 
             var userDeletion = new UserDeletion(UserDeletionId.CreateUnique(), userId, login, reason, deletedAt);
 
@@ -56,7 +56,7 @@ namespace Authorization.Domain.UsersDeletion
                 new UserAccountDeletionRequestedEvent(userId, login, reason, userDeletion.RestoreUntil, userDeletion.CreatedAt)
             );
 
-            return Result<UserDeletion>.Success(userDeletion);
+            return DomainResult<UserDeletion>.Success(userDeletion);
         }
         #endregion
 
@@ -110,19 +110,19 @@ namespace Authorization.Domain.UsersDeletion
         #endregion
 
         #region Behavior
-        public Result Undelete(DateTimeOffset now)
+        public DomainResult Undelete(DateTimeOffset now)
         {
             if (Status == DeletionStatus.Restored)
-                return Result.Failure(UserError.NoChangesDetected("Account has already been restored!"));
+                return DomainResult.Failure(UserError.NoChangesDetected("Account has already been restored!"));
 
             if (now >= RestoreUntil)
-                return Result.Failure(UserError.RestoreIsNotAllowed(RestoreUntil));
+                return DomainResult.Failure(UserError.RestoreIsNotAllowed(RestoreUntil));
 
             Status = DeletionStatus.Restored;
             RestoredAt = now;
             UpdatedAt = now;
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
         public void MarkAsExpired(DateTimeOffset now)

@@ -14,12 +14,12 @@ namespace Authorization.Domain.Users.ValueObjects
             HashPassword = hashPassword;
         }
 
-        public static Result<Password> Create(string hashPassword)
+        public static DomainResult<Password> Create(string hashPassword)
         {
             if (string.IsNullOrWhiteSpace(hashPassword))
-                return Result<Password>.Failure(PasswordError.Empty);
+                return DomainResult<Password>.Failure(PasswordError.Empty);
 
-            return Result<Password>.Success(new Password(hashPassword));
+            return DomainResult<Password>.Success(new Password(hashPassword));
         }
 
         public static Password Restore(string value)

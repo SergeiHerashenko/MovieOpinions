@@ -41,13 +41,13 @@ namespace Authorization.Domain.UsersPendingChange
             Status = ChangeStatus.Active;
         }
 
-        public static Result<UserPendingChange> Create(UserId userId, UserChange userChange)
+        public static DomainResult<UserPendingChange> Create(UserId userId, UserChange userChange)
         {
             if (userId is null)
-                return Result<UserPendingChange>.Failure(UserError.Empty(nameof(userId), nameof(UserPendingChange)));
+                return DomainResult<UserPendingChange>.Failure(UserError.Empty(nameof(userId), nameof(UserPendingChange)));
 
             if(userChange is null)
-                return Result<UserPendingChange>.Failure(UserError.Empty(nameof(userChange), nameof(UserPendingChange)));
+                return DomainResult<UserPendingChange>.Failure(UserError.Empty(nameof(userChange), nameof(UserPendingChange)));
 
             var pendingChange = new UserPendingChange(
                 UserPendingChangeId.CreateUnique(), 
@@ -67,7 +67,7 @@ namespace Authorization.Domain.UsersPendingChange
                 )
             );
 
-            return Result<UserPendingChange>.Success(pendingChange);
+            return DomainResult<UserPendingChange>.Success(pendingChange);
         }
         #endregion
 
@@ -132,18 +132,18 @@ namespace Authorization.Domain.UsersPendingChange
         #endregion
 
         #region Behavior
-        public Result ConfirmChange(DateTimeOffset confirmationTime)
+        public DomainResult ConfirmChange(DateTimeOffset confirmationTime)
         {
             if (Status == ChangeStatus.Confirmed)
-                return Result.Failure(UserError.NoChangesDetected("Change already confirmed!"));
+                return DomainResult.Failure(UserError.NoChangesDetected("Change already confirmed!"));
 
             if(Status == ChangeStatus.Expired)
-                return Result.Failure(UserError.NoChangesDetected("Change already expired!"));
+                return DomainResult.Failure(UserError.NoChangesDetected("Change already expired!"));
 
             Status = ChangeStatus.Confirmed;
             ConfirmationTime = confirmationTime;
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
         public void MarkAsExpired(DateTimeOffset now)

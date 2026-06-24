@@ -48,17 +48,17 @@ namespace Authorization.Domain.Users
             IsDeleted = false;
         }
 
-        public static Result<User> Create(Login login, Password password, Role role)
+        public static DomainResult<User> Create(Login login, Password password, Role role)
         {
             if (login is null)
-                return Result<User>.Failure(UserError.Empty(nameof(Login), nameof(User)));
+                return DomainResult<User>.Failure(UserError.Empty(nameof(Login), nameof(User)));
 
             if (password is null)
-                return Result<User>.Failure(UserError.Empty(nameof(Password), nameof(User)));
+                return DomainResult<User>.Failure(UserError.Empty(nameof(Password), nameof(User)));
 
             if (role != Role.User)
             {
-                return Result<User>.Failure(UserError.OperationIsNotAllowed("User creation rejected due to invalid role!"));
+                return DomainResult<User>.Failure(UserError.OperationIsNotAllowed("User creation rejected due to invalid role!"));
             }
 
             var user = new User(UserId.CreateUnique(), login, password, role);
@@ -67,7 +67,7 @@ namespace Authorization.Domain.Users
                 new UserRegisteredEvent(user.Id, user.Login, user.CreatedAt)
             );
 
-            return Result<User>.Success(user);
+            return DomainResult<User>.Success(user);
         }
         #endregion
 
@@ -147,7 +147,7 @@ namespace Authorization.Domain.Users
         #endregion
 
         #region Behavior
-        public Result ChangeLogin(Login newLogin, DateTimeOffset updateTime)
+        public DomainResult ChangeLogin(Login newLogin, DateTimeOffset updateTime)
         {
             var access = ProvideAccess();
 
@@ -155,10 +155,10 @@ namespace Authorization.Domain.Users
                 return access;
 
             if (newLogin is null)
-                return Result.Failure(UserError.Empty(nameof(newLogin), nameof(User)));
+                return DomainResult.Failure(UserError.Empty(nameof(newLogin), nameof(User)));
 
             if (Login == newLogin)
-                return Result.Failure(UserError.NoChangesDetected($"The {newLogin} cannot be the same as the old login!"));
+                return DomainResult.Failure(UserError.NoChangesDetected($"The {newLogin} cannot be the same as the old login!"));
 
             var oldLogin = Login.Value;
 
@@ -170,10 +170,10 @@ namespace Authorization.Domain.Users
                 new UserLoginChangedEvent(Id, oldLogin, Login, updateTime)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result ChangePassword(Password newPassword, DateTimeOffset updateTime)
+        public DomainResult ChangePassword(Password newPassword, DateTimeOffset updateTime)
         {
             var access = ProvideAccess();
 
@@ -181,10 +181,10 @@ namespace Authorization.Domain.Users
                 return access;
 
             if(newPassword is null)
-                return Result.Failure(UserError.Empty(nameof(newPassword), nameof(User)));
+                return DomainResult.Failure(UserError.Empty(nameof(newPassword), nameof(User)));
 
             if(newPassword == Password)
-                return Result.Failure(UserError.NoChangesDetected($"The {newPassword} cannot be the same as the old login!"));
+                return DomainResult.Failure(UserError.NoChangesDetected($"The {newPassword} cannot be the same as the old login!"));
 
             Password = newPassword;
             UpdatedAt = updateTime;
@@ -193,10 +193,10 @@ namespace Authorization.Domain.Users
                 new UserPasswordChangedEvent(Id, Login, updateTime)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result ConfirmLogin(DateTimeOffset updateTime)
+        public DomainResult ConfirmLogin(DateTimeOffset updateTime)
         {
             var access = ProvideAccess();
 
@@ -204,15 +204,15 @@ namespace Authorization.Domain.Users
                 return access;
 
             if (IsLoginConfirmed)
-                return Result.Failure(UserError.NoChangesDetected("Login already confirmed!"));
+                return DomainResult.Failure(UserError.NoChangesDetected("Login already confirmed!"));
 
             IsLoginConfirmed = true;
             UpdatedAt = updateTime;
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result Block(DateTimeOffset updateTime, string reason)
+        public DomainResult Block(DateTimeOffset updateTime, string reason)
         {
             var access = ProvideAccess();
 
@@ -226,10 +226,10 @@ namespace Authorization.Domain.Users
                 new UserBlockedEvent(Id, Login, reason, updateTime)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result RemoveBlock(DateTimeOffset updateTime)
+        public DomainResult RemoveBlock(DateTimeOffset updateTime)
         {
             var access = ProvideAccess();
 
@@ -243,10 +243,10 @@ namespace Authorization.Domain.Users
                 new UserRemoveBlockedEvent(Id, Login, updateTime)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result RecordFailedLoginAttempt(DateTimeOffset updateTime)
+        public DomainResult RecordFailedLoginAttempt(DateTimeOffset updateTime)
         {
             var access = ProvideAccess();
 
@@ -261,10 +261,10 @@ namespace Authorization.Domain.Users
                 Block(updateTime, "Max failed login attempts exceeded!");
             }
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result LoginSuccess(string ip, DateTimeOffset loginTime)
+        public DomainResult LoginSuccess(string ip, DateTimeOffset loginTime)
         {
             var access = ProvideAccess();
 
@@ -281,10 +281,10 @@ namespace Authorization.Domain.Users
                 new UserLoggedInEvent(Id, Login, ip, loginTime)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result Delete(DateTimeOffset updateTime)
+        public DomainResult Delete(DateTimeOffset updateTime)
         {
             var access = ProvideAccess();
 
@@ -298,16 +298,16 @@ namespace Authorization.Domain.Users
                 new UserDeletedEvent(Id, Login, updateTime)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
-        public Result Undelete(DateTimeOffset restoreUntil, DateTimeOffset now)
+        public DomainResult Undelete(DateTimeOffset restoreUntil, DateTimeOffset now)
         {
             if(!IsDeleted)
-                return Result.Success();
+                return DomainResult.Success();
 
             if (restoreUntil < now)
-                return Result.Failure(UserError.RestoreIsNotAllowed(restoreUntil));
+                return DomainResult.Failure(UserError.RestoreIsNotAllowed(restoreUntil));
 
             IsDeleted = false;
             UpdatedAt = now;
@@ -316,20 +316,20 @@ namespace Authorization.Domain.Users
                 new UserUndeleteEvent(Id, Login, now)
             );
 
-            return Result.Success();
+            return DomainResult.Success();
         }
         #endregion
 
         #region Guards
-        private Result ProvideAccess()
+        private DomainResult ProvideAccess()
         {
             if (IsBlocked)
-                return Result.Failure(UserError.UserIsBlocked);
+                return DomainResult.Failure(UserError.UserIsBlocked);
 
             if (IsDeleted)
-                return Result.Failure(UserError.UserIsDeleted);
+                return DomainResult.Failure(UserError.UserIsDeleted);
 
-            return Result.Success();
+            return DomainResult.Success();
         }
         #endregion
     }

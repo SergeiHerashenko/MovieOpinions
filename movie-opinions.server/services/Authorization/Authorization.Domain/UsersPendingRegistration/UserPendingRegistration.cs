@@ -28,13 +28,13 @@ namespace Authorization.Domain.UsersPendingRegistration
             ExpiresAt = CreatedAt.Add(ExpirationTime);
         }
 
-        public static Result<UserPendingRegistration> Create(Login login, Password password)
+        public static DomainResult<UserPendingRegistration> Create(Login login, Password password)
         {
             if(login is null)
-                return Result<UserPendingRegistration>.Failure(UserError.Empty(nameof(login), nameof(UserPendingRegistration)));
+                return DomainResult<UserPendingRegistration>.Failure(UserError.Empty(nameof(login), nameof(UserPendingRegistration)));
 
             if(password is null)
-                return Result<UserPendingRegistration>.Failure(UserError.Empty(nameof(password), nameof(UserPendingRegistration)));
+                return DomainResult<UserPendingRegistration>.Failure(UserError.Empty(nameof(password), nameof(UserPendingRegistration)));
             
             var userRendingRegistration = new UserPendingRegistration(UserPendingRegistrationId.CreateUnique(), login, password);
 
@@ -46,7 +46,7 @@ namespace Authorization.Domain.UsersPendingRegistration
                 )
             );
 
-            return Result<UserPendingRegistration>.Success(userRendingRegistration);
+            return DomainResult<UserPendingRegistration>.Success(userRendingRegistration);
         }
         #endregion
 
@@ -86,15 +86,15 @@ namespace Authorization.Domain.UsersPendingRegistration
         #endregion
 
         #region Behavior
-        public Result Refresh(Password password, DateTimeOffset now)
+        public DomainResult Refresh(Password password, DateTimeOffset now)
         {
             if (password is null)
-                return Result.Failure(UserError.Empty(nameof(password), nameof(UserPendingRegistration)));
+                return DomainResult.Failure(UserError.Empty(nameof(password), nameof(UserPendingRegistration)));
 
             Password = password;
             ExpiresAt = now.Add(ExpirationTime);
 
-            return Result.Success();
+            return DomainResult.Success();
         }
 
         public bool IsExpired(DateTimeOffset now)

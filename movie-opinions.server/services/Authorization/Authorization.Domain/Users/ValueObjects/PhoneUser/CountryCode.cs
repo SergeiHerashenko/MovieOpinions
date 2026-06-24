@@ -13,23 +13,23 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
             Value = value;
         }
 
-        public static Result<CountryCode> Create(string value)
+        public static DomainResult<CountryCode> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Result<CountryCode>.Failure(PhoneError.EmptyCode);
+                return DomainResult<CountryCode>.Failure(PhoneError.EmptyCode);
 
             var trimmed = value.Trim();
 
             if (!trimmed.StartsWith("+"))
-                return Result<CountryCode>.Failure(PhoneError.PhoneInvalidFormat);
+                return DomainResult<CountryCode>.Failure(PhoneError.PhoneInvalidFormat);
 
             if (trimmed.Length < 2 || trimmed.Length > 5)
-                return Result<CountryCode>.Failure(PhoneError.CountryCodeInvalidFormat);
+                return DomainResult<CountryCode>.Failure(PhoneError.CountryCodeInvalidFormat);
 
             if (!trimmed.Skip(1).All(char.IsDigit))
-                return Result<CountryCode>.Failure(PhoneError.CountryCodeInvalidFormat);
+                return DomainResult<CountryCode>.Failure(PhoneError.CountryCodeInvalidFormat);
 
-            return Result<CountryCode>.Success(new CountryCode(value));
+            return DomainResult<CountryCode>.Success(new CountryCode(value));
         }
 
         public override IEnumerable<object> GetEqualityComponents()

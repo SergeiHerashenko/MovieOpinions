@@ -30,17 +30,17 @@ namespace Authorization.Domain.UsersRestriction
             TotalBlockedDays = totalBlockedDays;
         }
 
-        public static Result<UserRestrictionSession> Create(
+        public static DomainResult<UserRestrictionSession> Create(
             UserId userId,
             IEnumerable<UserRestriction> userRestrictions)
         {
             if (userId is null)
-                return Result<UserRestrictionSession>.Failure(RestrictionError.Empty(nameof(userId), nameof(UserRestrictionSession)));
+                return DomainResult<UserRestrictionSession>.Failure(RestrictionError.Empty(nameof(userId), nameof(UserRestrictionSession)));
 
             var restrictions = userRestrictions.ToList();
 
             if (!userRestrictions.Any())
-                return Result<UserRestrictionSession>.Failure(RestrictionError.Empty(nameof(userRestrictions), nameof(UserRestrictionSession)));
+                return DomainResult<UserRestrictionSession>.Failure(RestrictionError.Empty(nameof(userRestrictions), nameof(UserRestrictionSession)));
 
             var activeRestrictionsIds = restrictions
                 .Select(r => r.Id)
@@ -49,7 +49,7 @@ namespace Authorization.Domain.UsersRestriction
             var totalBlockedDays = userRestrictions
                 .Sum(r => r.RestrictionRule.DurationDay);
 
-            return Result<UserRestrictionSession>.Success(
+            return DomainResult<UserRestrictionSession>.Success(
                 new UserRestrictionSession(
                     UserRestrictionSessionId.CreateUnique(),
                     userId,
@@ -96,12 +96,12 @@ namespace Authorization.Domain.UsersRestriction
         #endregion
 
         #region Behavior
-        public Result Refresh(IEnumerable<UserRestriction> restrictions, DateTimeOffset now)
+        public DomainResult Refresh(IEnumerable<UserRestriction> restrictions, DateTimeOffset now)
         {
             var list = restrictions.ToList();
 
             if (!list.Any())
-                return Result.Failure(RestrictionError.Empty(nameof(restrictions), nameof(UserRestrictionSession)));
+                return DomainResult.Failure(RestrictionError.Empty(nameof(restrictions), nameof(UserRestrictionSession)));
 
             var active = list
                 .Where(r => r.IsActive(now))
@@ -112,7 +112,7 @@ namespace Authorization.Domain.UsersRestriction
 
             TotalBlockedDays = active.Sum(r => r.RestrictionRule.DurationDay);
 
-            return Result.Success();
+            return DomainResult.Success();
         }
         #endregion
 

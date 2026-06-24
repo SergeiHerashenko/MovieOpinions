@@ -6,4 +6,26 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Errors\" />
+    <Folder Include="Features\Authentication\Login\" />
+    <Folder Include="Features\Authentication\Logout\" />
+    <Folder Include="Features\Authentication\ConfirmRegistration\" />
+    <Folder Include="Interfaces\Communication\" />
+    <Folder Include="Interfaces\System\" />
+    <Folder Include="Interfaces\Security\" />
+    <Folder Include="Interfaces\Persistence\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Authorization.Domain\Authorization.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

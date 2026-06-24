@@ -16,15 +16,15 @@ namespace Authorization.Domain.UsersRestriction.ValueObjects
             DurationDay = durationDay;
         }
 
-        public static Result<RestrictionRule> Create(string name, int durationDay)
+        public static DomainResult<RestrictionRule> Create(string name, int durationDay)
         {
             if (string.IsNullOrWhiteSpace(name))
-                return Result<RestrictionRule>.Failure(RestrictionError.Empty(nameof(name), nameof(RestrictionRule)));
+                return DomainResult<RestrictionRule>.Failure(RestrictionError.Empty(nameof(name), nameof(RestrictionRule)));
 
             if (durationDay <= 0)
-                return Result<RestrictionRule>.Failure(RestrictionError.NotEnoughDays);
+                return DomainResult<RestrictionRule>.Failure(RestrictionError.NotEnoughDays);
 
-            return Result<RestrictionRule>.Success(new RestrictionRule(name, durationDay));
+            return DomainResult<RestrictionRule>.Success(new RestrictionRule(name, durationDay));
         }
 
         public override IEnumerable<object> GetEqualityComponents()
