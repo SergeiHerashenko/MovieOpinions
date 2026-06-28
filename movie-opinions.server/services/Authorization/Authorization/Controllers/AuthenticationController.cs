@@ -1,7 +1,9 @@
-﻿using Authorization.Application.Features.Authentication.Registration;
+﻿using Authorization.Application.Features.Authentication.Registration.Emails;
+using Authorization.Application.Features.Authentication.Registration.Phones;
 using Authorization.Requests;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Authorization.Controllers
 {
@@ -14,11 +16,32 @@ namespace Authorization.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Registration([FromBody] RegistrationRequest registrationRequest, CancellationToken cancellationToken)
+        [HttpPost("register/email")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<IActionResult> RegistrationWithEmail([FromBody] RegistrationWithEmailRequest registrationRequest, CancellationToken cancellationToken = default)
         {
-            var command = new RegistrationCommand(
-                registrationRequest.Login,
+            var command = new RegistrationWithEmailCommand(
+                registrationRequest.Email,
+                registrationRequest.Password,
+                registrationRequest.ConfirmPassword,
+                registrationRequest.AcceptTerms
+            );
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+                return BadRequest(result.Errors);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPost("register/phone")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<IActionResult> RegistrationWithPhone([FromBody] RegistrationWithPhoneRequest registrationRequest, CancellationToken cancellationToken = default)
+        {
+            var command = new RegistrationWithPhoneCommand(
+                registrationRequest.CountryCode,
+                registrationRequest.PhoneNumber,
                 registrationRequest.Password,
                 registrationRequest.ConfirmPassword,
                 registrationRequest.AcceptTerms

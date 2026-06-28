@@ -1,6 +1,6 @@
 ﻿using Authorization.Application.Interfaces.Localization;
 
-namespace Authorization.Infrastructure.Error
+namespace Authorization.Infrastructure.Errors
 {
     public class ErrorMessageProvider : IErrorMessageProvider
     {

@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 internal class Program
 {
@@ -140,6 +141,22 @@ internal class Program
             builder.Services.AddExceptionHandler<AuthExceptionHandler>();
             builder.Services.AddProblemDetails();
 
+            // 10. ÃËÎÁÀËÜÍÈÉ ÐÅÉÒ-Ë²Ì²ÒÅÐ
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddPolicy("FixedWindowPolicy", context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 100, 
+                            Window = TimeSpan.FromMinutes(1), 
+                            QueueLimit = 0
+                        }));
+
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            });
+
             var app = builder.Build();
 
             app.UseForwardedHeaders();
@@ -155,6 +172,8 @@ internal class Program
             app.UseHttpsRedirection();
 
             app.UseCors("FrontendPolicy");
+
+            app.UseRateLimiter();
 
             app.UseAuthentication();
             app.UseAuthorization();

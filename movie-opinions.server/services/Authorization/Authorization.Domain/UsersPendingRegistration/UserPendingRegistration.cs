@@ -94,6 +94,14 @@ namespace Authorization.Domain.UsersPendingRegistration
             Password = password;
             ExpiresAt = now.Add(ExpirationTime);
 
+            AddDomainEvent(
+                new UserPendingRegistrationRequestedEvent(
+                    Id,
+                    Login,
+                    CreatedAt
+                )
+            );
+
             return DomainResult.Success();
         }
 

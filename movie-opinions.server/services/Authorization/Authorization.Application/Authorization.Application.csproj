@@ -7,14 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Errors\" />
     <Folder Include="Features\Authentication\Login\" />
     <Folder Include="Features\Authentication\Logout\" />
     <Folder Include="Features\Authentication\ConfirmRegistration\" />
-    <Folder Include="Interfaces\Communication\" />
+    <Folder Include="Features\Authentication\Registration\PostRegistration\Step\" />
+    <Folder Include="Interfaces\Security\JWT\" />
     <Folder Include="Interfaces\System\" />
-    <Folder Include="Interfaces\Security\" />
-    <Folder Include="Interfaces\Persistence\" />
   </ItemGroup>
 
   <ItemGroup>

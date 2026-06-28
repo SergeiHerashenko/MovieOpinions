@@ -1,8 +1,10 @@
 ﻿namespace Authorization.Requests
 {
-    public class RegistrationRequest
+    public class RegistrationWithPhoneRequest
     {
-        public string Login { get; set; } = string.Empty;
+        public string CountryCode { get; set; } = string.Empty;
+
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public string Password { get; set; } = string.Empty;
 

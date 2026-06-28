@@ -1,4 +1,5 @@
 ﻿using Authorization.Application.Behaviors;
+using Authorization.Application.Features.Authentication.Registration;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,8 @@ namespace Authorization.Application
             services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddScoped<RegistrationFlowCoordinator>();
 
             return services;
         }
