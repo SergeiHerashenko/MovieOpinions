@@ -10,6 +10,7 @@ using Authorization.Infrastructure.Errors;
 using Authorization.Infrastructure.Events;
 using Authorization.Infrastructure.Integration;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
+using Authorization.Infrastructure.Persistence.Migrations;
 using Authorization.Infrastructure.Persistence.Repositories.ADO;
 using Authorization.Infrastructure.Security;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,9 @@ namespace Authorization.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            // Реєстрація мігратора
+            services.AddTransient<DatabaseMigrator>();
+
             services.AddProjectHttpClients(configuration);
 
             services.AddDistributedMemoryCache();

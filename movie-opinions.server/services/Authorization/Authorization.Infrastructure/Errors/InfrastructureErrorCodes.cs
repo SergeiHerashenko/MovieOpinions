@@ -19,6 +19,10 @@
             public const string DataNoReceived = "DATA_NO_RECEIVED";
 
             public const string DataConsistency = "DATA_CONSISTENCY_ERROR";
+
+            public const string NotFound = "NOT_FOUND";
+
+            public const string MigrationError = "MIGRATION_ERROR";
         }
     }
 }

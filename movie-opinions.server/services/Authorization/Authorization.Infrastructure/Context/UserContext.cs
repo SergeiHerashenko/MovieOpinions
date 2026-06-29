@@ -35,7 +35,25 @@ namespace Authorization.Infrastructure.Context
 
         public string GetLanguage()
         {
-            throw new NotImplementedException();
+            var context = _httpContextAccessor.HttpContext;
+            if (context == null)
+                return "en";
+
+            // Перевіряємо кастомний заголовок
+            var customLang = context.Request.Headers["X-Language"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(customLang))
+            {
+                return customLang.Split(',')[0].Split(';')[0].Trim().ToLower();
+            }
+
+            // Перевіряємо стандартний заголовок Accept-Language
+            var acceptLanguage = context.Request.Headers["Accept-Language"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(acceptLanguage))
+            {
+                return acceptLanguage.Split(',')[0].Split(';')[0].Trim().ToLower();
+            }
+
+            return "en";
         }
     }
 }

@@ -1,6 +1,7 @@
 using Authorization;
 using Authorization.Application;
 using Authorization.Infrastructure;
+using Authorization.Infrastructure.Persistence.Migrations;
 using Authorization.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -13,7 +14,7 @@ using System.Threading.RateLimiting;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -159,6 +160,14 @@ internal class Program
 
             var app = builder.Build();
 
+            // 11. «¿œ”—  Ã≤√–¿÷≤…
+            using (var scope = app.Services.CreateScope())
+            {
+                var migrator = scope.ServiceProvider.GetRequiredService<DatabaseMigrator>();
+
+                await migrator.MigrateAsync();
+            }
+
             app.UseForwardedHeaders();
 
             app.UseExceptionHandler();
@@ -180,7 +189,7 @@ internal class Program
 
             app.MapControllers();
 
-            app.Run();
+            await app.RunAsync();
         }
         catch (Exception ex)
         {

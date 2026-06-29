@@ -6,6 +6,6 @@ namespace Authorization.Infrastructure.Persistence.Context.AdoNet
     {
         string GetConnectionString();
 
-        Task<NpgsqlConnection> GetOpenConnectionAsync(CancellationToken cancellationToken);
+        Task<NpgsqlConnection> GetOpenConnectionAsync(CancellationToken cancellationToken = default);
     }
 }

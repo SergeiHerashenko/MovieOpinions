@@ -1,0 +1,19 @@
+﻿-- 1. Створення таблиці
+CREATE TABLE IF NOT EXISTS user_pending_registration(
+	id				UUID			NOT NULL,
+	login_user		VARCHAR(255)	NOT NULL,
+	login_type		VARCHAR(50)		NOT NULL,
+	country_code	VARCHAR(10)		NULL,
+	password_hash	VARCHAR(550)	NOT NULL,
+	created_at		TIMESTAMPTZ		NOT NULL,
+	expires_at		TIMESTAMPTZ		NOT NULL,
+
+	CONSTRAINT pk_user_pending_registration PRIMARY KEY (id)
+);
+
+-- 2. Створення індексів для швидкого пошуку
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_pending_registration_login_user 
+ON user_pending_registration (login_user);
+
+CREATE INDEX IF NOT EXISTS idx_user_pending_registration_expires_at
+ON user_pending_registration (expires_at);

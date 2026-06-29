@@ -18,7 +18,7 @@ namespace Authorization.Infrastructure.Persistence.Context.AdoNet
                    ?? throw new Exception("Connection string is missing in Secrets/Appsettings!");
         }
 
-        public async Task<NpgsqlConnection> GetOpenConnectionAsync(CancellationToken cancellationToken)
+        public async Task<NpgsqlConnection> GetOpenConnectionAsync(CancellationToken cancellationToken = default)
         {
             var connection = new NpgsqlConnection(GetConnectionString());
 

@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Persistence\Migrations\0002_create_user_account_table.psql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Persistence\Migrations\0001_create_user_pending_registration_table.psql" />
+    <EmbeddedResource Include="Persistence\Migrations\0002_create_user_account_table.psql" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.0" />
@@ -20,10 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Authorization.Application\Authorization.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Persistence\Migrations\" />
   </ItemGroup>
 
 </Project>

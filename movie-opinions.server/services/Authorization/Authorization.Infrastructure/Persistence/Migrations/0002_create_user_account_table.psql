@@ -1,0 +1,27 @@
+﻿-- 1. Створення таблиці
+CREATE TABLE IF NOT EXISTS user_account(
+	id						UUID			NOT NULL,
+	login_user				VARCHAR(255)	NOT NULL,
+	login_type				VARCHAR(50)		NOT NULL,
+	country_code			VARCHAR(10)		NULL,
+	password_hash			VARCHAR(550)	NOT NULL,
+	role					VARCHAR(20)		NOT NULL,
+	updated_at				TIMESTAMPTZ		NULL,
+	last_login_at			TIMESTAMPTZ		NULL,
+	last_login_ip			VARCHAR(50)		NULL,
+	is_login_confirmed		BOOLEAN			NOT NULL,
+	failed_login_attempts	INTEGER			NOT NULL,
+	is_blocked				BOOLEAN			NOT NULL,
+	is_deleted				BOOLEAN			NOT NULL,
+	created_at				TIMESTAMPTZ		NOT NULL,
+
+	CONSTRAINT pk_user_account PRIMARY KEY (id)
+);
+
+-- 2. Створення індексу для швидкого пошуку
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_account_login_user
+ON user_account (login_user);
+
+CREATE INDEX IF NOT EXISTS idx_user_account_is_deleted 
+ON user_account (is_deleted)
+WHERE is_deleted = TRUE;
