@@ -6,48 +6,67 @@ namespace Authorization.ErrorHandling
     {
         private static readonly Dictionary<string, int> _map = new()
         {
-            [ErrorCodes.DataInconsistencyError.Inconsistency] = StatusCodes.Status500InternalServerError,
-            [ErrorCodes.DataInconsistencyError.UnsupportedType] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.DataInconsistencyError.InvalidState] = StatusCodes.Status409Conflict,
-            [ErrorCodes.DataInconsistencyError.InvalidValue] = StatusCodes.Status400BadRequest,
+            // Data consistency (500)
+            [DomainErrorCodes.DataInconsistencyErrorCode.Inconsistency] = StatusCodes.Status500InternalServerError,
+            [DomainErrorCodes.DataInconsistencyErrorCode.InvalidFormat] = StatusCodes.Status500InternalServerError,
+            [DomainErrorCodes.DataInconsistencyErrorCode.UnsupportedType] = StatusCodes.Status500InternalServerError,
+            [DomainErrorCodes.DataInconsistencyErrorCode.OutOfRange] = StatusCodes.Status500InternalServerError,
 
-            [ErrorCodes.ResultError.InvariantViolation] = StatusCodes.Status500InternalServerError,
-            [ErrorCodes.ResultError.ValueAccessOnFailure] = StatusCodes.Status500InternalServerError,
+            // Invariants
+            [DomainErrorCodes.InvariantViolationErrorCode.InvalidState] = StatusCodes.Status500InternalServerError,
 
-            [ErrorCodes.EmailError.EmptyEmail] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.EmailError.InvalidFormat] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.EmailError.TooLong] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.EmailError.NotAllowed] = StatusCodes.Status403Forbidden,
+            // Invalid operation
+            [DomainErrorCodes.InvalidOperationErrorCode.InvalidOperation] = StatusCodes.Status500InternalServerError,
 
-            [ErrorCodes.PhoneError.EmptyPhone] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.PhoneError.EmptyCountryCode] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.PhoneError.InvalidFormat] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.PhoneError.TooLong] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.PhoneError.TooShort] = StatusCodes.Status400BadRequest,
+            // Email
+            [DomainErrorCodes.EmailErrorCode.EmptyEmail] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.EmailErrorCode.InvalidFormatEmail] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.EmailErrorCode.TooLongEmail] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.EmailErrorCode.NotAllowedEmail] = StatusCodes.Status403Forbidden,
 
-            [ErrorCodes.PasswordError.EmptyPassword] = StatusCodes.Status400BadRequest,
+            // Phone
+            [DomainErrorCodes.PhoneErrorCode.EmptyPhone] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.PhoneErrorCode.EmptyContryCode] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.PhoneErrorCode.InvalidFormatPhone] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.PhoneErrorCode.InvalidFormatCountryCode] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.PhoneErrorCode.TooLongPhone] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.PhoneErrorCode.TooShortPhone] = StatusCodes.Status400BadRequest,
 
-            [ErrorCodes.UserError.Empty] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.UserError.OperationIsNotAllowed] = StatusCodes.Status403Forbidden,
+            // Password
+            [DomainErrorCodes.PasswordErrorCode.EmptyPassword] = StatusCodes.Status400BadRequest,
 
-            [ErrorCodes.AccountStatusError.AccountBlocked] = StatusCodes.Status403Forbidden,
-            [ErrorCodes.AccountStatusError.AccountDeleted] = StatusCodes.Status403Forbidden,
-            [ErrorCodes.AccountStatusError.AccountIsNotRestore] = StatusCodes.Status403Forbidden,
+            // Login
+            [DomainErrorCodes.LoginErrorCode.EmptyLogin] = StatusCodes.Status400BadRequest,
 
-            [ErrorCodes.ChangeError.UpdateNotRequired] = StatusCodes.Status409Conflict,
+            // Access
+            [DomainErrorCodes.AccessErrorCode.AccountBlocked] = StatusCodes.Status403Forbidden,
+            [DomainErrorCodes.AccessErrorCode.AccountDeleted] =StatusCodes.Status403Forbidden,
+            [DomainErrorCodes.AccessErrorCode.RestoreIsNotAllowed] =StatusCodes.Status403Forbidden,
 
-            [ErrorCodes.IpError.InvalidFormat] = StatusCodes.Status400BadRequest,
+            // General
+            [DomainErrorCodes.GeneralErrorCode.OperationIsNotAllowed] = StatusCodes.Status403Forbidden,
+            [DomainErrorCodes.GeneralErrorCode.NoChangesDetected] = StatusCodes.Status409Conflict,
+            [DomainErrorCodes.GeneralErrorCode.AlreadyConfirmed] = StatusCodes.Status409Conflict,
+            [DomainErrorCodes.GeneralErrorCode.AlreadyRestored] = StatusCodes.Status409Conflict,
 
-            [ErrorCodes.TokenError.EmptyValue] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.TokenError.TokenActive] = StatusCodes.Status409Conflict,
-            [ErrorCodes.TokenError.TokenConsumed] = StatusCodes.Status409Conflict,
-            [ErrorCodes.TokenError.TokenExpired] = StatusCodes.Status401Unauthorized,
-            [ErrorCodes.TokenError.TokenRevoked] = StatusCodes.Status401Unauthorized,
-            [ErrorCodes.TokenError.InvalidType] = StatusCodes.Status400BadRequest,
+            // Identifier
+            [DomainErrorCodes.IdentifierErrorCode.EmptyIdentifier] = StatusCodes.Status400BadRequest,
 
-            [ErrorCodes.RestrictionError.EmptyValue] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.RestrictionError.ShortDay] = StatusCodes.Status400BadRequest,
-            [ErrorCodes.RestrictionError.InvalidTime] = StatusCodes.Status400BadRequest,
+            // Token
+            [DomainErrorCodes.TokenErrorCode.EmptyToken] =StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.TokenErrorCode.InvalidType] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.TokenErrorCode.TokenConsumed] = StatusCodes.Status409Conflict,
+            [DomainErrorCodes.TokenErrorCode.TokenExpired] = StatusCodes.Status401Unauthorized,
+            [DomainErrorCodes.TokenErrorCode.TokenRevoked] = StatusCodes.Status401Unauthorized,
+            [DomainErrorCodes.TokenErrorCode.TokenActive] = StatusCodes.Status409Conflict,
+
+            // IP
+            [DomainErrorCodes.IpErrorCode.InvalidFormat] = StatusCodes.Status400BadRequest,
+
+            // Restriction rules
+            [DomainErrorCodes.RestrictionRuleErrorCode.EmptyValue] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.RestrictionRuleErrorCode.ShortDay] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.RestrictionRuleErrorCode.InvalidTime] = StatusCodes.Status400BadRequest,
         };
 
         public int GetStatusCode(string errorCode)

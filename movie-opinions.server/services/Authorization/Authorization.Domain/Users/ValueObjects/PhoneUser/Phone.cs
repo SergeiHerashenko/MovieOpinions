@@ -1,5 +1,5 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
-using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 
@@ -22,25 +22,25 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
         }
 
         #region Creation
-        public static DomainResult<Phone> Create(CountryCode code, string rawPhone)
+        public static Result<Phone> Create(CountryCode code, string rawPhone)
         {
             if (code is null)
-                return DomainResult<Phone>.Failure(PhoneError.EmptyCode);
+                return Result<Phone>.Failure(UserErrors.PhoneError.EmptyCountryCode<Phone>());
 
             if (string.IsNullOrWhiteSpace(rawPhone))
-                return DomainResult<Phone>.Failure(PhoneError.EmptyPhone);
+                return Result<Phone>.Failure(UserErrors.PhoneError.EmptyPhone<Phone>());
 
             var cleanedPhone = CleanPhoneNumber(rawPhone);
 
             if (string.IsNullOrEmpty(cleanedPhone))
-                return DomainResult<Phone>.Failure(PhoneError.PhoneInvalidFormat);
+                return Result<Phone>.Failure(UserErrors.PhoneError.PhoneInvalidFormat<Phone>());
 
             var isValid = IsValidPhoneNumber(cleanedPhone);
 
             if (!isValid.IsSuccess)
-                return DomainResult<Phone>.Failure(isValid.Error);
+                return Result<Phone>.Failure(isValid.Errors);
 
-            return DomainResult<Phone>.Success(new Phone(code, cleanedPhone));
+            return Result<Phone>.Success(new Phone(code, cleanedPhone));
         }
         #endregion
 
@@ -49,7 +49,7 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw DomainDataInconsistencyException.EmptyOnRestore<Phone>(nameof(value));
+                throw DomainDataInconsistencyException.Empty<Phone>(nameof(value));
             }
 
             return new Phone(code, value);
@@ -65,24 +65,24 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
             return new string(phoneNumber.Where(char.IsDigit).ToArray());
         }
 
-        public static DomainResult IsValidPhoneNumber(string phoneNumber)
+        public static Result IsValidPhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrWhiteSpace(phoneNumber))
-                return DomainResult.Failure(PhoneError.EmptyPhone);
+                return Result.Failure(UserErrors.PhoneError.EmptyPhone<Phone>());
 
             if (phoneNumber.Length < MIN_LENGTH_PHONE_NUMBER)
-                return DomainResult.Failure(PhoneError.TooShort);
+                return Result.Failure(UserErrors.PhoneError.TooShort<Phone>());
 
             if (phoneNumber.Length > MAX_LENGTH_PHONE_NUMBER)
-                return DomainResult.Failure(PhoneError.TooLong);
+                return Result.Failure(UserErrors.PhoneError.TooLong<Phone>());
 
-            return DomainResult.Success();
+            return Result.Success();
         }
         #endregion
 
         public string GetFullNumber()
         {
-            return $"{CountryCode}{Value}";
+            return $"{CountryCode.Value}{Value}";
         }
 
         public override IEnumerable<object> GetEqualityComponents()

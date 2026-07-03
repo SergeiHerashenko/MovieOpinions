@@ -1,9 +1,9 @@
-﻿using Authorization.Application.Result;
+﻿using Authorization.Domain.Results;
 using MediatR;
 
 namespace Authorization.Application.Features.Authentication.Registration.Phones
 {
-    public class RegistrationWithPhoneCommand : IRequest<ApplicationResult<RegistrationResult>>
+    public class RegistrationWithPhoneCommand : IRequest<Result<RegistrationResult>>
     {
         public string CountryCode { get; }
 

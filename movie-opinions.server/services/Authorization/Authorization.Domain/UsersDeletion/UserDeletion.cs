@@ -1,6 +1,6 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
-using Authorization.Domain.Common.Exceptions;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validations;
 using Authorization.Domain.DomainEvents.UserDeletion;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
@@ -42,13 +42,13 @@ namespace Authorization.Domain.UsersDeletion
             UpdatedAt = null;
         }
 
-        public static DomainResult<UserDeletion> Create(UserId userId, Login login, string? reason, DateTimeOffset deletedAt)
+        public static Result<UserDeletion> Create(UserId userId, Login login, string? reason, DateTimeOffset deletedAt)
         {
             if (userId is null)
-                return DomainResult<UserDeletion>.Failure(UserError.Empty(nameof(userId), nameof(UserDeletion)));
+                return Result<UserDeletion>.Failure(UserErrors.IdentifierError.EmptyIdentifier<UserDeletion>());
 
             if (login is null)
-                return DomainResult<UserDeletion>.Failure(UserError.Empty(nameof(login), nameof(UserDeletion)));
+                return Result<UserDeletion>.Failure(UserErrors.LoginError.EmptyLogin<UserDeletion>());
 
             var userDeletion = new UserDeletion(UserDeletionId.CreateUnique(), userId, login, reason, deletedAt);
 
@@ -56,7 +56,7 @@ namespace Authorization.Domain.UsersDeletion
                 new UserAccountDeletionRequestedEvent(userId, login, reason, userDeletion.RestoreUntil, userDeletion.CreatedAt)
             );
 
-            return DomainResult<UserDeletion>.Success(userDeletion);
+            return Result<UserDeletion>.Success(userDeletion);
         }
         #endregion
 
@@ -96,33 +96,30 @@ namespace Authorization.Domain.UsersDeletion
             DeletionStatus deletionStatus,
             DateTimeOffset? updatedAt)
         {
-            if (userDeletionId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletion>(nameof(userDeletionId));
-
-            if (userId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletion>(nameof(userId));
-
-            if (login is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletion>(nameof(login));
+            DomainGuard.AgainstNull<UserDeletion>(
+                (userDeletionId, nameof(userDeletionId)),
+                (userId, nameof(userId)),
+                (login, nameof(login))
+            );
 
             return new UserDeletion(userDeletionId, userId, login, reason, deletedAt, createdAt, restoreUntil, restoredAt, deletionStatus, updatedAt);
         }
         #endregion
 
         #region Behavior
-        public DomainResult Undelete(DateTimeOffset now)
+        public Result Undelete(DateTimeOffset now)
         {
             if (Status == DeletionStatus.Restored)
-                return DomainResult.Failure(UserError.NoChangesDetected("Account has already been restored!"));
+                return Result.Failure(UserErrors.GeneralError.AlreadyRestored<UserDeletion>(DeletionStatus.Restored.ToString()));
 
             if (now >= RestoreUntil)
-                return DomainResult.Failure(UserError.RestoreIsNotAllowed(RestoreUntil));
+                return Result.Failure(UserErrors.AccessError.RestoreIsNotAllowed<UserDeletion>(RestoreUntil));
 
             Status = DeletionStatus.Restored;
             RestoredAt = now;
             UpdatedAt = now;
 
-            return DomainResult.Success();
+            return Result.Success();
         }
 
         public void MarkAsExpired(DateTimeOffset now)

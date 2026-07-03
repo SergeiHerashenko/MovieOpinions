@@ -4,6 +4,8 @@
     {
         Registration,
 
+        ConfirmRegistration,
+
         Login,
 
         TwoFactor,

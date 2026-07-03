@@ -4,7 +4,7 @@ using Authorization.Application.Interfaces.Context;
 using Authorization.Application.Interfaces.Events;
 using Authorization.Application.Interfaces.Persistence;
 using Authorization.Application.Interfaces.Security;
-using Authorization.Application.Result;
+using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingRegistration;
@@ -41,7 +41,7 @@ namespace Authorization.Application.Features.Authentication.Registration
             _domainEventDispatcher = domainEventDispatcher;
         }
 
-        public async Task<ApplicationResult<UserPendingRegistration>> ProcessAsync(
+        public async Task<Result<UserPendingRegistration>> ProcessAsync(
             Login login,
             string rawPassword,
             CancellationToken cancellationToken)
@@ -54,7 +54,7 @@ namespace Authorization.Application.Features.Authentication.Registration
             );
 
             if (resultLimiter.IsFailure)
-                return ApplicationResult<UserPendingRegistration>.Failure(resultLimiter.Errors);
+                return Result<UserPendingRegistration>.Failure(resultLimiter.Errors);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -62,12 +62,12 @@ namespace Authorization.Application.Features.Authentication.Registration
 
             if (exists)
                 // TODO: Подумати над фінальним текстом повідомлення, якщо сервіс впав
-                return ApplicationResult<UserPendingRegistration>.Failure(UserErrors.Exists(""));
+                return Result<UserPendingRegistration>.Failure(UserErrors.Exists<UserPendingRegistration>(login.Value));
 
             var password = Password.Create(_hasher.Hash(rawPassword));
 
             if (password.IsFailure)
-                return ApplicationResult<UserPendingRegistration>.Failure(password.Error);
+                return Result<UserPendingRegistration>.Failure(password.Errors);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -88,7 +88,7 @@ namespace Authorization.Application.Features.Authentication.Registration
                 var createResult = UserPendingRegistration.Create(login, password.Value);
 
                 if (!createResult.IsSuccess)
-                    return ApplicationResult<UserPendingRegistration>.Failure(createResult.Error);
+                    return Result<UserPendingRegistration>.Failure(createResult.Errors);
 
                 registration = createResult.Value;
 
@@ -98,9 +98,7 @@ namespace Authorization.Application.Features.Authentication.Registration
             foreach (var domainEvent in registration.DomainEvents)
                 await _domainEventDispatcher.DispatchAsync(domainEvent, cancellationToken);
 
-            registration.ClearDomainEvents();
-
-            return ApplicationResult<UserPendingRegistration>.Success(registration);
+            return Result<UserPendingRegistration>.Success(registration);
         }
     }
 }

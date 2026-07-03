@@ -1,6 +1,7 @@
 ﻿using Authorization.Domain.Common.Errors.Restriction;
-using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validations;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.UsersRestriction.Enums;
@@ -35,15 +36,15 @@ namespace Authorization.Domain.UsersRestriction
             CancellationDate = null;
         }
 
-        public static DomainResult<UserRestriction> Create(UserId userId, RestrictionType restrictionType, RestrictionRule restrictionRule)
+        public static Result<UserRestriction> Create(UserId userId, RestrictionType restrictionType, RestrictionRule restrictionRule)
         {
             if (userId is null)
-                return DomainResult<UserRestriction>.Failure(RestrictionError.Empty(nameof(userId), nameof(UserRestriction)));
+                return Result<UserRestriction>.Failure(RestrictionError.Empty<UserRestriction>(nameof(userId)));
 
             if(restrictionRule is null)
-                return DomainResult<UserRestriction>.Failure(RestrictionError.Empty(nameof(restrictionRule), nameof(UserRestriction)));
+                return Result<UserRestriction>.Failure(RestrictionError.Empty<UserRestriction>(nameof(restrictionRule)));
 
-            return DomainResult<UserRestriction>.Success(new UserRestriction(UserRestrictionId.CreateUnique(), userId, restrictionType, restrictionRule));
+            return Result<UserRestriction>.Success(new UserRestriction(UserRestrictionId.CreateUnique(), userId, restrictionType, restrictionRule));
         }
         #endregion
 
@@ -74,13 +75,16 @@ namespace Authorization.Domain.UsersRestriction
             DateTimeOffset createdAt,
             DateTimeOffset? cancellationDate)
         {
-            GuardNotNull<UserRestriction>(userRestrictionId, nameof(userRestrictionId));
-            GuardNotNull<UserRestriction>(userId, nameof(userId));
-            GuardNotNull<UserRestriction>(restrictionRule, nameof(restrictionRule));
+            DomainGuard.AgainstNull<UserRestriction>(
+                (userRestrictionId, nameof(userRestrictionId)),
+                (userId, nameof(userId)),
+                (restrictionRule, nameof(restrictionRule))
+            );
 
             if (!isRevoked && cancellationDate is not null)
-                throw DomainDataInconsistencyException.ConsistencyViolation<UserRestriction>(
-                    new Dictionary<string, object>
+                throw DomainInvariantViolationException.BrokenState<UserRestriction>(
+                    $"Inconsistent restriction state: '{nameof(cancellationDate)}' cannot be set if the restriction is not revoked ({nameof(isRevoked)} is false)!",
+                    new Dictionary<string, object?>
                     {
                         ["isRevoked"] = isRevoked,
                         ["cancellationDate"] = cancellationDate
@@ -88,10 +92,12 @@ namespace Authorization.Domain.UsersRestriction
                 );
 
             if (isRevoked && cancellationDate is null)
-                throw DomainDataInconsistencyException.ConsistencyViolation<UserRestriction>(
-                    new Dictionary<string, object>
+                throw DomainInvariantViolationException.BrokenState<UserRestriction>(
+                    $"Inconsistent restriction state: A revoked restriction ({nameof(isRevoked)} is true) must have a valid '{nameof(cancellationDate)}'!",
+                    new Dictionary<string, object?>
                     {
-                        ["isRevoked"] = isRevoked
+                        ["isRevoked"] = isRevoked,
+                        ["cancellationDate"] = cancellationDate
                     }
                 );
 
@@ -100,18 +106,18 @@ namespace Authorization.Domain.UsersRestriction
         #endregion
 
         #region Behavior
-        public DomainResult CancelRestriction(DateTimeOffset now)
+        public Result CancelRestriction(DateTimeOffset now)
         {
             if (IsRevoked)
-                return DomainResult.Success();
+                return Result.Success();
 
             if (now < CreatedAt)
-                return DomainResult.Failure(RestrictionError.WrongTime);
+                return Result.Failure(RestrictionError.WrongTime<UserRestriction>());
 
             IsRevoked = true;
             CancellationDate = now;
 
-            return DomainResult.Success();
+            return Result.Success();
         }
 
         public DateTimeOffset GetExpirationDate()
@@ -132,17 +138,6 @@ namespace Authorization.Domain.UsersRestriction
                 return TimeSpan.Zero;
 
             return expiration - now;
-        }
-        #endregion
-
-        #region Guard
-        private static void GuardNotNull<T>(object? value, string field)
-            where T : class
-        {
-            if (value is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<T>(
-                    field
-                );
         }
         #endregion
     }

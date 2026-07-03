@@ -2,18 +2,28 @@
 {
     public enum ErrorType
     {
-        EmptyValue,
+        MissingData = 0,            // Дані відсутні
 
-        BusinessRuleViolation,
+        InvalidFormat = 1,          // Кривий формат
 
-        InvariantViolation,
+        UnsupportedType = 2,        // Невідомий дискримінатор/тип
 
-        InvalidOperation,
+        OutOfRange = 3,             // Значення поза межами
 
-        Validation,
+        InvariantViolation = 4,     // Порушення логіки/стану
 
-        Forbidden,
+        InvalidOperation = 5,       // Невалідна операція
 
-        Conflict
+        Validation = 6,             // Некоректні вхідні дані
+
+        NotFound = 7,               // Об'єкт не знайдено
+
+        Conflict = 8,               // Бізнес-конфлікт
+
+        PolicyViolation = 9,        // Порушення безпеки/прав
+
+        EmptyValue = 10,            // Пусте значення
+
+        Forbidden = 11,             // Заборона
     }
 }

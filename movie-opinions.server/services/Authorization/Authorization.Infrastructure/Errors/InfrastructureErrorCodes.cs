@@ -24,5 +24,10 @@
 
             public const string MigrationError = "MIGRATION_ERROR";
         }
+
+        public static class IntegrationError
+        {
+            public const string SendingError = "SENDING_ERROR";
+        }
     }
 }

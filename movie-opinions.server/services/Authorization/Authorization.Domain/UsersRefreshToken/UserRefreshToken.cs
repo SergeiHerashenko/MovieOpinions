@@ -1,6 +1,6 @@
 ﻿using Authorization.Domain.Common.Errors.TokenError;
-using Authorization.Domain.Common.Exceptions;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validations;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.UsersRefreshToken.Enums;
@@ -51,18 +51,18 @@ namespace Authorization.Domain.UsersRefreshToken
             RevokedAt = null;
         }
 
-        public static DomainResult<UserRefreshToken> Create(UserId userId, DeviceInfo deviceInfo, IpAddress ipAddress, string? city)
+        public static Result<UserRefreshToken> Create(UserId userId, DeviceInfo deviceInfo, IpAddress ipAddress, string? city)
         {
             if (userId is null)
-                return DomainResult<UserRefreshToken>.Failure(TokenError.Empty(nameof(userId)));
+                return Result<UserRefreshToken>.Failure(TokenError.Empty<UserRefreshToken>(nameof(userId)));
 
             if (deviceInfo is null)
-                return DomainResult<UserRefreshToken>.Failure(TokenError.Empty(nameof(deviceInfo)));
+                return Result<UserRefreshToken>.Failure(TokenError.Empty<UserRefreshToken>(nameof(deviceInfo)));
 
             if (ipAddress is null)
-                return DomainResult<UserRefreshToken>.Failure(TokenError.Empty(nameof(ipAddress)));
+                return Result<UserRefreshToken>.Failure(TokenError.Empty<UserRefreshToken>(nameof(ipAddress)));
 
-            return DomainResult<UserRefreshToken>.Success(
+            return Result<UserRefreshToken>.Success(
                 new UserRefreshToken(
                     UserRefreshTokenId.CreateUnique(), 
                     userId, 
@@ -114,18 +114,20 @@ namespace Authorization.Domain.UsersRefreshToken
             DateTimeOffset createdAt,
             DateTimeOffset? revokedAt)
         {
-            EnsureNotNull<UserRefreshToken>(userRefreshTokenId, nameof(userRefreshTokenId));
-            EnsureNotNull<UserRefreshToken>(userId, nameof(userId));
-            EnsureNotNull<UserRefreshToken>(refreshToken, nameof(refreshToken));
-            EnsureNotNull<UserRefreshToken>(deviceInfo, nameof(deviceInfo));
-            EnsureNotNull<UserRefreshToken>(ipAddress, nameof(ipAddress));
+            DomainGuard.AgainstNull<UserRefreshToken>(
+                (userRefreshTokenId, nameof(userRefreshTokenId)),
+                (userId, nameof(userId)),
+                (refreshToken, nameof(refreshToken)),
+                (deviceInfo, nameof(deviceInfo)),
+                (ipAddress, nameof(ipAddress))
+            );
 
             return new UserRefreshToken(userRefreshTokenId, userId, refreshToken, deviceInfo, ipAddress, city, tokenStatus, expiresAt, consumedAt, createdAt, revokedAt);
         }
         #endregion
 
         #region Behavior
-        public DomainResult Consume(DateTimeOffset now)
+        public Result Consume(DateTimeOffset now)
         {
             if (Status != TokenStatus.Active)
                 return GetErrorForInvalidStatus(Status);
@@ -133,10 +135,10 @@ namespace Authorization.Domain.UsersRefreshToken
             Status = TokenStatus.Consumed;
             ConsumedAt = now;
 
-            return DomainResult.Success();
+            return Result.Success();
         }
 
-        public DomainResult Revoke(DateTimeOffset now)
+        public Result Revoke(DateTimeOffset now)
         {
             if (Status != TokenStatus.Active)
                 return GetErrorForInvalidStatus(Status);
@@ -144,10 +146,10 @@ namespace Authorization.Domain.UsersRefreshToken
             Status = TokenStatus.Revoked;
             RevokedAt = now;
 
-            return DomainResult.Success();
+            return Result.Success();
         }
 
-        public DomainResult Expire(DateTimeOffset now)
+        public Result Expire(DateTimeOffset now)
         {
             if (Status != TokenStatus.Active)
                 return GetErrorForInvalidStatus(Status);
@@ -156,30 +158,22 @@ namespace Authorization.Domain.UsersRefreshToken
             {
                 Status = TokenStatus.Expired;
 
-                return DomainResult.Success();
+                return Result.Success();
             }
 
-            return DomainResult.Failure(TokenError.TokenIsActive("Token not yet expired"));
+            return Result.Failure(TokenError.TokenIsActive<UserRefreshToken>());
         }
 
         public bool IsActive() => Status == TokenStatus.Active;
         #endregion
 
         #region Guards
-        private static void EnsureNotNull<T>(object? value, string name)
+        private static Result GetErrorForInvalidStatus(TokenStatus tokenStatus) => tokenStatus switch
         {
-            if (value is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<T>(
-                    name
-                );
-        }
-
-        private static DomainResult GetErrorForInvalidStatus(TokenStatus tokenStatus) => tokenStatus switch
-        {
-            TokenStatus.Consumed => DomainResult.Failure(TokenError.UsedToken("Token already used!")),
-            TokenStatus.Expired => DomainResult.Failure(TokenError.ExpiredToken("The token's lifetime has expired!")),
-            TokenStatus.Revoked => DomainResult.Failure(TokenError.RevokedToken("The token was manually revoked by the user or system")),
-            _ => DomainResult.Failure(TokenError.InvalidFormat($"Unsupported token status: {tokenStatus}"))
+            TokenStatus.Consumed => Result.Failure(TokenError.UsedToken<UserRefreshToken>()),
+            TokenStatus.Expired => Result.Failure(TokenError.ExpiredToken<UserRefreshToken>()),
+            TokenStatus.Revoked => Result.Failure(TokenError.RevokedToken<UserRefreshToken>()),
+            _ => Result.Failure(TokenError.InvalidFormat<UserRefreshToken>(tokenStatus.ToString()))
         };
         #endregion
     }

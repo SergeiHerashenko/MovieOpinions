@@ -1,6 +1,7 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
-using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validations;
 using Authorization.Domain.DomainEvents.UserPendingChange;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
@@ -41,13 +42,13 @@ namespace Authorization.Domain.UsersPendingChange
             Status = ChangeStatus.Active;
         }
 
-        public static DomainResult<UserPendingChange> Create(UserId userId, UserChange userChange)
+        public static Result<UserPendingChange> Create(UserId userId, UserChange userChange)
         {
             if (userId is null)
-                return DomainResult<UserPendingChange>.Failure(UserError.Empty(nameof(userId), nameof(UserPendingChange)));
+                return Result<UserPendingChange>.Failure(UserErrors.IdentifierError.EmptyIdentifier<UserPendingChange>());
 
             if(userChange is null)
-                return DomainResult<UserPendingChange>.Failure(UserError.Empty(nameof(userChange), nameof(UserPendingChange)));
+                return Result<UserPendingChange>.Failure(UserErrors.IdentifierError.EmptyIdentifier<UserPendingChange>());
 
             var pendingChange = new UserPendingChange(
                 UserPendingChangeId.CreateUnique(), 
@@ -67,7 +68,7 @@ namespace Authorization.Domain.UsersPendingChange
                 )
             );
 
-            return DomainResult<UserPendingChange>.Success(pendingChange);
+            return Result<UserPendingChange>.Success(pendingChange);
         }
         #endregion
 
@@ -104,21 +105,17 @@ namespace Authorization.Domain.UsersPendingChange
             ChangeStatus changeStatus,
             DateTimeOffset createdAt)
         {
-            if (userPendingChangeId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(userPendingChangeId));
-
-            if(userId is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(userId));
-
-            if (confirmationToken is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(confirmationToken));
-
-            if (userChange is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChange>(nameof(userChange));
+            DomainGuard.AgainstNull<UserPendingChange>(
+                (userPendingChangeId, nameof(userPendingChangeId)),
+                (userId, nameof(userId)),
+                (confirmationToken, nameof(confirmationToken)),
+                (userChange, nameof(userChange))
+            );
 
             if (expiresAt <= createdAt)
-                throw DomainDataInconsistencyException.ConsistencyViolation<UserPendingChange>(
-                    new Dictionary<string, object>
+                throw DomainInvariantViolationException.BrokenState<UserPendingChange>(
+                    $"End time '{nameof(expiresAt)}' cannot be less than creation time '{nameof(createdAt)}'",
+                    new Dictionary<string, object?>
                     {
                         ["expiresAt"] = expiresAt,
                         ["createdAt"] = createdAt
@@ -132,18 +129,18 @@ namespace Authorization.Domain.UsersPendingChange
         #endregion
 
         #region Behavior
-        public DomainResult ConfirmChange(DateTimeOffset confirmationTime)
+        public Result ConfirmChange(DateTimeOffset confirmationTime)
         {
             if (Status == ChangeStatus.Confirmed)
-                return DomainResult.Failure(UserError.NoChangesDetected("Change already confirmed!"));
+                return Result.Failure(UserErrors.GeneralError.AlreadyConfirmed<UserPendingChange>());
 
             if(Status == ChangeStatus.Expired)
-                return DomainResult.Failure(UserError.NoChangesDetected("Change already expired!"));
+                return Result.Failure(UserErrors.GeneralError.OperationIsNotAllowed<UserPendingChange>("Change already expired!"));
 
             Status = ChangeStatus.Confirmed;
             ConfirmationTime = confirmationTime;
 
-            return DomainResult.Success();
+            return Result.Success();
         }
 
         public void MarkAsExpired(DateTimeOffset now)
@@ -167,54 +164,28 @@ namespace Authorization.Domain.UsersPendingChange
             DateTimeOffset? expiredAt)
         {
             if (!Enum.IsDefined(changeStatus))
+                throw DomainDataInconsistencyException.UnsupportedDiscriminator<UserPendingChange>(nameof(changeStatus), changeStatus.ToString());
+
+            bool isValidState = (changeStatus, confirmationTime, expiredAt) switch
             {
-                throw DomainDataInconsistencyException.UnsupportedDiscriminator<UserPendingChange>(
-                    changeStatus.ToString()
+                (ChangeStatus.Active, null, null) => true,
+                (ChangeStatus.Confirmed, not null, null) => true,
+                (ChangeStatus.Expired, null, not null) => true,
+                _ => false
+            };
+
+            if (!isValidState)
+            {
+                throw DomainInvariantViolationException.BrokenState<UserPendingChange>(
+                    $"Dates conflict. ConfirmationTime: {confirmationTime?.ToString() ?? "null"}, ExpiredAt: {expiredAt?.ToString() ?? "null"}",
+                    new Dictionary<string, object?>
+                    {
+                        ["Id"] = userPendingChangeId,
+                        ["ChangeStatus"] = changeStatus,
+                        ["ConfirmationTime"] = confirmationTime,
+                        ["ExpiredAt"] = expiredAt
+                    }
                 );
-            }
-
-            switch (changeStatus)
-            {
-                case ChangeStatus.Active:
-                    if (confirmationTime is not null)
-                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
-                            nameof(confirmationTime),
-                            value: confirmationTime.ToString()
-                        );
-
-                    if (expiredAt is not null)
-                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
-                            nameof(expiredAt),
-                            value: expiredAt.ToString()
-                        );
-                    break;
-
-                case ChangeStatus.Confirmed:
-                    if (confirmationTime is null)
-                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
-                            nameof(confirmationTime),
-                            value: confirmationTime.ToString()
-                        );
-
-                    if (expiredAt is not null)
-                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
-                            nameof(expiredAt),
-                            value: expiredAt.ToString()
-                        );
-                    break;
-
-                case ChangeStatus.Expired:
-                    if (confirmationTime is not null)
-                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
-                            nameof(confirmationTime),
-                            value: confirmationTime.ToString()
-                        );
-
-                    if (expiredAt is null)
-                        throw DomainDataInconsistencyException.InvalidValue<UserPendingChange>(
-                            nameof(expiredAt)
-                        );
-                    break;
             }
         }
         #endregion

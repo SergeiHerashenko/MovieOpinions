@@ -6,15 +6,18 @@ namespace Authorization.Application.Features.Authentication.Registration
     {
         public RegistrationNextStep NextStep { get; private set; }
 
-        public string Message { get; private set; } = string.Empty;
+        public string RegistrationToken { get; private set; }
 
-        private RegistrationResult(RegistrationNextStep registrationNextStep, string message)
+        public string Message { get; private set; }
+
+        private RegistrationResult(RegistrationNextStep registrationNextStep, string registrationToken, string message)
         {
             NextStep = registrationNextStep;
             Message = message;
+            RegistrationToken = registrationToken;
         }
 
-        public static RegistrationResult Success(RegistrationNextStep registrationNextStep, string message) 
-            => new(registrationNextStep, message);
+        public static RegistrationResult Success(RegistrationNextStep registrationNextStep, string registrationToken, string message) 
+            => new(registrationNextStep, registrationToken, message);
     }
 }

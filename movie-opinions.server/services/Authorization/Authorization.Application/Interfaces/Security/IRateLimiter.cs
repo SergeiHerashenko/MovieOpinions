@@ -1,10 +1,10 @@
 ﻿using Authorization.Application.Common.Enums;
-using Authorization.Application.Result;
+using Authorization.Domain.Results;
 
 namespace Authorization.Application.Interfaces.Security
 {
     public interface IRateLimiter
     {
-        Task<ApplicationResult> EnsureAllowedAsync(RateLimitAction action, string ip, string login, CancellationToken cancellationToken = default);
+        Task<Result> EnsureAllowedAsync(RateLimitAction action, string ip, string login, CancellationToken cancellationToken = default);
     }
 }

@@ -30,9 +30,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             {
                 var sql = @"
                             INSERT INTO 
-                                User_Pending_Registration (id, login_user, login_type, country_code, password_hash, created_at, expires_at) 
+                                User_Pending_Registration (id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at) 
                             VALUES
-                                (@Id, @LoginUser, @LoginType, @CountryCode, @Password, @CreatedAt, @ExpiresAt)
+                                (@Id, @LoginUser, @LoginType, @CountryCode, @Password, @RegistrationToken, @CreatedAt, @ExpiresAt)
                             RETURNING * ;";
 
                 await using (var insertUserCommand = new NpgsqlCommand(sql, conn))
@@ -80,6 +80,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 User_Pending_Registration 
                             SET  
                                 password_hash = @Password,
+                                registration_token = @RegistrationToken,
                                 expires_at = @ExpiresAt 
                             WHERE 
                                 login_user = @LoginUser 
@@ -89,6 +90,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                 {
                     updateUserCommand.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar){ Value = entity.Login.Value });
                     updateUserCommand.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.HashPassword });
+                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.RegistrationToken.Value });
                     updateUserCommand.Parameters.Add(new NpgsqlParameter("@ExpiresAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.ExpiresAt });
 
                     await using (var readerUpdateUserCommand = await updateUserCommand.ExecuteReaderAsync(ct))
@@ -175,7 +177,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             {
                 var sql = @"
                             SELECT 
-                                id, login_user, login_type, country_code, password_hash, created_at, expires_at 
+                                id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at 
                             FROM 
                                 User_Pending_Registration 
                             WHERE 
@@ -191,6 +193,38 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                         {
                             var ords = new UserPendingRegistrationOrdinals(readerGetUserByLoginCommand);
                             var userEntity = MapReaderToUser(readerGetUserByLoginCommand, ords);
+
+                            return userEntity;
+                        }
+                    }
+                }
+
+                return null;
+            }, cancellationToken);
+        }
+
+        public async Task<UserPendingRegistration?> GetByTokenAsync(RegistrationToken registrationToken, CancellationToken cancellationToken = default)
+        {
+            return await ExecuteWithConnectionAsync(async (conn, ct) =>
+            {
+                var sql = @"
+                            SELECT 
+                                id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at 
+                            FROM 
+                                User_Pending_Registration 
+                            WHERE 
+                                registration_token = @RegistrationToken;";
+
+                await using (var getUserByTokenCommand = new NpgsqlCommand(sql, conn))
+                {
+                    getUserByTokenCommand.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = registrationToken.Value });
+
+                    await using (var readerGetUserByTokenCommand = await getUserByTokenCommand.ExecuteReaderAsync(ct))
+                    {
+                        if (await readerGetUserByTokenCommand.ReadAsync(ct))
+                        {
+                            var ords = new UserPendingRegistrationOrdinals(readerGetUserByTokenCommand);
+                            var userEntity = MapReaderToUser(readerGetUserByTokenCommand, ords);
 
                             return userEntity;
                         }
@@ -233,10 +267,12 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
 
             var password = Password.Restore(reader.GetString(ords.PasswordHash));
 
+            var registrationToken = RegistrationToken.Restore(reader.GetString(ords.RegistrationToken));
+
             var expiresAt = reader.GetFieldValue<DateTimeOffset>(ords.ExpiresAt);
             var createdAt = reader.GetFieldValue<DateTimeOffset>(ords.CreatedAt);
 
-            return UserPendingRegistration.Restore(id, login, password, createdAt, expiresAt);
+            return UserPendingRegistration.Restore(id, login, password, registrationToken, createdAt, expiresAt);
         }
 
         private Login RestorePhoneLogin(NpgsqlDataReader reader, int countryOrd, string fullNumber)
@@ -275,6 +311,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                 }
             });
             command.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.HashPassword });
+            command.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.RegistrationToken.Value });
             command.Parameters.Add(new NpgsqlParameter("@CreatedAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.CreatedAt });
             command.Parameters.Add(new NpgsqlParameter("@ExpiresAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.ExpiresAt });
         }
@@ -291,6 +328,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
 
             public int PasswordHash { get; }
 
+            public int RegistrationToken { get; }
+
             public int ExpiresAt { get; }
 
             public int CreatedAt { get; }
@@ -302,6 +341,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                 LoginUser = reader.GetOrdinal("login_user");
                 CountryCode = reader.GetOrdinal("country_code");
                 PasswordHash = reader.GetOrdinal("password_hash");
+                RegistrationToken = reader.GetOrdinal("registration_token");
                 ExpiresAt = reader.GetOrdinal("expires_at");
                 CreatedAt = reader.GetOrdinal("created_at");
             }

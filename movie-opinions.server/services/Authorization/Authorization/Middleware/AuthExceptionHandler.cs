@@ -1,9 +1,7 @@
-﻿using Authorization.Application.Common.Exceptions;
-using Authorization.Application.Interfaces.Context;
+﻿using Authorization.Application.Interfaces.Context;
 using Authorization.Application.Interfaces.Localization;
 using Authorization.Domain.Common.Exceptions;
 using Authorization.ErrorHandling;
-using Authorization.Infrastructure.Exceptions;
 using Authorization.Response;
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -63,9 +61,7 @@ namespace Authorization.Middleware
         {
             return exception switch
             {
-                BaseDomainException ex => ex.ErrorCode,
-                BaseApplicationException ex => ex.Message,
-                BaseInfrastructureException ex => ex.Message,
+                BaseException ex => ex.ErrorCode,
                 _ => "INTERNAL_ERROR"
             };
         }

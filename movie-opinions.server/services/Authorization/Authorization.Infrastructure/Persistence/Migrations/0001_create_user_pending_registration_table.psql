@@ -1,12 +1,13 @@
 ﻿-- 1. Створення таблиці
 CREATE TABLE IF NOT EXISTS user_pending_registration(
-	id				UUID			NOT NULL,
-	login_user		VARCHAR(255)	NOT NULL,
-	login_type		VARCHAR(50)		NOT NULL,
-	country_code	VARCHAR(10)		NULL,
-	password_hash	VARCHAR(550)	NOT NULL,
-	created_at		TIMESTAMPTZ		NOT NULL,
-	expires_at		TIMESTAMPTZ		NOT NULL,
+	id					UUID			NOT NULL,
+	login_user			VARCHAR(255)	NOT NULL,
+	login_type			VARCHAR(50)		NOT NULL,
+	country_code		VARCHAR(10)		NULL,
+	password_hash		VARCHAR(550)	NOT NULL,
+	registration_token	VARCHAR(550)	NOT NULL,
+	created_at			TIMESTAMPTZ		NOT NULL,
+	expires_at			TIMESTAMPTZ		NOT NULL,
 
 	CONSTRAINT pk_user_pending_registration PRIMARY KEY (id)
 );

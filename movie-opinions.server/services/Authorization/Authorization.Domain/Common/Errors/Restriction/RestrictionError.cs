@@ -2,22 +2,22 @@
 {
     public static class RestrictionError
     {
-        public static Error Empty(string fieldName, string entityName)
-            => new(ErrorCodes.RestrictionError.EmptyValue,
-                   $"It is impossible to create an empty rule. Field {fieldName}. Entity {entityName}!",
+        public static Error Empty<TValue>(string fieldName)
+            => new(DomainErrorCodes.RestrictionRuleErrorCode.EmptyValue,
+                   $"It is impossible to create an empty rule. Field {fieldName}. Owner {typeof(TValue).Name}!",
                    ErrorType.EmptyValue
             );
 
-        public static Error NotEnoughDays
-            => new(ErrorCodes.RestrictionError.ShortDay,
-                   "Restriction duration must be greater than zero",
-                   ErrorType.BusinessRuleViolation
+        public static Error NotEnoughDays<TValue>()
+            => new(DomainErrorCodes.RestrictionRuleErrorCode.ShortDay,
+                   $"Restriction duration must be greater than zero. Owner {typeof(TValue).Name}!",
+                   ErrorType.PolicyViolation
             );
 
-        public static Error WrongTime
-            => new(ErrorCodes.RestrictionError.InvalidTime,
-                   "The time of lifting the restriction cannot be earlier than the restriction itself!",
-                   ErrorType.BusinessRuleViolation
+        public static Error WrongTime<TValue>()
+            => new(DomainErrorCodes.RestrictionRuleErrorCode.InvalidTime,
+                   $"The time of lifting the restriction cannot be earlier than the restriction itself. Owner {typeof(TValue).Name}!",
+                   ErrorType.PolicyViolation
             );
     }
 }

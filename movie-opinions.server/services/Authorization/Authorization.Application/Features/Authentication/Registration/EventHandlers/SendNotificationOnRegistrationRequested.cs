@@ -1,5 +1,6 @@
 ﻿using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
+using Authorization.Application.Common.Exceptions;
 using Authorization.Application.DTOs.Communication;
 using Authorization.Application.Interfaces.Communication;
 using Authorization.Domain.DomainEvents.UserPendingRegistration;

@@ -1,6 +1,7 @@
 ﻿using Authorization.Domain.Common.Errors.Restriction;
-using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validations;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.UsersRestriction.ValueObjects;
@@ -30,17 +31,17 @@ namespace Authorization.Domain.UsersRestriction
             TotalBlockedDays = totalBlockedDays;
         }
 
-        public static DomainResult<UserRestrictionSession> Create(
+        public static Result<UserRestrictionSession> Create(
             UserId userId,
             IEnumerable<UserRestriction> userRestrictions)
         {
             if (userId is null)
-                return DomainResult<UserRestrictionSession>.Failure(RestrictionError.Empty(nameof(userId), nameof(UserRestrictionSession)));
+                return Result<UserRestrictionSession>.Failure(RestrictionError.Empty<UserRestrictionSession>(nameof(userId)));
 
             var restrictions = userRestrictions.ToList();
 
             if (!userRestrictions.Any())
-                return DomainResult<UserRestrictionSession>.Failure(RestrictionError.Empty(nameof(userRestrictions), nameof(UserRestrictionSession)));
+                return Result<UserRestrictionSession>.Failure(RestrictionError.Empty<UserRestrictionSession>(nameof(userRestrictions)));
 
             var activeRestrictionsIds = restrictions
                 .Select(r => r.Id)
@@ -49,7 +50,7 @@ namespace Authorization.Domain.UsersRestriction
             var totalBlockedDays = userRestrictions
                 .Sum(r => r.RestrictionRule.DurationDay);
 
-            return DomainResult<UserRestrictionSession>.Success(
+            return Result<UserRestrictionSession>.Success(
                 new UserRestrictionSession(
                     UserRestrictionSessionId.CreateUnique(),
                     userId,
@@ -81,27 +82,26 @@ namespace Authorization.Domain.UsersRestriction
             int totalBlockedDays,
             DateTimeOffset createdAt)
         {
-            GuardNotNull<UserRestrictionSessionId>(userRestrictionSessionId, nameof(userRestrictionSessionId));
-            GuardNotNull<UserId>(userId, nameof(userId));
-            GuardNotNull<List<UserRestrictionId>>(userRestrictionIds, nameof(userRestrictionIds));
+            DomainGuard.AgainstNull<UserRestrictionSession>(
+                (userRestrictionSessionId, nameof(userRestrictionSessionId)),
+                (userId, nameof(userId)),
+                (userRestrictionIds, nameof(userRestrictionIds))
+            );
 
             if(totalBlockedDays < 0)
-                throw DomainDataInconsistencyException.InvalidValue<UserRestrictionSession>(
-                    nameof(totalBlockedDays),
-                    value: totalBlockedDays
-                );
+                throw DomainDataInconsistencyException.ValueOutOfRange<UserRestrictionSession>(nameof(totalBlockedDays), totalBlockedDays);
 
             return new UserRestrictionSession(userRestrictionSessionId, userId, userRestrictionIds, totalBlockedDays, createdAt);
         }
         #endregion
 
         #region Behavior
-        public DomainResult Refresh(IEnumerable<UserRestriction> restrictions, DateTimeOffset now)
+        public Result Refresh(IEnumerable<UserRestriction> restrictions, DateTimeOffset now)
         {
             var list = restrictions.ToList();
 
             if (!list.Any())
-                return DomainResult.Failure(RestrictionError.Empty(nameof(restrictions), nameof(UserRestrictionSession)));
+                return Result.Failure(RestrictionError.Empty<UserRestriction>(nameof(restrictions)));
 
             var active = list
                 .Where(r => r.IsActive(now))
@@ -112,18 +112,7 @@ namespace Authorization.Domain.UsersRestriction
 
             TotalBlockedDays = active.Sum(r => r.RestrictionRule.DurationDay);
 
-            return DomainResult.Success();
-        }
-        #endregion
-
-        #region Guard
-        private static void GuardNotNull<T>(object? value, string field)
-            where T : class
-        {
-            if (value is null)
-                throw DomainDataInconsistencyException.EmptyOnRestore<T>(
-                    field
-                );
+            return Result.Success();
         }
         #endregion
     }

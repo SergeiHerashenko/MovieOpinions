@@ -1,12 +1,12 @@
 ﻿using Authorization.Application.Features.Authentication.Registration.Enums;
-using Authorization.Application.Result;
+using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.Users.ValueObjects.PhoneUser;
 using MediatR;
 
 namespace Authorization.Application.Features.Authentication.Registration.Phones
 {
-    public class RegistrationWithPhoneCommandHandler : IRequestHandler<RegistrationWithPhoneCommand, ApplicationResult<RegistrationResult>>
+    public class RegistrationWithPhoneCommandHandler : IRequestHandler<RegistrationWithPhoneCommand, Result<RegistrationResult>>
     {
         private readonly RegistrationFlowCoordinator _registrationFlowCoordinator;
 
@@ -16,17 +16,17 @@ namespace Authorization.Application.Features.Authentication.Registration.Phones
             _registrationFlowCoordinator = registrationFlowCoordinator;
         }
 
-        public async Task<ApplicationResult<RegistrationResult>> Handle(RegistrationWithPhoneCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<RegistrationResult>> Handle(RegistrationWithPhoneCommand command, CancellationToken cancellationToken = default)
         {
             var countryCode = CountryCode.Create(command.CountryCode);
 
             if (!countryCode.IsSuccess)
-                return ApplicationResult<RegistrationResult>.Failure(countryCode.Error);
+                return Result<RegistrationResult>.Failure(countryCode.Errors);
 
             var phoneResult = Phone.Create(countryCode.Value, command.PhoneNumber);
 
             if (!phoneResult.IsSuccess)
-                return ApplicationResult<RegistrationResult>.Failure(phoneResult.Error);
+                return Result<RegistrationResult>.Failure(phoneResult.Errors);
 
             var login = new PhoneLogin(phoneResult.Value);
 
@@ -37,13 +37,13 @@ namespace Authorization.Application.Features.Authentication.Registration.Phones
             );
 
             if (flowResult.IsFailure)
-                return ApplicationResult<RegistrationResult>.Failure(flowResult.Errors);
+                return Result<RegistrationResult>.Failure(flowResult.Errors);
 
-            return ApplicationResult<RegistrationResult>.Success(
+            return Result<RegistrationResult>.Success(
                 RegistrationResult.Success(
                     RegistrationNextStep.SmsConfirmation,
-                    // TODO: Подумати над фінальним текстом повідомлення
-                    ""
+                    flowResult.Value.RegistrationToken.Value,
+                    "Код підтвердження відправлено у SMS. Якщо код не надійшов протягом хвилини, ви можете запросити його повторно."
                 )
             );
         }

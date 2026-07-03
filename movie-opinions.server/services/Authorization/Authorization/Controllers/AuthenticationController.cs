@@ -1,6 +1,8 @@
-﻿using Authorization.Application.Features.Authentication.Registration.Emails;
+﻿using Authorization.Application.Features.Authentication.ConfirmRegistration;
+using Authorization.Application.Features.Authentication.Registration.Emails;
 using Authorization.Application.Features.Authentication.Registration.Phones;
-using Authorization.Requests;
+using Authorization.Requests.ConfirmRegistration;
+using Authorization.Requests.Registration;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -18,7 +20,9 @@ namespace Authorization.Controllers
 
         [HttpPost("register/email")]
         [EnableRateLimiting("FixedWindowPolicy")]
-        public async Task<IActionResult> RegistrationWithEmail([FromBody] RegistrationWithEmailRequest registrationRequest, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RegistrationWithEmail(
+            [FromBody] RegistrationWithEmailRequest registrationRequest, 
+            CancellationToken cancellationToken = default)
         {
             var command = new RegistrationWithEmailCommand(
                 registrationRequest.Email,
@@ -37,7 +41,9 @@ namespace Authorization.Controllers
 
         [HttpPost("register/phone")]
         [EnableRateLimiting("FixedWindowPolicy")]
-        public async Task<IActionResult> RegistrationWithPhone([FromBody] RegistrationWithPhoneRequest registrationRequest, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RegistrationWithPhone(
+            [FromBody] RegistrationWithPhoneRequest registrationRequest, 
+            CancellationToken cancellationToken = default)
         {
             var command = new RegistrationWithPhoneCommand(
                 registrationRequest.CountryCode,
@@ -48,6 +54,25 @@ namespace Authorization.Controllers
             );
 
             var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+                return BadRequest(result.Errors);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPost("register/confirm-registration")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<IActionResult> RegistrationConfirm(
+            [FromBody] ConfirmRegistrationRequest confirmRegistrationRequest, 
+            CancellationToken cancellationToken = default)
+        {
+            var command = new ConfirmRegistrationCommand(
+                confirmRegistrationRequest.RegistrationToken,
+                confirmRegistrationRequest.VerificationValue
+            );
+
+            var result = await _mediator.Send(command,cancellationToken);
 
             if (result.IsFailure)
                 return BadRequest(result.Errors);

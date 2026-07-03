@@ -1,4 +1,4 @@
-﻿namespace Authorization.Requests
+﻿namespace Authorization.Requests.Registration
 {
     public class RegistrationWithPhoneRequest
     {

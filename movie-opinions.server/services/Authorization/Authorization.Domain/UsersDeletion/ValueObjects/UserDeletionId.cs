@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersDeletion.ValueObjects
@@ -10,7 +10,7 @@ namespace Authorization.Domain.UsersDeletion.ValueObjects
         private UserDeletionId(Guid value)
         {
             if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserDeletionId>(nameof(value));
+                throw DomainDataInconsistencyException.Empty<UserDeletionId>(nameof(value));
 
             Value = value;
         }

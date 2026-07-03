@@ -1,5 +1,5 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
-using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 
@@ -14,21 +14,19 @@ namespace Authorization.Domain.Users.ValueObjects
             HashPassword = hashPassword;
         }
 
-        public static DomainResult<Password> Create(string hashPassword)
+        public static Result<Password> Create(string hashPassword)
         {
             if (string.IsNullOrWhiteSpace(hashPassword))
-                return DomainResult<Password>.Failure(PasswordError.Empty);
+                return Result<Password>.Failure(UserErrors.PasswordError.EmptyPassword<Password>());
 
-            return DomainResult<Password>.Success(new Password(hashPassword));
+            return Result<Password>.Success(new Password(hashPassword));
         }
 
         public static Password Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw DomainDataInconsistencyException.EmptyOnRestore<Password>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<Password>(nameof(value));
             }
 
             return new Password(value);

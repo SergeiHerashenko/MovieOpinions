@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersPendingChange.ValueObjects
@@ -10,9 +10,7 @@ namespace Authorization.Domain.UsersPendingChange.ValueObjects
         private UserPendingChangeId(Guid value)
         {
             if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingChangeId>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<UserPendingChangeId>(nameof(value));
 
             Value = value;
         }

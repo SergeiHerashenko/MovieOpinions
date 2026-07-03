@@ -1,5 +1,5 @@
 ﻿using Authorization.Domain.Common.Errors.TokenError;
-using Authorization.Domain.Common.Exceptions;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 
@@ -16,29 +16,25 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
             Value = value;
         }
 
-        public static DomainResult<IpAddress> Create(string value)
+        public static Result<IpAddress> Create(string value)
         {
             value = Normalize(value);
 
             if (!IsValidIPv4(value))
-                return DomainResult<IpAddress>.Failure(IpError.InvalidFormat($"Invalid IP address: {value}"));
+                return Result<IpAddress>.Failure(IpError.InvalidFormat<IpAddress>(value));
 
-            return DomainResult<IpAddress>.Success(new IpAddress(value));
+            return Result<IpAddress>.Success(new IpAddress(value));
         }
 
         public static IpAddress Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.EmptyOnRestore<IpAddress>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<IpAddress>(nameof(value));
 
             value = Normalize(value);
 
             if (!IsValidIPv4(value))
-                throw DomainDataInconsistencyException.InvalidValue<IpAddress>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.InvalidFieldFormat<IpAddress>(nameof(value), value);
 
             return new IpAddress(value);
         }

@@ -1,9 +1,9 @@
-﻿using Authorization.Application.Result;
+﻿using Authorization.Domain.Results;
 using MediatR;
 
 namespace Authorization.Application.Features.Authentication.Registration.Emails
 {
-    public class RegistrationWithEmailCommand : IRequest<ApplicationResult<RegistrationResult>>
+    public class RegistrationWithEmailCommand : IRequest<Result<RegistrationResult>>
     {
         public string Email { get; }
 

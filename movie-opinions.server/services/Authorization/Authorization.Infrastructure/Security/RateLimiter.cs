@@ -1,7 +1,7 @@
 ﻿using Authorization.Application.Common.Enums;
 using Authorization.Application.Interfaces.Security;
 using Authorization.Application.Options.RateLimit;
-using Authorization.Application.Result;
+using Authorization.Domain.Results;
 using Authorization.Infrastructure.Errors.RateLimiter;
 using Authorization.Infrastructure.Exceptions;
 using Microsoft.Extensions.Caching.Distributed;
@@ -23,7 +23,7 @@ namespace Authorization.Infrastructure.Security
             _options = options.Value;
         }
 
-        public async Task<ApplicationResult> EnsureAllowedAsync(RateLimitAction action, string ip, string login, CancellationToken cancellationToken = default)
+        public async Task<Result> EnsureAllowedAsync(RateLimitAction action, string ip, string identifier, CancellationToken cancellationToken = default)
         {
             if(!_options.Rules.TryGetValue(action, out var config))
             {
@@ -37,7 +37,7 @@ namespace Authorization.Infrastructure.Security
                 );
             }
 
-            var key = BuildKey(action, ip, login);
+            var key = BuildKey(action, ip, identifier);
 
             var currentBytes = await _cache.GetAsync(key, cancellationToken);
 
@@ -47,7 +47,7 @@ namespace Authorization.Infrastructure.Security
 
                 if (attempts >= config.MaxAttempts)
                 {
-                    return ApplicationResult.Failure(RateLimiterErrors.LimitExceeded(action));
+                    return Result.Failure(RateLimiterErrors.LimitExceeded<RateLimiter>(action));
                 }
 
                 attempts++;
@@ -64,12 +64,12 @@ namespace Authorization.Infrastructure.Security
                 }, cancellationToken);
             }
 
-            return ApplicationResult.Success();
+            return Result.Success();
         }
 
-        private static string BuildKey(RateLimitAction action, string ip, string login)
+        private static string BuildKey(RateLimitAction action, string ip, string identifier)
         {
-            return $"rl:{action}:{ip}:{login.ToLowerInvariant()}";
+            return $"rl:{action}:{ip}:{identifier.ToLowerInvariant()}";
         }
     }
 }

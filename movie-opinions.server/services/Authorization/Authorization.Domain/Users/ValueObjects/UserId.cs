@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.Users.ValueObjects
@@ -10,7 +10,7 @@ namespace Authorization.Domain.Users.ValueObjects
         private UserId(Guid value)
         {
             if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserId>(nameof(value));
+                throw DomainDataInconsistencyException.Empty<UserId>(nameof(value));
 
             Value = value;
         }

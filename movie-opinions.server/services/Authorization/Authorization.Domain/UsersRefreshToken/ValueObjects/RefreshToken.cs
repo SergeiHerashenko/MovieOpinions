@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 using System.Security.Cryptography;
 
@@ -22,9 +22,7 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
         public static RefreshToken Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.EmptyOnRestore<RefreshToken>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<RefreshToken>(nameof(value));
 
             return new RefreshToken(value);
         }

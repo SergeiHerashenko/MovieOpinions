@@ -1,9 +1,10 @@
 ﻿using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Exceptions;
 using Authorization.Infrastructure.Errors;
 
 namespace Authorization.Infrastructure.Exceptions
 {
-    public class ReturningNoDataException : BaseInfrastructureException
+    public sealed class ReturningNoDataException : BaseException
     {
         private ReturningNoDataException(
             string errorCode,
@@ -11,7 +12,7 @@ namespace Authorization.Infrastructure.Exceptions
             string message,
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
-            : base(errorCode, errorType, message, context, innerException) { }
+            : base(errorCode, errorType, message, context ?? new Dictionary<string, object>(), innerException) { }
 
         public static ReturningNoDataException NoDataReceived(
             string message,

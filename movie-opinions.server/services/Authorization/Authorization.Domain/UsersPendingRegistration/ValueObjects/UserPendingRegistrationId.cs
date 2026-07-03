@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
@@ -10,9 +10,7 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         private UserPendingRegistrationId(Guid value)
         {
             if(value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserPendingRegistrationId>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<UserPendingRegistrationId>(nameof(value));
 
             Value = value;
         }

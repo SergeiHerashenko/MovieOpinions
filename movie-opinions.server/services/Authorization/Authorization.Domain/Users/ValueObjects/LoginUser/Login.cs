@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Users.ValueObjects.EmailUser;
 using Authorization.Domain.Users.ValueObjects.PhoneUser;
@@ -21,9 +21,7 @@ namespace Authorization.Domain.Users.ValueObjects.LoginUser
             {
                 LoginType.Email => EmailLogin.Restore(value),
                 LoginType.Phone => PhoneLogin.Restore(countryCode!, value),
-                _ => throw DomainDataInconsistencyException.UnsupportedDiscriminator<Login>(
-                    type.ToString()
-                )
+                _ => throw DomainDataInconsistencyException.UnsupportedDiscriminator<Login>(nameof(value), type.ToString())
             };
         }
     }

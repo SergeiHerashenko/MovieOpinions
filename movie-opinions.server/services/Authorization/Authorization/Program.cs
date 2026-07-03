@@ -30,10 +30,16 @@ internal class Program
             Log.Information("Запуск сервісу авторизації...");
 
             // 2. ПЕРЕВІРКА КОНФІГУРАЦІЇ
-            var jwtKey = builder.Configuration["Jwt:Key"];
-            if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
+            var userJwtKey = builder.Configuration["Authentication:UserJwt:Key"];
+            var serviceJwtKey = builder.Configuration["Authentication:ServiceJwt:Key"];
+            if (string.IsNullOrEmpty(userJwtKey) || userJwtKey.Length < 32)
             {
-                throw new InvalidOperationException("JWT Key відсутній або надто короткий (мінімум 32 символи)!");
+                throw new InvalidOperationException("UserJWT Key відсутній або надто короткий (мінімум 32 символи)!");
+            }
+
+            if (string.IsNullOrEmpty(serviceJwtKey) || serviceJwtKey.Length < 32)
+            {
+                throw new InvalidOperationException("ServiceJwt Key відсутній або надто короткий (мінімум 32 символи)!");
             }
 
             // 3. КОРС (CORS)
@@ -120,7 +126,7 @@ internal class Program
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(userJwtKey)),
                     ClockSkew = TimeSpan.Zero
                 };
 

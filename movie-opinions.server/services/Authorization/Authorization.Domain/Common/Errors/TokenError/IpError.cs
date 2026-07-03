@@ -2,9 +2,9 @@
 {
     public static class IpError
     {
-        public static Error InvalidFormat(string message)
-            => new(ErrorCodes.IpError.InvalidFormat,
-                   message,
+        public static Error InvalidFormat<TValue>(string value)
+            => new(DomainErrorCodes.IpErrorCode.InvalidFormat,
+                   $"Invalid IP address: {value}",
                    ErrorType.Validation
             );
     }

@@ -9,5 +9,7 @@
         Update,
 
         Delete,
+
+        Reading
     }
 }

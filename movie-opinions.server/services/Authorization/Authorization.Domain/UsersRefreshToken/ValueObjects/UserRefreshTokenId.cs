@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersRefreshToken.ValueObjects
@@ -10,9 +10,7 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
         private UserRefreshTokenId(Guid value)
         {
             if (value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserRefreshTokenId>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<UserRefreshTokenId>(nameof(value));
 
             Value = value;
         }

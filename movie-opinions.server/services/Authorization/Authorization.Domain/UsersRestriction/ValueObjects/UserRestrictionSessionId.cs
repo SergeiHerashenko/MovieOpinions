@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersRestriction.ValueObjects
@@ -10,9 +10,7 @@ namespace Authorization.Domain.UsersRestriction.ValueObjects
         private UserRestrictionSessionId(Guid value)
         {
             if(value == Guid.Empty)
-                throw DomainDataInconsistencyException.EmptyOnRestore<UserRestrictionSessionId>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<UserRestrictionSessionId>(nameof(value));
 
             Value = value;
         }

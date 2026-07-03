@@ -1,12 +1,12 @@
 ﻿using Authorization.Application.Features.Authentication.Registration.Enums;
-using Authorization.Application.Result;
+using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects.EmailUser;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using MediatR;
 
 namespace Authorization.Application.Features.Authentication.Registration.Emails
 {
-    public class RegistrationWithEmailCommandHandler : IRequestHandler<RegistrationWithEmailCommand, ApplicationResult<RegistrationResult>>
+    public class RegistrationWithEmailCommandHandler : IRequestHandler<RegistrationWithEmailCommand, Result<RegistrationResult>>
     {
         private readonly RegistrationFlowCoordinator _registrationFlowCoordinator;
 
@@ -16,12 +16,12 @@ namespace Authorization.Application.Features.Authentication.Registration.Emails
             _registrationFlowCoordinator = registrationFlowCoordinator;
         }
 
-        public async Task<ApplicationResult<RegistrationResult>> Handle(RegistrationWithEmailCommand command, CancellationToken cancellationToken)
+        public async Task<Result<RegistrationResult>> Handle(RegistrationWithEmailCommand command, CancellationToken cancellationToken)
         {
             var emailResult = Email.Create(command.Email);
 
             if (!emailResult.IsSuccess)
-                return ApplicationResult<RegistrationResult>.Failure(emailResult.Error);
+                return Result<RegistrationResult>.Failure(emailResult.Errors);
 
             var login = new EmailLogin(emailResult.Value);
 
@@ -32,13 +32,13 @@ namespace Authorization.Application.Features.Authentication.Registration.Emails
             );
 
             if (flowResult.IsFailure)
-                return ApplicationResult<RegistrationResult>.Failure(flowResult.Errors);
+                return Result<RegistrationResult>.Failure(flowResult.Errors);
 
-            return ApplicationResult<RegistrationResult>.Success(
+            return Result<RegistrationResult>.Success(
                 RegistrationResult.Success(
                     RegistrationNextStep.EmailConfirmation,
-                    // TODO заглушка повідомлення, перевірити потім 
-                    "Для завершення реєстрації будь-ласка перевірте пошту"
+                    flowResult.Value.RegistrationToken.Value,
+                    "Лист підтвердження відправлено на вашу пошту. Будь ласка, перевірте скриньку (та папку 'Спам', якщо листа немає в 'Вхідних')."
                 )
             );
         }

@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions;
+﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 using System.Security.Cryptography;
 
@@ -22,9 +22,7 @@ namespace Authorization.Domain.UsersPendingChange.ValueObjects
         public static ConfirmationToken Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.EmptyOnRestore<ConfirmationToken>(
-                    nameof(value)
-                );
+                throw DomainDataInconsistencyException.Empty<ConfirmationToken>(nameof(value));
 
             return new ConfirmationToken(value);
         }
