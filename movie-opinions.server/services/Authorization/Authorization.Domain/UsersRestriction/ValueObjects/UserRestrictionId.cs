@@ -17,7 +17,7 @@ namespace Authorization.Domain.UsersRestriction.ValueObjects
 
         public static UserRestrictionId CreateUnique()
         {
-            return new(Guid.NewGuid());
+            return new(Guid.CreateVersion7());
         }
 
         public static UserRestrictionId Restore(Guid value)

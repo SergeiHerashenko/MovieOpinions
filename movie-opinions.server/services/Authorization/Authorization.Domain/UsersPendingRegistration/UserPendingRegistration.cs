@@ -13,6 +13,8 @@ namespace Authorization.Domain.UsersPendingRegistration
     {
         private static readonly TimeSpan ExpirationTime = TimeSpan.FromHours(12);
 
+        public UserId UserId { get; private set; }
+
         public Login Login { get; private set; }
 
         public Password Password { get; private set; }
@@ -23,12 +25,14 @@ namespace Authorization.Domain.UsersPendingRegistration
 
         #region Creation
         private UserPendingRegistration(
-            UserPendingRegistrationId userPendingRegistrationId, 
+            UserPendingRegistrationId userPendingRegistrationId,
+            UserId userId,
             Login login, 
             Password password,
             RegistrationToken registrationToken)
             : base(userPendingRegistrationId)
         {
+            UserId = userId;
             Login = login;
             Password = password;
             RegistrationToken = registrationToken;
@@ -43,7 +47,13 @@ namespace Authorization.Domain.UsersPendingRegistration
             if(password is null)
                 return Result<UserPendingRegistration>.Failure(UserErrors.PasswordError.EmptyPassword<UserPendingRegistration>());
             
-            var userRendingRegistration = new UserPendingRegistration(UserPendingRegistrationId.CreateUnique(), login, password, RegistrationToken.CreateUnique());
+            var userRendingRegistration = new UserPendingRegistration(
+                UserPendingRegistrationId.CreateUnique(),
+                UserId.CreateUnique(),
+                login, 
+                password, 
+                RegistrationToken.CreateUnique()
+            );
 
             userRendingRegistration.AddDomainEvent(
                 new UserPendingRegistrationRequestedEvent(
@@ -60,6 +70,7 @@ namespace Authorization.Domain.UsersPendingRegistration
         #region Restore
         private UserPendingRegistration(
             UserPendingRegistrationId userPendingRegistrationId,
+            UserId userId,
             Login login,
             Password password,
             RegistrationToken registrationToken,
@@ -67,6 +78,7 @@ namespace Authorization.Domain.UsersPendingRegistration
             DateTimeOffset expiresAt)
             : base(userPendingRegistrationId, createdAt)
         {
+            UserId = userId;
             Login = login;
             Password = password;
             RegistrationToken = registrationToken;
@@ -75,6 +87,7 @@ namespace Authorization.Domain.UsersPendingRegistration
 
         public static UserPendingRegistration Restore(
             UserPendingRegistrationId userPendingRegistrationId,
+            UserId userId,
             Login login,
             Password password,
             RegistrationToken registrationToken,
@@ -87,7 +100,7 @@ namespace Authorization.Domain.UsersPendingRegistration
                 (registrationToken, nameof(registrationToken))
             );
 
-            return new UserPendingRegistration(userPendingRegistrationId, login, password, registrationToken, createdAt, expiresAt);
+            return new UserPendingRegistration(userPendingRegistrationId, userId, login, password, registrationToken, createdAt, expiresAt);
         }
         #endregion
 

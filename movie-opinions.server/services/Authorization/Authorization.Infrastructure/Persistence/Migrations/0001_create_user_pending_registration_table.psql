@@ -1,6 +1,7 @@
 ﻿-- 1. Створення таблиці
 CREATE TABLE IF NOT EXISTS user_pending_registration(
 	id					UUID			NOT NULL,
+	user_id				UUID			NOT NULL,
 	login_user			VARCHAR(255)	NOT NULL,
 	login_type			VARCHAR(50)		NOT NULL,
 	country_code		VARCHAR(10)		NULL,

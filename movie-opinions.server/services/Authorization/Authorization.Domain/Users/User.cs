@@ -7,6 +7,7 @@ using Authorization.Domain.Results;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
+using Authorization.Domain.UsersRefreshToken.ValueObjects;
 
 namespace Authorization.Domain.Users
 {
@@ -22,7 +23,7 @@ namespace Authorization.Domain.Users
 
         public DateTimeOffset? LastLoginAt { get; private set; }
 
-        public string? LastLoginIp { get; private set; }
+        public IpAddress LastLoginIp { get; private set; }
 
         public bool IsLoginConfirmed { get; private set; }
 
@@ -35,21 +36,21 @@ namespace Authorization.Domain.Users
         private const int MaxFailedAttempts = 3;
 
         #region Creation
-        private User(UserId userId, Login login, Password password, Role role) : base(userId)
+        private User(UserId userId, Login login, Password password, Role role, IpAddress ipAddress) : base(userId)
         {
             Login = login;
             Password = password;
             Role = role;
             UpdatedAt = null;
             LastLoginAt = null;
-            LastLoginIp = null;
+            LastLoginIp = ipAddress;
             IsLoginConfirmed = false;
             FailedLoginAttempts = 0;
             IsBlocked = false;
             IsDeleted = false;
         }
 
-        public static Result<User> Create(Login login, Password password, Role role)
+        public static Result<User> Create(Login login, Password password, Role role, IpAddress ipAddress)
         {
             if (login is null)
                 return Result<User>.Failure(UserErrors.LoginError.EmptyLogin<User>());
@@ -62,7 +63,7 @@ namespace Authorization.Domain.Users
                 return Result<User>.Failure(UserErrors.GeneralError.OperationIsNotAllowed<User>("User creation rejected due to invalid role!"));
             }
 
-            var user = new User(UserId.CreateUnique(), login, password, role);
+            var user = new User(UserId.CreateUnique(), login, password, role, ipAddress);
 
             user.AddDomainEvent(
                 new UserRegisteredEvent(user.Id, user.Login, user.CreatedAt)
@@ -81,7 +82,7 @@ namespace Authorization.Domain.Users
             Role role,
             DateTimeOffset? updateAt,
             DateTimeOffset? lastLoginAt,
-            string? lastLoginIp,
+            IpAddress lastLoginIp,
             bool isConfirmed,
             int failedLoginAttempts,
             bool isBlocked,
@@ -108,7 +109,7 @@ namespace Authorization.Domain.Users
             Role role,
             DateTimeOffset? updateAt,
             DateTimeOffset? lastLoginAt,
-            string? lastLoginIp,
+            IpAddress lastLoginIp,
             bool isConfirmed,
             int failedLoginAttempts,
             bool isBlocked,
@@ -247,7 +248,7 @@ namespace Authorization.Domain.Users
             return Result.Success();
         }
 
-        public Result LoginSuccess(string ip, DateTimeOffset loginTime)
+        public Result LoginSuccess(IpAddress ip, DateTimeOffset loginTime)
         {
             var access = ProvideAccess();
 

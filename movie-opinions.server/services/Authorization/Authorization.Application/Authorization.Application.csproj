@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -9,17 +9,15 @@
   <ItemGroup>
     <Folder Include="Features\Authentication\Login\" />
     <Folder Include="Features\Authentication\Logout\" />
-    <Folder Include="Features\Authentication\ConfirmRegistration\" />
     <Folder Include="Features\Authentication\Registration\PostRegistration\Step\" />
-    <Folder Include="Interfaces\Security\JWT\" />
     <Folder Include="Interfaces\System\" />
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="MediatR" Version="14.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

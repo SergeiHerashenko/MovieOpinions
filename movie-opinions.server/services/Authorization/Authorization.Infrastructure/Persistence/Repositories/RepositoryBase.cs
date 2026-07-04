@@ -40,5 +40,26 @@ namespace Authorization.Infrastructure.Persistence.Repositories
                 );
             }
         }
+
+        protected async Task ExecuteWithConnectionAsync(
+            Func<NpgsqlConnection, CancellationToken, Task> action,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await using var connection = await _dbConnectionProvider.GetOpenConnectionAsync(cancellationToken);
+
+                await action(connection, cancellationToken);
+            }
+            catch (NpgsqlException ex)
+            {
+                _logger.LogCritical(ex, "Критична помилка Postgres: {State}", ex.SqlState);
+
+                throw DatabaseOperationException.NoConnection(
+                    message: "Помилка бази даних",
+                    innerException: ex
+                );
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Authorization.Domain.UsersPendingChange.ValueObjects
 
         public static UserPendingChangeId CreateUnique()
         {
-            return new(Guid.NewGuid());
+            return new(Guid.CreateVersion7());
         }
 
         public static UserPendingChangeId Restore(Guid value)

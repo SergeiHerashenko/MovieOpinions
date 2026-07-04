@@ -1,33 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Persistence\Migrations\0002_create_user_account_table.psql" />
+    <None Remove="Persistence\Migrations\0003_create_user_refresh_token_table.psql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Persistence\Migrations\0001_create_user_pending_registration_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0002_create_user_account_table.psql" />
+    <EmbeddedResource Include="Persistence\Migrations\0003_create_user_refresh_token_table.psql" />
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
-	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />
-	<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-	<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
-	<PackageReference Include="Npgsql" Version="10.0.3" />
-	<PackageReference Include="Polly" Version="8.7.0" />
-	<PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.0.0" />
+	<PackageReference Include="BCrypt.Net-Next" />
+	<PackageReference Include="Polly" />
+	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+
+	<PackageReference Include="Npgsql" />
+	  
+	<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+	<PackageReference Include="Microsoft.Extensions.Options" />
+	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+	<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+	<PackageReference Include="Microsoft.Extensions.Http" />
+	
+	<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+	
+	<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+	
+	<PackageReference Include="UAParser" />
   </ItemGroup>
 
   <ItemGroup>

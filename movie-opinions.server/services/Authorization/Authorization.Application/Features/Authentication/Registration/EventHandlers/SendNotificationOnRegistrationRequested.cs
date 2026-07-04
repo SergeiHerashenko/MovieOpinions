@@ -1,6 +1,5 @@
 ﻿using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
-using Authorization.Application.Common.Exceptions;
 using Authorization.Application.DTOs.Communication;
 using Authorization.Application.Interfaces.Communication;
 using Authorization.Domain.DomainEvents.UserPendingRegistration;
@@ -28,12 +27,7 @@ namespace Authorization.Application.Features.Authentication.Registration.EventHa
                 ? CommunicationChannel.Email
                 : CommunicationChannel.Phone;
 
-            var notificationCommand = new NotificationCommand
-            {
-                Recipient = domainEvent.Login.Value,
-                Action = MessageActions.Registration,
-                Channel = channel
-            };
+            var notificationCommand = NotificationCommand.Create(domainEvent.Login.Value, MessageActions.Registration, channel);
 
             await _notificationSender.SendCreateNotificationAsync(notificationCommand);
         }

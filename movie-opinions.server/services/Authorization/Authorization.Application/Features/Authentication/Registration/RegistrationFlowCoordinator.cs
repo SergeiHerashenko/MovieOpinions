@@ -8,6 +8,7 @@ using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingRegistration;
+using Authorization.Domain.UsersRefreshToken.ValueObjects;
 
 namespace Authorization.Application.Features.Authentication.Registration
 {
@@ -46,9 +47,11 @@ namespace Authorization.Application.Features.Authentication.Registration
             string rawPassword,
             CancellationToken cancellationToken)
         {
+            var ipAddress = IpAddress.Create(_userContext.GetIpAddress());
+
             var resultLimiter = await _rateLomiter.EnsureAllowedAsync(
                 RateLimitAction.Registration,
-                _userContext.GetIpAddress(),
+                ipAddress.Value,
                 login.Value,
                 cancellationToken
             );

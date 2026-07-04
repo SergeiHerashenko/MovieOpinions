@@ -2,6 +2,7 @@
 using Authorization.Application.Interfaces.Security;
 using Authorization.Application.Options.RateLimit;
 using Authorization.Domain.Results;
+using Authorization.Domain.UsersRefreshToken.ValueObjects;
 using Authorization.Infrastructure.Errors.RateLimiter;
 using Authorization.Infrastructure.Exceptions;
 using Microsoft.Extensions.Caching.Distributed;
@@ -23,7 +24,7 @@ namespace Authorization.Infrastructure.Security
             _options = options.Value;
         }
 
-        public async Task<Result> EnsureAllowedAsync(RateLimitAction action, string ip, string identifier, CancellationToken cancellationToken = default)
+        public async Task<Result> EnsureAllowedAsync(RateLimitAction action, IpAddress ip, string identifier, CancellationToken cancellationToken = default)
         {
             if(!_options.Rules.TryGetValue(action, out var config))
             {
@@ -67,9 +68,9 @@ namespace Authorization.Infrastructure.Security
             return Result.Success();
         }
 
-        private static string BuildKey(RateLimitAction action, string ip, string identifier)
+        private static string BuildKey(RateLimitAction action, IpAddress ip, string identifier)
         {
-            return $"rl:{action}:{ip}:{identifier.ToLowerInvariant()}";
+            return $"rl:{action}:{ip.Value}:{identifier.ToLowerInvariant()}";
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Authorization.Domain.Users.ValueObjects.LoginUser;
+using Authorization.Domain.UsersRefreshToken.ValueObjects;
 
 namespace Authorization.Domain.DomainEvents.User
 {
@@ -8,11 +9,11 @@ namespace Authorization.Domain.DomainEvents.User
 
         public Login Login { get; }
 
-        public string IpAddress { get; }
+        public IpAddress IpAddress { get; }
 
         public DateTimeOffset LoginTime { get; }
 
-        public UserLoggedInEvent(Guid userId, Login login, string ipAddress, DateTimeOffset loginTime)
+        public UserLoggedInEvent(Guid userId, Login login, IpAddress ipAddress, DateTimeOffset loginTime)
             : base(loginTime)
         {
             UserId = userId;

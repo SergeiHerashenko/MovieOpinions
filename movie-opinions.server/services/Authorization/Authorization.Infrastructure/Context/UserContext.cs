@@ -1,15 +1,59 @@
 ﻿using Authorization.Application.Interfaces.Context;
+using Authorization.Domain.UsersRefreshToken.ValueObjects;
 using Microsoft.AspNetCore.Http;
+using System.Net;
+using UAParser;
 
 namespace Authorization.Infrastructure.Context
 {
     public class UserContext : IUserContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private static readonly Parser _auParser = Parser.GetDefault();
 
         public UserContext(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        public DeviceInfo DeviceInfo
+        {
+            get
+            {
+                var context = _httpContextAccessor.HttpContext;
+
+                if (context is null)
+                    return DeviceInfo.Create("Unknown", "Unknown", "Unknown", "Unknown").Value;
+
+                var userAgentRaw = context.Request.Headers["User-Agent"].ToString();
+
+                if (string.IsNullOrWhiteSpace(userAgentRaw))
+                    return DeviceInfo.Create("Unknown", "Unknown", "Unknown", "Unknown").Value;
+
+                ClientInfo client = _auParser.Parse(userAgentRaw);
+
+                string browser = client.UA.Family;
+                string os = client.OS.Family;
+
+                string deviceType;
+                string deviceModel;
+
+                if (client.Device.Family == "Other")
+                {
+                    deviceType = "Desktop";
+                    deviceModel = "Desktop";
+                }
+                else
+                {
+                    deviceType = userAgentRaw.Contains("iPad", StringComparison.OrdinalIgnoreCase) ||
+                                 userAgentRaw.Contains("Tablet", StringComparison.OrdinalIgnoreCase)
+                                 ? "Tablet" : "Mobile";
+
+                    deviceModel = client.Device.Model ?? client.Device.Family;
+                }
+
+                return DeviceInfo.Create(deviceType, os, browser, deviceModel).Value;
+            }
         }
 
         public string GetIpAddress()
@@ -54,6 +98,28 @@ namespace Authorization.Infrastructure.Context
             }
 
             return "en";
+        }
+
+        public string? GetLocation()
+        {
+            var context = _httpContextAccessor.HttpContext;
+
+            if(context is null)
+                return null;
+
+            var rawLocation = context.Request.Headers["X-User-City"].FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(rawLocation))
+                return null;
+
+            try
+            {
+                return WebUtility.UrlDecode(rawLocation);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

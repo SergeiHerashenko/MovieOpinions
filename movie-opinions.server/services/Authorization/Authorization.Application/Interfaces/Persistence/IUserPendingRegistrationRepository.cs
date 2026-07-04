@@ -9,5 +9,7 @@ namespace Authorization.Application.Interfaces.Persistence
         Task<UserPendingRegistration?> GetByLoginAsync(Login login, CancellationToken cancellationToken = default); 
 
         Task<UserPendingRegistration?> GetByTokenAsync(RegistrationToken registrationToken, CancellationToken cancellationToken = default);
+
+        Task DeleteExpiredAsync(CancellationToken cancellationToken = default);
     }
 }

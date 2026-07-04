@@ -17,7 +17,7 @@ namespace Authorization.Domain.UsersDeletion.ValueObjects
 
         public static UserDeletionId CreateUnique()
         {
-            return new(Guid.NewGuid());
+            return new(Guid.CreateVersion7());
         }
 
         public static UserDeletionId Restore(Guid value)

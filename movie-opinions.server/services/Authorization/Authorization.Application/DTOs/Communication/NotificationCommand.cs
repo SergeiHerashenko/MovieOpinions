@@ -4,10 +4,23 @@ namespace Authorization.Application.DTOs.Communication
 {
     public class NotificationCommand
     {
-        public required string Recipient {  get; set; }
+        public string Recipient {  get; }
 
-        public MessageActions Action { get; set; }
+        public MessageActions Action { get; }
 
-        public CommunicationChannel Channel { get; set; }
+        public CommunicationChannel Channel { get; }
+
+        private NotificationCommand(
+            string recipient, 
+            MessageActions action,
+            CommunicationChannel channel)
+        {
+            Recipient = recipient;
+            Action = action;
+            Channel = channel;
+        }
+
+        public static NotificationCommand Create(string recipient, MessageActions action, CommunicationChannel channel)
+            => new(recipient, action, channel);
     }
 }

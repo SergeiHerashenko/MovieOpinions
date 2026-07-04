@@ -17,7 +17,7 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
 
         public static UserPendingRegistrationId CreateUnique()
         {
-            return new(Guid.NewGuid());
+            return new(Guid.CreateVersion7());
         }
 
         public static UserPendingRegistrationId Restore(Guid value)

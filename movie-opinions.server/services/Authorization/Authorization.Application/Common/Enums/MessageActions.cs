@@ -4,10 +4,12 @@
     {
         Registration = 0,
 
-        PasswordChange = 1,
+        ConfirmRegistration = 1,
 
-        PasswordReset = 2,
+        PasswordChange = 2,
 
-        EmailUpdate = 3,
+        PasswordReset = 3,
+
+        EmailUpdate = 4,
     }
 }

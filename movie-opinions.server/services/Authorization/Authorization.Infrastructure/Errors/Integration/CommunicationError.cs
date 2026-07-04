@@ -1,8 +1,8 @@
 ﻿using Authorization.Domain.Common.Errors;
 
-namespace Authorization.Infrastructure.Errors.Notification
+namespace Authorization.Infrastructure.Errors.Integration
 {
-    public static class NotificationError
+    public static class CommunicationError
     {
         public static Error SendError<TValue>(string message)
             => new(InfrastructureErrorCodes.IntegrationError.SendingError,

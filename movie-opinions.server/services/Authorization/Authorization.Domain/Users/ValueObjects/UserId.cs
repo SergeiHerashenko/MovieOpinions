@@ -17,7 +17,7 @@ namespace Authorization.Domain.Users.ValueObjects
 
         public static UserId CreateUnique()
         {
-            return new(Guid.NewGuid());
+            return new(Guid.CreateVersion7());
         }
 
         public static UserId Restore(Guid value)

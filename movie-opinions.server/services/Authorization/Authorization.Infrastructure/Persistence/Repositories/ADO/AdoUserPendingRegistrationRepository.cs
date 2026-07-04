@@ -30,9 +30,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             {
                 var sql = @"
                             INSERT INTO 
-                                User_Pending_Registration (id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at) 
+                                User_Pending_Registration (id, user_id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at) 
                             VALUES
-                                (@Id, @LoginUser, @LoginType, @CountryCode, @Password, @RegistrationToken, @CreatedAt, @ExpiresAt)
+                                (@Id, @UserId, @LoginUser, @LoginType, @CountryCode, @Password, @RegistrationToken, @CreatedAt, @ExpiresAt)
                             RETURNING * ;";
 
                 await using (var insertUserCommand = new NpgsqlCommand(sql, conn))
@@ -177,7 +177,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             {
                 var sql = @"
                             SELECT 
-                                id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at 
+                                id, user_id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at 
                             FROM 
                                 User_Pending_Registration 
                             WHERE 
@@ -209,7 +209,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             {
                 var sql = @"
                             SELECT 
-                                id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at 
+                                id, user_id, login_user, login_type, country_code, password_hash, registration_token, created_at, expires_at 
                             FROM 
                                 User_Pending_Registration 
                             WHERE 
@@ -235,9 +235,28 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             }, cancellationToken);
         }
 
+        public async Task DeleteExpiredAsync(CancellationToken cancellationToken = default)
+        {
+            await ExecuteWithConnectionAsync(async (conn, ct) =>
+            {
+                const string sql = @"
+                                    DELETE FROM user_pending_registration 
+                                    WHERE expires_at < NOW();";
+
+                await using var command = new NpgsqlCommand(sql, conn);
+
+                int deletedRows = await command.ExecuteNonQueryAsync(ct);
+                if (deletedRows > 0)
+                {
+                    _logger.LogInformation("🧹 З тимчасової таблиці видалено {Count} застарілих записів.", deletedRows);
+                }
+            }, cancellationToken);
+        }
+
         private UserPendingRegistration MapReaderToUser(NpgsqlDataReader reader, in UserPendingRegistrationOrdinals ords)
         {
             var id = UserPendingRegistrationId.Restore(reader.GetGuid(ords.Id));
+            var userId = UserId.Restore(reader.GetGuid(ords.UserId));
 
             if (!Enum.TryParse<LoginType>(reader.GetString(ords.LoginType), out var loginType))
                 throw DataConsistencyException.UnknownType(
@@ -272,7 +291,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             var expiresAt = reader.GetFieldValue<DateTimeOffset>(ords.ExpiresAt);
             var createdAt = reader.GetFieldValue<DateTimeOffset>(ords.CreatedAt);
 
-            return UserPendingRegistration.Restore(id, login, password, registrationToken, createdAt, expiresAt);
+            return UserPendingRegistration.Restore(id, userId, login, password, registrationToken, createdAt, expiresAt);
         }
 
         private Login RestorePhoneLogin(NpgsqlDataReader reader, int countryOrd, string fullNumber)
@@ -300,6 +319,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
         private static void AddParameters(NpgsqlCommand command, UserPendingRegistration entity)
         {
             command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = entity.Id.Value });
+            command.Parameters.Add(new NpgsqlParameter("@UserId", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = entity.UserId.Value });
             command.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Login.Value });
             command.Parameters.Add(new NpgsqlParameter("@LoginType", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Login.Type.ToString() });
             command.Parameters.Add(new NpgsqlParameter("@CountryCode", NpgsqlTypes.NpgsqlDbType.Varchar)
@@ -320,6 +340,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
         {
             public int Id { get; }
 
+            public int UserId { get; }
+
             public int LoginType { get; }
 
             public int LoginUser { get; }
@@ -337,6 +359,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             public UserPendingRegistrationOrdinals(NpgsqlDataReader reader)
             {
                 Id = reader.GetOrdinal("id");
+                UserId = reader.GetOrdinal("user_id");
                 LoginType = reader.GetOrdinal("login_type");
                 LoginUser = reader.GetOrdinal("login_user");
                 CountryCode = reader.GetOrdinal("country_code");

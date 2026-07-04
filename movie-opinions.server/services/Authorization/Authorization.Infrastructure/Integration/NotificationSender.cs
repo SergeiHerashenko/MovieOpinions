@@ -1,7 +1,7 @@
 ﻿using Authorization.Application.DTOs.Communication;
 using Authorization.Application.Interfaces.Communication;
 using Authorization.Domain.Results;
-using Authorization.Infrastructure.Errors.Notification;
+using Authorization.Infrastructure.Errors.Integration;
 using Authorization.Infrastructure.Http;
 using Authorization.Infrastructure.Http.Models;
 using Authorization.Infrastructure.Http.Options;
@@ -45,7 +45,7 @@ namespace Authorization.Infrastructure.Integration
                     notificationCommand.Action,
                     responseNotification.ErrorMessage
                 );
-                return Result.Failure(NotificationError.SendError<NotificationSender>("Error sending confirmation email"));
+                return Result.Failure(CommunicationError.SendError<NotificationSender>("Error sending confirmation email"));
             }
 
             return Result.Success();

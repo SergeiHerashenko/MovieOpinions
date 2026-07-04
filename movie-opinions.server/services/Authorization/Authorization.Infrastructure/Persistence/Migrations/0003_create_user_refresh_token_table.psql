@@ -1,0 +1,23 @@
+﻿-- 1. Створення таблиці
+CREATE TABLE IF NOT EXISTS user_refresh_token(
+	id				UUID			NOT NULL,
+	user_id			UUID			NOT NULL,
+	refresh_token	VARCHAR(550)	NOT NULL,
+	device_info		JSONB			NOT NULL,
+	ip_address		VARCHAR(50)		NOT NULL,
+	city			VARCHAR(50)		NULL,
+	status			VARCHAR(50)		NOT NULL,
+	expires_at		TIMESTAMPTZ		NOT NULL,
+	consumed_at		TIMESTAMPTZ		NULL,
+	revoked_at		TIMESTAMPTZ		NULL,
+	created_at		TIMESTAMPTZ		NOT NULL,
+
+	CONSTRAINT pk_user_refresh_token PRIMARY KEY (id)
+);
+
+-- 2. Створення індексу для швидкого пошуку
+CREATE INDEX IF NOT EXISTS idx_user_refresh_token_user_id
+ON user_refresh_token (user_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_refresh_token_refresh_token
+ON user_refresh_token (refresh_token);

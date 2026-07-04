@@ -17,7 +17,7 @@ namespace Authorization.Domain.UsersRefreshToken.ValueObjects
 
         public static UserRefreshTokenId CreateUnique()
         {
-            return new(Guid.NewGuid());
+            return new(Guid.CreateVersion7());
         }
 
         public static UserRefreshTokenId Restore(Guid value)

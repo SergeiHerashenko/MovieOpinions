@@ -4,6 +4,7 @@ using Authorization.Domain.Users;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
+using Authorization.Domain.UsersRefreshToken.ValueObjects;
 using Authorization.Infrastructure.Exceptions;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Microsoft.Extensions.Logging;
@@ -306,7 +307,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             var updatedAt = reader.IsDBNull(ords.UpdatedAt) ? (DateTimeOffset?)null : reader.GetFieldValue<DateTimeOffset>(ords.UpdatedAt);
             var lastLoginAt = reader.IsDBNull(ords.LastLoginAt) ? (DateTimeOffset?)null : reader.GetFieldValue<DateTimeOffset>(ords.LastLoginAt);
 
-            var lastLoginIp = reader.IsDBNull(ords.LastLoginIp) ? null : reader.GetString(ords.LastLoginIp);
+            var lastLoginIpVO = reader.GetString(ords.LastLoginIp);
+            var lastLoginIp = IpAddress.Restore(lastLoginIpVO);
 
             var isConfirmed = reader.GetBoolean(ords.IsLoginConfirmed);
             var failedAttempts = reader.GetInt32(ords.FailedLoginAttempts);
@@ -355,7 +357,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             command.Parameters.Add(new NpgsqlParameter("@Role", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Role.ToString() });
             command.Parameters.Add(new NpgsqlParameter("@UpdatedAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = DbValue(entity.UpdatedAt) });
             command.Parameters.Add(new NpgsqlParameter("@LastLoginAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = DbValue(entity.LastLoginAt) });
-            command.Parameters.Add(new NpgsqlParameter("@LastLoginIp", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = DbValue(entity.LastLoginIp) });
+            command.Parameters.Add(new NpgsqlParameter("@LastLoginIp", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = DbValue(entity.LastLoginIp.Value) });
             command.Parameters.Add(new NpgsqlParameter("@IsLoginConfirmed", NpgsqlTypes.NpgsqlDbType.Boolean) { Value = entity.IsLoginConfirmed });
             command.Parameters.Add(new NpgsqlParameter("@FailedLoginAttempts", NpgsqlTypes.NpgsqlDbType.Integer) { Value = entity.FailedLoginAttempts });
             command.Parameters.Add(new NpgsqlParameter("@IsBlocked", NpgsqlTypes.NpgsqlDbType.Boolean) { Value = entity.IsBlocked });
