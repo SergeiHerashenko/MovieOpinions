@@ -5,6 +5,6 @@ namespace Authorization.Application.Interfaces.Communication
 {
     public interface IVerificationSender
     {
-        Task<Result> VerifyCodeAsync(VerificationCommand verificationCommand);
+        Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand);
     }
 }

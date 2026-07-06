@@ -1,8 +1,8 @@
-﻿namespace Authorization.Infrastructure.Http.Options
+﻿namespace Authorization.Infrastructure.Integration.Options
 {
     public class VerificationServiceOptions
     {
-        public const string SectionName = "VerificationService";
+        public const string SectionName = "Verification";
 
         public string ClientName { get; set; } = string.Empty;
 

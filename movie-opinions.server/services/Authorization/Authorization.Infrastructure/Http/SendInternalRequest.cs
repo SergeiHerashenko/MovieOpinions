@@ -23,7 +23,7 @@ namespace Authorization.Infrastructure.Http
             {
                 // 1. Створюємо іменований клієнт
                 var client = _httpClientFactory.CreateClient(internalRequest.ClientName);
-
+                
                 // 2. Додаємо кастомні заголовки, якщо вони є
                 if (internalRequest.Headers != null)
                 {
@@ -32,7 +32,7 @@ namespace Authorization.Infrastructure.Http
                         client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
                     }
                 }
-
+                
                 // 3. Відправка запиту
                 HttpResponseMessage response = internalRequest.Method.Method.ToUpper() switch
                 {

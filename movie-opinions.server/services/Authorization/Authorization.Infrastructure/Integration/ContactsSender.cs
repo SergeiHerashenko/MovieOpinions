@@ -12,18 +12,18 @@ using Microsoft.Extensions.Options;
 
 namespace Authorization.Infrastructure.Integration
 {
-    public class VerificationSender : IVerificationSender
+    public class ContactsSender : IContactsSender
     {
-        private readonly VerificationServiceOptions _options;
+        private readonly ContactsServiceOptions _options;
         private readonly ServiceIdentityOptions _identityOptions;
-        private readonly ILogger<VerificationSender> _logger;
+        private readonly ILogger<ContactsSender> _logger;
         private readonly ISendInternalRequest _sendInternalRequest;
         private readonly IServiceJwtProvider _serviceJwtProvider;
 
-        public VerificationSender(
-            IOptions<VerificationServiceOptions> options,
+        public ContactsSender(
+            IOptions<ContactsServiceOptions> options,
             IOptions<ServiceIdentityOptions> identityOptions,
-            ILogger<VerificationSender> logger,
+            ILogger<ContactsSender> logger,
             ISendInternalRequest sendInternalRequest,
             IServiceJwtProvider serviceJwtProvider)
         {
@@ -34,39 +34,46 @@ namespace Authorization.Infrastructure.Integration
             _serviceJwtProvider = serviceJwtProvider;
         }
 
-        public async Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand)
+        public async Task<Result> SendCreateContactRequestAsync<TId>(ContactsRequest<TId> contactsRequest)
         {
-            var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Verification.Audit });
+            var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Contacts.Create });
 
-            var verificationRequest = new InternalRequest<VerificationRequest<TId>>
+            var contactRequest = new InternalRequest<ContactsRequest<TId>>
             {
                 ClientName = _options.ClientName,
                 Endpoint = _options.CreateEndpoint,
                 Method = HttpMethod.Post,
-                Body = verificationCommand,
+                Body = contactsRequest,
                 Headers = new Dictionary<string, string>()
                 {
                     { _identityOptions.HeaderName, $"{_identityOptions.Scheme} {token}" }
                 }
             };
 
-            var responseVerification = await _sendInternalRequest.SendAsync<VerificationRequest<TId>, bool>(verificationRequest);
+            var responseContacts = await _sendInternalRequest.SendAsync<ContactsRequest<TId>, bool>(contactRequest);
 
-            if (!responseVerification.IsSuccess)
+            if (!responseContacts.IsSuccess)
             {
-                _logger.LogError("Failed to send verification request to {ClientName} ({Endpoint}). User: {UserId}, Action: {Action}!",
-                    _options.ClientName,
-                    _options.CreateEndpoint,
-                    verificationCommand.UserId, 
-                    verificationCommand.MessageActions
+                _logger.LogError("Contact creation failed. Client: {ClientName}, Endpoint: {Endpoint}, Reason: {ErrorReason}!",
+                    contactRequest.ClientName,
+                    contactRequest.Endpoint,
+                    responseContacts.ErrorMessage
                 );
 
-                return Result.Failure(CommunicationError.SendError<VerificationSender>(
-                    $"Failed to perform operation verification ({verificationCommand.MessageActions}) for user!")
-                );
+                return Result.Failure(CommunicationError.SendError<ContactsSender>("Failed to create user contact via integration service!"));
             }
 
             return Result.Success();
+        }
+
+        public Task<Result> SendDeleteContactRequestAsync<TId>(ContactsRequest<TId> contactsRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result> SendUpdateContactRequestAsync<TId>(ContactsRequest<TId> contactsRequest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

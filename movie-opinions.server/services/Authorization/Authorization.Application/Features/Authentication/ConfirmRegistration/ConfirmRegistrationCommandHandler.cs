@@ -75,7 +75,7 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
             if (pendingRegistration is null)
                 return Result<ConfirmRegistrationResult>.Failure(ConfirmErrors.InvalidOrExpiredToken<ConfirmRegistrationCommand>());
 
-            var verificationCommand = VerificationCommand.Create(
+            var verificationCommand = VerificationRequest.Create(
                 pendingRegistration.UserId, 
                 MessageActions.ConfirmRegistration, 
                 command.VerificationValue
@@ -95,8 +95,8 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
 
             var context = ConfirmRegistrationContext.Create(
                 creationResult.Id,
+                creationResult.Login,
                 creationResult.Role,
-                creationResult.Login.Type,
                 MessageActions.ConfirmRegistration
             );
 

@@ -1,6 +1,7 @@
 ﻿using Authorization.Application.Common.Security.Models;
 using Authorization.Application.Interfaces.Security.JWT;
-using Microsoft.Extensions.Configuration;
+using Authorization.Infrastructure.Security.JWT.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,12 +11,11 @@ namespace Authorization.Infrastructure.Security.JWT
 {
     public class UserJwtProvider : IUserJwtProvider
     {
-        private readonly IConfiguration _configuration;
-        private const int TIME_LIFE_TOKEN_ACCESS = 15;
+        private UserJwtProviderOptions _options;
 
-        public UserJwtProvider(IConfiguration configuration)
+        public UserJwtProvider(IOptions<UserJwtProviderOptions> options)
         {
-            _configuration = configuration;
+            _options = options.Value;
         }
 
         public string GenerateAccessToken(UserSessionDTO userSessionDTO)
@@ -28,26 +28,24 @@ namespace Authorization.Infrastructure.Security.JWT
                 new Claim(ClaimTypes.Role, userSessionDTO.Role.ToString()),
             };
 
-            return GenerateToken(claims, TIME_LIFE_TOKEN_ACCESS);
+            return GenerateToken(claims, _options.AccessTokenLifetimeInMinutes);
         }
 
         private string GenerateToken(IEnumerable<Claim> claims, int lifeTimeToken)
         {
             // 1. Отримуємо ключ із конфігурації
-            var jwtKey = _configuration["Authentication:UserJwt:Key"];
-
-            if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
+            if (string.IsNullOrEmpty(_options.Key) || _options.Key.Length < 32)
             {
-                throw new Exception("Критична помилка: JWT Key занадто короткий або відсутній!");
+                throw new Exception("Critical error: JWT key is too short or missing!");
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             // 2. Створюємо сам токен
             var token = new JwtSecurityToken(
-                issuer: _configuration["Authentication:UserJwt:Issuer"],
-                audience: _configuration["Authentication:UserJwt:Audience"],
+                issuer: _options.Issuer,
+                audience: _options.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(lifeTimeToken),
                 signingCredentials: creds

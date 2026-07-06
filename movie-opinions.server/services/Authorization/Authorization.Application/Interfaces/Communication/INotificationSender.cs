@@ -5,6 +5,6 @@ namespace Authorization.Application.Interfaces.Communication
 {
     public interface INotificationSender
     {
-        Task<Result> SendCreateNotificationAsync(NotificationCommand notificationCommand);
+        Task<Result> SendCreateNotificationAsync<TId>(NotificationRequest<TId> notificationCommand);
     }
 }

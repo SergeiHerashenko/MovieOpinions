@@ -1,18 +1,18 @@
-﻿using Authorization.Domain.Users.ValueObjects.LoginUser;
-using Authorization.Domain.UsersPendingRegistration.ValueObjects;
+﻿using Authorization.Domain.Users.ValueObjects;
+using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.DomainEvents.UserPendingRegistration
 {
     public class UserPendingRegistrationRequestedEvent : DomainEvent
     {
-        public UserPendingRegistrationId UserPendingRegistrationId { get; }
+        public UserId UserId { get; }
 
         public Login Login { get; }
 
-        public UserPendingRegistrationRequestedEvent(UserPendingRegistrationId userPendingRegistrationId, Login login, DateTimeOffset dateTime)
+        public UserPendingRegistrationRequestedEvent(UserId userId, Login login, DateTimeOffset dateTime)
             : base(dateTime)
         {
-            UserPendingRegistrationId = userPendingRegistrationId;
+            UserId = userId;
             Login = login;
         }
     }

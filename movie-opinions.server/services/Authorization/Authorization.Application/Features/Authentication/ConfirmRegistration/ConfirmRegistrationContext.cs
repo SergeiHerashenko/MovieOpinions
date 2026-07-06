@@ -9,29 +9,29 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
     {
         public UserId UserId { get; }
 
-        public Role Role { get; }
+        public Login Login { get; }
 
-        public LoginType LoginType { get; }
+        public Role Role { get; }
 
         public MessageActions MessageActions { get; }
 
         private ConfirmRegistrationContext(
             UserId userId,
+            Login login,
             Role role,
-            LoginType loginType,
             MessageActions messageActions)
         {
             UserId = userId;
+            Login = login;
             Role = role;
-            LoginType = loginType;
             MessageActions = messageActions;
         }
 
         public static ConfirmRegistrationContext Create(
             UserId userId,
+            Login login,
             Role role,
-            LoginType loginType,
             MessageActions messageActions)
-            => new(userId, role, loginType, messageActions);
+            => new(userId, login, role, messageActions);
     }
 }

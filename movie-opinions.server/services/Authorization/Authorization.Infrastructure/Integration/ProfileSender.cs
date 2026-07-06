@@ -12,18 +12,18 @@ using Microsoft.Extensions.Options;
 
 namespace Authorization.Infrastructure.Integration
 {
-    public class VerificationSender : IVerificationSender
+    public class ProfileSender : IProfileSender
     {
-        private readonly VerificationServiceOptions _options;
+        private readonly ProfileServiceOption _options;
         private readonly ServiceIdentityOptions _identityOptions;
-        private readonly ILogger<VerificationSender> _logger;
+        private readonly ILogger<ProfileSender> _logger;
         private readonly ISendInternalRequest _sendInternalRequest;
         private readonly IServiceJwtProvider _serviceJwtProvider;
 
-        public VerificationSender(
-            IOptions<VerificationServiceOptions> options,
+        public ProfileSender(
+            IOptions<ProfileServiceOption> options,
             IOptions<ServiceIdentityOptions> identityOptions,
-            ILogger<VerificationSender> logger,
+            ILogger<ProfileSender> logger,
             ISendInternalRequest sendInternalRequest,
             IServiceJwtProvider serviceJwtProvider)
         {
@@ -34,39 +34,47 @@ namespace Authorization.Infrastructure.Integration
             _serviceJwtProvider = serviceJwtProvider;
         }
 
-        public async Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand)
+        public async Task<Result> SendCreateProfileRequestAsync<TId>(ProfileRequest<TId> profileCommand)
         {
-            var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Verification.Audit });
+            var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Profile.Create });
 
-            var verificationRequest = new InternalRequest<VerificationRequest<TId>>
+            var profileRequest = new InternalRequest<ProfileRequest<TId>>()
             {
                 ClientName = _options.ClientName,
                 Endpoint = _options.CreateEndpoint,
                 Method = HttpMethod.Post,
-                Body = verificationCommand,
+                Body = profileCommand,
                 Headers = new Dictionary<string, string>()
                 {
                     { _identityOptions.HeaderName, $"{_identityOptions.Scheme} {token}" }
                 }
             };
 
-            var responseVerification = await _sendInternalRequest.SendAsync<VerificationRequest<TId>, bool>(verificationRequest);
+            var responseProfile = await _sendInternalRequest.SendAsync<ProfileRequest<TId>, bool>(profileRequest);
 
-            if (!responseVerification.IsSuccess)
+            if (!responseProfile.IsSuccess)
             {
-                _logger.LogError("Failed to send verification request to {ClientName} ({Endpoint}). User: {UserId}, Action: {Action}!",
-                    _options.ClientName,
-                    _options.CreateEndpoint,
-                    verificationCommand.UserId, 
-                    verificationCommand.MessageActions
+                _logger.LogError("Profile sending failed. Client: {ClientName}, Endpoint: {Endpoint}, Login: {Login}, Reason: {ErrorReason}!",
+                    profileRequest.ClientName,
+                    profileRequest.Endpoint,
+                    profileCommand.Login,
+                    responseProfile.ErrorMessage
                 );
 
-                return Result.Failure(CommunicationError.SendError<VerificationSender>(
-                    $"Failed to perform operation verification ({verificationCommand.MessageActions}) for user!")
-                );
+                return Result.Failure(CommunicationError.SendError<ProfileSender>("Error creating user profile"));
             }
 
             return Result.Success();
+        }
+
+        public Task<Result> SendDeleteProfileRequestAsync<TId>(ProfileRequest<TId> profileCommand)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result> SendUpdateProfileRequestAsync<TId>(ProfileRequest<TId> profileCommand)
+        {
+            throw new NotImplementedException();
         }
     }
 }

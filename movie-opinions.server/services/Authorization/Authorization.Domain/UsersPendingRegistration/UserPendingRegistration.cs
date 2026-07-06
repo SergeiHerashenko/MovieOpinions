@@ -57,7 +57,7 @@ namespace Authorization.Domain.UsersPendingRegistration
 
             userRendingRegistration.AddDomainEvent(
                 new UserPendingRegistrationRequestedEvent(
-                    userRendingRegistration.Id,
+                    userRendingRegistration.UserId,
                     userRendingRegistration.Login,
                     userRendingRegistration.CreatedAt
                 )
@@ -116,7 +116,7 @@ namespace Authorization.Domain.UsersPendingRegistration
 
             AddDomainEvent(
                 new UserPendingRegistrationRequestedEvent(
-                    Id,
+                    UserId,
                     Login,
                     CreatedAt
                 )

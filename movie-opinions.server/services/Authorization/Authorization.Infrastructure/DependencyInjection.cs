@@ -11,16 +11,18 @@ using Authorization.Infrastructure.Context;
 using Authorization.Infrastructure.Errors;
 using Authorization.Infrastructure.Events;
 using Authorization.Infrastructure.Http;
-using Authorization.Infrastructure.Http.Options;
 using Authorization.Infrastructure.Integration;
+using Authorization.Infrastructure.Integration.Options;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Authorization.Infrastructure.Persistence.Migrations;
 using Authorization.Infrastructure.Persistence.Repositories.ADO;
 using Authorization.Infrastructure.Security;
 using Authorization.Infrastructure.Security.JWT;
+using Authorization.Infrastructure.Security.JWT.Interfaces;
+using Authorization.Infrastructure.Security.JWT.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Polly;                                    
+using Polly;
 using Polly.Retry;
 using System.Net;
 
@@ -28,6 +30,13 @@ namespace Authorization.Infrastructure
 {
     public static class DependencyInjection
     {
+        private const string ExternalServicesSection = "ExternalServices";
+        private const string BaseUrlKey = "BaseUrl";
+        private const string NotificationPipeline = "notification-retry-pipeline";
+        private const string VerificationPipeline = "verification-retry-pipeline";
+        private const string ContactsPipeline = "contacts-retry-pipeline";
+        private const string ProfilePipeline = "profile-retry-pipeline";
+
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Реєстрація мігратора
@@ -38,10 +47,28 @@ namespace Authorization.Infrastructure
             services.AddDistributedMemoryCache();
 
             services.Configure<RateLimitOptions>(
-                configuration.GetSection("RateLimit"));
+                configuration.GetSection(RateLimitOptions.SectionName));
+
+            services.Configure<UserJwtProviderOptions>(
+                configuration.GetSection(UserJwtProviderOptions.SectionName));
 
             services.Configure<NotificationServiceOptions>(
-                configuration.GetSection("ExternalServices:Notification"));
+                configuration.GetSection($"{ExternalServicesSection}:{ProfileServiceOption.SectionName}"));
+
+            services.Configure<VerificationServiceOptions>(
+                configuration.GetSection($"{ExternalServicesSection}:{VerificationServiceOptions.SectionName}"));
+
+            services.Configure<ContactsServiceOptions>(
+                configuration.GetSection($"{ExternalServicesSection}:{ContactsServiceOptions.SectionName}"));
+
+            services.Configure<ProfileServiceOption>(
+                configuration.GetSection($"{ExternalServicesSection}:{ProfileServiceOption.SectionName}"));
+
+            services.Configure<ServiceJwtProviderOptions>(
+                configuration.GetSection(ServiceJwtProviderOptions.SectionName));
+
+            services.Configure<ServiceIdentityOptions>(
+                configuration.GetSection(ServiceIdentityOptions.SectionName));
 
             // Провайдер підключення
             services.AddSingleton<IDbConnectionProvider, ConnectAuthorizationDb>();
@@ -51,6 +78,7 @@ namespace Authorization.Infrastructure
             services.AddScoped<IHasher, Hasher>();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<ISendInternalRequest, SendInternalRequest>();
+            services.AddScoped<IServiceJwtProvider, ServiceJwtProvider>();
 
             services.AddSingleton<IErrorMessageProvider, ErrorMessageProvider>();
             services.AddSingleton<IClock, Clock>();
@@ -66,6 +94,8 @@ namespace Authorization.Infrastructure
             // Реалізація Send
             services.AddScoped<INotificationSender, NotificationSender>();
             services.AddScoped<IVerificationSender, VerificationSender>();
+            services.AddScoped<IContactsSender, ContactsSender>();
+            services.AddScoped<IProfileSender, ProfileSender>();
 
             services.AddHostedService<DatabaseCleanupBackgroundJob>();
 
@@ -76,59 +106,61 @@ namespace Authorization.Infrastructure
         {
             string GetRequiredUrl(string sectionName)
             {
-                var url = configuration[$"ExternalServices:{sectionName}:BaseUrl"];
+                var url = configuration[$"{ExternalServicesSection}:{sectionName}:{BaseUrlKey}"];
                 
                 if(string.IsNullOrEmpty(url))
                 {
                     throw new InvalidOperationException(
-                        $"Critical configuration error: BaseUrl not found for service 'ExternalServices:{sectionName}'!");
+                        $"Critical configuration error: BaseUrl not found for service '{ExternalServicesSection}:{sectionName}'!");
                 }
 
                 return url;
             }
 
-            var notificationServiceUrl = GetRequiredUrl("Notification");
-
-            services.AddHttpClient("NotificationService", client =>
+            string GetClientName(string sectionName)
             {
-                client.BaseAddress = new Uri(notificationServiceUrl);
-            })
-                .AddResilienceHandler("notification-retry-pipeline", builder =>
+                var client = configuration[$"{ExternalServicesSection}:{sectionName}:ClientName"];
+
+                if (string.IsNullOrEmpty(client))
                 {
-                    builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-                    {
-                        ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                            .Handle<HttpRequestException>()
-                            .HandleResult(response => response.StatusCode >= HttpStatusCode.InternalServerError),
+                    throw new InvalidOperationException(
+                        $"Critical configuration error: ClientName not found for service '{ExternalServicesSection}:{sectionName}'!");
+                }
 
-                        MaxRetryAttempts = 3,
-                        Delay = TimeSpan.FromSeconds(0.3),
-                        BackoffType = DelayBackoffType.Exponential,
-                        UseJitter = true
-                    });
-                });
+                return client;
+            }
 
-            var verificationServiceUrl = GetRequiredUrl("Verification");
-
-            services.AddHttpClient("VerificationService", client =>
+            void RegisterService(string sectionKey, string pipleName, double timeDelayForSecond = 0.1)
             {
-                client.BaseAddress = new Uri(verificationServiceUrl);
-            })
-                .AddResilienceHandler("verification-retry-pipeline", builder =>
+                var clientName = GetClientName(sectionKey);
+                var baseUrl = GetRequiredUrl(sectionKey);
+
+                services.AddHttpClient(clientName, client =>
                 {
-                    builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>()
+                    client.BaseAddress = new Uri(baseUrl);
+                })
+                    .AddResilienceHandler(pipleName, builder =>
                     {
-                        ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                        .Handle<HttpRequestException>()
-                        .HandleResult(response => response.StatusCode >= HttpStatusCode.InternalServerError),
+                        builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+                        {
+                            ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                           .Handle<HttpRequestException>()
+                           .HandleResult(response => response.StatusCode >= HttpStatusCode.InternalServerError),
 
-                        MaxRetryAttempts = 3,
-                        Delay = TimeSpan.FromSeconds(0.3),
-                        BackoffType = DelayBackoffType.Exponential,
-                        UseJitter = true
+                            MaxRetryAttempts = 3,
+                            Delay = TimeSpan.FromSeconds(timeDelayForSecond),
+                            BackoffType = DelayBackoffType.Exponential,
+                            UseJitter = true
+                        });
                     });
-                });
+            }
 
+            // --- Service ---
+            RegisterService(NotificationServiceOptions.SectionName, NotificationPipeline);
+            RegisterService(VerificationServiceOptions.SectionName, VerificationPipeline);
+            RegisterService(ContactsServiceOptions.SectionName, ContactsPipeline);
+            RegisterService(ProfileServiceOption.SectionName, ProfilePipeline);
+            
             return services;
         }
     }

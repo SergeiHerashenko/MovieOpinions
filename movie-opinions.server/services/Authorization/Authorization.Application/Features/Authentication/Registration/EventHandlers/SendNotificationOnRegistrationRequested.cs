@@ -23,11 +23,7 @@ namespace Authorization.Application.Features.Authentication.Registration.EventHa
         {
             var domainEvent = notification.DomainEvent;
 
-            var channel = domainEvent.Login is EmailLogin
-                ? CommunicationChannel.Email
-                : CommunicationChannel.Phone;
-
-            var notificationCommand = NotificationCommand.Create(domainEvent.Login.Value, MessageActions.Registration, channel);
+            var notificationCommand = NotificationRequest.Create(domainEvent.UserId, domainEvent.Login, MessageActions.Registration);
 
             await _notificationSender.SendCreateNotificationAsync(notificationCommand);
         }

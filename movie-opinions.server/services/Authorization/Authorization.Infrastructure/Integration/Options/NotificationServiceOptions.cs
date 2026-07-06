@@ -1,8 +1,8 @@
-﻿namespace Authorization.Infrastructure.Http.Options
+﻿namespace Authorization.Infrastructure.Integration.Options
 {
     public class NotificationServiceOptions
     {
-        public const string SectionName = "NotificationService";
+        public const string SectionName = "Notification";
 
         public string ClientName { get; set; } = string.Empty;
 
