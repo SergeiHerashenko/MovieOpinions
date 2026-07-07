@@ -1,12 +1,12 @@
 ﻿using Authorization.Application.Common.Security.Models;
 using Authorization.Application.Interfaces.Context;
 using Authorization.Application.Interfaces.Persistence;
-using Authorization.Application.Interfaces.Security;
 using Authorization.Application.Interfaces.Security.JWT;
+using Authorization.Application.Interfaces.Security.Services;
 using Authorization.Domain.Results;
 using Authorization.Domain.UsersRefreshToken;
 
-namespace Authorization.Application.Common.Security
+namespace Authorization.Application.Common.Security.Services
 {
     public class TokenService : ITokenService
     {

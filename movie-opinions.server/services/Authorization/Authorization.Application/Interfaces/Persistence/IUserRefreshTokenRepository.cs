@@ -5,6 +5,6 @@ namespace Authorization.Application.Interfaces.Persistence
 {
     public interface IUserRefreshTokenRepository : IBaseRepository<UserRefreshToken>
     {
-        Task<UserRefreshToken> GetTokenByIdUser(UserId userId, CancellationToken cancellationToken = default);
+        Task<UserRefreshToken> GetTokenByIdUserAsync(UserId userId, CancellationToken cancellationToken = default);
     }
 }

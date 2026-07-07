@@ -1,0 +1,25 @@
+﻿-- 1. Створення таблиці
+CREATE TABLE IF NOT EXISTS user_restriction(
+	id					UUID		NOT NULL,
+	user_id				UUID		NOT NULL,
+	restriction_type	VARCHAR(50)	NOT NULL,
+	restriction_rule	JSONB		NOT NULL,
+	reason				TEXT		NULL,
+	is_revoked			BOOLEAN		NOT NULL DEFAULT FALSE,
+	cancellation_date	TIMESTAMPTZ	NULL,
+	created_at			TIMESTAMPTZ	NOT NULL,
+
+	CONSTRAINT pk_user_restriction PRIMARY KEY (id),
+
+	CONSTRAINT fk_user_restriction_user_id
+	FOREIGN KEY (user_id)
+	REFERENCES user_account(id)
+	ON DELETE CASCADE
+);
+
+-- 2. Створення індексу для швидкого пошуку
+CREATE INDEX IF NOT EXISTS idx_user_restriction_user_id
+ON user_restriction (user_id);
+
+CREATE INDEX IF NOT EXISTS type_user_restriction_restriction_type
+ON user_restriction (restriction_type);

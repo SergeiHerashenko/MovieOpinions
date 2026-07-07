@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Authorization.Application.Features.Authentication.ConfirmRegistration
 {
-    public class ConfirmRegistrationCommand : IRequest<Result<ConfirmRegistrationResult>>
+    public class ConfirmRegistrationCommand : IRequest<Result<ConfirmRegistrationResult<Guid>>>
     {
         public string RegistrationToken { get; }
 

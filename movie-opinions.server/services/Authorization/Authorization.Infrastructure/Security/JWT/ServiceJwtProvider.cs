@@ -31,6 +31,11 @@ namespace Authorization.Infrastructure.Security.JWT
                 claims.Add(new Claim("permission", permission));
             }
 
+            if (string.IsNullOrEmpty(_options.Key) || _options.Key.Length < 32)
+            {
+                throw new Exception("Critical error: ServiceJWT key is too short or missing!");
+            }
+
             var jwtKey = _options.Key;
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

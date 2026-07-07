@@ -12,7 +12,12 @@ CREATE TABLE IF NOT EXISTS user_refresh_token(
 	revoked_at		TIMESTAMPTZ		NULL,
 	created_at		TIMESTAMPTZ		NOT NULL,
 
-	CONSTRAINT pk_user_refresh_token PRIMARY KEY (id)
+	CONSTRAINT pk_user_refresh_token PRIMARY KEY (id),
+
+	CONSTRAINT fk_user_refresh_token_user_id
+	FOREIGN KEY (user_id)
+	REFERENCES user_account(id)
+	ON DELETE CASCADE
 );
 
 -- 2. Створення індексу для швидкого пошуку

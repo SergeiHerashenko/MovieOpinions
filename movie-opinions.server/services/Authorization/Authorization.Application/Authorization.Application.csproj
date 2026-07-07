@@ -7,10 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Authentication\Login\" />
+    <Folder Include="Features\Authentication\SignIn\Phones\" />
     <Folder Include="Features\Authentication\Logout\" />
-    <Folder Include="Features\Authentication\Registration\PostRegistration\Step\" />
-    <Folder Include="Interfaces\System\" />
   </ItemGroup>
 
   <ItemGroup>

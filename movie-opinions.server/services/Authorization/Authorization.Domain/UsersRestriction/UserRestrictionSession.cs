@@ -48,7 +48,7 @@ namespace Authorization.Domain.UsersRestriction
                 .ToList();
 
             var totalBlockedDays = userRestrictions
-                .Sum(r => r.RestrictionRule.DurationDay);
+                .Sum(r => r.RestrictionRule.DurationDays);
 
             return Result<UserRestrictionSession>.Success(
                 new UserRestrictionSession(
@@ -110,7 +110,7 @@ namespace Authorization.Domain.UsersRestriction
             _activeRestrictionIds.Clear();
             _activeRestrictionIds.AddRange(active.Select(r => r.Id));
 
-            TotalBlockedDays = active.Sum(r => r.RestrictionRule.DurationDay);
+            TotalBlockedDays = active.Sum(r => r.RestrictionRule.DurationDays);
 
             return Result.Success();
         }

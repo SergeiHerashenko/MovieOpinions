@@ -5,5 +5,7 @@
         string Hash(string value);
 
         bool Verify(string value, string hash);
+
+        void FakeVerify(string password);
     }
 }

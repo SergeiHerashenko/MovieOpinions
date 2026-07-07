@@ -14,7 +14,7 @@ namespace Authorization.Application.Features.Authentication.Registration
 {
     public class RegistrationFlowCoordinator
     {
-        private readonly IRateLimiter _rateLomiter;
+        private readonly IRateLimiter _rateLimiter;
         private readonly IUserContext _userContext;
         private readonly IHasher _hasher;
         private readonly IClock _clock;
@@ -33,7 +33,7 @@ namespace Authorization.Application.Features.Authentication.Registration
             IUserRepository userRepository,
             IDomainEventDispatcher domainEventDispatcher)
         {
-            _rateLomiter = rateLomiter;
+            _rateLimiter = rateLomiter;
             _userContext = userContext;
             _hasher = hasher;
             _clock = clock;
@@ -45,11 +45,14 @@ namespace Authorization.Application.Features.Authentication.Registration
         public async Task<Result<UserPendingRegistration>> ProcessAsync(
             Login login,
             string rawPassword,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var ipAddress = IpAddress.Create(_userContext.GetIpAddress());
 
-            var resultLimiter = await _rateLomiter.EnsureAllowedAsync(
+            if (ipAddress.IsFailure)
+                return Result<UserPendingRegistration>.Failure(ipAddress.Errors);
+
+            var resultLimiter = await _rateLimiter.EnsureAllowedAsync(
                 RateLimitAction.Registration,
                 ipAddress.Value,
                 login.Value,
@@ -64,7 +67,6 @@ namespace Authorization.Application.Features.Authentication.Registration
             var exists = await _userRepository.ExistsByLoginAsync(login, cancellationToken);
 
             if (exists)
-                // TODO: Подумати над фінальним текстом повідомлення, якщо сервіс впав
                 return Result<UserPendingRegistration>.Failure(UserErrors.Exists<UserPendingRegistration>(login.Value));
 
             var password = Password.Create(_hasher.Hash(rawPassword));

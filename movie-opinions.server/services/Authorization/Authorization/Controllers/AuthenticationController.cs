@@ -1,7 +1,10 @@
 ﻿using Authorization.Application.Features.Authentication.ConfirmRegistration;
 using Authorization.Application.Features.Authentication.Registration.Emails;
 using Authorization.Application.Features.Authentication.Registration.Phones;
+using Authorization.Application.Features.Authentication.SignIn.Emails;
+using Authorization.Cookie;
 using Authorization.Requests.ConfirmRegistration;
+using Authorization.Requests.Login;
 using Authorization.Requests.Registration;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +15,14 @@ namespace Authorization.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ICookieProvider _cookieProvider;
 
-        public AuthenticationController(IMediator mediator)
+        public AuthenticationController(
+            IMediator mediator,
+            ICookieProvider cookieProvider)
         {
             _mediator = mediator;
+            _cookieProvider = cookieProvider;
         }
 
         [HttpPost("register/email")]
@@ -74,8 +81,31 @@ namespace Authorization.Controllers
 
             var result = await _mediator.Send(command,cancellationToken);
 
-            if (result.IsFailure)
+            if (result.IsFailure || result.Value.TokenResponse is null)
                 return BadRequest(result.Errors);
+
+            _cookieProvider.SetCookies(result.Value.TokenResponse.AccessToken, result.Value.TokenResponse.RefreshToken);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPost("login/email")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<IActionResult> LoginWithEmail(
+            [FromBody] LoginWithEmailRequest loginWithEmailRequest,
+            CancellationToken cancellationToken = default)
+        {
+            var command = new SignInWithEmailCommand(
+                loginWithEmailRequest.Email,
+                loginWithEmailRequest.Password
+            );
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsFailure || result.Value.TokenResponse is null)
+                return BadRequest(result.Errors);
+
+            _cookieProvider.SetCookies(result.Value.TokenResponse.AccessToken, result.Value.TokenResponse.RefreshToken);
 
             return Ok(result.Value);
         }

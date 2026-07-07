@@ -80,7 +80,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             throw new NotImplementedException();
         }
 
-        public Task<UserRefreshToken> GetTokenByIdUser(UserId userId, CancellationToken cancellationToken = default)
+        public Task<UserRefreshToken> GetTokenByIdUserAsync(UserId userId, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

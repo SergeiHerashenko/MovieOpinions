@@ -7,6 +7,7 @@ using Authorization.Application.Interfaces.Context;
 using Authorization.Application.Interfaces.Orchestrator;
 using Authorization.Application.Interfaces.Persistence;
 using Authorization.Application.Interfaces.Security;
+using Authorization.Application.Interfaces.Security.Services;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users;
 using Authorization.Domain.Users.Enums;
@@ -16,7 +17,7 @@ using MediatR;
 
 namespace Authorization.Application.Features.Authentication.ConfirmRegistration
 {
-    public class ConfirmRegistrationCommandHandler : IRequestHandler<ConfirmRegistrationCommand, Result<ConfirmRegistrationResult>>
+    public class ConfirmRegistrationCommandHandler : IRequestHandler<ConfirmRegistrationCommand, Result<ConfirmRegistrationResult<Guid>>>
     {
         private readonly IUserPendingRegistrationRepository _userPendingRegistrationRepository;
 
@@ -49,12 +50,12 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
             _tokenService = tokenService;
         }
 
-        public async Task<Result<ConfirmRegistrationResult>> Handle(ConfirmRegistrationCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<ConfirmRegistrationResult<Guid>>> Handle(ConfirmRegistrationCommand command, CancellationToken cancellationToken = default)
         {
             var ipAddressResult = IpAddress.Create(_userContext.GetIpAddress());
 
             if(ipAddressResult.IsFailure)
-                return Result<ConfirmRegistrationResult>.Failure(ipAddressResult.Errors);
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(ipAddressResult.Errors);
 
             var ipAddress = ipAddressResult.Value;
 
@@ -66,14 +67,14 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
             );
 
             if (resultLimiter.IsFailure)
-                return Result<ConfirmRegistrationResult>.Failure(resultLimiter.Errors);
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(resultLimiter.Errors);
 
             var registrationToken = RegistrationToken.Restore(command.RegistrationToken);
 
             var pendingRegistration = await _userPendingRegistrationRepository.GetByTokenAsync(registrationToken, cancellationToken);
 
             if (pendingRegistration is null)
-                return Result<ConfirmRegistrationResult>.Failure(ConfirmErrors.InvalidOrExpiredToken<ConfirmRegistrationCommand>());
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(ConfirmErrors.InvalidOrExpiredToken<ConfirmRegistrationCommand>());
 
             var verificationCommand = VerificationRequest.Create(
                 pendingRegistration.UserId, 
@@ -84,12 +85,12 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
             var verificationResult = await _verificationSender.VerifyCodeAsync(verificationCommand);
             
             if (verificationResult.IsFailure)
-                return Result<ConfirmRegistrationResult>.Failure(verificationResult.Errors);
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(verificationResult.Errors);
 
             var newUserResult = User.Create(pendingRegistration.Login, pendingRegistration.Password, Role.User, ipAddress);
 
             if (newUserResult.IsFailure)
-                return Result<ConfirmRegistrationResult>.Failure(newUserResult.Errors);
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(newUserResult.Errors);
 
             var creationResult = await _userRepository.CreateAsync(newUserResult.Value, cancellationToken);
 
@@ -106,7 +107,7 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
             {
                 await _userRepository.DeleteAsync(newUserResult.Value.Id);
             
-                return Result<ConfirmRegistrationResult>.Failure(result.Errors);
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(result.Errors);
             }
 
             var userSessionDTO = UserSessionDTO.Create(
@@ -119,13 +120,16 @@ namespace Authorization.Application.Features.Authentication.ConfirmRegistration
             var userToken = await _tokenService.CreateUserSessionAsync(userSessionDTO);
 
             if (userToken.IsFailure)
-                return Result<ConfirmRegistrationResult>.Failure(userToken.Errors);
+                return Result<ConfirmRegistrationResult<Guid>>.Failure(userToken.Errors);
 
-            return Result<ConfirmRegistrationResult>.Success(ConfirmRegistrationResult.Success(
+            var resultData = ConfirmRegistrationResult.Success(
+                creationResult.Id,
                 Role.User,
                 userToken.Value,
-                "Реєстрація успішна!")
+                "Реєстрація успішна!"
             );
+
+            return Result<ConfirmRegistrationResult<Guid>>.Success(resultData);
         }
     }
 }

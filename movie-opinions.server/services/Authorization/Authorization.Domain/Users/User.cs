@@ -44,7 +44,7 @@ namespace Authorization.Domain.Users
             UpdatedAt = null;
             LastLoginAt = null;
             LastLoginIp = ipAddress;
-            IsLoginConfirmed = false;
+            IsLoginConfirmed = true;
             FailedLoginAttempts = 0;
             IsBlocked = false;
             IsDeleted = false;
@@ -198,10 +198,8 @@ namespace Authorization.Domain.Users
 
         public Result Block(DateTimeOffset updateTime, string reason)
         {
-            var access = ProvideAccess();
-
-            if (!access.IsSuccess)
-                return access;
+            if (IsBlocked)
+                return Result.Success();
 
             IsBlocked = true;
             UpdatedAt = updateTime;
@@ -215,10 +213,8 @@ namespace Authorization.Domain.Users
 
         public Result RemoveBlock(DateTimeOffset updateTime)
         {
-            var access = ProvideAccess();
-
-            if (access.IsSuccess)
-                return access;
+            if (IsBlocked)
+                return Result.Success();
 
             IsBlocked = false;
             UpdatedAt = updateTime;
@@ -270,10 +266,8 @@ namespace Authorization.Domain.Users
 
         public Result Delete(DateTimeOffset updateTime)
         {
-            var access = ProvideAccess();
-
-            if (!access.IsSuccess)
-                return access;
+            if (IsDeleted)
+                return Result.Success();
 
             IsDeleted = true;
             UpdatedAt = updateTime;

@@ -1,0 +1,18 @@
+﻿-- 1. Створення таблиці
+CREATE TABLE IF NOT EXISTS user_restriction_session(
+	id						UUID	NOT NULL,
+	user_id					UUID	NOT NULL,
+	active_restrictions_id	JSONB	NOT NULL,
+	total_blocked_days		INTEGER	NOT NULL,
+
+	CONSTRAINT pk_user_restriction_session PRIMARY KEY (id),
+
+	CONSTRAINT fk_user_restriction_session_user_id
+	FOREIGN KEY (user_id)
+	REFERENCES user_account(id)
+	ON DELETE CASCADE
+);
+
+-- 2. Створення індексу для швидкого пошуку
+CREATE INDEX IF NOT EXISTS idx_user_restriction_session_user_id
+ON user_restriction_session (user_id);

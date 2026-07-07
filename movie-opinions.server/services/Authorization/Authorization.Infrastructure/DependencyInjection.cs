@@ -90,6 +90,8 @@ namespace Authorization.Infrastructure
             services.AddScoped<IUserRepository, AdoUserRepository>();
             services.AddScoped<IUserPendingRegistrationRepository, AdoUserPendingRegistrationRepository>();
             services.AddScoped<IUserRefreshTokenRepository, AdoUserRefreshTokenRepository>();
+            services.AddScoped<IUserRestrictionRepository, AdoUserRestrictionRepository>();
+            services.AddScoped<IUserRestrictionSessionRepository, AdoUserRestrictionSessionRepository>();
 
             // Реалізація Send
             services.AddScoped<INotificationSender, NotificationSender>();

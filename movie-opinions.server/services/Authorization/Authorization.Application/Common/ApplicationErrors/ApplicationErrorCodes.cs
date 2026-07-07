@@ -5,6 +5,10 @@
         public static class UserErrorCode
         {
             public const string AlreadyExists = "ALREADY_EXISTS";
+
+            public const string NotFound = "USER_NOT_FOUND";
+
+            public const string InvalidPassword = "USER_INVALID_PASSWORD";
         }
 
         public static class CommunicationErrorCode
@@ -20,6 +24,11 @@
         public static class ConfirmErrorCode
         {
             public const string InvalidToken = "INVALID_TOKEN";
+        }
+
+        public static class RestrictionsErrorCode
+        {
+            public static string ActiveRestrictions = "ACTIVE_RESTRICTIONS";
         }
     }
 }

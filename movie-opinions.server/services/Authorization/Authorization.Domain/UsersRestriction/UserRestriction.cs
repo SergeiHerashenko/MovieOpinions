@@ -17,6 +17,8 @@ namespace Authorization.Domain.UsersRestriction
 
         public RestrictionRule RestrictionRule { get; private set; }
 
+        public string? Reason { get; private set; }
+
         public bool IsRevoked { get; private set; }
 
         public DateTimeOffset? CancellationDate { get; private set; }
@@ -26,17 +28,19 @@ namespace Authorization.Domain.UsersRestriction
             UserRestrictionId userRestrictionId, 
             UserId userId, 
             RestrictionType restrictionType,
-            RestrictionRule restrictionRule)
+            RestrictionRule restrictionRule,
+            string? reason)
             : base(userRestrictionId)
         {
             UserId = userId;
             RestrictionType = restrictionType;
             RestrictionRule = restrictionRule;
+            Reason = reason;
             IsRevoked = false;
             CancellationDate = null;
         }
 
-        public static Result<UserRestriction> Create(UserId userId, RestrictionType restrictionType, RestrictionRule restrictionRule)
+        public static Result<UserRestriction> Create(UserId userId, RestrictionType restrictionType, RestrictionRule restrictionRule, string? reason = null)
         {
             if (userId is null)
                 return Result<UserRestriction>.Failure(RestrictionError.Empty<UserRestriction>(nameof(userId)));
@@ -44,7 +48,7 @@ namespace Authorization.Domain.UsersRestriction
             if(restrictionRule is null)
                 return Result<UserRestriction>.Failure(RestrictionError.Empty<UserRestriction>(nameof(restrictionRule)));
 
-            return Result<UserRestriction>.Success(new UserRestriction(UserRestrictionId.CreateUnique(), userId, restrictionType, restrictionRule));
+            return Result<UserRestriction>.Success(new UserRestriction(UserRestrictionId.CreateUnique(), userId, restrictionType, restrictionRule, reason));
         }
         #endregion
 
@@ -54,6 +58,7 @@ namespace Authorization.Domain.UsersRestriction
             UserId userId,
             RestrictionType restrictionType,
             RestrictionRule restrictionRule,
+            string? reason,
             bool isRevoked,
             DateTimeOffset createdAt,
             DateTimeOffset? cancellationDate)
@@ -62,6 +67,7 @@ namespace Authorization.Domain.UsersRestriction
             UserId = userId;
             RestrictionType = restrictionType;
             RestrictionRule = restrictionRule;
+            Reason = reason;
             IsRevoked = isRevoked;
             CancellationDate = cancellationDate;
         }
@@ -71,6 +77,7 @@ namespace Authorization.Domain.UsersRestriction
             UserId userId,
             RestrictionType restrictionType,
             RestrictionRule restrictionRule,
+            string? reason,
             bool isRevoked,
             DateTimeOffset createdAt,
             DateTimeOffset? cancellationDate)
@@ -101,7 +108,7 @@ namespace Authorization.Domain.UsersRestriction
                     }
                 );
 
-            return new UserRestriction(userRestrictionId, userId, restrictionType, restrictionRule, isRevoked, createdAt, cancellationDate);
+            return new UserRestriction(userRestrictionId, userId, restrictionType, restrictionRule, reason, isRevoked, createdAt, cancellationDate);
         }
         #endregion
 
@@ -122,7 +129,7 @@ namespace Authorization.Domain.UsersRestriction
 
         public DateTimeOffset GetExpirationDate()
         {
-            return CreatedAt.AddDays(RestrictionRule.DurationDay);
+            return CreatedAt.AddDays(RestrictionRule.DurationDays);
         }
 
         public bool IsActive(DateTimeOffset now)

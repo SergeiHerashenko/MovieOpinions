@@ -9,12 +9,14 @@
   <ItemGroup>
     <None Remove="Persistence\Migrations\0002_create_user_account_table.psql" />
     <None Remove="Persistence\Migrations\0003_create_user_refresh_token_table.psql" />
+    <None Remove="Persistence\Migrations\0004_create_user_restriction_table.psql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Persistence\Migrations\0001_create_user_pending_registration_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0002_create_user_account_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0003_create_user_refresh_token_table.psql" />
+    <EmbeddedResource Include="Persistence\Migrations\0004_create_user_restriction_table.psql" />
   </ItemGroup>
 
   <ItemGroup>

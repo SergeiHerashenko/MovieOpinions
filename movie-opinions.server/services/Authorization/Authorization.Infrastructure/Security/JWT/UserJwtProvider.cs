@@ -36,7 +36,7 @@ namespace Authorization.Infrastructure.Security.JWT
             // 1. Отримуємо ключ із конфігурації
             if (string.IsNullOrEmpty(_options.Key) || _options.Key.Length < 32)
             {
-                throw new Exception("Critical error: JWT key is too short or missing!");
+                throw new Exception("Critical error: UserJWT key is too short or missing!");
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
