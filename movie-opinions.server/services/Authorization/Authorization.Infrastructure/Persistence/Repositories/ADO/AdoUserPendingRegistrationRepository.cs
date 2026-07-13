@@ -1,5 +1,6 @@
 ﻿using Authorization.Application.Interfaces.Persistence;
 using Authorization.Application.Interfaces.Security;
+using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingRegistration;
@@ -89,7 +90,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                 await using (var updateUserCommand = new NpgsqlCommand(sql, conn))
                 {
                     updateUserCommand.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar){ Value = entity.Login.Value });
-                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.HashPassword });
+                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.Value });
                     updateUserCommand.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.RegistrationToken.Value });
                     updateUserCommand.Parameters.Add(new NpgsqlParameter("@ExpiresAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.ExpiresAt });
 
@@ -330,7 +331,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                     _ => DBNull.Value
                 }
             });
-            command.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.HashPassword });
+            command.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.Value });
             command.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.RegistrationToken.Value });
             command.Parameters.Add(new NpgsqlParameter("@CreatedAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.CreatedAt });
             command.Parameters.Add(new NpgsqlParameter("@ExpiresAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.ExpiresAt });

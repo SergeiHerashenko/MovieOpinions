@@ -1,5 +1,6 @@
 ﻿using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects.EmailUser;
 using Authorization.Domain.Users.ValueObjects.PhoneUser;
 

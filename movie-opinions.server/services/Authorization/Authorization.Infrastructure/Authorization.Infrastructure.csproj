@@ -10,6 +10,8 @@
     <None Remove="Persistence\Migrations\0002_create_user_account_table.psql" />
     <None Remove="Persistence\Migrations\0003_create_user_refresh_token_table.psql" />
     <None Remove="Persistence\Migrations\0004_create_user_restriction_table.psql" />
+    <None Remove="Persistence\Migrations\0005_create_user_restriction_session_table.psql" />
+    <None Remove="Persistence\Migrations\0006_create_user_deleted_table.psql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +19,8 @@
     <EmbeddedResource Include="Persistence\Migrations\0002_create_user_account_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0003_create_user_refresh_token_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0004_create_user_restriction_table.psql" />
+    <EmbeddedResource Include="Persistence\Migrations\0005_create_user_restriction_session_table.psql" />
+    <EmbeddedResource Include="Persistence\Migrations\0006_create_user_deleted_table.psql" />
   </ItemGroup>
 
   <ItemGroup>

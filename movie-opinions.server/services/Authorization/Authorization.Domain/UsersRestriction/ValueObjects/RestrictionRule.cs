@@ -1,5 +1,7 @@
 ﻿using Authorization.Domain.Common.Errors.Restriction;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validations;
 using Authorization.Domain.Results;
 
 namespace Authorization.Domain.UsersRestriction.ValueObjects
@@ -27,9 +29,19 @@ namespace Authorization.Domain.UsersRestriction.ValueObjects
             return Result<RestrictionRule>.Success(new RestrictionRule(name, durationDays));
         }
 
-        public static RestrictionRule Restore()
+        public static RestrictionRule Restore(string name, int durationDays)
         {
+            DomainGuard.AgainstNull<RestrictionRule>(
+                (durationDays, nameof(durationDays))
+            );
 
+            if(string.IsNullOrWhiteSpace(name))
+                throw DomainDataInconsistencyException.Empty<RestrictionRule>(nameof(name));
+
+            if (durationDays <= 0)
+                throw DomainDataInconsistencyException.InvalidFieldFormat<RestrictionRule>(nameof(durationDays), durationDays);
+
+            return new(name, durationDays);
         }
 
         public override IEnumerable<object> GetEqualityComponents()

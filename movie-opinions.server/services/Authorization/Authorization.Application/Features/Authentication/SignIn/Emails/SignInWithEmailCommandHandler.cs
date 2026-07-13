@@ -26,6 +26,10 @@ namespace Authorization.Application.Features.Authentication.SignIn.Emails
 
             var flowResult = await _signInFlowCoordinator.ProcessAsync(login, command.Password, cancellationToken);
 
+            if(flowResult.IsFailure)
+                return Result<SignInResult<Guid>>.Failure(flowResult.Errors);
+
+            return flowResult;
         }
     }
 }

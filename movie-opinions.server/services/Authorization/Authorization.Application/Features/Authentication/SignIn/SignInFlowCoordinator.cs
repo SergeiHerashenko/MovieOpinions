@@ -1,5 +1,6 @@
 ﻿using Authorization.Application.Common.ApplicationErrors.Users;
 using Authorization.Application.Common.Enums;
+using Authorization.Application.Common.Security.Models;
 using Authorization.Application.Interfaces.Context;
 using Authorization.Application.Interfaces.Events;
 using Authorization.Application.Interfaces.Persistence;
@@ -16,7 +17,9 @@ namespace Authorization.Application.Features.Authentication.SignIn
         private readonly IRateLimiter _rateLimiter;
         private readonly IUserContext _userContext;
         private readonly IHasher _hasher;
+        private readonly IClock _clock;
         private readonly IAccessService _accessService;
+        private readonly ITokenService _tokenService;
 
         private readonly IUserRepository _userRepository;
 
@@ -26,19 +29,23 @@ namespace Authorization.Application.Features.Authentication.SignIn
             IRateLimiter rateLimiter,
             IUserContext userContext,
             IHasher hasher,
+            IClock clock,
             IAccessService accessService,
+            ITokenService tokenService,
             IUserRepository userRepository,
             IDomainEventDispatcher domainEventDispatcher)
         {
             _rateLimiter = rateLimiter;
             _userContext = userContext;
             _hasher = hasher;
+            _clock = clock;
             _accessService = accessService;
+            _tokenService = tokenService;
             _userRepository = userRepository;
             _domainEventDispatcher = domainEventDispatcher;
         }
 
-        public async Task<Result> ProcessAsync(
+        public async Task<Result<SignInResult<Guid>>> ProcessAsync(
             Login login,
             string rawPassword,
             CancellationToken cancellationToken = default)
@@ -66,15 +73,47 @@ namespace Authorization.Application.Features.Authentication.SignIn
             {
                 _hasher.FakeVerify(rawPassword);
 
-                return Result.Failure(UserErrors.NotFound<SignInFlowCoordinator>(login.Value));
+                return Result<SignInResult<Guid>>.Failure(UserErrors.NotFound<SignInFlowCoordinator>(login.Value));
             }
 
-            var chekPassword = _hasher.Verify(rawPassword, existingUser.Password.HashPassword);
+            var access = await _accessService.CheckUserAccess(existingUser);
+
+            if (access.IsFailure)
+                return Result<SignInResult<Guid>>.Failure(access.Errors);
+
+            var chekPassword = _hasher.Verify(rawPassword, existingUser.Password.Value);
 
             if (!chekPassword)
-                return Result.Failure(UserErrors.InvalidPassword<SignInFlowCoordinator>(login.Value));
+            {
+                existingUser.RecordFailedLoginAttempt(_clock.UtcNow);
+                await _userRepository.UpdateAsync(existingUser, cancellationToken);
 
-            var access = await _accessService.CheckUserAccess(existingUser);
+                return Result<SignInResult<Guid>>.Failure(UserErrors.InvalidPassword<SignInFlowCoordinator>(login.Value));
+            }
+
+            existingUser.LoginSuccess(ipAddress, _clock.UtcNow);
+            
+            var userSessionDTO = UserSessionDTO.Create(
+                existingUser.Id,
+                existingUser.Login,
+                existingUser.Role,
+                ipAddress
+            );
+
+            var userToken = await _tokenService.CreateUserSessionAsync(userSessionDTO);
+
+            if(userToken.IsFailure)
+                return Result<SignInResult<Guid>>.Failure(userToken.Errors);
+
+            await _userRepository.UpdateAsync(existingUser, cancellationToken);
+
+            var signInResult = SignInResult.Success<Guid>(
+                existingUser.Id,
+                existingUser.Role,
+                userToken.Value
+            );
+
+            return Result<SignInResult<Guid>>.Success(signInResult);
         }
     }
 }

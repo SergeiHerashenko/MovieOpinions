@@ -353,7 +353,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                     _ => DBNull.Value
                 }
             });
-            command.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.HashPassword });
+            command.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.Value });
             command.Parameters.Add(new NpgsqlParameter("@Role", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Role.ToString() });
             command.Parameters.Add(new NpgsqlParameter("@UpdatedAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = DbValue(entity.UpdatedAt) });
             command.Parameters.Add(new NpgsqlParameter("@LastLoginAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = DbValue(entity.LastLoginAt) });

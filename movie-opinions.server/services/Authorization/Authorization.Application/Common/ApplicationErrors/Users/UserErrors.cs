@@ -42,5 +42,11 @@ namespace Authorization.Application.Common.ApplicationErrors.Users
                 ErrorType.Forbidden
             );
         }
+
+        public static Error ActiveDeleted(DateTimeOffset dateDeletion)
+            => new(ApplicationErrorCodes.DeletionErrorCode.AccountDeleted,
+                   $"Ваш акаунт видалено. Дата видалення: {dateDeletion}!",
+                   ErrorType.Forbidden
+            );
     }
 }

@@ -7,11 +7,11 @@ namespace Authorization.Domain.Users.ValueObjects
 {
     public sealed class Password : ValueObject
     {
-        public string HashPassword { get; }
+        public string Value { get; }
 
         private Password(string hashPassword)
         {
-            HashPassword = hashPassword;
+            Value = hashPassword;
         }
 
         public static Result<Password> Create(string hashPassword)
@@ -34,7 +34,7 @@ namespace Authorization.Domain.Users.ValueObjects
 
         public override IEnumerable<object> GetEqualityComponents()
         {
-            yield return HashPassword;
+            yield return Value;
         }
     }
 }

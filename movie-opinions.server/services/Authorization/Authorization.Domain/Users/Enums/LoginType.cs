@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Users.ValueObjects.LoginUser
+﻿namespace Authorization.Domain.Users.Enums
 {
     public enum LoginType
     {

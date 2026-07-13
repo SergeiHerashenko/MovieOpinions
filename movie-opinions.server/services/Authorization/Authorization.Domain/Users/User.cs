@@ -168,7 +168,7 @@ namespace Authorization.Domain.Users
                 return Result.Failure(UserErrors.PasswordError.EmptyPassword<User>());
 
             if(newPassword == Password)
-                return Result.Failure(UserErrors.GeneralError.NoChangesDetected<User>(newPassword.HashPassword, nameof(Password)));
+                return Result.Failure(UserErrors.GeneralError.NoChangesDetected<User>(newPassword.Value, nameof(Password)));
 
             Password = newPassword;
             UpdatedAt = updateTime;
@@ -213,7 +213,7 @@ namespace Authorization.Domain.Users
 
         public Result RemoveBlock(DateTimeOffset updateTime)
         {
-            if (IsBlocked)
+            if (!IsBlocked)
                 return Result.Success();
 
             IsBlocked = false;

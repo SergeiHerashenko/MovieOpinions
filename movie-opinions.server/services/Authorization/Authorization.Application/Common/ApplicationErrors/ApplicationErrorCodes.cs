@@ -30,5 +30,10 @@
         {
             public static string ActiveRestrictions = "ACTIVE_RESTRICTIONS";
         }
+
+        public static class DeletionErrorCode
+        {
+            public static string AccountDeleted = "ACCOUNT_DELETED";
+        }
     }
 }

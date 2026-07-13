@@ -12,7 +12,7 @@ namespace Authorization.Domain.UsersPendingChange.Changes
             NewPassword = newPassword;
         }
 
-        public override string Value => NewPassword.HashPassword;
+        public override string Value => NewPassword.Value;
 
         public override UserChangeType Type => UserChangeType.PasswordReset;
 

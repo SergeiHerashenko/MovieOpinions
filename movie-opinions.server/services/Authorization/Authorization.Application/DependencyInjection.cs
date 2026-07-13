@@ -4,6 +4,7 @@ using Authorization.Application.Common.Security.Services;
 using Authorization.Application.Features.Authentication.ConfirmRegistration;
 using Authorization.Application.Features.Authentication.ConfirmRegistration.Steps;
 using Authorization.Application.Features.Authentication.Registration;
+using Authorization.Application.Features.Authentication.SignIn;
 using Authorization.Application.Features.Authentication.SignIn.Steps;
 using Authorization.Application.Interfaces.Orchestrator;
 using Authorization.Application.Interfaces.Security.Access;
@@ -28,6 +29,7 @@ namespace Authorization.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             services.AddScoped<RegistrationFlowCoordinator>();
+            services.AddScoped<SignInFlowCoordinator>();
 
             services.AddScoped(typeof(IOrchestrator<>), typeof(Orchestrator<>));
 

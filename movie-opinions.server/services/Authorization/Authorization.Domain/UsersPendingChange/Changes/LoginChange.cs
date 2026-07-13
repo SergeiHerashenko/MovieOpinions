@@ -1,4 +1,5 @@
-﻿using Authorization.Domain.Users.ValueObjects.LoginUser;
+﻿using Authorization.Domain.Users.Enums;
+using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingChange.Enums;
 
 namespace Authorization.Domain.UsersPendingChange.Changes

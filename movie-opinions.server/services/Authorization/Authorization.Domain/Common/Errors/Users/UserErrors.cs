@@ -5,7 +5,7 @@
         public static class IdentifierError
         {
             public static Error EmptyIdentifier<TValue>()
-                => new(DomainErrorCodes.EmailErrorCode.EmptyEmail,
+                => new(DomainErrorCodes.IdentifierErrorCode.EmptyIdentifier,
                        $"Identifier cannot be empty. Owner: {typeof(TValue).Name}!",
                        ErrorType.EmptyValue
                 );

@@ -1,5 +1,6 @@
 ﻿using Authorization.Application.Common.Enums;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Application.DTOs.Communication

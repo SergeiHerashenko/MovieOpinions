@@ -1,4 +1,5 @@
-﻿using Authorization.Domain.Users.ValueObjects.EmailUser;
+﻿using Authorization.Domain.Users.Enums;
+using Authorization.Domain.Users.ValueObjects.EmailUser;
 
 namespace Authorization.Domain.Users.ValueObjects.LoginUser
 {
