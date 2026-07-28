@@ -1,94 +1,80 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
-using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.ValueObjects.PhoneUser.Rules.Phones;
 
 namespace Authorization.Domain.Users.ValueObjects.PhoneUser
 {
     public sealed class Phone : ValueObject
     {
-        public CountryCode CountryCode { get; }
+        public PhoneCountryCode PhoneCountryCode { get; }
 
-        public string Value { get; }
+        public PhoneNationalNumber PhoneNationalNumber { get; }
 
-        private const int MIN_LENGTH_PHONE_NUMBER = 4;
-
-        private const int MAX_LENGTH_PHONE_NUMBER = 14;
-
-        private Phone(CountryCode countryCode, string value)
+        private Phone(
+            PhoneCountryCode phoneCountryCode,
+            PhoneNationalNumber phoneNationalNumber)
         {
-            CountryCode = countryCode;
-            Value = value;
+            PhoneCountryCode = phoneCountryCode;
+            PhoneNationalNumber = phoneNationalNumber;
         }
 
+        private static readonly ValidationOrchestrator<PhoneRuleValidationData, ValidationFailure> _validator = new(
+            [
+                new NotAllowedPhoneRule()
+            ]
+        );
+
         #region Creation
-        public static Result<Phone> Create(CountryCode code, string rawPhone)
+        public static Result<Phone> Create(PhoneCountryCode phoneCountryCode, PhoneNationalNumber phoneNationalNumber)
         {
-            if (code is null)
-                return Result<Phone>.Failure(UserErrors.PhoneError.EmptyCountryCode<Phone>());
+            if (phoneCountryCode is null)
+                return Result<Phone>.Failure(PhoneErrors.EmptyCountryCode<Phone>());
 
-            if (string.IsNullOrWhiteSpace(rawPhone))
-                return Result<Phone>.Failure(UserErrors.PhoneError.EmptyPhone<Phone>());
+            if(phoneNationalNumber is null)
+                return Result<Phone>.Failure(PhoneErrors.EmptyNationalNumber<Phone>());
 
-            var cleanedPhone = CleanPhoneNumber(rawPhone);
+            var validationPhone = _validator.Validate(BuildValidationData(phoneCountryCode.Value, phoneNationalNumber.Value));
 
-            if (string.IsNullOrEmpty(cleanedPhone))
-                return Result<Phone>.Failure(UserErrors.PhoneError.PhoneInvalidFormat<Phone>());
+            if (validationPhone is not null)
+                return Result<Phone>.Failure(validationPhone.Error);
 
-            var isValid = IsValidPhoneNumber(cleanedPhone);
-
-            if (!isValid.IsSuccess)
-                return Result<Phone>.Failure(isValid.Errors);
-
-            return Result<Phone>.Success(new Phone(code, cleanedPhone));
+            return Result<Phone>.Success(new Phone(phoneCountryCode, phoneNationalNumber));
         }
         #endregion
 
         #region Restoration
-        public static Phone Restore(CountryCode code, string value)
+        public static Phone Restore(PhoneCountryCode phoneCountryCode, PhoneNationalNumber phoneNationalNumber)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            DomainGuard.AgainstNull<Phone>(
+                (phoneCountryCode, nameof(phoneCountryCode)),
+                (phoneNationalNumber, nameof(phoneNationalNumber))
+            );
+
+            return new Phone(phoneCountryCode, phoneNationalNumber);
+        }
+        #endregion
+
+        private static PhoneRuleValidationData BuildValidationData(string countryCode, string nationalNamber)
+        {
+            return new()
             {
-                throw DomainDataInconsistencyException.Empty<Phone>(nameof(value));
-            }
-
-            return new Phone(code, value);
+                CountryCode = countryCode,
+                NationalNumber = nationalNamber
+            };
         }
-        #endregion
-
-        #region Behavior
-        private static string CleanPhoneNumber(string phoneNumber)
-        {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-                return string.Empty;
-
-            return new string(phoneNumber.Where(char.IsDigit).ToArray());
-        }
-
-        public static Result IsValidPhoneNumber(string phoneNumber)
-        {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-                return Result.Failure(UserErrors.PhoneError.EmptyPhone<Phone>());
-
-            if (phoneNumber.Length < MIN_LENGTH_PHONE_NUMBER)
-                return Result.Failure(UserErrors.PhoneError.TooShort<Phone>());
-
-            if (phoneNumber.Length > MAX_LENGTH_PHONE_NUMBER)
-                return Result.Failure(UserErrors.PhoneError.TooLong<Phone>());
-
-            return Result.Success();
-        }
-        #endregion
 
         public string GetFullNumber()
         {
-            return $"{CountryCode.Value}{Value}";
+            return $"{PhoneCountryCode.Value}{PhoneNationalNumber.Value}";
         }
 
-        public override IEnumerable<object> GetEqualityComponents()
+        public override IEnumerable<object?> GetEqualityComponents()
         {
-            yield return CountryCode;
-            yield return Value;
+            yield return PhoneCountryCode;
+            yield return PhoneNationalNumber;
         }
     }
 }

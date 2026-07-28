@@ -36,23 +36,23 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 (@Id, @UserId, @RefreshToken, @DeviceInfo, @IpAddress, @City, @Status, @ExpiresAt, @ConsumedAt, @RevokedAt, @CreatedAt) 
                             RETURNING * ;";
 
-                await using (var insertTokenCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    AddParameters(insertTokenCommand, entity);
+                    AddParameters(command, entity);
 
-                    using (var readerInsertTokenCommand = await insertTokenCommand.ExecuteReaderAsync(ct))
+                    using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerInsertTokenCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserRefreshTokenOrdinals(readerInsertTokenCommand);
-                            var newToken = MapReaderToToken(readerInsertTokenCommand, ords);
+                            var ords = new UserRefreshTokenOrdinals(reader);
+                            var createEntity = MapReaderToToken(reader, ords);
 
                             _logger.LogInformation("Token saved to main table. Guid: {id}. Creation date: {NOW}",
-                                newToken.Id.Value,
+                                createEntity.Id.Value,
                                 _clock.UtcNow
                             );
 
-                            return newToken;
+                            return createEntity;
                         }
                     }
                 }

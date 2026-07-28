@@ -1,4 +1,5 @@
 ﻿using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
@@ -41,7 +42,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
             if (context is not null)
             {
-                foreach(var(key, value) in context)
+                foreach (var (key, value) in context)
                 {
                     data[$"Custom_{key}"] = value;
                 }
@@ -50,7 +51,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             var errorMessage = message ?? BuildValueAccessOnFailureMessage<TEntity>(valueName);
 
             return new(
-                DomainErrorCodes.InvalidOperationErrorCode.InvalidOperation,
+                DomainErrorCodes.General.InvalidOperation,
                 ErrorType.InvalidOperation,
                 errorMessage,
                 data,

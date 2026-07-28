@@ -1,106 +1,104 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
+using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
-using Authorization.Domain.Common.Validations;
-using Authorization.Domain.DomainEvents.UserPendingRegistration;
 using Authorization.Domain.Results;
-using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
+using Authorization.Domain.Users.ValueObjects.PasswordUser;
+using Authorization.Domain.UsersPendingRegistration.DomainEvents;
 using Authorization.Domain.UsersPendingRegistration.ValueObjects;
 
 namespace Authorization.Domain.UsersPendingRegistration
 {
     public class UserPendingRegistration : AggregateRoot<UserPendingRegistrationId, Guid>
     {
-        private static readonly TimeSpan ExpirationTime = TimeSpan.FromHours(12);
-
-        public UserId UserId { get; private set; }
+        private static readonly TimeSpan ExpirationTime = TimeSpan.FromHours(1);
 
         public Login Login { get; private set; }
 
         public Password Password { get; private set; }
 
-        public RegistrationToken RegistrationToken { get; private set; }
+        public RegistrationFlowToken RegistrationFlowToken { get; private set; }
 
         public DateTimeOffset ExpiresAt { get; private set; }
 
         #region Creation
         private UserPendingRegistration(
             UserPendingRegistrationId userPendingRegistrationId,
-            UserId userId,
-            Login login, 
+            Login login,
             Password password,
-            RegistrationToken registrationToken)
-            : base(userPendingRegistrationId)
+            RegistrationFlowToken registrationFlowToken,
+            DateTimeOffset now)
+            : base(userPendingRegistrationId, now)
         {
-            UserId = userId;
             Login = login;
             Password = password;
-            RegistrationToken = registrationToken;
-            ExpiresAt = CreatedAt.Add(ExpirationTime);
+            RegistrationFlowToken = registrationFlowToken;
+            ExpiresAt = now.Add(ExpirationTime);
         }
 
-        public static Result<UserPendingRegistration> Create(Login login, Password password)
+        public static Result<UserPendingRegistration> Create(Login login, Password password, DateTimeOffset now)
         {
-            if(login is null)
-                return Result<UserPendingRegistration>.Failure(UserErrors.LoginError.EmptyLogin<UserPendingRegistration>());
+            if (login is null)
+                return Result<UserPendingRegistration>.Failure(LoginErrors.EmptyLogin<UserPendingRegistration>());
 
-            if(password is null)
-                return Result<UserPendingRegistration>.Failure(UserErrors.PasswordError.EmptyPassword<UserPendingRegistration>());
-            
-            var userRendingRegistration = new UserPendingRegistration(
-                UserPendingRegistrationId.CreateUnique(),
-                UserId.CreateUnique(),
-                login, 
-                password, 
-                RegistrationToken.CreateUnique()
+            if (password is null)
+                return Result<UserPendingRegistration>.Failure(PasswordErrors.EmptyHashPassword<UserPendingRegistration>());
+
+            var userPendingRegistration = new UserPendingRegistration(
+                UserPendingRegistrationId.Create(),
+                login,
+                password,
+                RegistrationFlowToken.Create(),
+                now
             );
 
-            userRendingRegistration.AddDomainEvent(
-                new UserPendingRegistrationRequestedEvent(
-                    userRendingRegistration.UserId,
-                    userRendingRegistration.Login,
-                    userRendingRegistration.CreatedAt
+            userPendingRegistration.AddDomainEvent(
+                new UserPendingRegistrationEvent(
+                    userPendingRegistration.Login,
+                    userPendingRegistration.CreatedAt
                 )
             );
 
-            return Result<UserPendingRegistration>.Success(userRendingRegistration);
+            return Result<UserPendingRegistration>.Success(userPendingRegistration);
         }
         #endregion
 
-        #region Restore
+        #region Restoration
         private UserPendingRegistration(
             UserPendingRegistrationId userPendingRegistrationId,
-            UserId userId,
             Login login,
             Password password,
-            RegistrationToken registrationToken,
+            RegistrationFlowToken registrationFlowToken,
             DateTimeOffset createdAt,
             DateTimeOffset expiresAt)
             : base(userPendingRegistrationId, createdAt)
         {
-            UserId = userId;
             Login = login;
             Password = password;
-            RegistrationToken = registrationToken;
+            RegistrationFlowToken = registrationFlowToken;
             ExpiresAt = expiresAt;
         }
 
         public static UserPendingRegistration Restore(
             UserPendingRegistrationId userPendingRegistrationId,
-            UserId userId,
             Login login,
             Password password,
-            RegistrationToken registrationToken,
+            RegistrationFlowToken registrationFlowToken,
             DateTimeOffset createdAt,
             DateTimeOffset expiresAt)
         {
             DomainGuard.AgainstNull<UserPendingRegistration>(
+                (userPendingRegistrationId, nameof(userPendingRegistrationId)),
                 (login, nameof(login)),
                 (password, nameof(password)),
-                (registrationToken, nameof(registrationToken))
+                (registrationFlowToken, nameof(registrationFlowToken))
             );
 
-            return new UserPendingRegistration(userPendingRegistrationId, userId, login, password, registrationToken, createdAt, expiresAt);
+            if(expiresAt <= createdAt)
+                throw DomainDataInconsistencyException.ValueOutOfRange<UserPendingRegistration>(nameof(expiresAt), expiresAt);
+
+            return new UserPendingRegistration(userPendingRegistrationId, login, password, registrationFlowToken, createdAt, expiresAt);
         }
         #endregion
 
@@ -108,19 +106,13 @@ namespace Authorization.Domain.UsersPendingRegistration
         public Result Refresh(Password password, DateTimeOffset now)
         {
             if (password is null)
-                return Result.Failure(UserErrors.PasswordError.EmptyPassword<UserPendingRegistration>());
+                return Result<UserPendingRegistration>.Failure(PasswordErrors.EmptyHashPassword<UserPendingRegistration>());
 
             Password = password;
-            RegistrationToken = RegistrationToken.CreateUnique();
+            RegistrationFlowToken = RegistrationFlowToken.Create();
             ExpiresAt = now.Add(ExpirationTime);
 
-            AddDomainEvent(
-                new UserPendingRegistrationRequestedEvent(
-                    UserId,
-                    Login,
-                    CreatedAt
-                )
-            );
+            AddDomainEvent(new UserPendingRegistrationEvent(Login, now));
 
             return Result.Success();
         }

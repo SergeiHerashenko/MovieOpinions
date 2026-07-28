@@ -1,60 +1,59 @@
 ﻿using Authorization.Domain.Common.Errors.Users;
-using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using System.Text.RegularExpressions;
 
 namespace Authorization.Domain.Users.ValueObjects.EmailUser
 {
     public sealed class Email : ValueObject
     {
-        public string Value { get; }
+        public EmailLocalPart EmailLocalPart { get; }
 
-        private static readonly Regex EmailRegex =
-            new(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public EmailDomainPart EmailDomainPart { get; }
 
-        private const int MAX_LENGTH_EMAIL = 30;
-
-        private Email(string value)
+        private Email(
+            EmailLocalPart emailLocalPart, 
+            EmailDomainPart emailDomainPart)
         {
-            Value = value;
+            EmailLocalPart = emailLocalPart;
+            EmailDomainPart = emailDomainPart;
         }
 
+
         #region Creation
-        public static Result<Email> Create(string rawEmail)
+        public static Result<Email> Create(EmailLocalPart emailLocalPart, EmailDomainPart emailDomainPart)
         {
-            if (string.IsNullOrWhiteSpace(rawEmail))
-                return Result<Email>.Failure(UserErrors.EmailError.EmptyEmail<Email>());
+            if (emailLocalPart is null)
+                return Result<Email>.Failure(EmailErrors.EmptyLocalPart<Email>());
 
-            var trimmed = rawEmail.Trim();
+            if (emailDomainPart is null)
+                return Result<Email>.Failure(EmailErrors.EmptyDomainPart<Email>());
 
-            if(trimmed.Length > MAX_LENGTH_EMAIL)
-                return Result<Email>.Failure(UserErrors.EmailError.TooLong<Email>());
-
-            if (!EmailRegex.IsMatch(trimmed))
-                return Result<Email>.Failure(UserErrors.EmailError.InvalidFormat<Email>());
-
-            var normalized = trimmed.ToLowerInvariant();
-
-            return Result<Email>.Success(new Email(normalized));
+            return Result<Email>.Success(new Email(emailLocalPart, emailDomainPart));
         }
         #endregion
 
         #region Restoration
-        public static Email Restore(string value)
+        public static Email Restore(EmailLocalPart emailLocalPart, EmailDomainPart emailDomainPart)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                throw DomainDataInconsistencyException.Empty<Email>(nameof(value));
+            DomainGuard.AgainstNull<Email>(
+                (emailLocalPart, nameof(emailLocalPart)),
+                (emailDomainPart, nameof(emailDomainPart))
+            );
 
-            return new Email(value.ToLowerInvariant());
+            return new Email(emailLocalPart, emailDomainPart);
         }
         #endregion
 
-        public override string ToString() => Value;
-
-        public override IEnumerable<object> GetEqualityComponents()
+        public string GetFullEmail()
         {
-            yield return Value;
+            return $"{EmailLocalPart.Value}{EmailDomainPart.Value}";
+        }
+
+        public override IEnumerable<object?> GetEqualityComponents()
+        {
+            yield return EmailLocalPart;
+            yield return EmailDomainPart;
         }
     }
 }

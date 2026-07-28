@@ -2,115 +2,186 @@
 {
     public sealed class DomainErrorCodes
     {
-        public static class DataInconsistencyErrorCode
+        // Загальні помилки (General errors)
+        public static class General
         {
-            public const string Inconsistency = "INCONSISTENT_DATA";
+            public const string InvalidState = "INVALID_STATE";
+
+            public const string InvalidOperation = "INVALID_OPERATION";
+
+            public const string UnsupportedType = "UNSUPPORTED_TYPE";
+
+            public const string NoUpdateNeeded = "NO_UPDATE_NEEDED";
+
+            public const string Expired = "EXPIRED";
+        }
+
+        // Ідентифікатори
+        public static class Identifier
+        {
+            public const string Empty = "EMPTY_IDENTIFIER";
+
+            public const string IdentifierMismatch = "IDENTIFIER_MISMATHC";
+        }
+
+        // Помилки даних / формату
+        public static class Data
+        {
+            public const string EmptyValue = "VALUE_EMPTY";
 
             public const string InvalidFormat = "INVALID_FORMAT";
 
             public const string UnsupportedType = "UNSUPPORTED_TYPE";
 
-            public const string OutOfRange = "PUT_OF_RANGE";
+            public const string OutOfRange = "OUT_OF_RANGE";
         }
 
-        public static class InvariantViolationErrorCode
+        // Email
+        public static class Email
         {
-            public const string InvalidState = "INVALID_STATE";
+            public const string EmptyEmailDomain = "EMAIL_DOMAIN_EMPTY";
+
+            public const string NotAllowedEmailDomain = "NOT_ALLOWED_EMAIL_DOMAIN";
+
+            public const string InvalidFormatEmailDomainPart = "INVALID_FORMAT_EMAIL_DOMAIN_PART";
+
+            public const string TooLongEmailDomainPart = "TOO_LONG_EMAIL_DOMAIN_PART";
+
+            public const string TooShortEmailDomainPart = "TOO_SHORT_EMAIL_DOMAIN_PART";
+
+            public const string EmptyEmailLocalPart = "EMAIL_LOCAL_PART_EMPTY";
+
+            public const string InvalidFormatEmailLocalPart = "INVALID_FORMAT_EMAIL_LOCAL_PART";
+
+            public const string TooLongEmailLocalPart = "TOO_LONG_EMAIL_LOCAL_PART";
+
+            public const string TooShortEmailLocalPart = "TOO_SHORT_EMAIL_LOCAL_PART";
         }
 
-        public static class InvalidOperationErrorCode
+        // Phone
+        public static class Phone
         {
-            public const string InvalidOperation = "INVALID_OPERATION";
+            public const string EmptyPhoneCountryCode = "PHONE_COUNTRY_CODE_EMPTY";
+
+            public const string InvalidFormatPhoneCountryCode = "INVALID_FORMAT_PHONE_COUNTRY_CODE";
+
+            public const string TooLongPhoneCountryCode = "TOO_LONG_PHONE_COUNTRY_CODE";
+
+            public const string TooShortPhoneCountryCode = "TOO_SHORT_PHONE_COUNTRY_CODE";
+
+            public const string EmptyPhoneNationalNumber = "PHONE_NATIONAL_NUMBER_EMPTY";
+
+            public const string InvalidFormatPhoneNationalNumber = "INVALID_FORMAT_PHONE_NATIONAL_NUMBER";
+
+            public const string TooLongPhoneNationalNumber = "TOO_LOGN_PHONE_NATIONAL_NUMBER";
+
+            public const string TooShortPhoneNationalNumber = "TOO_SHORT_PHONE_NATIONAL_NUMBER";
+
+            public const string NotAllowedPhone = "NOT_ALLOWED_PHONE";
         }
 
-        public static class EmailErrorCode
+        // Password 
+        public static class Password
         {
-            public const string EmptyEmail = "EMPTY_EMAIL";
+            public const string EmptyPlainPassword = "EMPTY_PASSWORD";
 
-            public const string InvalidFormatEmail = "INVALID_FORMAT_EMAIL";
+            public const string MissingLowercaseLetterPlainPassword = "MISSING_LOWERCASE_LETTER_PASSWORD";
 
-            public const string TooLongEmail = "TOO_LONG_EMAIL";
+            public const string MissingUppercaseLetterPlainPassword = "MISSING_UPPERCASE_LETTER_PASSWORD";
 
-            public const string NotAllowedEmail = "NOT_ALLOWED_EMAIL";
+            public const string NoContainNumber = "NO_CONTAIN_NUMBER";
+
+            public const string TooLongPlainPassword = "TOO_LONG_PASSWORD";
+
+            public const string TooShortPlainPassword = "TOO_SHORT_PASSWORD";
+
+            public const string EmptyHashPassword = "EMPTY_HASH_PASSWORD";
         }
 
-        public static class PhoneErrorCode
+        // IpAddress
+        public static class IpAddress
         {
-            public const string EmptyPhone = "EMPTY_PHONE";
+            public const string Empty = "EMPTY_IP_ADDRESS";
 
-            public const string EmptyContryCode = "EMPTY_COUNTRY_CODE";
-
-            public const string InvalidFormatPhone = "INVALID_FORMAT_PHONE";
-
-            public const string InvalidFormatCountryCode = "INVALID_FORMAT_COUNTRY_CODE";
-
-            public const string TooLongPhone = "TOO_LONG_PHONE";
-
-            public const string TooShortPhone = "TOO_SHORT_PHONE";
+            public const string InvalidFormat = "INVALID_FORMAT_IP_ADDRESS";
         }
 
-        public static class PasswordErrorCode
+        // Login
+        public static class Login
         {
-            public const string EmptyPassword = "PASSWORD_EMPTY";
+            public const string Empty = "LOGIN_EMPTY";
+
+            public const string LoginIsNotConfirm = "LOGIN_IS_NOT_CONFIRM";
         }
 
-        public static class LoginErrorCode
+        // Restriction
+        public static class Restriction
         {
-            public const string EmptyLogin = "LOGIN_EMPTY";
+            public const string EmptyRestrictionList = "EMPTY_RESTRICTION_LIST";
+
+            public const string EmptyRestrictionName = "EMPTY_RESTRICTION_NAME";
+
+            public const string InvalidRestrictionType = "INVALID_RESTRICTION_TYPE";
+
+            public const string EmptyRestriction = "EMPTY_RESTRICTION";
+
+            public const string NotFoundRestriction = "NOT_FOUND_RESTRICTION";
+
+            public const string InvalidNumberMinutes = "INVALID_NUMBER_MINUTES";
+
+            public const string WrongTime = "WRONG_TIME";
+
+            public const string EmptyRestrictionRule = "EMPTY_RESTRICTION_RULE";
         }
 
-        public static class AccessErrorCode
+        // RestrictionSession
+        public static class RestrictionSession
         {
-            public const string AccountBlocked = "ACCOUNT_BLOCKED";
+            public const string NotFoundSession = "NOT_FOUND_SESSION";
 
-            public const string AccountDeleted = "ACCOUNT_DELETED";
-
-            public const string RestoreIsNotAllowed = "RESTORE_IS_NOT_ALLOWED";
+            public const string NotFoundSessionType = "NOT_FOUND_SESSION_TYPE";
         }
 
-        public static class GeneralErrorCode
+        // Deletion
+        public static class Deletion
         {
-            public const string OperationIsNotAllowed = "OPERATION_IS_NOT_ALLOWED";
-
-            public const string NoChangesDetected = "NO_CHANGES_DETECTED";
-
-            public const string AlreadyConfirmed = "ALREADY_CONFIRMED";
-
-            public const string AlreadyRestored = "ALREADY_RESTORED";
+            public const string NotDeleteUser = "NO_DELETE_USER";
         }
 
-        public static class IdentifierErrorCode
+        // Access
+        public static class Access
         {
-            public const string EmptyIdentifier = "EMPTY_IDENTIFIER";
+            public const string UserIsBlocked = "USER_BLOCKED";
+
+            public const string UserIsDeleted = "USER_DELETED";
         }
 
-        public static class TokenErrorCode
+        // RefreshToken
+        public static class RefreshToken
         {
-            public const string EmptyToken = "TOKEN_EMPTY";
+            public const string EmptyDeviceInfo = "EMPTY_DEVICE_INFO";
 
-            public static string InvalidType = "INVALID_TYPE";
+            public const string EmptyOperatingSystemName = "EMPTY_OPERATION_SYSTEM_NAME";
 
-            public static string TokenConsumed = "TOKEN_CONSUMED";
+            public const string EmptyBrowseName = "EMPTY_BROWSE_NAME";
 
-            public static string TokenExpired = "TOKEN_EXPIRED";
+            public const string EmptyDeviceModelName = "EMPTY_DEVICE_MODEL_NAME";
 
-            public static string TokenRevoked = "TOKEN_REVOKED";
+            public const string ExpiredToken = "EXPIRED_TOKEN";
 
-            public static string TokenActive = "TOKEN_ACTIVE";
+            public const string NotFoundToken = "NOT_FOUND_TOKEN";
         }
 
-        public static class IpErrorCode
+        // Change
+        public static class Change
         {
-            public const string InvalidFormat = "INVALID_FORMAT_IP";
-        }
+            public const string EmptyChange = "EMPTY_CHANGE";
 
-        public static class RestrictionRuleErrorCode
-        {
-            public const string EmptyValue = "EMPTY_VALUE";
+            public const string InvalidConfirmationToken = "INVALID_CONFIRMATION_TOKEN";
 
-            public const string ShortDay = "NOT_ENOUGH_DAYS";
+            public const string ChangeAlreadyExists = "CHANGE_ALREADY_EXISTS";
 
-            public const string InvalidTime = "INVALID_TIME";
+            public const string InvalidChangeType = "INVALID_CHANGE_TYPE";
         }
     }
 }

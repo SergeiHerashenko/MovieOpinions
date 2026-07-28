@@ -1,7 +1,7 @@
-﻿using Authorization.Domain.Users.Enums;
+﻿using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
+using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
-using Authorization.Domain.UsersRefreshToken.ValueObjects;
 
 namespace Authorization.Application.Common.Security.Models
 {

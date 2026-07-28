@@ -16,11 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\services\Authorization\Authorization.Domain\Authorization.Domain.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <Folder Include="UsersPendingRegistration\" />
+    <Folder Include="Users\ValueObjects\EmailUser\Rules\LocalPart\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\services\Authorization\Authorization.Domain\Authorization.Domain.csproj" />
   </ItemGroup>
 
 </Project>

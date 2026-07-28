@@ -1,9 +1,13 @@
-﻿namespace Authorization.Domain.Common.Models
+﻿using Authorization.Domain.Common.Models.Interfaces;
+
+namespace Authorization.Domain.Common.Models
 {
     public abstract class Entity<TId> : IEquatable<Entity<TId>>, IHasDomainEvents
         where TId : notnull
     {
         private readonly List<IDomainEvent> _domainEvents = new();
+
+        private readonly List<IAggregateChange> _aggregateChanges = new();
 
         public TId Id { get; protected set; }
 
@@ -11,51 +15,44 @@
 
         public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-        protected Entity(TId id)
+        public IReadOnlyList<IAggregateChange> AggregateChanges => _aggregateChanges.AsReadOnly();
+
+        protected Entity(TId id, DateTimeOffset? createdAt = null)
         {
             Id = id;
-            CreatedAt = DateTimeOffset.UtcNow;
+            CreatedAt = createdAt ?? DateTimeOffset.UtcNow;
         }
 
-        protected Entity(TId id, DateTimeOffset createdAt)
-        {
-            Id = id;
-            CreatedAt = createdAt;
-        }
-
+        // Порівнює сутності за їх ідентифікаторами.
         public override bool Equals(object? obj)
-        {
-            return obj is Entity<TId> entity && Id.Equals(entity.Id);
-        }
+            => obj is Entity<TId> entity && Id.Equals(entity.Id);
 
+        // Типізована реалізація порівняння.
         public bool Equals(Entity<TId>? other)
-        {
-            return Equals((object?)other);
-        }
+            => Equals((object?)other);
 
-        public static bool operator ==(Entity<TId> left, Entity<TId> right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
+            => Equals(left, right);
 
-        public static bool operator !=(Entity<TId> left, Entity<TId> right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(Entity<TId>? left,Entity<TId>? right)
+            => !Equals(left, right);
 
+        // Хеш-код сутності базується виключно на її унікальному ідентифікаторі.
         public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+            => Id.GetHashCode();
 
+        // Додає нову подію до списку
         public void AddDomainEvent(IDomainEvent domainEvent)
-        {
-            _domainEvents.Add(domainEvent);
-        }
+            => _domainEvents.Add(domainEvent);
 
+        public void AddAggregateChangeEvent(IAggregateChange aggregateChang)
+            => _aggregateChanges.Add(aggregateChang);
+
+        // Очищає список подій після їх успішної обробки
         public void ClearDomainEvents()
-        {
-            _domainEvents.Clear();
-        }
+            => _domainEvents.Clear();
+
+        public void ClearAggregateChangs()
+            => _aggregateChanges.Clear();
     }
 }

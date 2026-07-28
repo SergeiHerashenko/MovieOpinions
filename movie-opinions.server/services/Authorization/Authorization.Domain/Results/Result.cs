@@ -28,14 +28,14 @@ namespace Authorization.Domain.Results
                         {
                             e.Code,
                             e.Message,
-                            Type = e.Type.ToString()
+                            Type = e.ErrorType.ToString()
                         }).ToArray(),
                         ["Violation"] = "The result of successful execution contains unexpected errors."
                     }
                 );
             }
 
-            if(!isSuccess && !errorList.Any())
+            if (!isSuccess && !errorList.Any())
             {
                 throw DomainInvariantViolationException.BrokenState<Result>(
                     "The failure result must contain at least one error.!",

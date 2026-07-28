@@ -9,21 +9,25 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
 
         private UserPendingRegistrationId(Guid value)
         {
-            if(value == Guid.Empty)
-                throw DomainDataInconsistencyException.Empty<UserPendingRegistrationId>(nameof(value));
-
             Value = value;
         }
 
-        public static UserPendingRegistrationId CreateUnique()
+        #region Creation
+        public static UserPendingRegistrationId Create()
         {
             return new(Guid.CreateVersion7());
         }
+        #endregion
 
+        #region Restoration
         public static UserPendingRegistrationId Restore(Guid value)
         {
+            if (value == Guid.Empty)
+                throw DomainDataInconsistencyException.Empty<UserPendingRegistrationId>(nameof(value));
+
             return new(value);
         }
+        #endregion
 
         public override IEnumerable<object> GetEqualityComponents()
         {

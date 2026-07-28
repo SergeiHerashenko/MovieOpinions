@@ -27,13 +27,13 @@ namespace Authorization.Infrastructure.Persistence.Repositories
             try
             {
                 await using var connection = await _dbConnectionProvider.GetOpenConnectionAsync(cancellationToken);
-
+        
                 return await action(connection, cancellationToken);
             }
             catch(NpgsqlException ex)
             {
                 _logger.LogCritical(ex, "Критична помилка Postgres: {State}", ex.SqlState);
-
+        
                 throw DatabaseOperationException.NoConnection(
                     message: "Помилка бази даних",
                     innerException: ex
@@ -48,13 +48,13 @@ namespace Authorization.Infrastructure.Persistence.Repositories
             try
             {
                 await using var connection = await _dbConnectionProvider.GetOpenConnectionAsync(cancellationToken);
-
+        
                 await action(connection, cancellationToken);
             }
             catch (NpgsqlException ex)
             {
                 _logger.LogCritical(ex, "Критична помилка Postgres: {State}", ex.SqlState);
-
+        
                 throw DatabaseOperationException.NoConnection(
                     message: "Помилка бази даних",
                     innerException: ex

@@ -36,25 +36,25 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 (@Id, @LoginUser, @LoginType, @CountryCode, @Password, @Role, @UpdatedAt, @LastLoginAt, @LastLoginIp, @IsLoginConfirmed, @FailedLoginAttempts, @IsBlocked, @IsDeleted, @CreatedAt) 
                             RETURNING *; ";
 
-                await using (var insertUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    AddParameters(insertUserCommand, entity);
-                    insertUserCommand.Parameters.Add(new NpgsqlParameter("@CreatedAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.CreatedAt });
+                    AddParameters(command, entity);
+                    command.Parameters.Add(new NpgsqlParameter("@CreatedAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.CreatedAt });
 
-                    await using (var readerInsertUserCommand = await insertUserCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerInsertUserCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserOrdinals(readerInsertUserCommand);
-                            var newUser = MapReaderToUser(readerInsertUserCommand, ords);
+                            var ords = new UserOrdinals(reader);
+                            var createdEntity = MapReaderToUser(reader, ords);
 
                             _logger.LogInformation("User {Login} saved to main table. Guid {Id}. Creation date: {Now}",
-                                newUser.Login.Value,
-                                newUser.Id.Value,
+                                createdEntity.Login.Value,
+                                createdEntity.Id.Value,
                                 _clock.UtcNow
                             );
 
-                            return newUser;
+                            return createdEntity;
                         }
                     }
                 }
@@ -97,24 +97,24 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 id = @Id 
                             RETURNING *;";
 
-                await using (var updateUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    AddParameters(updateUserCommand, entity);
+                    AddParameters(command, entity);
 
-                    await using (var readerUpdateUserCommand = await updateUserCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerUpdateUserCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserOrdinals(readerUpdateUserCommand);
-                            var updateUser = MapReaderToUser(readerUpdateUserCommand, ords);
+                            var ords = new UserOrdinals(reader);
+                            var updateEntity = MapReaderToUser(reader, ords);
 
                             _logger.LogInformation("User {Login} data successfully updated. Guid {Id}. Update date: {Now}",
-                                updateUser.Login.Value,
-                                updateUser.Id.Value,
+                                updateEntity.Login.Value,
+                                updateEntity.Id.Value,
                                 _clock.UtcNow
                             );
 
-                            return updateUser;
+                            return updateEntity;
                         }
                     }
                 }
@@ -144,24 +144,24 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 id = @Id 
                             RETURNING *;";
 
-                await using (var deletedUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    deletedUserCommand.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = id });
+                    command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = id });
 
-                    await using (var readerDeletedUserCommand = await deletedUserCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerDeletedUserCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserOrdinals(readerDeletedUserCommand);
-                            var userEntity = MapReaderToUser(readerDeletedUserCommand, ords);
+                            var ords = new UserOrdinals(reader);
+                            var deleteEntity = MapReaderToUser(reader, ords);
 
                             _logger.LogInformation("User {Login} successfully deleted. Guid {Id}. Deleted on: {Now}",
-                                userEntity.Login.Value,
-                                userEntity.Id.Value,
+                                deleteEntity.Login.Value,
+                                deleteEntity.Id.Value,
                                 _clock.UtcNow
                             );
 
-                            return userEntity;
+                            return deleteEntity;
                         }
                     }
                 }
@@ -185,11 +185,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
             {
                 var sql = @"SELECT EXISTS(SELECT 1 FROM User_Account WHERE login_user = @LoginUser)";
 
-                await using (var existsUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    existsUserCommand.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = login.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = login.Value });
 
-                    var result = await existsUserCommand.ExecuteScalarAsync(ct);
+                    var result = await command.ExecuteScalarAsync(ct);
 
                     return result is bool exists && exists;
                 }
@@ -208,18 +208,18 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                             WHERE 
                                 id = @Id;";
 
-                await using (var getUserByIdCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    getUserByIdCommand.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = userId });
+                    command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = userId });
 
-                    await using (var readerGetUserByIdCommand = await getUserByIdCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if (await readerGetUserByIdCommand.ReadAsync(ct))
+                        if (await reader.ReadAsync(ct))
                         {
-                            var ords = new UserOrdinals(readerGetUserByIdCommand);
-                            var userEntity = MapReaderToUser(readerGetUserByIdCommand, ords);
+                            var ords = new UserOrdinals(reader);
+                            var foundEntity = MapReaderToUser(reader, ords);
 
-                            return userEntity;
+                            return foundEntity;
                         }
                     }
                 }
@@ -240,18 +240,18 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                             WHERE 
                                 login_user = @LoginUser;";
 
-                await using (var getUserByLoginCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    getUserByLoginCommand.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = login.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = login.Value });
 
-                    await using (var readerGetUserByLoginCommand = await getUserByLoginCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if (await readerGetUserByLoginCommand.ReadAsync(ct))
+                        if (await reader.ReadAsync(ct))
                         {
-                            var ords = new UserOrdinals(readerGetUserByLoginCommand);
-                            var userEntity = MapReaderToUser(readerGetUserByLoginCommand, ords);
+                            var ords = new UserOrdinals(reader);
+                            var foundEntity = MapReaderToUser(reader, ords);
 
-                            return userEntity;
+                            return foundEntity;
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 ﻿using Authorization.Application.Common.Exceptions;
 using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Results;
 using FluentValidation;
 using MediatR;

@@ -1,4 +1,5 @@
 ﻿using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
@@ -16,7 +17,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         #region BrokenState
         /// <summary>
         /// Створює виняток для випадку, коли стан є критично невалідним.
-        /// Raises an exception for the case when the condition is critically invalid.
+        /// (Raises an exception for the case when the condition is critically invalid.)
         /// </summary>
         /// <typeparam name="TEntity">Тип сутності, стан якої порушено.</typeparam>
         /// <param name="ruleDescription">Опис бізнес-правила, яке було порушено.</param>
@@ -37,7 +38,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
                 ["Operation"] = operationType.ToString()
             };
 
-            foreach(var (key, value) in stateContext)
+            foreach (var (key, value) in stateContext)
             {
                 data[$"State_{key}"] = value ?? "null";
             }
@@ -45,7 +46,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             var errorMessage = message ?? BuildBrokenStateMessage<TEntity>(ruleDescription);
 
             return new(
-                DomainErrorCodes.InvariantViolationErrorCode.InvalidState,
+                DomainErrorCodes.General.InvalidState,
                 ErrorType.InvariantViolation,
                 errorMessage,
                 data,

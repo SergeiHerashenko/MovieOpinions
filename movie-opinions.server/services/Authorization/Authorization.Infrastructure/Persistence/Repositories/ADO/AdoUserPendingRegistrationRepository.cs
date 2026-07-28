@@ -36,24 +36,24 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 (@Id, @UserId, @LoginUser, @LoginType, @CountryCode, @Password, @RegistrationToken, @CreatedAt, @ExpiresAt)
                             RETURNING * ;";
 
-                await using (var insertUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    AddParameters(insertUserCommand, entity);
+                    AddParameters(command, entity);
 
-                    await using (var readerInsertUserCommand = await insertUserCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerInsertUserCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserPendingRegistrationOrdinals(readerInsertUserCommand);
-                            var newUser = MapReaderToUser(readerInsertUserCommand, ords);
+                            var ords = new UserPendingRegistrationOrdinals(reader);
+                            var createEntity = MapReaderToUser(reader, ords);
 
                             _logger.LogInformation("User {Login} saved to temporary registered table. Guid {Id}. Creation date: {Now}",
-                                newUser.Login.Value,
-                                newUser.Id.Value,
+                                createEntity.Login.Value,
+                                createEntity.Id.Value,
                                 _clock.UtcNow
                             );
 
-                            return newUser;
+                            return createEntity;
                         }
                     }
                 }
@@ -87,19 +87,19 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 login_user = @LoginUser 
                             RETURNING *;";
 
-                await using (var updateUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar){ Value = entity.Login.Value });
-                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.Value });
-                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.RegistrationToken.Value });
-                    updateUserCommand.Parameters.Add(new NpgsqlParameter("@ExpiresAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.ExpiresAt });
+                    command.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar){ Value = entity.Login.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@Password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.Password.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = entity.RegistrationToken.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@ExpiresAt", NpgsqlTypes.NpgsqlDbType.TimestampTz) { Value = entity.ExpiresAt });
 
-                    await using (var readerUpdateUserCommand = await updateUserCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerUpdateUserCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserPendingRegistrationOrdinals(readerUpdateUserCommand);
-                            var updateUser = MapReaderToUser(readerUpdateUserCommand, ords);
+                            var ords = new UserPendingRegistrationOrdinals(reader);
+                            var updateEntity = MapReaderToUser(reader, ords);
 
                             _logger.LogInformation("User {Login} data successfully updated. Guid {Id}. Update date: {Now}",
                                 entity.Login.Value,
@@ -107,7 +107,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 _clock.UtcNow
                             );
 
-                            return updateUser;
+                            return updateEntity;
                         }
                     }
                 }
@@ -137,24 +137,24 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                                 id = @Id 
                             RETURNING *;";
 
-                await using (var deleteUserCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    deleteUserCommand.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = id });
+                    command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlTypes.NpgsqlDbType.Uuid) { Value = id });
 
-                    await using (var readerDeletedUserCommand = await deleteUserCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerDeletedUserCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserPendingRegistrationOrdinals(readerDeletedUserCommand);
-                            var userEntity = MapReaderToUser(readerDeletedUserCommand, ords);
+                            var ords = new UserPendingRegistrationOrdinals(reader);
+                            var deleteEntity = MapReaderToUser(reader, ords);
 
                             _logger.LogInformation("User {Login} has been successfully deleted from the registration table. Guid {Id}. Deleted on: {Now}",
-                                userEntity.Login.Value,
-                                userEntity.Id.Value,
+                                deleteEntity.Login.Value,
+                                deleteEntity.Id.Value,
                                 _clock.UtcNow
                             );
 
-                            return userEntity;
+                            return deleteEntity;
                         }
                     }
                 }
@@ -184,18 +184,18 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                             WHERE 
                                 login_user = @LoginUser;";
 
-                await using (var getUserByLoginCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    getUserByLoginCommand.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = login.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@LoginUser", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = login.Value });
 
-                    await using (var readerGetUserByLoginCommand = await getUserByLoginCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if(await readerGetUserByLoginCommand.ReadAsync(ct))
+                        if(await reader.ReadAsync(ct))
                         {
-                            var ords = new UserPendingRegistrationOrdinals(readerGetUserByLoginCommand);
-                            var userEntity = MapReaderToUser(readerGetUserByLoginCommand, ords);
+                            var ords = new UserPendingRegistrationOrdinals(reader);
+                            var findEntity = MapReaderToUser(reader, ords);
 
-                            return userEntity;
+                            return findEntity;
                         }
                     }
                 }
@@ -216,18 +216,18 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                             WHERE 
                                 registration_token = @RegistrationToken;";
 
-                await using (var getUserByTokenCommand = new NpgsqlCommand(sql, conn))
+                await using (var command = new NpgsqlCommand(sql, conn))
                 {
-                    getUserByTokenCommand.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = registrationToken.Value });
+                    command.Parameters.Add(new NpgsqlParameter("@RegistrationToken", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = registrationToken.Value });
 
-                    await using (var readerGetUserByTokenCommand = await getUserByTokenCommand.ExecuteReaderAsync(ct))
+                    await using (var reader = await command.ExecuteReaderAsync(ct))
                     {
-                        if (await readerGetUserByTokenCommand.ReadAsync(ct))
+                        if (await reader.ReadAsync(ct))
                         {
-                            var ords = new UserPendingRegistrationOrdinals(readerGetUserByTokenCommand);
-                            var userEntity = MapReaderToUser(readerGetUserByTokenCommand, ords);
+                            var ords = new UserPendingRegistrationOrdinals(reader);
+                            var findEntity = MapReaderToUser(reader, ords);
 
-                            return userEntity;
+                            return findEntity;
                         }
                     }
                 }
@@ -249,7 +249,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.ADO
                 int deletedRows = await command.ExecuteNonQueryAsync(ct);
                 if (deletedRows > 0)
                 {
-                    _logger.LogInformation("🧹 З тимчасової таблиці видалено {Count} застарілих записів.", deletedRows);
+                    _logger.LogInformation("З тимчасової таблиці видалено {Count} застарілих записів.", deletedRows);
                 }
             }, cancellationToken);
         }

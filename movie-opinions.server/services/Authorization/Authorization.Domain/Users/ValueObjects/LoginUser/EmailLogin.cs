@@ -12,16 +12,23 @@ namespace Authorization.Domain.Users.ValueObjects.LoginUser
             Email = email;
         }
 
-        public override string Value => Email.Value;
+        public override string Value => Email.GetFullEmail();
 
         public override LoginType Type => LoginType.Email;
 
-        public static EmailLogin Restore(string value)
+        #region Restoration
+        public static EmailLogin Restore(string emailLocalPart, string emailDomainPart)
         {
-            return new EmailLogin(Email.Restore(value));
-        }
+            var localPart = EmailLocalPart.Restore(emailLocalPart);
+            var domainPart = EmailDomainPart.Restore(emailDomainPart);
 
-        public override IEnumerable<object> GetEqualityComponents()
+            var email = Email.Restore(localPart, domainPart);
+
+            return new EmailLogin(email);
+        }
+        #endregion
+
+        public override IEnumerable<object?> GetEqualityComponents()
         {
             yield return Email;
         }

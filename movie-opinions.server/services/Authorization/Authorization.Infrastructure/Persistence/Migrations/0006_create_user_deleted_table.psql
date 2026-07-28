@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS user_deleted(
 	reason			TEXT			NULL,
 	deleted_at		TIMESTAMPTZ		NOT NULL,
 	restore_until	TIMESTAMPTZ		NOT NULL,
-	restore_at		TIMESTAMPTZ		NULL,
+	restored_at		TIMESTAMPTZ		NULL,
 	status			TEXT			NOT NULL,
-	update_at		TIMESTAMPTZ		NULL,
+	updated_at		TIMESTAMPTZ		NULL,
 	created_at		TIMESTAMPTZ		NOT NULL,
 
 	CONSTRAINT pk_user_deleted PRIMARY KEY (id),

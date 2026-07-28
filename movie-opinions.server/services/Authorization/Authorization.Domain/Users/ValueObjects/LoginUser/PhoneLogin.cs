@@ -14,18 +14,23 @@ namespace Authorization.Domain.Users.ValueObjects.LoginUser
 
         public override string Value => Phone.GetFullNumber();
 
-        public override LoginType Type => LoginType.Phone;
+        public override LoginType  Type => LoginType.Phone;
 
-        public static PhoneLogin Restore(string countryCode, string phoneNumber)
+        #region Restoration
+        public static PhoneLogin Restore(string countryCode, string nationalNumber)
         {
-            var phone = Phone.Restore(CountryCode.Create(countryCode).Value, phoneNumber);
+            var code = PhoneCountryCode.Restore(countryCode);
+            var number = PhoneNationalNumber.Restore(nationalNumber);
+
+            var phone = Phone.Restore(code, number);
 
             return new PhoneLogin(phone);
         }
+        #endregion
 
-        public override IEnumerable<object> GetEqualityComponents()
+        public override IEnumerable<object?> GetEqualityComponents()
         {
-            yield return Phone;
+            yield return Value;
         }
     }
 }
