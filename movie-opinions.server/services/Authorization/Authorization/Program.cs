@@ -170,7 +170,7 @@ internal class Program
             using (var scope = app.Services.CreateScope())
             {
                 var migrator = scope.ServiceProvider.GetRequiredService<DatabaseMigrator>();
-
+            
                 await migrator.MigrateAsync();
             }
 

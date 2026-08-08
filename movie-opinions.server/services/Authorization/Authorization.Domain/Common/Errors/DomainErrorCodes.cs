@@ -39,6 +39,10 @@
         // Email
         public static class Email
         {
+            public const string EmptyEmail = "EMPTY_EMAIL";
+
+            public const string InvalidFormatEmail = "INVALID_FORMAT_EMAIL";
+
             public const string EmptyEmailDomain = "EMAIL_DOMAIN_EMPTY";
 
             public const string NotAllowedEmailDomain = "NOT_ALLOWED_EMAIL_DOMAIN";

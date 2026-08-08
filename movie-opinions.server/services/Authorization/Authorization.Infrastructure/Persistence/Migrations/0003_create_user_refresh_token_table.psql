@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS user_refresh_token(
 	device_info		JSONB			NOT NULL,
 	ip_address		VARCHAR(50)		NOT NULL,
 	city			VARCHAR(50)		NULL,
-	status			VARCHAR(50)		NOT NULL,
+	token_status	VARCHAR(50)		NOT NULL,
 	expires_at		TIMESTAMPTZ		NOT NULL,
 	consumed_at		TIMESTAMPTZ		NULL,
 	revoked_at		TIMESTAMPTZ		NULL,

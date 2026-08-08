@@ -17,12 +17,9 @@ namespace Authorization.Domain.Users.ValueObjects.LoginUser
         public override LoginType Type => LoginType.Email;
 
         #region Restoration
-        public static EmailLogin Restore(string emailLocalPart, string emailDomainPart)
+        public static EmailLogin Restore(string rawEmail)
         {
-            var localPart = EmailLocalPart.Restore(emailLocalPart);
-            var domainPart = EmailDomainPart.Restore(emailDomainPart);
-
-            var email = Email.Restore(localPart, domainPart);
+            var email = Email.Restore(rawEmail);
 
             return new EmailLogin(email);
         }

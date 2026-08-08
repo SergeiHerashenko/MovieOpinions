@@ -1,5 +1,6 @@
 ﻿using Authorization.Cookie;
 using Authorization.ErrorHandling;
+using Authorization.MessageHandling;
 
 namespace Authorization
 {
@@ -8,6 +9,7 @@ namespace Authorization
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
             services.AddSingleton<IErrorStatusCodeMapper, ErrorStatusCodeMapper>();
+            services.AddSingleton<IErrorMessageProvider, ErrorMessageProvider>();
             services.AddScoped<ICookieProvider, CookieProvider>();
 
             return services;

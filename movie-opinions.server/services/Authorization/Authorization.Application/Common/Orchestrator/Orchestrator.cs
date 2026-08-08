@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Interfaces.Orchestrator;
+﻿using Authorization.Application.Abstractions.Orchestrator;
 using Authorization.Domain.Results;
 using Microsoft.Extensions.Logging;
 

@@ -1,7 +1,7 @@
-﻿using Authorization.Application.Interfaces.Context;
-using Authorization.Application.Interfaces.Localization;
+﻿using Authorization.Application.Abstractions.UserContext;
 using Authorization.Domain.Common.Exceptions;
 using Authorization.ErrorHandling;
+using Authorization.MessageHandling;
 using Authorization.Response;
 using Microsoft.AspNetCore.Diagnostics;
 

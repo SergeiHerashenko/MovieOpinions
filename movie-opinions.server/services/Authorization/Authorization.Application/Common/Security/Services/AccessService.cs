@@ -1,15 +1,14 @@
-﻿using Authorization.Application.Interfaces.Security.Access;
-using Authorization.Application.Interfaces.Security.Services;
+﻿using Authorization.Application.Abstractions.Security.Access;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users;
 
 namespace Authorization.Application.Common.Security.Services
 {
-    public class AccessService : IAccessService
+    public class AccessService<TMarker> : IAccessService<TMarker>
     {
-        private readonly IEnumerable<IAccessStep> _accessSteps;
+        private readonly IEnumerable<IAccessStep<TMarker>> _accessSteps;
 
-        public AccessService(IEnumerable<IAccessStep> accessSteps)
+        public AccessService(IEnumerable<IAccessStep<TMarker>> accessSteps)
         {
             _accessSteps = accessSteps.OrderBy(c => c.Priority);
         }

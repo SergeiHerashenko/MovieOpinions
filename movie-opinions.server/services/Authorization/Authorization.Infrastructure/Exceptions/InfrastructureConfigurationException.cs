@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors;
+﻿using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions;
 using Authorization.Infrastructure.Errors;
 

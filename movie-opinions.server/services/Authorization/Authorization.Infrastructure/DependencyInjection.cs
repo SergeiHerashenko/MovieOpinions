@@ -1,25 +1,32 @@
-﻿using Authorization.Application.Interfaces.Communication;
-using Authorization.Application.Interfaces.Context;
-using Authorization.Application.Interfaces.Events;
-using Authorization.Application.Interfaces.Localization;
-using Authorization.Application.Interfaces.Persistence;
-using Authorization.Application.Interfaces.Security;
-using Authorization.Application.Interfaces.Security.JWT;
-using Authorization.Application.Options.RateLimit;
-using Authorization.Infrastructure.BackgroundJobs;
+﻿using Authorization.Application.Abstractions.Clock;
+using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Events;
+using Authorization.Application.Abstractions.Persistence;
+using Authorization.Application.Abstractions.RateLimiter;
+using Authorization.Application.Abstractions.Security.Hashers;
+using Authorization.Application.Abstractions.Security.JWT;
+using Authorization.Application.Abstractions.UserContext;
+using Authorization.Infrastructure.Communication;
+using Authorization.Infrastructure.Communication.Options;
 using Authorization.Infrastructure.Context;
-using Authorization.Infrastructure.Errors;
 using Authorization.Infrastructure.Events;
 using Authorization.Infrastructure.Http;
-using Authorization.Infrastructure.Integration;
-using Authorization.Infrastructure.Integration.Options;
+using Authorization.Infrastructure.Limiter;
+using Authorization.Infrastructure.Limiter.Options;
+using Authorization.Infrastructure.Persistence.Context;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Authorization.Infrastructure.Persistence.Migrations;
-using Authorization.Infrastructure.Persistence.Repositories.ADO;
-using Authorization.Infrastructure.Security;
+using Authorization.Infrastructure.Persistence.Repositories.UserPendingRegistrationRepository.Ado;
+using Authorization.Infrastructure.Persistence.Repositories.UserRefreshTokenRepository.Ado;
+using Authorization.Infrastructure.Persistence.Repositories.UserRepository.Ado;
+using Authorization.Infrastructure.Persistence.Repositories.UserRestrictionRepository.Ado;
+using Authorization.Infrastructure.Persistence.Repositories.UserRestrictionSessionRepository.Ado;
+using Authorization.Infrastructure.Persistence.UnitOfWorks;
+using Authorization.Infrastructure.Security.Hashers;
 using Authorization.Infrastructure.Security.JWT;
 using Authorization.Infrastructure.Security.JWT.Interfaces;
 using Authorization.Infrastructure.Security.JWT.Options;
+using Authorization.Infrastructure.SystemClock;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
@@ -39,21 +46,30 @@ namespace Authorization.Infrastructure
 
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            // Реєстрація мігратора
-            services.AddTransient<DatabaseMigrator>();
+            services.AddDistributedMemoryCache();
 
             services.AddProjectHttpClients(configuration);
 
-            services.AddDistributedMemoryCache();
+            // Реєстрація мігратора
+            services.AddTransient<DatabaseMigrator>();
+
+            // Провайдер підключення
+            services.AddScoped<IDbConnectionProvider, ConnectAuthorizationDb>();
 
             services.Configure<RateLimitOptions>(
                 configuration.GetSection(RateLimitOptions.SectionName));
 
+            services.Configure<ServiceJwtProviderOptions>(
+                configuration.GetSection(ServiceJwtProviderOptions.SectionName));
+
             services.Configure<UserJwtProviderOptions>(
-                configuration.GetSection(UserJwtProviderOptions.SectionName));
+                configuration.GetSection(UserJwtProviderOptions.SectionName)); 
+
+            services.Configure<ServiceIdentityOptions>(
+                configuration.GetSection(ServiceIdentityOptions.SectionName));
 
             services.Configure<NotificationServiceOptions>(
-                configuration.GetSection($"{ExternalServicesSection}:{ProfileServiceOption.SectionName}"));
+                configuration.GetSection($"{ExternalServicesSection}:{NotificationServiceOptions.SectionName}"));
 
             services.Configure<VerificationServiceOptions>(
                 configuration.GetSection($"{ExternalServicesSection}:{VerificationServiceOptions.SectionName}"));
@@ -61,38 +77,24 @@ namespace Authorization.Infrastructure
             services.Configure<ContactsServiceOptions>(
                 configuration.GetSection($"{ExternalServicesSection}:{ContactsServiceOptions.SectionName}"));
 
-            services.Configure<ProfileServiceOption>(
-                configuration.GetSection($"{ExternalServicesSection}:{ProfileServiceOption.SectionName}"));
+            services.Configure<ProfileServiceOptions>(
+                configuration.GetSection($"{ExternalServicesSection}:{ProfileServiceOptions.SectionName}"));
 
-            services.Configure<ServiceJwtProviderOptions>(
-                configuration.GetSection(ServiceJwtProviderOptions.SectionName));
-
-            services.Configure<ServiceIdentityOptions>(
-                configuration.GetSection(ServiceIdentityOptions.SectionName));
-
-            // Провайдер підключення
-            services.AddSingleton<IDbConnectionProvider, ConnectAuthorizationDb>();
+            services.AddScoped<TransactionContext>();
+            services.AddScoped<ITransactionContext>(sp => sp.GetRequiredService<TransactionContext>());
+            services.AddScoped<ITransactionContextSetter>(sp => sp.GetRequiredService<TransactionContext>());
 
             // Реалізація
-            services.AddScoped<IRateLimiter, RateLimiter>();
-            services.AddScoped<IHasher, Hasher>();
-            services.AddScoped<IUserContext, UserContext>();
-            services.AddScoped<ISendInternalRequest, SendInternalRequest>();
-            services.AddScoped<IServiceJwtProvider, ServiceJwtProvider>();
-
-            services.AddSingleton<IErrorMessageProvider, ErrorMessageProvider>();
             services.AddSingleton<IClock, Clock>();
-            services.AddScoped<IUserJwtProvider, UserJwtProvider>();
-
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IRateLimiter, RateLimiter>();
+            services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+            services.AddScoped<ISendInternalRequest, SendInternalRequest>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // Репозиторії ADO
-            services.AddScoped<IUserRepository, AdoUserRepository>();
-            services.AddScoped<IUserPendingRegistrationRepository, AdoUserPendingRegistrationRepository>();
-            services.AddScoped<IUserRefreshTokenRepository, AdoUserRefreshTokenRepository>();
-            services.AddScoped<IUserRestrictionRepository, AdoUserRestrictionRepository>();
-            services.AddScoped<IUserRestrictionSessionRepository, AdoUserRestrictionSessionRepository>();
-            services.AddScoped<IUserDeletedRepository, AdoUserDeletedRepository>();
+            services.AddScoped<IServiceJwtProvider, ServiceJwtProvider>();
+            services.AddScoped<IUserJwtProvider, UserJwtProvider>();
 
             // Реалізація Send
             services.AddScoped<INotificationSender, NotificationSender>();
@@ -100,7 +102,26 @@ namespace Authorization.Infrastructure
             services.AddScoped<IContactsSender, ContactsSender>();
             services.AddScoped<IProfileSender, ProfileSender>();
 
-            services.AddHostedService<DatabaseCleanupBackgroundJob>();
+            // Репозиторії ADO
+            services.AddScoped<AdoUserQueryRepository>();
+            services.AddScoped<AdoUserCommandRepository>();
+            services.AddScoped<IUserRepository, AdoUserRepository>();
+
+            services.AddScoped<AdoUserRefreshTokenQueryRepository>();
+            services.AddScoped<AdoUserRefreshTokenCommandRepository>();
+            services.AddScoped<IUserRefreshTokenRepository, AdoUserRefreshTokenRepository>();
+
+            services.AddScoped<AdoUserPendingRegistrationQueryRepository>();
+            services.AddScoped<AdoUserPendingRegistrationCommandRepository>();
+            services.AddScoped<IUserPendingRegistrationRepository, AdoUserPendingRegistrationRepository>();
+
+            services.AddScoped<AdoUserRestrictionQueryRepository>();
+            services.AddScoped<AdoUserRestrictionCommandRepository>();
+            services.AddScoped<IUserRestrictionRepository, AdoUserRestrictionRepository>();
+
+            services.AddScoped<AdoUserRestrictionSessionQueryRepository>();
+            services.AddScoped<AdoUserRestrictionSessionCommandRepository>();
+            services.AddScoped<IUserRestrictionSessionRepository, AdoUserRestrictionSessionRepository>();
 
             return services;
         }
@@ -110,8 +131,8 @@ namespace Authorization.Infrastructure
             string GetRequiredUrl(string sectionName)
             {
                 var url = configuration[$"{ExternalServicesSection}:{sectionName}:{BaseUrlKey}"];
-                
-                if(string.IsNullOrEmpty(url))
+
+                if (string.IsNullOrEmpty(url))
                 {
                     throw new InvalidOperationException(
                         $"Critical configuration error: BaseUrl not found for service '{ExternalServicesSection}:{sectionName}'!");
@@ -162,8 +183,8 @@ namespace Authorization.Infrastructure
             RegisterService(NotificationServiceOptions.SectionName, NotificationPipeline);
             RegisterService(VerificationServiceOptions.SectionName, VerificationPipeline);
             RegisterService(ContactsServiceOptions.SectionName, ContactsPipeline);
-            RegisterService(ProfileServiceOption.SectionName, ProfilePipeline);
-            
+            RegisterService(ProfileServiceOptions.SectionName, ProfilePipeline);
+
             return services;
         }
     }

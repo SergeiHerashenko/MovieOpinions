@@ -1,0 +1,10 @@
+﻿using Authorization.Application.DTOs.Communication;
+using Authorization.Domain.Results;
+
+namespace Authorization.Application.Abstractions.Communication
+{
+    public interface INotificationSender
+    {
+        Task<Result> SendCreateNotificationAsync<TId>(NotificationRequest<TId> notificationCommand);
+    }
+}

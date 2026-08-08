@@ -35,6 +35,6 @@ namespace Authorization.Application.DTOs.Communication
 
             return new(aggregateId.Value, login.Value, CommunicationChannel.Phone);
         }
-            
+
     }
 }

@@ -1,9 +1,11 @@
 ﻿-- 1. Створення таблиці
 CREATE TABLE IF NOT EXISTS user_restriction_session(
-	id						UUID	NOT NULL,
-	user_id					UUID	NOT NULL,
-	active_restrictions_id	JSONB	NOT NULL,
-	total_blocked_days		INTEGER	NOT NULL,
+	id						UUID		NOT NULL,
+	user_id					UUID		NOT NULL,
+	active_restrictions_ids	JSONB		NOT NULL,
+	restriction_type		VARCHAR(50)	NOT NULL,
+	total_blocked_minutes	INTEGER		NOT NULL,
+	created_at				TIMESTAMPTZ	NOT NULL,
 
 	CONSTRAINT pk_user_restriction_session PRIMARY KEY (id),
 

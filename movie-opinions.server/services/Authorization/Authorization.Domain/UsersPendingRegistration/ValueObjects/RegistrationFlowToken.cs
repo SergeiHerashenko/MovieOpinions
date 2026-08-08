@@ -16,7 +16,7 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         }
 
         #region Creation
-        public static RegistrationFlowToken Create()
+        internal static RegistrationFlowToken Create()
         {
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(TOKEN_BYTES));
 

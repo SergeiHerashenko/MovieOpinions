@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Interfaces.Security;
+﻿using Authorization.Application.Abstractions.Clock;
 using Authorization.Infrastructure.Exceptions;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Npgsql;
@@ -32,7 +32,7 @@ namespace Authorization.Infrastructure.Persistence.Migrations
                 .OrderBy(name => name)
                 .ToList();
 
-            if (!availableMigrations.Any()) 
+            if (!availableMigrations.Any())
                 return;
 
             var appliedMigrations = await GetAppliedMigrationsAsync(connection);
@@ -52,7 +52,7 @@ namespace Authorization.Infrastructure.Persistence.Migrations
                     // Читаємо текст SQL з ресурсів
                     using var stream = assembly.GetManifestResourceStream(migrationName);
                     using var reader = new StreamReader(
-                        stream 
+                        stream
                         ?? throw DatabaseOperationException.NotFoundFile(
                             $"Resource {migrationName} not found!",
                             new Dictionary<string, object>

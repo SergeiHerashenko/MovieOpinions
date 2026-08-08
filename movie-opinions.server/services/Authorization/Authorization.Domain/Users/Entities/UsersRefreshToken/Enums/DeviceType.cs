@@ -8,8 +8,6 @@
 
         Tablet,
 
-        Tv,
-
         Unknown
     }
 }

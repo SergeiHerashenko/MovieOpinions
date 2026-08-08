@@ -1,5 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
-using Authorization.Domain.Users.Enums;
+﻿using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 
@@ -13,19 +12,16 @@ namespace Authorization.Application.Common.Security.Models
 
         public Role Role { get; }
 
-        public IpAddress IpAddress { get; }
-
-        private UserSessionDTO(UserId userId, Login login, Role role, IpAddress ipAddress)
+        private UserSessionDTO(UserId userId, Login login, Role role)
         {
             UserId = userId;
             Login = login;
             Role = role;
-            IpAddress = ipAddress;
         }
 
-        public static UserSessionDTO Create(UserId userId, Login login, Role role, IpAddress ipAddress)
+        public static UserSessionDTO Create(UserId userId, Login login, Role role)
         {
-            return new(userId, login, role, ipAddress);
+            return new(userId, login, role);
         }
     }
 }

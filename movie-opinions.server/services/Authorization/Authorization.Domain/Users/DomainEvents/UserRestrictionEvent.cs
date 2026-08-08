@@ -1,18 +1,36 @@
 ﻿using Authorization.Domain.Common.Models;
-using Authorization.Domain.Users.Entities.UsersRestriction;
+using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects;
+using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
+using Authorization.Domain.Users.Enums;
 
 namespace Authorization.Domain.Users.DomainEvents
 {
     public sealed class UserRestrictionEvent : DomainEvent
     {
-        public UserRestriction Restriction { get; }
+        public UserRestrictionId UserRestrictionId { get; }
+
+        public RestrictionRule RestrictionRule { get; }
+
+        public RestrictionType RestrictionType { get; }
+
+        public string? Reason { get; }
+
+        public string RestrictedBy { get; }
 
         public UserRestrictionEvent(
-            UserRestriction restriction,
+            UserRestrictionId userRestrictionId,
+            RestrictionRule restrictionRule,
+            RestrictionType restrictionType,
+            string? reason,
+            string restrictedBy,
             DateTimeOffset occurredOn)
             : base(occurredOn)
         {
-            Restriction = restriction;
+            UserRestrictionId = userRestrictionId;
+            RestrictionRule = restrictionRule;
+            RestrictionType = restrictionType;
+            Reason = reason;
+            RestrictedBy = restrictedBy;
         }
     }
 }

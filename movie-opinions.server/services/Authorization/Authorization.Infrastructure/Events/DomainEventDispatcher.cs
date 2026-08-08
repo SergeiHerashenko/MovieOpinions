@@ -1,6 +1,6 @@
-﻿using Authorization.Application.Common.Events;
-using Authorization.Application.Interfaces.Events;
-using Authorization.Domain.Common.Models;
+﻿using Authorization.Application.Abstractions.Events;
+using Authorization.Application.Common.Events;
+using Authorization.Domain.Common.Models.Interfaces;
 using MediatR;
 
 namespace Authorization.Infrastructure.Events
@@ -14,7 +14,7 @@ namespace Authorization.Infrastructure.Events
             _mediator = mediator;
         }
 
-        public async Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
+        public async Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
         {
             var eventType = domainEvent.GetType();
 

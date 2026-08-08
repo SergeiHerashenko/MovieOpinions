@@ -1,5 +1,5 @@
-﻿using Authorization.Application.Common.Security.Models;
-using Authorization.Application.Interfaces.Security.JWT;
+﻿using Authorization.Application.Abstractions.Security.JWT;
+using Authorization.Application.Common.Security.Models;
 using Authorization.Infrastructure.Security.JWT.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

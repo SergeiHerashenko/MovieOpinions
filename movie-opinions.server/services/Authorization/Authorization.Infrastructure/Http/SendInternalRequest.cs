@@ -10,7 +10,7 @@ namespace Authorization.Infrastructure.Http
         private readonly ILogger<SendInternalRequest> _logger;
 
         public SendInternalRequest(
-            IHttpClientFactory httpClientFactory, 
+            IHttpClientFactory httpClientFactory,
             ILogger<SendInternalRequest> logger)
         {
             _httpClientFactory = httpClientFactory;
@@ -23,16 +23,16 @@ namespace Authorization.Infrastructure.Http
             {
                 // 1. Створюємо іменований клієнт
                 var client = _httpClientFactory.CreateClient(internalRequest.ClientName);
-                
+
                 // 2. Додаємо кастомні заголовки, якщо вони є
                 if (internalRequest.Headers != null)
                 {
-                    foreach(var header in internalRequest.Headers)
+                    foreach (var header in internalRequest.Headers)
                     {
                         client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
                     }
                 }
-                
+
                 // 3. Відправка запиту
                 HttpResponseMessage response = internalRequest.Method.Method.ToUpper() switch
                 {
@@ -61,8 +61,8 @@ namespace Authorization.Infrastructure.Http
                     : $"The external service returned an error with status {(int)response.StatusCode}";
 
                 _logger.LogWarning("HTTP request to {Endpoint} failed. Status: {StatusCode}. Error: {Error}",
-                    internalRequest.Endpoint, 
-                    (int)response.StatusCode, 
+                    internalRequest.Endpoint,
+                    (int)response.StatusCode,
                     errorMessage
                 );
 

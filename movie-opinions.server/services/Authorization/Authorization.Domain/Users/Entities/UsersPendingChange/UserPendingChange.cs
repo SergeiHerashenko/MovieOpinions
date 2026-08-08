@@ -65,7 +65,7 @@ namespace Authorization.Domain.Users.Entities.UsersPendingChange
             );
 
             pendingChange.AddDomainEvent(new UserPendingChangeEvent(
-                pendingChange.UserId,
+                pendingChange.Id,
                 pendingChange.UserChange,
                 pendingChange.ExpiresAt,
                 pendingChange.CreatedAt)

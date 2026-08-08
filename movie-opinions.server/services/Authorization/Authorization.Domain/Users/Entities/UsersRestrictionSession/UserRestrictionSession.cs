@@ -18,7 +18,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
 
         private readonly List<UserRestrictionId> _activeRestrictionIds = new();
 
-        public IReadOnlyCollection<UserRestrictionId> ActiveRestrictions => _activeRestrictionIds;
+        public IReadOnlyCollection<UserRestrictionId> ActiveRestrictionsIds => _activeRestrictionIds;
 
         public RestrictionType RestrictionType { get; private set; }
 
@@ -77,7 +77,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         private UserRestrictionSession(
             UserRestrictionSessionId userRestrictionSessionId,
             UserId userId,
-            List<UserRestrictionId> userRestrictionIds,
+            IReadOnlyCollection<UserRestrictionId> userRestrictionIds,
             RestrictionType restrictionType,
             int totalBlockedMinutes,
             DateTimeOffset createdAt)
@@ -92,7 +92,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         public static UserRestrictionSession Restore(
             UserRestrictionSessionId userRestrictionSessionId,
             UserId userId,
-            List<UserRestrictionId> userRestrictionIds,
+            IReadOnlyCollection<UserRestrictionId> userRestrictionIds,
             RestrictionType restrictionType,
             int totalBlockedMinutes,
             DateTimeOffset createdAt)

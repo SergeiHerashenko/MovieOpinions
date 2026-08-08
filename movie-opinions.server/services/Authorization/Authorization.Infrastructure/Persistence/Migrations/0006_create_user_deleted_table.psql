@@ -2,14 +2,14 @@
 CREATE TABLE IF NOT EXISTS user_deleted(
 	id				UUID			NOT NULL,
 	user_id			UUID			NOT NULL,
-	login_user		VARCHAR(550)	NOT NULL,
-	login_type		VARCHAR(250)	NOT NULL,
+	login			VARCHAR(550)	NOT NULL,
+	login_type		VARCHAR(50)		NOT NULL,
 	country_code	VARCHAR(50)		NULL,
+	email_domain	VARCHAR(50)		NULL,
 	reason			TEXT			NULL,
-	deleted_at		TIMESTAMPTZ		NOT NULL,
 	restore_until	TIMESTAMPTZ		NOT NULL,
 	restored_at		TIMESTAMPTZ		NULL,
-	status			TEXT			NOT NULL,
+	status			VARCHAR(50)		NOT NULL,
 	updated_at		TIMESTAMPTZ		NULL,
 	created_at		TIMESTAMPTZ		NOT NULL,
 

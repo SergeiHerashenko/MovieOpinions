@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Authentication\SignIn\Phones\" />
-    <Folder Include="Features\Authentication\Logout\" />
-  </ItemGroup>
-
-  <ItemGroup>
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="MediatR" />

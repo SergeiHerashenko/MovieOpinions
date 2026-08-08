@@ -1,4 +1,5 @@
 ﻿using Authorization.Domain.Users.Entities.UsersPendingChange.Enums;
+using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects.EmailUser;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.Users.ValueObjects.PhoneUser;
@@ -8,6 +9,8 @@ namespace Authorization.Domain.Users.Entities.UsersPendingChange.Changes
     public sealed class LoginChange : UserChange
     {
         public Login NewLogin { get; }
+
+        public LoginType LoginType => NewLogin.Type;
 
         internal LoginChange(Login newLogin)
         {

@@ -1,10 +1,11 @@
-﻿using Authorization.Application.Common.Security.Models;
-using Authorization.Application.Interfaces.Context;
-using Authorization.Application.Interfaces.Persistence;
-using Authorization.Application.Interfaces.Security.JWT;
-using Authorization.Application.Interfaces.Security.Services;
+﻿using Authorization.Application.Abstractions.Clock;
+using Authorization.Application.Abstractions.Security.JWT;
+using Authorization.Application.Abstractions.Services;
+using Authorization.Application.Abstractions.UserContext;
+using Authorization.Application.Common.Security.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.UsersRefreshToken;
+using Authorization.Domain.Users;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
 
 namespace Authorization.Application.Common.Security.Services
 {
@@ -12,42 +13,52 @@ namespace Authorization.Application.Common.Security.Services
     {
         private readonly IUserJwtProvider _userJwtProvider;
         private readonly IUserContext _userContext;
-
-        private readonly IUserRefreshTokenRepository _userRefreshTokenRepository;
+        private readonly IClock _clock;
 
         public TokenService(
             IUserJwtProvider userJwtProvider,
             IUserContext userContext,
-            IUserRefreshTokenRepository userRefreshToken)
+            IClock clock)
         {
             _userJwtProvider = userJwtProvider;
             _userContext = userContext;
-            _userRefreshTokenRepository = userRefreshToken;
+            _clock = clock;
         }
 
-        public async Task<Result<TokenResponse>> CreateUserSessionAsync(UserSessionDTO userSessionDTO)
+        public Result<TokenResponse> CreateUserSessionAsync(User user, CancellationToken cancellationToken = default)
         {
+            var userSessionDTO = UserSessionDTO.Create(
+                user.Id, 
+                user.Login,
+                user.Role
+            );
+
             var accessToken = _userJwtProvider.GenerateAccessToken(userSessionDTO);
 
-            var userToken = UserRefreshToken.Create(
-                userSessionDTO.UserId,
-                _userContext.DeviceInfo,
-                userSessionDTO.IpAddress,
+            var ipAddressResult = IpAddress.Create(_userContext.GetIpAddress());
+
+            if (ipAddressResult.IsFailure)
+                return Result<TokenResponse>.Failure(ipAddressResult.Errors);
+
+            var ipAddress = ipAddressResult.Value;
+
+            var createTokenResult = user.CreateRefreshToken(
+                _userContext.InfoDevice(),
+                ipAddress,
+                _clock.UtcNow,
                 _userContext.GetLocation()
             );
 
-            if (userToken.IsFailure)
-                return Result<TokenResponse>.Failure(userToken.Errors);
+            if (createTokenResult.IsFailure)
+                return Result<TokenResponse>.Failure(createTokenResult.Errors);
 
-            var saveToken = await _userRefreshTokenRepository.CreateAsync(userToken.Value);
-
-            var tokens = new TokenResponse()
+            var token = new TokenResponse()
             {
                 AccessToken = accessToken,
-                RefreshToken = saveToken.RefreshToken.Value,
+                UserRefreshToken = createTokenResult.Value
             };
 
-            return Result<TokenResponse>.Success(tokens);
+            return Result<TokenResponse>.Success(token);
         }
     }
 }

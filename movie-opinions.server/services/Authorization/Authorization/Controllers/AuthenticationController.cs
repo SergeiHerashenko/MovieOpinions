@@ -1,7 +1,8 @@
-﻿using Authorization.Application.Features.Authentication.ConfirmRegistration;
-using Authorization.Application.Features.Authentication.Registration.Emails;
-using Authorization.Application.Features.Authentication.Registration.Phones;
-using Authorization.Application.Features.Authentication.SignIn.Emails;
+﻿using Authorization.Application.Features.Registration.ConfirmRegistration;
+using Authorization.Application.Features.Registration.StartRegistration.Emails;
+using Authorization.Application.Features.Registration.StartRegistration.Phones;
+using Authorization.Application.Features.SignIn.Emails;
+using Authorization.Application.Features.SignIn.Phones;
 using Authorization.Cookie;
 using Authorization.Requests.ConfirmRegistration;
 using Authorization.Requests.Login;
@@ -78,17 +79,17 @@ namespace Authorization.Controllers
                 confirmRegistrationRequest.RegistrationToken,
                 confirmRegistrationRequest.VerificationValue
             );
-
+        
             var result = await _mediator.Send(command,cancellationToken);
-
-            if (result.IsFailure || result.Value.TokenResponse is null)
+        
+            if (result.IsFailure || result.Value.AccessToken is null || result.Value.RefreshToken is null)
                 return BadRequest(result.Errors);
-
-            _cookieProvider.SetCookies(result.Value.TokenResponse.AccessToken, result.Value.TokenResponse.RefreshToken);
-
+        
+            _cookieProvider.SetCookies(result.Value.AccessToken, result.Value.RefreshToken);
+        
             return Ok(result.Value);
         }
-
+        
         [HttpPost("login/email")]
         [EnableRateLimiting("FixedWindowPolicy")]
         public async Task<IActionResult> LoginWithEmail(
@@ -99,13 +100,35 @@ namespace Authorization.Controllers
                 loginWithEmailRequest.Email,
                 loginWithEmailRequest.Password
             );
+        
+            var result = await _mediator.Send(command, cancellationToken);
+        
+            if (result.IsFailure || result.Value.AccessToken is null || result.Value.RefreshToken is null)
+                return BadRequest(result.Errors);
+        
+            _cookieProvider.SetCookies(result.Value.AccessToken, result.Value.RefreshToken);
+        
+            return Ok(result.Value);
+        }
+
+        [HttpPost("login/phone")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<IActionResult> LoginWithPhone(
+            [FromBody] LoginWithPhoneRequest loginWithPhoneRequest,
+            CancellationToken cancellationToken = default)
+        {
+            var command = new SignInWithPhoneCommand(
+                loginWithPhoneRequest.CountryCode,
+                loginWithPhoneRequest.PhoneNumber,
+                loginWithPhoneRequest.Password
+            );
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            if (result.IsFailure || result.Value.TokenResponse is null)
+            if (result.IsFailure || result.Value.AccessToken is null || result.Value.RefreshToken is null)
                 return BadRequest(result.Errors);
 
-            _cookieProvider.SetCookies(result.Value.TokenResponse.AccessToken, result.Value.TokenResponse.RefreshToken);
+            _cookieProvider.SetCookies(result.Value.AccessToken, result.Value.RefreshToken);
 
             return Ok(result.Value);
         }

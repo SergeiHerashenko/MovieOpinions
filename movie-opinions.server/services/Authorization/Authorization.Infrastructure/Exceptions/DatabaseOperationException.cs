@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors;
+﻿using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions;
 using Authorization.Infrastructure.Errors;
 
@@ -14,13 +14,55 @@ namespace Authorization.Infrastructure.Exceptions
             Exception? innerException = null)
             : base(errorCode, errorType, message, context ?? new Dictionary<string, object>(), innerException) { }
 
-        public static DatabaseOperationException NoConnection(
+        public static DatabaseOperationException ConnectionStringNotFound(
             string message,
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
         {
             return new(
-                InfrastructureErrorCodes.DbError.NoConnection,
+                InfrastructureErrorCodes.DbError.ConnectionStringNotFound,
+                ErrorType.InvalidOperation,
+                message,
+                context,
+                innerException
+            );
+        }
+
+        public static DatabaseOperationException DatabaseError(
+            string message,
+            IReadOnlyDictionary<string, object>? context = null,
+            Exception? innerException = null)
+        {
+            return new(
+                InfrastructureErrorCodes.DbError.DatabaseError,
+                ErrorType.InvalidOperation,
+                message,
+                context,
+                innerException
+            );
+        }
+
+        public static DatabaseOperationException NoTransaction(
+            string message,
+            IReadOnlyDictionary<string, object>? context = null,
+            Exception? innerException = null)
+        {
+            return new(
+                InfrastructureErrorCodes.DbError.NoTransaction,
+                ErrorType.InvalidOperation,
+                message,
+                context,
+                innerException
+            );
+        }
+
+        public static DatabaseOperationException NestedTransaction(
+            string message,
+            IReadOnlyDictionary<string, object>? context = null,
+            Exception? innerException = null)
+        {
+            return new(
+                InfrastructureErrorCodes.DbError.NestedTransaction,
                 ErrorType.InvalidOperation,
                 message,
                 context,

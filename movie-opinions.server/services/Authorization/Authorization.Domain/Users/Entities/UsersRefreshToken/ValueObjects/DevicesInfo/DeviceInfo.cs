@@ -4,6 +4,7 @@ using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Rules;
+using System.Text.Json.Serialization;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo
 {
@@ -17,6 +18,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
 
         public string DeviceModel { get; }
 
+        [JsonConstructor]
         private DeviceInfo(DeviceType deviceType, string operatingSystem, string browser, string deviceModel)
         {
             DeviceType = deviceType;
@@ -34,7 +36,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         );
 
         #region Creation 
-        internal static Result<DeviceInfo> Create(DeviceType deviceType, string operatingSystem, string browser, string deviceModel)
+        public static Result<DeviceInfo> Create(DeviceType deviceType, string operatingSystem, string browser, string deviceModel)
         {
             var failure = ValidateInternal(operatingSystem, browser, deviceModel);
 

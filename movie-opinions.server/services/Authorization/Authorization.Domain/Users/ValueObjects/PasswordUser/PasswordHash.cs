@@ -1,4 +1,5 @@
 ﻿using Authorization.Domain.Common.Models;
+using System.Text.Json.Serialization;
 
 namespace Authorization.Domain.Users.ValueObjects.PasswordUser
 {
@@ -6,6 +7,7 @@ namespace Authorization.Domain.Users.ValueObjects.PasswordUser
     {
         public string Value { get; }
 
+        [JsonConstructor]
         public PasswordHash(string value)
         {
             Value = value;

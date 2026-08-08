@@ -1,5 +1,6 @@
 ﻿using Authorization.Application.Common.Enums;
 using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Errors.Enums;
 
 namespace Authorization.Infrastructure.Errors.RateLimiter
 {

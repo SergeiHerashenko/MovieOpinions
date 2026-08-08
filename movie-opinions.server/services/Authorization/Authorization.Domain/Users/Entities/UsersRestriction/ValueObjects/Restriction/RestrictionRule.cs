@@ -2,6 +2,7 @@
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction.Rules;
+using System.Text.Json.Serialization;
 
 namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction
 {
@@ -11,6 +12,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
 
         public int DurationMinute { get; }
 
+        [JsonConstructor]
         private RestrictionRule(string name, int durationMinute )
         {
             Name = name;

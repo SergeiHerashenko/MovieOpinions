@@ -1,0 +1,31 @@
+﻿-- 1. Створення таблиці
+CREATE TABLE IF NOT EXISTS user_pending_change(
+	id					UUID			NOT NULL,
+	user_id				UUID			NOT NULL,
+	confirmation_token	VARCHAR(550)	NOT NULL,
+	change_type			VARCHAR(50)		NOT NULL,
+	login_type			VARCHAR(50)		NULL,
+	change_data			JSONB			NOT NULL,
+	expires_at			TIMESTAMPTZ		NOT NULL,
+	confirmation_time	TIMESTAMPTZ		NULL,
+	expired_at			TIMESTAMPTZ		NULL,
+	status				VARCHAR(50)		NOT NULL,
+	created_at			TIMESTAMPTZ		NOT NULL,
+
+	CONSTRAINT pk_user_pending_change PRIMARY KEY (id),
+
+	CONSTRAINT fk_user_pending_change_user_id
+	FOREIGN KEY (user_id)
+	REFERENCES user_account(id)
+	ON DELETE CASCADE
+);
+
+-- 2. Створення індексу для швидкого пошуку
+CREATE INDEX IF NOT EXISTS idx_user_pending_change_user_id
+ON user_pending_change (user_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_pending_change_confirmation_token
+ON user_pending_change (confirmation_token);
+
+CREATE INDEX IF NOT EXISTS idx_user_pending_change_expires_at
+ON user_pending_change (expires_at);

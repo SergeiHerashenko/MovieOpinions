@@ -51,7 +51,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
 
             var userDeletion = new UserDeletion(UserDeletionId.Create(), userId, login, now, reason);
 
-            userDeletion.AddDomainEvent(new UserDeletionEvent(login, now));
+            userDeletion.AddDomainEvent(new UserDeletedEvent(userDeletion.Id, userDeletion.Login, now));
 
             return Result<UserDeletion>.Success(userDeletion);
         }
@@ -114,21 +114,23 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             RestoredAt = now;
             UpdatedAt = now;
 
-            AddDomainEvent(new UserUndeleteEvent(Login, now));
+            AddDomainEvent(new UserUndeletedEvent(Id, Login, now));
 
             return Result.Success();
         }
 
-        public void MarkAsExpired(DateTimeOffset now)
+        internal bool MarkAsExpired(DateTimeOffset now)
         {
             if (Status == DeletionStatus.Restored)
-                return;
+                return false;
 
             if (now <= RestoreUntil)
-                return;
+                return false;
 
             Status = DeletionStatus.PermanentlyDeleted;
             UpdatedAt = now;
+
+            return true;
         }
         #endregion
 

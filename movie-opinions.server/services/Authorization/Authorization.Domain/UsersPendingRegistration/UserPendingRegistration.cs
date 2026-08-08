@@ -55,6 +55,7 @@ namespace Authorization.Domain.UsersPendingRegistration
 
             userPendingRegistration.AddDomainEvent(
                 new UserPendingRegistrationEvent(
+                    userPendingRegistration.Id,
                     userPendingRegistration.Login,
                     userPendingRegistration.CreatedAt
                 )
@@ -112,7 +113,7 @@ namespace Authorization.Domain.UsersPendingRegistration
             RegistrationFlowToken = RegistrationFlowToken.Create();
             ExpiresAt = now.Add(ExpirationTime);
 
-            AddDomainEvent(new UserPendingRegistrationEvent(Login, now));
+            AddDomainEvent(new UserPendingRegistrationEvent(Id, Login, now));
 
             return Result.Success();
         }

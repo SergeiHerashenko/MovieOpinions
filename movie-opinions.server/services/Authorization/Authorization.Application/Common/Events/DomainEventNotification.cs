@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Models;
+﻿using Authorization.Domain.Common.Models.Interfaces;
 using MediatR;
 
 namespace Authorization.Application.Common.Events

@@ -4,6 +4,7 @@ using Authorization.Domain.Common.Models;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects.PhoneUser.Rules.Phones;
+using System.Text.Json.Serialization;
 
 namespace Authorization.Domain.Users.ValueObjects.PhoneUser
 {
@@ -13,6 +14,7 @@ namespace Authorization.Domain.Users.ValueObjects.PhoneUser
 
         public PhoneNationalNumber PhoneNationalNumber { get; }
 
+        [JsonConstructor]
         private Phone(
             PhoneCountryCode phoneCountryCode,
             PhoneNationalNumber phoneNationalNumber)

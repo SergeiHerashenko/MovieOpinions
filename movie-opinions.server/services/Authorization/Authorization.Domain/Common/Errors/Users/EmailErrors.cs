@@ -4,6 +4,18 @@ namespace Authorization.Domain.Common.Errors.Users
 {
     public static class EmailErrors
     {
+        public static Error EmptyEmail<TValue>()
+            => new(DomainErrorCodes.Email.EmptyEmail,
+                   $"The email address for '{typeof(TValue).Name}' is empty or missing!",
+                   ErrorType.EmptyValue
+            );
+
+        public static Error InvalidFormatEmail<TValue>(string email)
+            => new(DomainErrorCodes.Email.InvalidFormatEmail,
+                   $"The email address '{email}' is not valid. Owner {typeof(TValue).Name}!",
+                   ErrorType.Validation
+            );
+
         public static Error EmptyDomainPart<TValue>()
             => new(DomainErrorCodes.Email.EmptyEmailDomain,
                    $"The email domain for '{typeof(TValue).Name}' is empty or missing!",

@@ -31,14 +31,14 @@ namespace Authorization.Application.Behaviors
                 .Where(f => f != null)
                 .ToList();
 
-            if(failures.Count == 0)
+            if (failures.Count == 0)
                 return await next();
 
             // Перетворюємо помилки FluentValidation на доменні Error
             var errors = failures
                 .Select(f => new Error(
-                    f.ErrorCode, 
-                    f.ErrorMessage, 
+                    f.ErrorCode,
+                    f.ErrorMessage,
                     ErrorType.Validation))
                 .ToList();
 
@@ -49,10 +49,10 @@ namespace Authorization.Application.Behaviors
         {
             var responseType = typeof(TResponse);
 
-            if(responseType == typeof(Result))
+            if (responseType == typeof(Result))
                 return (TResponse)(object)Result.Failure(errors);
 
-            if(responseType.IsGenericType &&
+            if (responseType.IsGenericType &&
                 responseType.GetGenericTypeDefinition() == typeof(Result<>))
             {
                 var dataType = responseType.GetGenericArguments()[0];

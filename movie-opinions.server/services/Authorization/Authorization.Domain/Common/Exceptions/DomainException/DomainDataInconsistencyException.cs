@@ -1,7 +1,6 @@
 ﻿using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions.Enums;
-using Authorization.Domain.Results;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
 {

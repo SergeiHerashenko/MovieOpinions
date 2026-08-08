@@ -7,9 +7,9 @@ namespace Authorization.Application.DTOs.Communication
 {
     public class NotificationRequest<TId>
     {
-        public TId UserId { get; }
+        public TId ReferenceId { get; }
 
-        public string Recipient {  get; }
+        public string Recipient { get; }
 
         public MessageActions Action { get; }
 
@@ -17,11 +17,11 @@ namespace Authorization.Application.DTOs.Communication
 
         internal NotificationRequest(
             TId userId,
-            string recipient, 
+            string recipient,
             MessageActions action,
             CommunicationChannel channel)
         {
-            UserId = userId;
+            ReferenceId = userId;
             Recipient = recipient;
             Action = action;
             Channel = channel;

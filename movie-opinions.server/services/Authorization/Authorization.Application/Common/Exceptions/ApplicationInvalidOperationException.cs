@@ -1,5 +1,5 @@
-﻿using Authorization.Application.Common.ApplicationErrors;
-using Authorization.Domain.Common.Errors;
+﻿using Authorization.Application.Common.Errors;
+using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions;
 using Authorization.Domain.Common.Exceptions.Enums;
 
@@ -33,7 +33,7 @@ namespace Authorization.Application.Common.Exceptions
             var errorMessage = message ?? BuildValueAccessOnFailureMessage<TEntity>(valueName);
 
             return new(
-                ApplicationErrorCodes.InvalidOperationErrorCode.InvalidOperation,
+                ApplicationErrorCodes.GeneralError.InvalidOperation,
                 ErrorType.InvalidOperation,
                 errorMessage,
                 data,

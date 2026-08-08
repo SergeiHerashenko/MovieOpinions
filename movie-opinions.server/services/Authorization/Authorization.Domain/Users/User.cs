@@ -202,6 +202,7 @@ namespace Authorization.Domain.Users
 
             if (!access.IsSuccess)
                 return access;
+
             if (!IsLoginConfirmed)
                 return Result.Failure(LoginErrors.LoginIsNotConfirm<User>());
 
@@ -240,6 +241,9 @@ namespace Authorization.Domain.Users
             if (!access.IsSuccess)
                 return Result<UserRefreshToken>.Failure(access.Errors);
 
+            if (IsNewDevice(deviceInfo, ipAddress))
+                AddDomainEvent(new UserSignedInFromNewDeviceEvent(Id, Login, deviceInfo, ipAddress, now));
+
             var tokenResult = UserRefreshToken.Create(Id, deviceInfo, ipAddress, now, city);
 
             if(tokenResult.IsFailure)
@@ -249,7 +253,7 @@ namespace Authorization.Domain.Users
 
             _refreshTokens.Add(refreshToken);
 
-            AddAggregateChangeEvent(new CreateRefreshTokenUserEvent(refreshToken, now));
+            AddAggregateChangeEvent(new UserRefreshTokenCreated(refreshToken, now));
 
             return Result<UserRefreshToken>.Success(refreshToken);
         }
@@ -269,7 +273,7 @@ namespace Authorization.Domain.Users
 
             _refreshTokens.Remove(refreshToken);
 
-            AddAggregateChangeEvent(new UpdateRefreshTokenUserEvent(refreshToken, now));
+            AddAggregateChangeEvent(new UserRefreshTokenUpdated(refreshToken, now));
 
             return Result.Success();
         }
@@ -289,9 +293,17 @@ namespace Authorization.Domain.Users
 
             _refreshTokens.Remove(refreshToken);
 
-            AddAggregateChangeEvent(new UpdateRefreshTokenUserEvent(refreshToken, now));
+            AddAggregateChangeEvent(new UserRefreshTokenUpdated(refreshToken, now));
 
             return Result.Success();
+        }
+
+        private bool IsNewDevice(DeviceInfo deviceInfo, IpAddress ipAddress)
+        {
+            return !_refreshTokens.Any(x => 
+                x.DeviceInfo == deviceInfo && 
+                x.IpAddress == ipAddress
+            );
         }
         #endregion
 
@@ -319,7 +331,7 @@ namespace Authorization.Domain.Users
             if(createChangeResult.IsFailure)
                 return createChangeResult;
 
-            AddAggregateChangeEvent(new CreateChangeUserEvent(createChangeResult.Value, now));
+            AddAggregateChangeEvent(new UserPendingChangeCreated(createChangeResult.Value, now));
 
             return Result.Success();
         }
@@ -347,7 +359,7 @@ namespace Authorization.Domain.Users
             if (createChangeResult.IsFailure)
                 return createChangeResult;
 
-            AddAggregateChangeEvent(new CreateChangeUserEvent(createChangeResult.Value, now));
+            AddAggregateChangeEvent(new UserPendingChangeCreated(createChangeResult.Value, now));
 
             return Result.Success();
         }
@@ -431,7 +443,7 @@ namespace Authorization.Domain.Users
 
             _change = null;
 
-            AddAggregateChangeEvent(new UpdateChangeUserEvent(pendingChange, now));
+            AddAggregateChangeEvent(new UserPendingChangeUpdated(pendingChange, now));
 
             return Result.Success();
         }
@@ -452,7 +464,7 @@ namespace Authorization.Domain.Users
 
             _deletion = deletion;
 
-            AddAggregateChangeEvent(new CreateDeletionUserEvent(deletion, now));
+            AddAggregateChangeEvent(new UserDeletionCreated(deletion, now));
 
             return Result.Success();
         }
@@ -467,7 +479,7 @@ namespace Authorization.Domain.Users
             if(result.IsFailure)
                 return result;
 
-            AddAggregateChangeEvent(new UpdateDeletionUserEvent(_deletion, now));
+            AddAggregateChangeEvent(new UserDeletionUpdated(_deletion, now));
 
             return Result.Success();
         }
@@ -478,6 +490,19 @@ namespace Authorization.Domain.Users
                 return Result<UserDeletion>.Failure(DeletionErrors.NotDeleteUser<User>());
 
             return Result<UserDeletion>.Success(_deletion);
+        }
+
+        public bool UpdateExpirationStatus(DateTimeOffset now)
+        {
+            if (_deletion is null)
+                return false;
+
+            if (!_deletion.MarkAsExpired(now))
+                return false;
+
+            AddAggregateChangeEvent(new UserDeletionUpdated(_deletion, now));
+
+            return true;
         }
         #endregion
 
@@ -511,7 +536,7 @@ namespace Authorization.Domain.Users
 
                     _restrictionSessions.Add(createSessionResult.Value);
 
-                    AddAggregateChangeEvent(new CreateSessionUserEvent(createSessionResult.Value, now));
+                    AddAggregateChangeEvent(new UserRestrictionSessionCreated(createSessionResult.Value, now));
 
                     continue;
                 }
@@ -521,7 +546,7 @@ namespace Authorization.Domain.Users
                 if (addRestrictionsResult.IsFailure)
                     return addRestrictionsResult;
 
-                AddAggregateChangeEvent(new UpdateSessionUserEvent(session, now));
+                AddAggregateChangeEvent(new UserRestrictionSessionUpdated(session, now));
             }
 
             _restrictions.AddRange(createRestrictionsResult.Value);
@@ -562,16 +587,16 @@ namespace Authorization.Domain.Users
             {
                 _restrictionSessions.Remove(session);
 
-                AddAggregateChangeEvent(new DeleteSessionUserEvent(session.Id, now));
+                AddAggregateChangeEvent(new UserRestrictionSessionDeleted(session.Id, now));
             }
             else
             {
-                AddAggregateChangeEvent(new UpdateSessionUserEvent(session, now));
+                AddAggregateChangeEvent(new UserRestrictionSessionUpdated(session, now));
             }
 
             _restrictions.Remove(restriction);
 
-            AddAggregateChangeEvent(new UpdateRestrictionUserEvent(restriction, now));
+            AddAggregateChangeEvent(new UserRestrictionUpdated(restriction, now));
 
             return Result.Success();
         }
@@ -604,7 +629,7 @@ namespace Authorization.Domain.Users
                 }
             }
 
-            foreach (var restriction in restrictions )
+            foreach (var restriction in restrictions)
             {
                 var result = restriction.CancelRestriction(now);
 
@@ -613,12 +638,12 @@ namespace Authorization.Domain.Users
 
                 _restrictions.Remove(restriction);
 
-                AddAggregateChangeEvent(new UpdateRestrictionUserEvent(restriction, now));
+                AddAggregateChangeEvent(new UserRestrictionUpdated(restriction, now));
             }
 
             _restrictionSessions.Remove(session);
 
-            AddAggregateChangeEvent(new DeleteSessionUserEvent(session.Id, now));
+            AddAggregateChangeEvent(new UserRestrictionSessionDeleted(session.Id, now));
 
             return Result.Success();
         }
@@ -649,7 +674,7 @@ namespace Authorization.Domain.Users
         {
             foreach (var restriction in userRestrictions)
             {
-                AddAggregateChangeEvent(new CreateRestrictionUserEvent(restriction, now));
+                AddAggregateChangeEvent(new UserRestrictionCreated(restriction, now));
             }
         }
         #endregion

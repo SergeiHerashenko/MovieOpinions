@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Authorization.Infrastructure.Exceptions;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 
 namespace Authorization.Infrastructure.Persistence.Context.AdoNet
@@ -15,7 +16,7 @@ namespace Authorization.Infrastructure.Persistence.Context.AdoNet
         public string GetConnectionString()
         {
             return _configuration.GetConnectionString("DefaultConnection")
-                   ?? throw new Exception("Connection string is missing in Secrets/Appsettings!");
+                   ?? throw DatabaseOperationException.ConnectionStringNotFound("Connection string is missing in Secrets/Appsettings!");
         }
 
         public async Task<NpgsqlConnection> GetOpenConnectionAsync(CancellationToken cancellationToken = default)

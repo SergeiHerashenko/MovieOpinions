@@ -1,0 +1,41 @@
+# Зроблено сьогодні (08 серпня 2026)
+
+## Completed
+
+- [x] Повний рефакторинг Application layer.
+- [x] Повний рефакторинг Infrastructure layer.
+- [x] Додано `UnitOfWork` для керування connection/transaction boundary.
+- [x] Перероблено ADO.NET persistence flow під `UnitOfWork`.
+- [x] Переписано `UserRestrictionSessionRepository`.
+- [x] Переписано `UserRepository`.
+- [x] Переписано `UserRefreshTokenRepository`.
+- [x] Переписано `UserPendingRegistrationRepository`.
+- [x] Розділено Query/Command repositories там, де це потрібно.
+- [x] Перероблено роботу repositories з `IDbConnectionProvider` / transaction context.
+- [x] Додано параметризовані SQL-запити.
+- [x] Перероблено mapping database entities → Domain entities через mappers.
+- [x] Перероблено ordinals для ADO.NET readers.
+- [x] Додано зберігання `ActiveRestrictionIds` як `jsonb`.
+- [x] Перероблено створення та оновлення `UserRestrictionSession`.
+- [x] Узгоджено cancellation token flow через Application → Repository → ADO.NET.
+- [x] Перевірено поведінку `UserRestrictionSession` як active-state storage, а не історичної таблиці.
+- [x] Визначено, що комбінація `UserId + RestrictionType` повинна бути унікальною для активної session.
+- [x] Перероблено internal HTTP communication між мікросервісами.
+- [x] Додано resilience/retry pipeline для Notification Service.
+- [x] Реєстрація не блокується, якщо Notification Service тимчасово недоступний.
+- [x] Реалізовано fake password verification для сценарію "user not found" з метою уникнення timing leak.
+- [x] Визначено authentication flow:
+  - Rate limiting
+  - User lookup
+  - Fake password verification if user doesn't exist
+  - Password verification
+  - Deleted-user check
+  - Restriction check
+  - Session creation
+  - Token creation
+- [x] Опрацьовано Domain/Application validation separation.
+- [x] Опрацьовано Result pattern для очікуваних business/domain errors.
+- [x] Визначено responsibility API layer за HTTP status codes та presentation-level error messages.
+- [x] Опрацьовано Domain Events + dispatcher через MediatR.
+- [x] Опрацьовано registration flow через `UserPendingRegistration`.
+- [x] Опрацьовано Value Objects для Login, Email, Phone, Password, DeviceInfo, IP тощо.

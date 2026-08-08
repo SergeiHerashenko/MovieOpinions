@@ -1,5 +1,6 @@
-﻿using Authorization.Application.Interfaces.Context;
-using Authorization.Domain.UsersRefreshToken.ValueObjects;
+﻿using Authorization.Application.Abstractions.UserContext;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using UAParser;
@@ -16,44 +17,41 @@ namespace Authorization.Infrastructure.Context
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public DeviceInfo DeviceInfo
+        public DeviceInfo InfoDevice()
         {
-            get
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context is null)
+                return DeviceInfo.Create(DeviceType.Unknown, "Unknown", "Unknown", "Unknown").Value;
+
+            var userAgentRaw = context.Request.Headers["User-Agent"].ToString();
+
+            if (string.IsNullOrWhiteSpace(userAgentRaw))
+                return DeviceInfo.Create(DeviceType.Unknown, "Unknown", "Unknown", "Unknown").Value;
+
+            ClientInfo client = _auParser.Parse(userAgentRaw);
+
+            string browser = client.UA.Family;
+            string os = client.OS.Family;
+
+            DeviceType deviceType;
+            string deviceModel;
+
+            if (client.Device.Family == "Other")
             {
-                var context = _httpContextAccessor.HttpContext;
-
-                if (context is null)
-                    return DeviceInfo.Create("Unknown", "Unknown", "Unknown", "Unknown").Value;
-
-                var userAgentRaw = context.Request.Headers["User-Agent"].ToString();
-
-                if (string.IsNullOrWhiteSpace(userAgentRaw))
-                    return DeviceInfo.Create("Unknown", "Unknown", "Unknown", "Unknown").Value;
-
-                ClientInfo client = _auParser.Parse(userAgentRaw);
-
-                string browser = client.UA.Family;
-                string os = client.OS.Family;
-
-                string deviceType;
-                string deviceModel;
-
-                if (client.Device.Family == "Other")
-                {
-                    deviceType = "Desktop";
-                    deviceModel = "Desktop";
-                }
-                else
-                {
-                    deviceType = userAgentRaw.Contains("iPad", StringComparison.OrdinalIgnoreCase) ||
-                                 userAgentRaw.Contains("Tablet", StringComparison.OrdinalIgnoreCase)
-                                 ? "Tablet" : "Mobile";
-
-                    deviceModel = client.Device.Model ?? client.Device.Family;
-                }
-
-                return DeviceInfo.Create(deviceType, os, browser, deviceModel).Value;
+                deviceType = DeviceType.Desktop;
+                deviceModel = "Desktop";
             }
+            else
+            {
+                deviceType = userAgentRaw.Contains("iPad", StringComparison.OrdinalIgnoreCase) ||
+                             userAgentRaw.Contains("Tablet", StringComparison.OrdinalIgnoreCase)
+                             ? DeviceType.Tablet : DeviceType.Mobile;
+
+                deviceModel = client.Device.Model ?? client.Device.Family;
+            }
+
+            return DeviceInfo.Create(deviceType, os, browser, deviceModel).Value;
         }
 
         public string GetIpAddress()
@@ -104,7 +102,7 @@ namespace Authorization.Infrastructure.Context
         {
             var context = _httpContextAccessor.HttpContext;
 
-            if(context is null)
+            if (context is null)
                 return null;
 
             var rawLocation = context.Request.Headers["X-User-City"].FirstOrDefault();

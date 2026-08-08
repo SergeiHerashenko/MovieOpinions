@@ -1,12 +1,12 @@
 ﻿using Authorization.Domain.Common.Models;
 using Authorization.Domain.Users.Entities.UsersPendingChange.Changes;
-using Authorization.Domain.Users.ValueObjects;
+using Authorization.Domain.Users.Entities.UsersPendingChange.ValueObjects;
 
 namespace Authorization.Domain.Users.DomainEvents
 {
     public sealed class UserPendingChangeEvent : DomainEvent
     {
-        public UserId UserId { get; }
+        public UserPendingChangeId UserPendingChangeId { get; }
 
         public UserChange UserChange { get; }
 
@@ -14,10 +14,10 @@ namespace Authorization.Domain.Users.DomainEvents
 
         public DateTimeOffset Now { get; }
 
-        public UserPendingChangeEvent(UserId userId, UserChange userChange, DateTimeOffset expiresAt, DateTimeOffset now)
+        public UserPendingChangeEvent(UserPendingChangeId userPendingChangeId, UserChange userChange, DateTimeOffset expiresAt, DateTimeOffset now)
             : base(now)
         {
-            UserId = userId;
+            UserPendingChangeId = userPendingChangeId;
             UserChange = userChange;
             ExpiresAt = expiresAt;
             Now = now;
