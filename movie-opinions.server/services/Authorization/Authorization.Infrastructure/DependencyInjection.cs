@@ -1,4 +1,5 @@
-﻿using Authorization.Application.Abstractions.Clock;
+﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
@@ -6,6 +7,7 @@ using Authorization.Application.Abstractions.RateLimiter;
 using Authorization.Application.Abstractions.Security.Hashers;
 using Authorization.Application.Abstractions.Security.JWT;
 using Authorization.Application.Abstractions.UserContext;
+using Authorization.Infrastructure.AggregateChanges;
 using Authorization.Infrastructure.Communication;
 using Authorization.Infrastructure.Communication.Options;
 using Authorization.Infrastructure.Context;
@@ -16,9 +18,12 @@ using Authorization.Infrastructure.Limiter.Options;
 using Authorization.Infrastructure.Persistence.Context;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Authorization.Infrastructure.Persistence.Migrations;
+using Authorization.Infrastructure.Persistence.Repositories.UserDeletedRepository.Ado;
+using Authorization.Infrastructure.Persistence.Repositories.UserPendingActionRepository.Ado;
 using Authorization.Infrastructure.Persistence.Repositories.UserPendingRegistrationRepository.Ado;
 using Authorization.Infrastructure.Persistence.Repositories.UserRefreshTokenRepository.Ado;
 using Authorization.Infrastructure.Persistence.Repositories.UserRepository.Ado;
+using Authorization.Infrastructure.Persistence.Repositories.UserRepository.Ado.Loading;
 using Authorization.Infrastructure.Persistence.Repositories.UserRestrictionRepository.Ado;
 using Authorization.Infrastructure.Persistence.Repositories.UserRestrictionSessionRepository.Ado;
 using Authorization.Infrastructure.Persistence.UnitOfWorks;
@@ -90,6 +95,7 @@ namespace Authorization.Infrastructure
             services.AddScoped<IRateLimiter, RateLimiter>();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+            services.AddScoped<IAggregateChangesDispatcher, AggregateChangesDispatcher>();
             services.AddScoped<ISendInternalRequest, SendInternalRequest>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -103,6 +109,8 @@ namespace Authorization.Infrastructure
             services.AddScoped<IProfileSender, ProfileSender>();
 
             // Репозиторії ADO
+            services.AddScoped<AdoUserAggregateLoader>();
+
             services.AddScoped<AdoUserQueryRepository>();
             services.AddScoped<AdoUserCommandRepository>();
             services.AddScoped<IUserRepository, AdoUserRepository>();
@@ -122,6 +130,14 @@ namespace Authorization.Infrastructure
             services.AddScoped<AdoUserRestrictionSessionQueryRepository>();
             services.AddScoped<AdoUserRestrictionSessionCommandRepository>();
             services.AddScoped<IUserRestrictionSessionRepository, AdoUserRestrictionSessionRepository>();
+
+            services.AddScoped<AdoUserDeletedQueryRepository>();
+            services.AddScoped<AdoUserDeletedCommandRepository>();
+            services.AddScoped<IUserDeletedRepository, AdoUserDeletedRepository>();
+
+            services.AddScoped<AdoUserPendingActionQueryRepository>();
+            services.AddScoped<AdoUserPendingActionCommandRepository>();
+            services.AddScoped<IUserPendingActionRepository, AdoUserPendingActionRepository>();
 
             return services;
         }

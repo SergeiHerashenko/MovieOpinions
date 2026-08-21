@@ -1,5 +1,5 @@
 ﻿using Authorization.Application.Abstractions.Communication;
-using Authorization.Application.DTOs.Communication;
+using Authorization.Application.DTOs.Communication.Verification;
 using Authorization.Domain.Results;
 using Authorization.Infrastructure.Communication.Options;
 using Authorization.Infrastructure.Communication.SenderPermissions;
@@ -34,7 +34,7 @@ namespace Authorization.Infrastructure.Communication
             _serviceJwtProvider = serviceJwtProvider;
         }
 
-        public async Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand)
+        public async Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand, CancellationToken cancellationToken = default)
         {
             var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Verification.Audit });
 
@@ -58,11 +58,11 @@ namespace Authorization.Infrastructure.Communication
                     _options.ClientName,
                     _options.CreateEndpoint,
                     verificationCommand.UserId,
-                    verificationCommand.MessageActions
+                    verificationCommand.VerificationType
                 );
 
                 return Result.Failure(CommunicationError.SendError<VerificationSender>(
-                    $"Failed to perform operation verification ({verificationCommand.MessageActions}) for user!")
+                    $"Failed to perform operation verification ({verificationCommand.VerificationType}) for user!")
                 );
             }
 

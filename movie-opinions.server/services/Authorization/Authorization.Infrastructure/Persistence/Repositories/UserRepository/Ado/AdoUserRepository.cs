@@ -24,6 +24,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         public Task UpdateUserAsync(User entity, CancellationToken cancellationToken = default)
             => _adoUserCommandRepository.UpdateUserAsync(entity, cancellationToken);
 
+        public Task<User?> GetUserByIdForUpdateAsync(UserId userId, CancellationToken cancellationToken = default)
+            => _adoUserCommandRepository.GetUserByIdForUpdateAsync(userId, cancellationToken);
+
         public Task<User?> GetUserByIdAsync(UserId userId, CancellationToken cancellationToken = default)
             => _adoUserQueryRepository.GetUserByIdAsync(userId, cancellationToken);
 

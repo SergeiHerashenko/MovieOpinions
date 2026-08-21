@@ -35,5 +35,10 @@
 
             public const string NotConsistentState = "NOT_CONSISTENT_STATE";
         }
+
+        public static class UsereContextError
+        {
+            public const string InvalidUserContext = "AUTH.INVALID_USER_CONTEXT";
+        }
     }
 }

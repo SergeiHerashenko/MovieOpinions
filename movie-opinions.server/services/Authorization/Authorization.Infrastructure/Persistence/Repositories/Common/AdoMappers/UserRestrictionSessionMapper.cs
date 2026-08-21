@@ -29,7 +29,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
                 id.Value
             );
 
-            var totalBlockedMinutes = reader.GetInt32(ordinals.TotalBlockedDays);
+            var totalBlockedMinutes = reader.GetInt32(ordinals.TotalBlockedMinutes);
 
             return UserRestrictionSession.Restore(id, userId, activeRestrictionIds, restrictionType, totalBlockedMinutes, createdAt);
         }

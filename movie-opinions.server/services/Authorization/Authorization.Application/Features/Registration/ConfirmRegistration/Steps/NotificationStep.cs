@@ -1,6 +1,5 @@
 ﻿using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Orchestrator;
-using Authorization.Application.Common.Enums;
 using Authorization.Application.DTOs.Communication;
 using Authorization.Domain.Results;
 
@@ -15,7 +14,8 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration.St
             return await notificationSender.SendCreateNotificationAsync(NotificationRequest.Create(
                 context.UserId,
                 context.Login,
-                MessageActions.ConfirmRegistration)
+                context.NotificationType,
+                context.CommunicationChannel)
             );
         }
 

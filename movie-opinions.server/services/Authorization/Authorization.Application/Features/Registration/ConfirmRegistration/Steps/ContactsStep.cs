@@ -1,6 +1,6 @@
 ﻿using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Orchestrator;
-using Authorization.Application.DTOs.Communication;
+using Authorization.Application.DTOs.Communication.Contacts.Requests;
 using Authorization.Domain.Results;
 
 namespace Authorization.Application.Features.Registration.ConfirmRegistration.Steps
@@ -11,17 +11,19 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration.St
 
         public async Task<Result> ExecuteAsync(ConfirmRegistrationContext context)
         {
-            return await contactsSender.SendCreateContactRequestAsync(ContactsRequest.Create(
+            return await contactsSender.SendCreateContactRequestAsync(CreateContactsRequest.Create(
                 context.UserId,
-                context.Login)
+                context.Login,
+                context.CommunicationChannel)
             );
         }
 
         public async Task RollbackAsync(ConfirmRegistrationContext context)
         {
-            await contactsSender.SendDeleteContactRequestAsync(ContactsRequest.Create(
+            await contactsSender.SendDeleteContactRequestAsync(DeleteContactRequest.Create(
                 context.UserId,
-                context.Login)
+                context.Login,
+                context.CommunicationChannel)
             );
         }
     }

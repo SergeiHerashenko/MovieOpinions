@@ -20,6 +20,10 @@
             public const string UserIsDeleted = "USER_IS_DELETED";
 
             public const string UserInvalidPassword = "USER_INVALID_PASSWORD";
+
+            public const string NoVerifiedContactChannels = "NO_CONTACT_CHANNELS";
+
+            public const string HasPendingAction = "HAS_PENDING_ACTION";
         }
 
         public static class ConfirmError

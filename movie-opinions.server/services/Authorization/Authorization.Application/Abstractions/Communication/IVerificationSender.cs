@@ -1,10 +1,10 @@
-﻿using Authorization.Application.DTOs.Communication;
+﻿using Authorization.Application.DTOs.Communication.Verification;
 using Authorization.Domain.Results;
 
 namespace Authorization.Application.Abstractions.Communication
 {
     public interface IVerificationSender
     {
-        Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand);
+        Task<Result> VerifyCodeAsync<TId>(VerificationRequest<TId> verificationCommand, CancellationToken cancellationToken = default);
     }
 }

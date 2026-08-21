@@ -18,7 +18,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
 
         public Login Login { get; private set; }
 
-        public string? Reason { get; private set; }
+        public DeletionReason Reason { get; private set; }
 
         public DateTimeOffset RestoreUntil { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
         public DateTimeOffset? UpdatedAt { get; private set; }
 
         #region Creation
-        private UserDeletion(UserDeletionId userDeletionId, UserId userId, Login login, DateTimeOffset now, string? reason = null)
+        private UserDeletion(UserDeletionId userDeletionId, UserId userId, Login login, DateTimeOffset now, DeletionReason reason)
             : base(userDeletionId, now)
         {
             UserId = userId;
@@ -41,7 +41,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             UpdatedAt = null;
         }
 
-        internal static Result<UserDeletion> Create(UserId userId, Login login, DateTimeOffset now, string? reason = null)
+        internal static Result<UserDeletion> Create(UserId userId, Login login, DateTimeOffset now, DeletionReason reason)
         {
             if (userId is null)
                 return Result<UserDeletion>.Failure(CommonErrors.Identifier.EmptyIdentifier<UserDeletion>(nameof(userId)));
@@ -50,8 +50,6 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
                 return Result<UserDeletion>.Failure(LoginErrors.EmptyLogin<UserDeletion>());
 
             var userDeletion = new UserDeletion(UserDeletionId.Create(), userId, login, now, reason);
-
-            userDeletion.AddDomainEvent(new UserDeletedEvent(userDeletion.Id, userDeletion.Login, now));
 
             return Result<UserDeletion>.Success(userDeletion);
         }
@@ -62,7 +60,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             UserDeletionId userDeletionId,
             UserId userId,
             Login login,
-            string? reason,
+            DeletionReason reason,
             DateTimeOffset createdAt,
             DateTimeOffset restoreUntil,
             DateTimeOffset? restoredAt,
@@ -83,7 +81,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             UserDeletionId userDeletionId,
             UserId userId,
             Login login,
-            string? reason,
+            DeletionReason reason,
             DateTimeOffset createdAt,
             DateTimeOffset restoreUntil,
             DateTimeOffset? restoredAt,
@@ -93,7 +91,9 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             DomainGuard.AgainstNull<UserDeletion>(
                 (userDeletionId, nameof(userDeletionId)),
                 (userId, nameof(userId)),
-                (login, nameof(login)));
+                (login, nameof(login)),
+                (reason, nameof(reason))
+            );
 
             ValidateState(deletionStatus, updatedAt, createdAt, restoreUntil, restoredAt);
 
@@ -113,8 +113,6 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             Status = DeletionStatus.Restored;
             RestoredAt = now;
             UpdatedAt = now;
-
-            AddDomainEvent(new UserUndeletedEvent(Id, Login, now));
 
             return Result.Success();
         }

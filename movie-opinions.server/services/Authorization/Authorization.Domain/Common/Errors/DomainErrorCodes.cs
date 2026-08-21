@@ -14,6 +14,8 @@
             public const string NoUpdateNeeded = "NO_UPDATE_NEEDED";
 
             public const string Expired = "EXPIRED";
+
+            public const string ActionCancelled = "ACTION_CANCELLED";
         }
 
         // Ідентифікатори
@@ -150,6 +152,10 @@
         public static class Deletion
         {
             public const string NotDeleteUser = "NO_DELETE_USER";
+
+            public const string TooLongReason = "TOO_LONG_REASON";
+
+            public const string NotFoundAction = "NO_FOUND_ACTION";
         }
 
         // Access
@@ -176,16 +182,22 @@
             public const string NotFoundToken = "NOT_FOUND_TOKEN";
         }
 
-        // Change
-        public static class Change
+        // Action
+        public static class Action
         {
-            public const string EmptyChange = "EMPTY_CHANGE";
+            public const string EmptyAction = "EMPTY_ACTION";
 
             public const string InvalidConfirmationToken = "INVALID_CONFIRMATION_TOKEN";
 
-            public const string ChangeAlreadyExists = "CHANGE_ALREADY_EXISTS";
+            public const string ActionAlreadyExists = "ACTION_ALREADY_EXISTS";
 
-            public const string InvalidChangeType = "INVALID_CHANGE_TYPE";
+            public const string InvalidActionType = "INVALID_ACTION_TYPE";
+
+            public const string InvalidUserPendingActionId = "INVALID_USER_PENDING_ACTION_ID";
+
+            public const string InvalidStatusTransition = "INVALID_STATUS_TRANSITION";
+
+            public const string InvalidInputData = "INVALID_INPUT_DATA";
         }
     }
 }

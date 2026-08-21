@@ -7,7 +7,9 @@ using Authorization.Application.Abstractions.Services;
 using Authorization.Application.Abstractions.UserContext;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Errors.Users;
-using Authorization.Application.DTOs.Communication;
+using Authorization.Application.DTOs.Communication.Notifications.Enums;
+using Authorization.Application.DTOs.Communication.Verification;
+using Authorization.Application.DTOs.Communication.Verification.Enums;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
@@ -88,14 +90,14 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
 
             var verificationCommand = VerificationRequest.Create(
                 pendingRegistration.Id,
-                MessageActions.ConfirmRegistration,
+                VerificationType.ConfirmRegistration,
                 command.VerificationValue
             );
 
-            var verificationResult = await _verificationSender.VerifyCodeAsync(verificationCommand);
-
-            if (verificationResult.IsFailure)
-                return Result<ConfirmRegistrationResult<Guid>>.Failure(verificationResult.Errors);
+            //var verificationResult = await _verificationSender.VerifyCodeAsync(verificationCommand);
+            //
+            //if (verificationResult.IsFailure)
+            //    return Result<ConfirmRegistrationResult<Guid>>.Failure(verificationResult.Errors);
 
             var newUserResult = User.Create(pendingRegistration.Login, pendingRegistration.Password);
 
@@ -104,17 +106,22 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
 
             var newUser = newUserResult.Value;
 
+            var channel = newUser.Login.Type == LoginType.Email
+                ? CommunicationChannel.Email
+                : CommunicationChannel.Phone;
+
             var context = ConfirmRegistrationContext.Create(
                 newUser.Id,
                 newUser.Login,
                 newUser.Role,
-                MessageActions.ConfirmRegistration
+                channel,
+                NotificationType.ConfirmRegistration
             );
 
-            var result = await _orchestrator.RunIntegrationsAsync(context);
-
-            if (result.IsFailure)
-                return Result<ConfirmRegistrationResult<Guid>>.Failure(result.Errors);
+            //var result = await _orchestrator.RunIntegrationsAsync(context);
+            //
+            //if (result.IsFailure)
+            //    return Result<ConfirmRegistrationResult<Guid>>.Failure(result.Errors);
 
             var userToken = _tokenService.CreateUserSessionAsync(newUser);
 
@@ -130,8 +137,7 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
                 await _userPendingRegistrationRepository.DeletePendingUserAsync(pendingRegistration.Id, ct);
             });
 
-            foreach (var domainEvent in newUserResult.Value.DomainEvents)
-                await _domainEventDispatcher.DispatchAsync(domainEvent, cancellationToken);
+            await _domainEventDispatcher.DispatchAsync(newUserResult.Value.DomainEvents, cancellationToken);
 
             newUserResult.Value.ClearDomainEvents();
 

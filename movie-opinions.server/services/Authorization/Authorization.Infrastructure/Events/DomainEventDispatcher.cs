@@ -27,5 +27,13 @@ namespace Authorization.Infrastructure.Events
                 await _mediator.Publish(mediatrNotification, cancellationToken);
             }
         }
+
+        public async Task DispatchAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken = default)
+        {
+            foreach (var domainEvent in domainEvents)
+            {
+                await DispatchAsync(domainEvent, cancellationToken);
+            }
+        }
     }
 }

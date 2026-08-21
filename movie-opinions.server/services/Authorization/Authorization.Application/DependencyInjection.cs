@@ -1,14 +1,17 @@
-﻿using Authorization.Application.Abstractions.Orchestrator;
+﻿using Authorization.Application.Abstractions.Mapping;
+using Authorization.Application.Abstractions.Orchestrator;
 using Authorization.Application.Abstractions.Security.Access;
 using Authorization.Application.Abstractions.Services;
 using Authorization.Application.Behaviors;
 using Authorization.Application.Common.Orchestrator;
 using Authorization.Application.Common.Security.Services;
+using Authorization.Application.Common.Security.Services.Access;
+using Authorization.Application.Common.Security.Services.Access.Step;
+using Authorization.Application.DomainEvents.Mapping;
 using Authorization.Application.Features.Registration.ConfirmRegistration;
 using Authorization.Application.Features.Registration.ConfirmRegistration.Steps;
 using Authorization.Application.Features.Registration.StartRegistration;
 using Authorization.Application.Features.SignIn;
-using Authorization.Application.Features.SignIn.Steps;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,8 +43,11 @@ namespace Authorization.Application
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped(typeof(IAccessService<>), typeof(AccessService<>));
 
-            services.AddScoped<IAccessStep<ISignInMarker>, BlockCheck>();
-            services.AddScoped<IAccessStep<ISignInMarker>, DeletionCheck>();
+            services.AddScoped(typeof(IAccessStep<>), typeof(BlockCheck<>));
+            services.AddScoped(typeof(IAccessStep<>), typeof(DeletionCheck<>));
+
+            services.AddScoped<IUserActionNotificationMapper, UserActionNotificationMapper>();
+            services.AddScoped<IUserPendingActionNotificationMapper, UserPendingActionNotificationMapper>();
 
             return services;
         }

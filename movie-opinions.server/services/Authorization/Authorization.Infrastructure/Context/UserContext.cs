@@ -1,8 +1,10 @@
 ﻿using Authorization.Application.Abstractions.UserContext;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
+using Authorization.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.Net;
+using System.Security.Claims;
 using UAParser;
 
 namespace Authorization.Infrastructure.Context
@@ -118,6 +120,35 @@ namespace Authorization.Infrastructure.Context
             {
                 return null;
             }
+        }
+        
+        public Guid GetUserId()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim is null)
+                throw InvalidUserContextException.Unauthorized("User ID claim is missing!");
+
+            if (!Guid.TryParse(userIdClaim.Value, out var userId))
+                throw InvalidUserContextException.Unauthorized("User ID claim is invalid!");
+
+            return userId;
+        }
+
+        // TODO Обдумати цей метод, для першого часу поки підійде так
+        public string GetRefreshToken()
+        {
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context is null)
+                throw InvalidUserContextException.Unauthorized("HTTP context is unavailable!");
+
+            var refreshToken = context.Request.Cookies["X-Refresh-Token"];
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                throw InvalidUserContextException.Unauthorized("Refresh token is missing!");
+
+            return refreshToken;
         }
     }
 }

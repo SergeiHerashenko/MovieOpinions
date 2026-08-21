@@ -1,4 +1,5 @@
 ﻿using Authorization.Application.Common.Enums;
+using Authorization.Application.DTOs.Communication.Notifications.Enums;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
@@ -13,25 +14,30 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
 
         public Role Role { get; }
 
-        public MessageActions MessageActions { get; }
+        public CommunicationChannel CommunicationChannel { get; }
+
+        public NotificationType NotificationType { get; }
 
         private ConfirmRegistrationContext(
             UserId userId,
             Login login,
             Role role,
-            MessageActions messageActions)
+            CommunicationChannel communicationChannel,
+            NotificationType notificationType)
         {
             UserId = userId;
             Login = login;
             Role = role;
-            MessageActions = messageActions;
+            CommunicationChannel = communicationChannel;
+            NotificationType = notificationType;
         }
 
         public static ConfirmRegistrationContext Create(
             UserId userId,
             Login login,
             Role role,
-            MessageActions messageActions)
-            => new(userId, login, role, messageActions);
+            CommunicationChannel communicationChannel,
+            NotificationType notificationType)
+            => new(userId, login, role, communicationChannel, notificationType);
     }
 }

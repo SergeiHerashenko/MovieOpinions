@@ -46,5 +46,37 @@ namespace Authorization.Application.Common.Exceptions
             return $"Unable to access the value '{valueName}'. Entity '{typeof(TEntity).Name}'!"; ;
         }
         #endregion
+
+        #region UnsupportedValue
+        public static ApplicationInvalidOperationException UnsupportedValue<TEntity>(
+            string valueName,
+            OperationType operationType = OperationType.Reading,
+            string? message = null,
+            IReadOnlyDictionary<string, object>? context = null,
+            Exception? innerException = null)
+        {
+            var data = new Dictionary<string, object>()
+            {
+                ["Layer"] = "Application",
+                ["Entity"] = typeof(TEntity).Name,
+                ["ValueName"] = valueName,
+            };
+
+            var errorMessage = message ?? BuildUnsupportedValueMessage<TEntity>(valueName);
+
+            return new(
+                ApplicationErrorCodes.GeneralError.InvalidOperation,
+                ErrorType.InvalidOperation,
+                errorMessage,
+                data,
+                innerException
+            );
+        }
+
+        private static string BuildUnsupportedValueMessage<TEntity>(string valueName)
+        {
+            return $"Unsupported action type: {valueName}'. Entity '{typeof(TEntity).Name}'!"; ;
+        }
+        #endregion
     }
 }

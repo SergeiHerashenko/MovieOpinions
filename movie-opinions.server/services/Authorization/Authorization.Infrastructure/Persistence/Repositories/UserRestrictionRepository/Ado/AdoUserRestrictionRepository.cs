@@ -6,19 +6,24 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
 {
     internal class AdoUserRestrictionRepository : IUserRestrictionRepository
     {
-        public Task CreateRestrictionAsync(UserRestriction entity, CancellationToken cancellationToken = default)
+        private readonly AdoUserRestrictionQueryRepository _adoUserRestrictionQueryRepository;
+        private readonly AdoUserRestrictionCommandRepository _adoUserRestrictionCommandRepository;
+
+        public AdoUserRestrictionRepository(
+            AdoUserRestrictionQueryRepository adoUserRestrictionQueryRepository, 
+            AdoUserRestrictionCommandRepository adoUserRestrictionCommandRepository)
         {
-            throw new NotImplementedException();
+            _adoUserRestrictionQueryRepository = adoUserRestrictionQueryRepository;
+            _adoUserRestrictionCommandRepository = adoUserRestrictionCommandRepository;
         }
+
+        public Task CreateRestrictionAsync(UserRestriction entity, CancellationToken cancellationToken = default)
+            => _adoUserRestrictionCommandRepository.CreateRestrictionAsync(entity, cancellationToken);
 
         public Task UpdateRestrictionAsync(UserRestriction entity, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+            => _adoUserRestrictionCommandRepository.UpdateRestrictionAsync(entity, cancellationToken);
 
         public Task<IReadOnlyList<UserRestriction>> GetRestrictionsByIdsAsync(IReadOnlyCollection<UserRestrictionId> userRestrictionIds, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+            => _adoUserRestrictionQueryRepository.GetRestrictionsByIdsAsync(userRestrictionIds, cancellationToken);
     }
 }

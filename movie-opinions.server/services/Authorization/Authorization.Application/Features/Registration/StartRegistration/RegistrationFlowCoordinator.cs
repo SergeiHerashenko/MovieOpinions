@@ -119,8 +119,7 @@ namespace Authorization.Application.Features.Registration.StartRegistration
                 }, cancellationToken);
             }
 
-            foreach (var domainEvent in registration.DomainEvents)
-                await _domainEventDispatcher.DispatchAsync(domainEvent, cancellationToken);
+            await _domainEventDispatcher.DispatchAsync(registration.DomainEvents, cancellationToken);
 
             registration.ClearDomainEvents();
 

@@ -38,7 +38,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
             var lastLoginAt = reader.IsDBNull(ordinals.LastLoginAt) ? (DateTimeOffset?)null : reader.GetFieldValue<DateTimeOffset>(ordinals.LastLoginAt);
 
             var isLoginConfirmed = reader.GetBoolean(ordinals.IsLoginConfirmed);
-            var failedLoginAttempts = reader.GetInt32(ordinals.FailedLoginAttempts);
+            var failedPasswordAttempts = reader.GetInt32(ordinals.FailedPasswordAttempts);
 
             return new UserData
             {
@@ -51,7 +51,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
                 UpdatedAt = updatedAt,
                 LastLoginAt = lastLoginAt,
                 IsLoginConfirmed = isLoginConfirmed,
-                FailedLoginAttempts = failedLoginAttempts
+                FailedPasswordAttempts = failedPasswordAttempts
             };
         }
     }

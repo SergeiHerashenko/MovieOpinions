@@ -57,7 +57,7 @@ internal class Program
             // 4. ĞÅªÑÒĞÀÖ²ß ØÀĞ²Â ÀĞÕ²ÒÅÊÒÓĞÈ
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddApplication();
-            builder.Services.AddPresentation();
+            builder.Services.AddPresentation(builder.Configuration);
 
             // 5. ÊÎÍÒĞÎËÅĞÈ
             builder.Services.AddControllers()

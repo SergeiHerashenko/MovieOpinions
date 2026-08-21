@@ -25,6 +25,6 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
 
         public required bool IsLoginConfirmed { get; init; }
 
-        public required int FailedLoginAttempts { get; init; }
+        public required int FailedPasswordAttempts { get; init; }
     }
 }

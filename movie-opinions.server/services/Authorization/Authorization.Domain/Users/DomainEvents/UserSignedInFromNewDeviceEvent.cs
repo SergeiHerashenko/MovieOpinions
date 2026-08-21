@@ -6,7 +6,7 @@ using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.Users.DomainEvents
 {
-    public class UserSignedInFromNewDeviceEvent : DomainEvent
+    public sealed class UserSignedInFromNewDeviceEvent : DomainEvent
     {
         public UserId UserId { get; }
 

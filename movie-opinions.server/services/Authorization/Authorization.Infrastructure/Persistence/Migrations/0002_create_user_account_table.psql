@@ -1,17 +1,17 @@
 ﻿-- 1. Створення таблиці
 CREATE TABLE IF NOT EXISTS user_account(
-	id						UUID			NOT NULL,
-	login					VARCHAR(255)	NOT NULL,
-	login_type				VARCHAR(50)		NOT NULL,
-	country_code			VARCHAR(10)		NULL,
-	email_domain			VARCHAR(50)		NULL,
-	password_hash			VARCHAR(550)	NOT NULL,
-	role					VARCHAR(20)		NOT NULL,
-	is_login_confirmed		BOOLEAN			NOT NULL,
-	failed_login_attempts	INTEGER			NOT NULL,
-	last_login_at			TIMESTAMPTZ		NULL,
-	updated_at				TIMESTAMPTZ		NULL,
-	created_at				TIMESTAMPTZ		NOT NULL,
+	id							UUID			NOT NULL,
+	login						VARCHAR(255)	NOT NULL,
+	login_type					VARCHAR(50)		NOT NULL,
+	country_code				VARCHAR(10)		NULL,
+	email_domain				VARCHAR(50)		NULL,
+	password_hash				VARCHAR(550)	NOT NULL,
+	role						VARCHAR(20)		NOT NULL,
+	is_login_confirmed			BOOLEAN			NOT NULL,
+	failed_password_attempts	INTEGER			NOT NULL,
+	last_login_at				TIMESTAMPTZ		NULL,
+	updated_at					TIMESTAMPTZ		NULL,
+	created_at					TIMESTAMPTZ		NOT NULL,
 
 	CONSTRAINT pk_user_account PRIMARY KEY (id)
 );

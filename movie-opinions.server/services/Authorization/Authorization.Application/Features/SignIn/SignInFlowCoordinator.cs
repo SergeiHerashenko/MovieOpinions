@@ -8,7 +8,7 @@ using Authorization.Application.Abstractions.Services;
 using Authorization.Application.Abstractions.UserContext;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Errors.Users;
-using Authorization.Application.Features.SignIn.Steps;
+using Authorization.Application.Features.SignIn.Marker;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
@@ -95,8 +95,9 @@ namespace Authorization.Application.Features.SignIn
 
             if (!passwordResult)
             {
-                existingUser.RecordFailedLoginAttempt(_clock.UtcNow);
+                existingUser.RecordFailedPasswordAttempt(_clock.UtcNow);
 
+                // TODO Не зберігає бан тимчасовий, бо я тільки оновлюю юзера ) 
                 await _unitOfWork.ExecuteAsync(async ct =>
                 {
                     await _userRepository.UpdateUserAsync(existingUser, ct);
@@ -127,8 +128,7 @@ namespace Authorization.Application.Features.SignIn
                 await _userRefreshTokenRepository.CreateRefreshTokenAsync(userToken.Value.UserRefreshToken, ct);
             }, cancellationToken);
 
-            foreach (var domainEvent in existingUser.DomainEvents)
-                await _domainEventDispatcher.DispatchAsync(domainEvent, cancellationToken);
+            await _domainEventDispatcher.DispatchAsync(existingUser.DomainEvents, cancellationToken);
 
             existingUser.ClearDomainEvents();
 

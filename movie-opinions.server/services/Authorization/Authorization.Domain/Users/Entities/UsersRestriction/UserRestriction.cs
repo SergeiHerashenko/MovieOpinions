@@ -4,7 +4,6 @@ using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Users.DomainEvents;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
 using Authorization.Domain.Users.Enums;
@@ -64,17 +63,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
                 return Result<UserRestriction>.Failure(CommonErrors.Unsupported.UnsupportedType<UserRestriction>(restrictionType.ToString()));
 
             var createRestriction = new UserRestriction(UserRestrictionId.Create(), userId, restrictionRule, restrictionType, restrictedBy, reason);
-
-            createRestriction.AddDomainEvent(
-                new UserRestrictionEvent(
-                    createRestriction.Id,
-                    createRestriction.RestrictionRule,
-                    createRestriction.RestrictionType,
-                    createRestriction.Reason,
-                    createRestriction.RestrictedBy,
-                    createRestriction.CreatedAt
-                )
-            );
 
             return Result<UserRestriction>.Success(createRestriction);
         }
@@ -136,8 +124,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
 
             IsRevoked = true;
             CancellationDate = now;
-
-            AddDomainEvent(new UserRestrictionRemovedEvent(Id, RestrictionType, RestrictionRule, now));
 
             return Result.Success();
         }

@@ -26,7 +26,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
                 id.Value
             );
 
-            var reason = reader.IsDBNull(ordinals.Reason) ? null : reader.GetString(ordinals.Reason);
+            var reason = DeletionReason.Restore(reader.GetString(ordinals.Reason));
 
             var restoreUntil = reader.GetFieldValue<DateTimeOffset>(ordinals.RestoreUntil);
             var restoredAt = reader.IsDBNull(ordinals.RestoredAt) ? (DateTimeOffset?)null : reader.GetFieldValue<DateTimeOffset>(ordinals.RestoredAt);

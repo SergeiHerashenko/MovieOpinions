@@ -4,7 +4,7 @@ using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Users.AggregateChanges.Change;
+using Authorization.Domain.Users.AggregateChanges.Action;
 using Authorization.Domain.Users.AggregateChanges.Deletion;
 using Authorization.Domain.Users.AggregateChanges.Restriction;
 using Authorization.Domain.Users.AggregateChanges.SessionRestriction;
@@ -12,8 +12,10 @@ using Authorization.Domain.Users.AggregateChanges.Tokens;
 using Authorization.Domain.Users.Contracts;
 using Authorization.Domain.Users.DomainEvents;
 using Authorization.Domain.Users.Entities.UsersDeletion;
-using Authorization.Domain.Users.Entities.UsersPendingChange;
-using Authorization.Domain.Users.Entities.UsersPendingChange.Changes;
+using Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects;
+using Authorization.Domain.Users.Entities.UsersPendingAction;
+using Authorization.Domain.Users.Entities.UsersPendingAction.Action;
+using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersRefreshToken;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
@@ -32,6 +34,9 @@ namespace Authorization.Domain.Users
 {
     public class User : AggregateRoot<UserId, Guid>
     {
+        private const int MaxFailedAttempts = 3;
+
+        #region Fields
         public Login Login { get; private set; }
 
         public Password Password { get; private set; }
@@ -44,7 +49,7 @@ namespace Authorization.Domain.Users
 
         public bool IsLoginConfirmed { get; private set; }
 
-        public int FailedLoginAttempts { get; private set; }
+        public int FailedPasswordAttempts { get; private set; }
 
         private readonly List<UserRefreshToken> _refreshTokens = new();
 
@@ -65,11 +70,10 @@ namespace Authorization.Domain.Users
 
         public bool IsDeleted => _deletion is not null;
 
-        private UserPendingChange? _change;
+        private UserPendingAction? _action;
 
-        public bool IsChange => _change is not null;
-
-        private const int MaxFailedAttempts = 3;
+        public bool IsAction => _action is not null;
+        #endregion
 
         #region Creation
         private User(UserId userId, Login login, Password password)
@@ -81,12 +85,12 @@ namespace Authorization.Domain.Users
             UpdatedAt = null;
             LastLoginAt = null;
             IsLoginConfirmed = true;
-            FailedLoginAttempts = 0;
+            FailedPasswordAttempts = 0;
             _restrictionSessions = new();
             _restrictions = new();
             _refreshTokens = new();
             _deletion = null;
-            _change = null;
+            _action = null;
         }
 
         public static Result<User> Create(Login login, Password password)
@@ -119,7 +123,7 @@ namespace Authorization.Domain.Users
             IEnumerable<UserRestriction> restrictions,
             IEnumerable<UserRestrictionSession> restrictionsSessions,
             IEnumerable<UserRefreshToken> refreshTokens,
-            UserPendingChange? pendingChange,
+            UserPendingAction? pendingAction,
             UserDeletion? deletion)
             : base(userId, createdAt)
         {
@@ -129,12 +133,12 @@ namespace Authorization.Domain.Users
             UpdatedAt = updateAt;
             LastLoginAt = lastLoginAt;
             IsLoginConfirmed = isLoginConfirmed;
-            FailedLoginAttempts = failedLoginAttempts;
+            FailedPasswordAttempts = failedLoginAttempts;
             _restrictionSessions.AddRange(restrictionsSessions);
             _restrictions.AddRange(restrictions);
             _refreshTokens.AddRange(refreshTokens);
             _deletion = deletion;
-            _change = pendingChange;
+            _action = pendingAction;
         }
 
         public static User Restore(
@@ -150,7 +154,7 @@ namespace Authorization.Domain.Users
             IEnumerable<UserRestriction> restrictions,
             IEnumerable<UserRestrictionSession> restrictionsSessions,
             IEnumerable<UserRefreshToken> refreshTokens,
-            UserPendingChange? pendingChange,
+            UserPendingAction? pendingAction,
             UserDeletion? deletion)
         {
             DomainGuard.AgainstNull<User>(
@@ -163,22 +167,312 @@ namespace Authorization.Domain.Users
                 throw DomainDataInconsistencyException.UnsupportedDiscriminator<User>(nameof(Role), role.ToString());
 
             return new User(userId, createdAt, login, password, role, updateAt, lastLoginAt,
-                isLoginConfirmed, failedLoginAttempts, restrictions, restrictionsSessions, refreshTokens, pendingChange, deletion);
+                isLoginConfirmed, failedLoginAttempts, restrictions, restrictionsSessions, refreshTokens, pendingAction, deletion);
+        }
+        #endregion
+
+        #region Behavior (Action)
+        public Result<UserPendingAction> ActionChangeLogin(Login newLogin, DateTimeOffset now)
+        {
+            if (newLogin is null)
+                return Result<UserPendingAction>.Failure(LoginErrors.EmptyLogin<User>());
+
+            var access = ProvideAccess();
+
+            if (access.IsFailure)
+                return Result<UserPendingAction>.Failure(access.Errors);
+
+            if (_action is not null)
+                return Result<UserPendingAction>.Failure(ActionErrors.ActionAlreadyExists<User>());
+
+            if (newLogin == Login)
+                return Result<UserPendingAction>.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(Login)));
+
+            var actionChengeLogin = UserAction.From(newLogin);
+
+            var createActionResult = CreateAction(actionChengeLogin, now);
+
+            if (createActionResult.IsFailure)
+                return createActionResult;
+
+            var createdAction = createActionResult.Value;
+
+            AddAggregateChange(new UserPendingActionCreated(createActionResult.Value, now));
+
+            return Result<UserPendingAction>.Success(createdAction);
+        }
+
+        public Result<UserPendingAction> ActionChangePassword(Password newPassword, DateTimeOffset now)
+        {
+            if (newPassword is null)
+                return Result<UserPendingAction>.Failure(PasswordErrors.EmptyHashPassword<User>());
+
+            var access = ProvideAccess();
+
+            if (access.IsFailure)
+                return Result<UserPendingAction>.Failure(access.Errors);
+
+            if (_action is not null)
+                return Result<UserPendingAction>.Failure(ActionErrors.ActionAlreadyExists<User>());
+
+            if (newPassword == Password)
+                return Result<UserPendingAction>.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(Password)));
+
+            var actionChangePassword = UserAction.From(newPassword);
+
+            var createActionResult = CreateAction(actionChangePassword, now);
+
+            if (createActionResult.IsFailure)
+                return createActionResult;
+
+            var createdAction = createActionResult.Value;
+
+            AddAggregateChange(new UserPendingActionCreated(createActionResult.Value, now));
+
+            return Result<UserPendingAction>.Success(createdAction);
+        }
+
+        public Result<UserPendingAction> ActionDeletingUser(string? reason, DateTimeOffset now)
+        {
+            if (IsDeleted)
+                return Result<UserPendingAction>.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(IsDeleted)));
+
+            var deletionReason = DeletionReason.Create(reason);
+
+            if (deletionReason.IsFailure)
+                return Result<UserPendingAction>.Failure(deletionReason.Errors);
+
+            ExpirePendingActionIfNeeded(now);
+
+            if (_action is not null)
+                return Result<UserPendingAction>.Failure(ActionErrors.ActionAlreadyExists<User>());
+
+            var actionDeletingUser = UserAction.From(deletionReason.Value);
+
+            var createActionDeletingResult = CreateAction(actionDeletingUser, now);
+
+            if (createActionDeletingResult.IsFailure)
+                return createActionDeletingResult;
+
+            var createdAction = createActionDeletingResult.Value;
+
+            AddAggregateChange(new UserPendingActionCreated(createActionDeletingResult.Value, now));
+
+            return Result<UserPendingAction>.Success(createdAction);
+        }
+
+        public Result FailPendingAction(UserPendingActionId userPendingActionId, DateTimeOffset now)
+        {
+            if (_action is null)
+                return Result.Failure(DeletionErrors.NotDeleteUser<User>());
+
+            if (_action.Id != userPendingActionId)
+                return Result.Failure(DeletionErrors.NotFoundAction<User>());
+
+            var failResult = _action.MarkAsFailed(userPendingActionId);
+
+            if (failResult.IsFailure)
+                return failResult;
+
+            AddAggregateChange(new UserPendingActionUpdated(_action, now));
+
+            _action = null;
+
+            return Result.Success();
+        }
+
+        private void ExpirePendingActionIfNeeded(DateTimeOffset now)
+        {
+            if (_action is null)
+                return;
+
+            if (_action.ExpiresAt > now)
+                return;
+
+            var expiredAction = _action;
+
+            expiredAction.MarkAsExpired(now);
+
+            AddAggregateChange(new UserPendingActionUpdated(expiredAction, now));
+
+            _action = null;
+        }
+
+        private Result<UserPendingAction> CreateAction(UserAction userChange, DateTimeOffset now)
+        {
+            var actionResult = UserPendingAction.Create(Id, userChange, now);
+
+            if (actionResult.IsFailure)
+                return actionResult;
+
+            _action = actionResult.Value;
+
+            AddDomainEvent(new UserPendingActionEvent(
+                actionResult.Value.Id,
+                Login,
+                actionResult.Value.UserAction,
+                actionResult.Value.ExpiresAt,
+                now)
+            );
+
+            return Result<UserPendingAction>.Success(actionResult.Value);
+        }
+        #endregion
+
+        #region Behavior (Confirm Action)
+        public Result ConfirmLogin(string confirmationToken, DateTimeOffset now)
+        {
+            return CompleteAction<LoginChangeAction>(
+                confirmationToken,
+                now,
+                change =>
+                {
+                    Login = change.NewLogin;
+                    IsLoginConfirmed = true;
+                }
+            );
+        }
+
+        public Result ConfirmPassword(string confirmationToken, DateTimeOffset now)
+        {
+            return CompleteAction<PasswordChangeAction>(
+                confirmationToken,
+                now,
+                change =>
+                {
+                    Password = change.NewPassword;
+                }
+            );
+        }
+
+        public Result ConfirmDeleting(string confirmationToken, DateTimeOffset now)
+        {
+            return CompleteAction<DeleteAccountAction>(
+                confirmationToken,
+                now,
+                change =>
+                {
+                    Delete(now, change.Reason);
+                }
+            );
+        }
+
+        private Result CompleteAction<TAction>(
+            string confirmationToken,
+            DateTimeOffset now,
+            Action<TAction> applyAction)
+            where TAction : UserAction
+        {
+            var access = ProvideAccess();
+
+            if (access.IsFailure)
+                return access;
+
+            if (_action is null)
+                return Result.Failure(ActionErrors.EmptyAction<User>());
+
+            var confirmResult = _action.ConfirmAction(confirmationToken, now);
+
+            if (confirmResult.IsFailure)
+                return confirmResult;
+
+            var action = _action.UserAction as TAction;
+
+            if (action is null)
+                return Result.Failure(ActionErrors.InvalidActionType<User>());
+
+            applyAction(action);
+
+            UpdatedAt = now;
+
+            var actionChange = _action;
+
+            _action = null;
+
+            AddAggregateChange(new UserPendingActionUpdated(actionChange, now));
+            AddDomainEvent(new UserActionEvent(
+                actionChange.Id,
+                Login,
+                actionChange.UserAction,
+                actionChange.ExpiresAt,
+                now)
+            );
+
+            return Result.Success();
+        }
+
+        private Result Delete(DateTimeOffset now, DeletionReason reason)
+        {
+            if (IsDeleted)
+                return Result.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(IsDeleted)));
+
+            var createDeletionResult = UserDeletion.Create(Id, Login, now, reason);
+
+            if (createDeletionResult.IsFailure)
+                return createDeletionResult;
+
+            var deletion = createDeletionResult.Value;
+
+            _deletion = deletion;
+
+            AddAggregateChange(new UserDeletionCreated(deletion, now));
+
+            return Result.Success();
+        }
+        #endregion
+
+        #region Behavior (Get)
+        public Result<UserPendingAction> GetPendingAction()
+        {
+            if (_action is null)
+                return Result<UserPendingAction>.Failure(ActionErrors.EmptyAction<User>());
+
+            return Result<UserPendingAction>.Success(_action);
+        }
+
+        public Result<UserDeletion> GetDeletion()
+        {
+            if (_deletion is null)
+                return Result<UserDeletion>.Failure(DeletionErrors.NotDeleteUser<User>());
+
+            return Result<UserDeletion>.Success(_deletion);
+        }
+
+        public Result<UserPendingAction> GetDeletionActionForConfirmation(ConfirmationToken confirmationToken, DateTimeOffset now)
+        {
+            var access = ProvideAccess();
+
+            if (access.IsFailure)
+                return Result<UserPendingAction>.Failure(access.Errors);
+
+            if (_action is null)
+                return Result<UserPendingAction>.Failure(ActionErrors.EmptyAction<User>());
+
+            if (_action.ExpiresAt <= now)
+                return Result<UserPendingAction>.Failure(ActionErrors.Expired<User>());
+
+            if (_action.ConfirmationToken != confirmationToken)
+                return Result<UserPendingAction>.Failure(ActionErrors.InvalidConfirmationToken<User>());
+
+            if (_action.UserAction is not DeleteAccountAction)
+                return Result<UserPendingAction>.Failure(ActionErrors.InvalidActionType<User>());
+
+            return Result<UserPendingAction>.Success(_action);
         }
         #endregion
 
         #region Behavior
-        public Result RecordFailedLoginAttempt(DateTimeOffset now)
+        public Result RecordFailedPasswordAttempt(DateTimeOffset now)
         {
             var access = ProvideAccess();
 
             if (!access.IsSuccess)
                 return access;
 
-            FailedLoginAttempts++;
+            FailedPasswordAttempts++;
             UpdatedAt = now;
 
-            if(FailedLoginAttempts >= MaxFailedAttempts)
+            if(FailedPasswordAttempts > MaxFailedAttempts)
             {
                 var restrictionData = CreateFailedLoginBanData();
 
@@ -190,7 +484,7 @@ namespace Authorization.Domain.Users
                 if (addResult.IsFailure)
                     return addResult;
 
-                FailedLoginAttempts = 0;
+                FailedPasswordAttempts = 0;
             }
 
             return Result.Success();
@@ -206,7 +500,7 @@ namespace Authorization.Domain.Users
             if (!IsLoginConfirmed)
                 return Result.Failure(LoginErrors.LoginIsNotConfirm<User>());
 
-            FailedLoginAttempts = 0;
+            FailedPasswordAttempts = 0;
             LastLoginAt = now;
 
             return Result.Success();
@@ -253,8 +547,6 @@ namespace Authorization.Domain.Users
 
             _refreshTokens.Add(refreshToken);
 
-            AddAggregateChangeEvent(new UserRefreshTokenCreated(refreshToken, now));
-
             return Result<UserRefreshToken>.Success(refreshToken);
         }
 
@@ -273,7 +565,14 @@ namespace Authorization.Domain.Users
 
             _refreshTokens.Remove(refreshToken);
 
-            AddAggregateChangeEvent(new UserRefreshTokenUpdated(refreshToken, now));
+            AddAggregateChange(new UserRefreshTokenUpdated(
+                refreshToken.Id,
+                Id,
+                refreshToken.TokenStatus,
+                refreshToken.ConsumedAt,
+                refreshToken.RevokedAt,
+                now)
+            );
 
             return Result.Success();
         }
@@ -293,7 +592,14 @@ namespace Authorization.Domain.Users
 
             _refreshTokens.Remove(refreshToken);
 
-            AddAggregateChangeEvent(new UserRefreshTokenUpdated(refreshToken, now));
+            AddAggregateChange(new UserRefreshTokenUpdated(
+                refreshToken.Id,
+                Id,
+                refreshToken.TokenStatus,
+                refreshToken.ConsumedAt,
+                refreshToken.RevokedAt,
+                now)
+            );
 
             return Result.Success();
         }
@@ -307,168 +613,7 @@ namespace Authorization.Domain.Users
         }
         #endregion
 
-        #region Behavior (Change)
-        public Result ChangeLogin(Login newLogin, DateTimeOffset now)
-        {
-            if (newLogin is null)
-                return Result.Failure(LoginErrors.EmptyLogin<User>());
-
-            var access = ProvideAccess();
-
-            if (access.IsFailure)
-                return access;
-
-            if (_change is not null)
-                return Result.Failure(ChangeErrors.ChangeAlreadyExists<User>());
-
-            if(newLogin == Login)
-                return Result.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(Login)));
-
-            var change = UserChange.From(newLogin);
-
-            var createChangeResult = CreateChange(change, now);
-
-            if(createChangeResult.IsFailure)
-                return createChangeResult;
-
-            AddAggregateChangeEvent(new UserPendingChangeCreated(createChangeResult.Value, now));
-
-            return Result.Success();
-        }
-
-        public Result ChangePassword(Password newPassword, DateTimeOffset now)
-        {
-            if (newPassword is null)
-                return Result.Failure(PasswordErrors.EmptyHashPassword<User>());
-
-            var access = ProvideAccess();
-
-            if (access.IsFailure)
-                return access;
-
-            if (_change is not null)
-                return Result.Failure(ChangeErrors.ChangeAlreadyExists<User>());
-
-            if (newPassword == Password)
-                return Result.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(Password)));
-
-            var change = UserChange.From(newPassword);
-
-            var createChangeResult = CreateChange(change, now);
-
-            if (createChangeResult.IsFailure)
-                return createChangeResult;
-
-            AddAggregateChangeEvent(new UserPendingChangeCreated(createChangeResult.Value, now));
-
-            return Result.Success();
-        }
-
-        public Result<UserPendingChange> GetPendingChange()
-        {
-            if (_change is null)
-                return Result<UserPendingChange>.Failure(ChangeErrors.EmptyChangeUser<User>());
-
-            return Result<UserPendingChange>.Success(_change);
-        }
-
-        private Result<UserPendingChange> CreateChange(UserChange userChange, DateTimeOffset now)
-        {
-            var pendingResult = UserPendingChange.Create(Id, userChange, now);
-
-            if (pendingResult.IsFailure)
-                return pendingResult;
-
-            _change = pendingResult.Value;
-
-            return Result<UserPendingChange>.Success(pendingResult.Value);
-        }
-        #endregion
-
-        #region Behavior (Confirm)
-        public Result ConfirmLogin(string confirmationToken, DateTimeOffset now)
-        {
-            return CompleteChange<LoginChange>(
-                confirmationToken,
-                now,
-                change =>
-                {
-                    Login = change.NewLogin;
-                    IsLoginConfirmed = true;
-                }
-            );
-        }
-
-        public Result ConfirmPassword(string confirmationToken, DateTimeOffset now)
-        {
-            return CompleteChange<PasswordChange>(
-                confirmationToken,
-                now,
-                change =>
-                {
-                    Password = change.NewPassword;
-                }
-            );
-        }
-
-        private Result CompleteChange<TChange>(
-            string confirmationToken,
-            DateTimeOffset now,
-            Action<TChange> applyChange)
-            where TChange : UserChange
-        {
-            var access = ProvideAccess();
-
-            if (access.IsFailure)
-                return access;
-
-            if (_change is null)
-                return Result.Failure(ChangeErrors.EmptyChangeUser<User>());
-
-            var confirmResult = _change.ConfirmChange(confirmationToken, now);
-
-            if (confirmResult.IsFailure)
-                return confirmResult;
-
-            var change = _change.UserChange as TChange;
-
-            if (change is null)
-                return Result.Failure(ChangeErrors.InvalidChangeType<User>());
-
-            applyChange(change);
-
-            UpdatedAt = now;
-
-            var pendingChange = _change;
-
-            _change = null;
-
-            AddAggregateChangeEvent(new UserPendingChangeUpdated(pendingChange, now));
-
-            return Result.Success();
-        }
-        #endregion
-
         #region Behavior (Removal)
-        public Result Delete(DateTimeOffset now, string? reason = null)
-        {
-            if (IsDeleted)
-                return Result.Failure(CommonErrors.StateConflict.NoUpdateNeeded<User>(nameof(IsDeleted)));
-
-            var createDeletionResult = UserDeletion.Create(Id, Login, now, reason);
-
-            if (createDeletionResult.IsFailure)
-                return createDeletionResult;
-
-            var deletion = createDeletionResult.Value;
-
-            _deletion = deletion;
-
-            AddAggregateChangeEvent(new UserDeletionCreated(deletion, now));
-
-            return Result.Success();
-        }
-
         public Result Undelete(DateTimeOffset now)
         {
             if(_deletion is null)
@@ -479,17 +624,11 @@ namespace Authorization.Domain.Users
             if(result.IsFailure)
                 return result;
 
-            AddAggregateChangeEvent(new UserDeletionUpdated(_deletion, now));
+            AddDomainEvent(new UserUndeletedEvent(_deletion.Id, Login, now));
+
+            AddAggregateChange(new UserDeletionUpdated(_deletion, now));
 
             return Result.Success();
-        }
-
-        public Result<UserDeletion> GetDeletion()
-        {
-            if (_deletion is null)
-                return Result<UserDeletion>.Failure(DeletionErrors.NotDeleteUser<User>());
-
-            return Result<UserDeletion>.Success(_deletion);
         }
 
         public bool UpdateExpirationStatus(DateTimeOffset now)
@@ -500,7 +639,7 @@ namespace Authorization.Domain.Users
             if (!_deletion.MarkAsExpired(now))
                 return false;
 
-            AddAggregateChangeEvent(new UserDeletionUpdated(_deletion, now));
+            AddAggregateChange(new UserDeletionUpdated(_deletion, now));
 
             return true;
         }
@@ -527,6 +666,10 @@ namespace Authorization.Domain.Users
                 var session = _restrictionSessions
                     .FirstOrDefault(x => x.RestrictionType == restrictionGroup.Key);
 
+                var restrictionDescription = restrictionDataCollection
+                    .Select(x => (Rule: x.RestrictionRule, Reason: x.Reason))
+                    .ToArray();
+
                 if (session is null)
                 {
                     var createSessionResult = UserRestrictionSession.Create(Id, restrictionGroup);
@@ -536,7 +679,16 @@ namespace Authorization.Domain.Users
 
                     _restrictionSessions.Add(createSessionResult.Value);
 
-                    AddAggregateChangeEvent(new UserRestrictionSessionCreated(createSessionResult.Value, now));
+                    AddDomainEvent(new UserRestrictionSessionCreatedEvent(
+                        createSessionResult.Value.Id,
+                        Login,
+                        restrictionDescription,
+                        createSessionResult.Value.RestrictionType,
+                        createSessionResult.Value.TotalBlockedMinutes,
+                        now)
+                    );
+
+                    AddAggregateChange(new UserRestrictionSessionCreated(createSessionResult.Value, now));
 
                     continue;
                 }
@@ -546,12 +698,21 @@ namespace Authorization.Domain.Users
                 if (addRestrictionsResult.IsFailure)
                     return addRestrictionsResult;
 
-                AddAggregateChangeEvent(new UserRestrictionSessionUpdated(session, now));
+                AddDomainEvent(new UserRestrictionSessionAddRestrictionEvent(
+                    session.Id,
+                    Login,
+                    restrictionDescription,
+                    session.RestrictionType,
+                    session.TotalBlockedMinutes,
+                    now)
+                );
+
+                AddAggregateChange(new UserRestrictionSessionUpdated(session, now));
             }
 
             _restrictions.AddRange(createRestrictionsResult.Value);
 
-            AddRestrictionCreatedEvents(createRestrictionsResult.Value, now);
+            AddRestrictionCreatedChange(createRestrictionsResult.Value, now);
 
             return Result.Success();
         }
@@ -587,16 +748,25 @@ namespace Authorization.Domain.Users
             {
                 _restrictionSessions.Remove(session);
 
-                AddAggregateChangeEvent(new UserRestrictionSessionDeleted(session.Id, now));
+                AddAggregateChange(new UserRestrictionSessionDeleted(session.Id, now));
             }
             else
             {
-                AddAggregateChangeEvent(new UserRestrictionSessionUpdated(session, now));
+                AddAggregateChange(new UserRestrictionSessionUpdated(session, now));
             }
 
             _restrictions.Remove(restriction);
 
-            AddAggregateChangeEvent(new UserRestrictionUpdated(restriction, now));
+            AddDomainEvent(new UserRestrictionSessionRemovedRestrictionEvent(
+                session.Id,
+                Login,
+                restriction.RestrictionRule,
+                restriction.RestrictionType,
+                session.TotalBlockedMinutes,
+                now)
+            );
+
+            AddAggregateChange(new UserRestrictionUpdated(restriction, now));
 
             return Result.Success();
         }
@@ -638,12 +808,19 @@ namespace Authorization.Domain.Users
 
                 _restrictions.Remove(restriction);
 
-                AddAggregateChangeEvent(new UserRestrictionUpdated(restriction, now));
+                AddAggregateChange(new UserRestrictionUpdated(restriction, now));
             }
 
             _restrictionSessions.Remove(session);
 
-            AddAggregateChangeEvent(new UserRestrictionSessionDeleted(session.Id, now));
+            AddDomainEvent(new UserRestrictionSessionRemovedEvent(
+                session.Id,
+                Login,
+                session.RestrictionType,
+                now)
+            );
+
+            AddAggregateChange(new UserRestrictionSessionDeleted(session.Id, now));
 
             return Result.Success();
         }
@@ -670,11 +847,11 @@ namespace Authorization.Domain.Users
             return Result<List<UserRestriction>>.Success(restrictions);
         }
 
-        private void AddRestrictionCreatedEvents(IEnumerable<UserRestriction> userRestrictions, DateTimeOffset now)
+        private void AddRestrictionCreatedChange(IEnumerable<UserRestriction> userRestrictions, DateTimeOffset now)
         {
             foreach (var restriction in userRestrictions)
             {
-                AddAggregateChangeEvent(new UserRestrictionCreated(restriction, now));
+                AddAggregateChange(new UserRestrictionCreated(restriction, now));
             }
         }
         #endregion

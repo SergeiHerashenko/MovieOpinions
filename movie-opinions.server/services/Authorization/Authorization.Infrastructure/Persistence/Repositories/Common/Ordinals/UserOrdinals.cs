@@ -26,7 +26,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.Ordinals
 
         public readonly int IsLoginConfirmed;
 
-        public readonly int FailedLoginAttempts;
+        public readonly int FailedPasswordAttempts;
 
         public UserOrdinals(NpgsqlDataReader reader)
         {
@@ -41,7 +41,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.Ordinals
             UpdatedAt = reader.GetOrdinal("updated_at");
             LastLoginAt = reader.GetOrdinal("last_login_at");
             IsLoginConfirmed = reader.GetOrdinal("is_login_confirmed");
-            FailedLoginAttempts = reader.GetOrdinal("failed_login_attempts");
+            FailedPasswordAttempts = reader.GetOrdinal("failed_password_attempts");
         }
     }
 }

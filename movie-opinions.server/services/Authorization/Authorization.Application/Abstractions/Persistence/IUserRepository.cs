@@ -12,6 +12,8 @@ namespace Authorization.Application.Abstractions.Persistence
 
         Task<User?> GetUserByIdAsync(UserId userId, CancellationToken cancellationToken = default);
 
+        Task<User?> GetUserByIdForUpdateAsync(UserId userId, CancellationToken cancellationToken = default);
+
         Task<User?> GetUserByLoginAsync(Login login, CancellationToken cancellationToken = default);
 
         Task<bool> ExistsUserByLoginAsync(Login login, CancellationToken cancellationToken = default);

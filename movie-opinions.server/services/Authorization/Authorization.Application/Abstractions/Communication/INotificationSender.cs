@@ -5,6 +5,8 @@ namespace Authorization.Application.Abstractions.Communication
 {
     public interface INotificationSender
     {
-        Task<Result> SendCreateNotificationAsync<TId>(NotificationRequest<TId> notificationCommand);
+        Task<Result> SendCreateNotificationAsync<TId>(NotificationRequest<TId> notificationCommand, CancellationToken cancellationToken = default);
+
+        Task<Result> SendCreateNotificationAsync<TId, TData>(NotificationRequest<TId, TData> notificationCommand, CancellationToken cancellationToken = default);
     }
 }

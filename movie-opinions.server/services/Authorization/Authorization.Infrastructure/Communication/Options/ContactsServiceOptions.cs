@@ -7,5 +7,7 @@
         public string ClientName { get; set; } = string.Empty;
 
         public string CreateEndpoint { get; set; } = string.Empty;
+
+        public string GetActiveEndpoint {  get; set; } = string.Empty;
     }
 }

@@ -45,14 +45,14 @@ namespace Authorization.Domain.Common.Models
         public void AddDomainEvent(IDomainEvent domainEvent)
             => _domainEvents.Add(domainEvent);
 
-        public void AddAggregateChangeEvent(IAggregateChange aggregateChang)
+        public void AddAggregateChange(IAggregateChange aggregateChang)
             => _aggregateChanges.Add(aggregateChang);
 
         // Очищає список подій після їх успішної обробки
         public void ClearDomainEvents()
             => _domainEvents.Clear();
 
-        public void ClearAggregateChangs()
+        public void ClearAggregateChanges()
             => _aggregateChanges.Clear();
     }
 }

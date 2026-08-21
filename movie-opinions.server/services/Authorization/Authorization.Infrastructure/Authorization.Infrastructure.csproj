@@ -13,7 +13,6 @@
     <None Remove="Persistence\Migrations\0004_create_user_restriction_table.psql" />
     <None Remove="Persistence\Migrations\0005_create_user_restriction_session_table.psql" />
     <None Remove="Persistence\Migrations\0006_create_user_deleted_table.psql" />
-    <None Remove="Persistence\Migrations\0007_create_user_pending_change_table.psql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +22,7 @@
     <EmbeddedResource Include="Persistence\Migrations\0004_create_user_restriction_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0005_create_user_restriction_session_table.psql" />
     <EmbeddedResource Include="Persistence\Migrations\0006_create_user_deleted_table.psql" />
-    <EmbeddedResource Include="Persistence\Migrations\0007_create_user_pending_change_table.psql" />
+    <EmbeddedResource Include="Persistence\Migrations\0007_create_user_pending_action_table.psql" />
   </ItemGroup>
 
   <ItemGroup>

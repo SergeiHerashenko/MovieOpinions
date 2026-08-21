@@ -1,4 +1,5 @@
-﻿using Authorization.Application.Features.Registration.ConfirmRegistration;
+﻿using Authorization.Application.Features.LogOut;
+using Authorization.Application.Features.Registration.ConfirmRegistration;
 using Authorization.Application.Features.Registration.StartRegistration.Emails;
 using Authorization.Application.Features.Registration.StartRegistration.Phones;
 using Authorization.Application.Features.SignIn.Emails;
@@ -8,6 +9,7 @@ using Authorization.Requests.ConfirmRegistration;
 using Authorization.Requests.Login;
 using Authorization.Requests.Registration;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -131,6 +133,21 @@ namespace Authorization.Controllers
             _cookieProvider.SetCookies(result.Value.AccessToken, result.Value.RefreshToken);
 
             return Ok(result.Value);
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new LogOutCommand(), cancellationToken);
+
+            if (result.IsFailure)
+                return BadRequest(result.Errors);
+
+            _cookieProvider.ClearCookies();
+
+            return NoContent();
         }
     }
 }

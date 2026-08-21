@@ -9,6 +9,8 @@
             public const string Update = "contacts:update";
 
             public const string Delete = "contacts:delete";
+
+            public const string Read = "contacts:read";
         }
 
         public static class Profile

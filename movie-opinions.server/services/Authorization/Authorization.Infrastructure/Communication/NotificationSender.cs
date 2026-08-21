@@ -34,7 +34,7 @@ namespace Authorization.Infrastructure.Communication
             _serviceJwtProvider = serviceJwtProvider;
         }
 
-        public async Task<Result> SendCreateNotificationAsync<TId>(NotificationRequest<TId> notificationCommand)
+        public async Task<Result> SendCreateNotificationAsync<TId>(NotificationRequest<TId> notificationCommand, CancellationToken cancellationToken = default)
         {
             var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Notification.Create });
 
@@ -56,7 +56,39 @@ namespace Authorization.Infrastructure.Communication
             {
                 _logger.LogError("Notification sending failed after retries. Registration will proceed without blocking. Recipient: {Recipient}, Action: {Action}, Reason: {Reason}",
                     notificationCommand.Recipient,
-                    notificationCommand.Action,
+                    notificationCommand.NotificationType,
+                    responseNotification.ErrorMessage
+                );
+
+                return Result.Failure(CommunicationError.SendError<NotificationSender>("Error sending confirmation email"));
+            }
+
+            return Result.Success();
+        }
+
+        public async Task<Result> SendCreateNotificationAsync<TId, TData>(NotificationRequest<TId, TData> notificationCommand, CancellationToken cancellationToken = default)
+        {
+            var token = _serviceJwtProvider.GenerateServiceToken(_identityOptions.ServiceName, new[] { Permissions.Notification.Create });
+
+            var notificationRequest = new InternalRequest<NotificationRequest<TId, TData>>
+            {
+                ClientName = _options.ClientName,
+                Endpoint = _options.CreateEndpoint,
+                Method = HttpMethod.Post,
+                Body = notificationCommand,
+                Headers = new Dictionary<string, string>()
+                {
+                    { _identityOptions.HeaderName, $"{_identityOptions.Scheme} {token}" }
+                }
+            };
+
+            var responseNotification = await _sendInternalRequest.SendAsync<NotificationRequest<TId, TData>, bool>(notificationRequest);
+
+            if (!responseNotification.IsSuccess)
+            {
+                _logger.LogError("Notification sending failed after retries. Registration will proceed without blocking. Recipient: {Recipient}, Action: {Action}, Reason: {Reason}",
+                    notificationCommand.Recipient,
+                    notificationCommand.NotificationType,
                     responseNotification.ErrorMessage
                 );
 

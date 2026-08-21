@@ -91,11 +91,11 @@ namespace Authorization.ErrorHandling
             [DomainErrorCodes.RefreshToken.ExpiredToken] = StatusCodes.Status401Unauthorized,
             [DomainErrorCodes.RefreshToken.NotFoundToken] = StatusCodes.Status401Unauthorized,
 
-            // Change
-            [DomainErrorCodes.Change.EmptyChange] = StatusCodes.Status400BadRequest,
-            [DomainErrorCodes.Change.InvalidConfirmationToken] = StatusCodes.Status401Unauthorized,
-            [DomainErrorCodes.Change.ChangeAlreadyExists] = StatusCodes.Status409Conflict,
-            [DomainErrorCodes.Change.InvalidChangeType] = StatusCodes.Status400BadRequest,
+            // Action
+            [DomainErrorCodes.Action.EmptyAction] = StatusCodes.Status400BadRequest,
+            [DomainErrorCodes.Action.InvalidConfirmationToken] = StatusCodes.Status401Unauthorized,
+            [DomainErrorCodes.Action.ActionAlreadyExists] = StatusCodes.Status409Conflict,
+            [DomainErrorCodes.Action.InvalidActionType] = StatusCodes.Status400BadRequest,
         };
 
         public int GetStatusCode(string errorCode)

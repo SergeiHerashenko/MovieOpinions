@@ -14,6 +14,12 @@
 
         LoginChange,
 
+        ChangeDeletingUser,
+
+        SendChangeDeletionConfirmation,
+
+        ConfirmationDeletingUser,
+
         ConfirmToken
     }
 }

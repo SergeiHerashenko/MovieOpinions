@@ -21,5 +21,17 @@ namespace Authorization.Domain.Common.Errors.Users
                    $"User deleted. Owner: {typeof(TValue).Name}!",
                    ErrorType.Forbidden
             );
+
+        public static Error TooLongReason<TValue>()
+            => new(DomainErrorCodes.Deletion.TooLongReason,
+                   $"This description of the reason for deletion is too long. Owner: {typeof(TValue).Name}!",
+                   ErrorType.Validation
+            );
+
+        public static Error NotFoundAction<TValue>()
+            => new(DomainErrorCodes.Deletion.NotFoundAction,
+                   $"The user has no active actions to change. Owner: {typeof(TValue).Name}!",
+                   ErrorType.Conflict
+            );
     }
 }
