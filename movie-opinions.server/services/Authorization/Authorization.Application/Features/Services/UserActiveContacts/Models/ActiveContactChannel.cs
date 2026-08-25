@@ -1,8 +1,8 @@
 ﻿using Authorization.Application.Common.Enums;
 
-namespace Authorization.Application.Features.DeletingUser.StartDeletingUser.Model
+namespace Authorization.Application.Features.Services.UserActiveContacts.Models
 {
-    public class AvailableDeletionChannel
+    public sealed class ActiveContactChannel
     {
         public Guid ContactId { get; }
 
@@ -10,9 +10,9 @@ namespace Authorization.Application.Features.DeletingUser.StartDeletingUser.Mode
 
         public string MaskedValue { get; }
 
-        public AvailableDeletionChannel(
-            Guid contactId,
-            CommunicationChannel channel,
+        public ActiveContactChannel(
+            Guid contactId, 
+            CommunicationChannel channel, 
             string maskedValue)
         {
             ContactId = contactId;

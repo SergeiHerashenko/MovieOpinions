@@ -1,4 +1,7 @@
-﻿using Authorization.Domain.Common.Errors.Users;
+﻿using Authorization.Domain.Common.Errors.Common;
+using Authorization.Domain.Common.Errors.Users;
+using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
@@ -33,11 +36,23 @@ namespace Authorization.Domain.Users.ValueObjects.PasswordUser
 
             return new Password(hash);
         }
+        #endregion
+
+        #region Behavior
+        internal Result<bool> Matches(
+            PlainPassword plainPassword,
+            Func<PlainPassword, string, bool> verifier)
+        {
+            if(plainPassword is null)
+                return Result<bool>.Failure(PasswordErrors.EmptyPlainPassword<User>());
+
+            return Result<bool>.Success(verifier(plainPassword, Value));
+        }
+        #endregion
 
         public override IEnumerable<object?> GetEqualityComponents()
         {
             yield return _hash.Value;
         }
-        #endregion
     }
 }

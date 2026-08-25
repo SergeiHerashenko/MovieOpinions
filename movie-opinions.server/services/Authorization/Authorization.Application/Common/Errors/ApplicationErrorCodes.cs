@@ -21,14 +21,19 @@
 
             public const string UserInvalidPassword = "USER_INVALID_PASSWORD";
 
-            public const string NoVerifiedContactChannels = "NO_CONTACT_CHANNELS";
-
             public const string HasPendingAction = "HAS_PENDING_ACTION";
+
+            public const string CredentialsChanged = "CREDENTIALS_CHANGED";
         }
 
         public static class ConfirmError
         {
             public const string InvalidToken = "INVALID_TOKEN";
+        }
+
+        public static class ContactError
+        {
+            public const string ContactInvariantViolated = "CONTACT_INVARIANT_VIOLATED";
         }
     }
 }

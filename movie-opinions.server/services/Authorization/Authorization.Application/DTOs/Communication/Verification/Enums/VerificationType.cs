@@ -5,5 +5,9 @@
         ConfirmRegistration = 0,
 
         DeletionUser = 1,
+
+        ChangePassword = 2,
+
+        ChangeLogin = 3
     }
 }

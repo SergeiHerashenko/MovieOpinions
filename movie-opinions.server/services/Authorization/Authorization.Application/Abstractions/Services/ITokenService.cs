@@ -6,6 +6,6 @@ namespace Authorization.Application.Abstractions.Services
 {
     public interface ITokenService
     {
-        Result<TokenResponse> CreateUserSessionAsync(User user, CancellationToken cancellationToken = default);
+        Result<TokenResponse> CreateUserSession(User user, CancellationToken cancellationToken = default);
     }
 }

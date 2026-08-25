@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
 {
-    public class StartDeletingUserCommand : IRequest<Result<StartDeletingUserResult>>
+    public sealed class StartDeletingUserCommand : IRequest<Result<StartDeletingUserResult>>
     {
         public string Password { get; } 
 

@@ -6,12 +6,14 @@ namespace Authorization.Application.Features.DeletingUser.SendDeletionConfirmati
     {
         public ConfirmationNextStep ConfirmationNextStep { get; }
         
-        public string MaskedValue { get; }
+        public string Message { get; }
 
-        public SendDeletionConfirmationResult(ConfirmationNextStep confirmationNextStep, string maskedValue)
+        public SendDeletionConfirmationResult(
+            ConfirmationNextStep confirmationNextStep, 
+            string message)
         {
             ConfirmationNextStep = confirmationNextStep;
-            MaskedValue = maskedValue;
+            Message = message;
         }
     }
 }

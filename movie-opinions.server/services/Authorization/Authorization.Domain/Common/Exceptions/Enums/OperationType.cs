@@ -10,6 +10,8 @@
 
         Delete,
 
-        Reading
+        Reading,
+
+        Compare
     }
 }

@@ -2,7 +2,8 @@
 
 namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
 {
-    public class StartDeletingUserCommandValidator : AbstractValidator<StartDeletingUserCommand>
+    public class StartDeletingUserCommandValidator 
+        : AbstractValidator<StartDeletingUserCommand>
     {
         public StartDeletingUserCommandValidator()
         {

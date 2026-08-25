@@ -12,7 +12,7 @@
 
         PendingResetPassword = 3,
 
-        PendingChangeEmail = 4,
+        PendingChangeLogin = 4,
 
         PendingDeletingUser = 5,
 
@@ -21,7 +21,7 @@
 
         ActionResetPassword = 7,
 
-        ActionChangeEmail = 8,
+        ActionChangeLogin = 8,
 
         ActionDeletionUser = 9,
 

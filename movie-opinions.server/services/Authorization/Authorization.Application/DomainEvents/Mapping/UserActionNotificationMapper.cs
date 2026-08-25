@@ -12,7 +12,7 @@ namespace Authorization.Application.DomainEvents.Mapping
             return userAction switch
             {
                 PasswordChangeAction => NotificationType.ActionChangePassword,
-                LoginChangeAction => NotificationType.ActionChangeEmail,
+                LoginChangeAction => NotificationType.ActionChangeLogin,
                 DeleteAccountAction => NotificationType.ActionDeletionUser,
                 _ => throw ApplicationInvalidOperationException.UnsupportedValue<UserActionNotificationMapper>(nameof(userAction))
             };

@@ -41,15 +41,15 @@ namespace Authorization.Application.Common.Errors.Users
                    ErrorType.InvalidFormat
             );
 
-        public static Error NoVerifiedContactChannels<TValue>(string login)
-            => new(ApplicationErrorCodes.UsersError.NoVerifiedContactChannels,
-                   $"User {login} has no communication channels. Owner: {typeof(TValue).Name}!",
-                   ErrorType.InvariantViolation
-            );
-
         public static Error HasPendingAction<TValue>(string nameAction)
             => new(ApplicationErrorCodes.UsersError.HasPendingAction,
                    $"User has active action {nameAction}. Owner: {typeof(TValue).Name}!",
+                   ErrorType.Conflict
+            );
+
+        public static Error CredentialsChanged<TValue>()
+            => new(ApplicationErrorCodes.UsersError.CredentialsChanged,
+                   $"Credentials changed while the operation was being completed",
                    ErrorType.Conflict
             );
     }

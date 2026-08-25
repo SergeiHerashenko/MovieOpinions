@@ -123,7 +123,7 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
             //if (result.IsFailure)
             //    return Result<ConfirmRegistrationResult<Guid>>.Failure(result.Errors);
 
-            var userToken = _tokenService.CreateUserSessionAsync(newUser);
+            var userToken = _tokenService.CreateUserSession(newUser);
 
             if (userToken.IsFailure)
                 return Result<ConfirmRegistrationResult<Guid>>.Failure(userToken.Errors);

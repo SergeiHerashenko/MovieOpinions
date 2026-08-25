@@ -1,15 +1,17 @@
 ﻿using Authorization.Domain.Users;
 using Authorization.Domain.Users.Entities.UsersPendingAction;
 
-namespace Authorization.Application.Features.DeletingUser.StartDeletingUser.Model
+namespace Authorization.Application.Features.ChangingPassword.StartChangePassword.Models
 {
-    internal sealed class StartedDeletion
+    internal sealed class StartPasswordChange
     {
         public User User { get; }
 
         public UserPendingAction Action { get; }
 
-        public StartedDeletion(User user, UserPendingAction action)
+        public StartPasswordChange(
+            User user, 
+            UserPendingAction action)
         {
             User = user;
             Action = action;

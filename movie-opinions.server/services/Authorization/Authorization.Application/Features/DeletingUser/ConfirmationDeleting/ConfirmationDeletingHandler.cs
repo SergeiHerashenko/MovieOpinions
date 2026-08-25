@@ -1,129 +1,92 @@
 ﻿using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
-using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
-using Authorization.Application.Abstractions.RateLimiter;
-using Authorization.Application.Abstractions.UserContext;
-using Authorization.Application.Common.Enums;
+using Authorization.Application.Abstractions.Services.UserActionConfirmation;
 using Authorization.Application.Common.Errors.Users;
-using Authorization.Application.DTOs.Communication.Verification;
-using Authorization.Application.DTOs.Communication.Verification.Enums;
+using Authorization.Application.Features.Services.UserActionConfirmation.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
-using Authorization.Domain.Users.ValueObjects;
+using Authorization.Domain.Users;
+using Authorization.Domain.Users.Entities.UsersPendingAction.Action;
 using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 {
     public class ConfirmationDeletingHandler : IRequestHandler<ConfirmationDeletingCommand, Result>
     {
-        private readonly IUserContext _userContext;
-        private readonly IRateLimiter _rateLimiter;
         private readonly IClock _clock;
 
         private readonly IUserRepository _userRepository;
-
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly IVerificationSender _verificationSender;
+        private readonly IVerifyUserActionConfirmationService _verifyUserActionConfirmationService;
 
         private readonly IAggregateChangesDispatcher _aggregateChangesDispatcher;
         private readonly IDomainEventDispatcher _domainEventDispatcher;
 
         public ConfirmationDeletingHandler(
-            IUserContext userContext,
-            IRateLimiter rateLimiter,
             IClock clock,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork,
-            IVerificationSender verificationSender,
+            IVerifyUserActionConfirmationService verifyUserActionConfirmationService,
             IAggregateChangesDispatcher aggregateChangesDispatcher,
             IDomainEventDispatcher domainEventDispatcher)
         {
-            _userContext = userContext;
-            _rateLimiter = rateLimiter;
             _clock = clock;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
-            _verificationSender = verificationSender;
+            _verifyUserActionConfirmationService = verifyUserActionConfirmationService;
             _aggregateChangesDispatcher = aggregateChangesDispatcher;
             _domainEventDispatcher = domainEventDispatcher;
         }
 
         public async Task<Result> Handle(ConfirmationDeletingCommand command, CancellationToken cancellationToken = default)
         {
-            var userId = UserId.Restore(_userContext.GetUserId());
-            var ipAddressResult = IpAddress.Create(_userContext.GetIpAddress());
+            var verifyData = new VerifiedUserActionData(
+                command.ConfirmationToken,
+                command.VerificationValue
+            );
 
-            if (ipAddressResult.IsFailure)
-                return Result.Failure(ipAddressResult.Errors);
-
-            var limiterResult = await _rateLimiter.EnsureAllowedAsync(
-                RateLimitAction.ConfirmationDeletingUser,
-                ipAddressResult.Value,
-                userId.Value.ToString(),
+            var verificationResult = await _verifyUserActionConfirmationService.VerifyAsync<DeleteAccountAction>(
+                verifyData,
                 cancellationToken
             );
 
-            if(limiterResult.IsFailure)
-                return Result.Failure(limiterResult.Errors);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var existingUser = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
-
-            if (existingUser is null)
-                return Result.Failure(UserErrors.NotFound<ConfirmationDeletingHandler>(userId.Value.ToString()));
-
-            var confirmationToken = ConfirmationToken.Restore(command.ConfirmationToken);
-
-            var actionResult = existingUser.GetDeletionActionForConfirmation(confirmationToken, _clock.UtcNow);
-
-            if (actionResult.IsFailure)
-                return Result.Failure(actionResult.Errors);
-
-            //var verificationCommand = VerificationRequest.Create(
-            //    actionResult.Value.Id,
-            //    VerificationType.DeletionUser,
-            //    command.VerificationValue
-            //);
-            //
-            //var result = await _verificationSender.VerifyCodeAsync(verificationCommand, cancellationToken);
-            //
-            //if (result.IsFailure)
-            //    return Result.Failure(result.Errors);
+            if (verificationResult.IsFailure)
+                return Result.Failure(verificationResult.Errors);
 
             var resultDeletion = await _unitOfWork.ExecuteAsync(async ct =>
             {
-                var currentUser = await _userRepository.GetUserByIdForUpdateAsync(userId, ct);
+                var currentUser = await _userRepository.GetUserByIdForUpdateAsync(verificationResult.Value.UserId, ct);
 
                 if (currentUser is null)
-                    return Result.Failure(UserErrors.NotFound<ConfirmationDeletingHandler>(userId.Value.ToString()));
+                    return Result<User>.Failure(UserErrors.NotFound<ConfirmationDeletingHandler>(verificationResult.Value.UserId.Value.ToString()));
 
-                var pendingAction = currentUser.GetPendingAction();
-
-                if (pendingAction.IsFailure)
-                    return Result.Failure(pendingAction.Errors);
-
-                var deletionResult = currentUser.ConfirmDeleting(command.ConfirmationToken, _clock.UtcNow);
+                var deletionResult = currentUser.ConfirmDeleting(
+                    command.ConfirmationToken,
+                    verificationResult.Value.ActionId, 
+                    _clock.UtcNow
+                );
 
                 if (deletionResult.IsFailure)
-                    return Result.Failure(deletionResult.Errors);
+                    return Result<User>.Failure(deletionResult.Errors);
 
                 await _aggregateChangesDispatcher.DispatchAsync(currentUser.AggregateChanges, ct);
-                await _domainEventDispatcher.DispatchAsync(currentUser.DomainEvents, ct);
-
+                
                 currentUser.ClearAggregateChanges();
-                currentUser.ClearDomainEvents();
 
-                return Result.Success();
+                return Result<User>.Success(currentUser);
 
             }, cancellationToken);
 
             if(resultDeletion.IsFailure)
                 return Result.Failure(resultDeletion.Errors);
+
+            var committedUser = resultDeletion.Value;
+
+            await _domainEventDispatcher.DispatchAsync(committedUser.DomainEvents, cancellationToken);
+
+            committedUser.ClearDomainEvents();
 
             return Result.Success();
         }

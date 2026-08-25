@@ -1,18 +1,19 @@
-﻿using Authorization.Application.Abstractions.Clock;
+﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
 using Authorization.Application.Abstractions.RateLimiter;
 using Authorization.Application.Abstractions.Security.Access;
-using Authorization.Application.Abstractions.Security.Hashers;
 using Authorization.Application.Abstractions.Services;
+using Authorization.Application.Abstractions.Services.UserPassword;
 using Authorization.Application.Abstractions.UserContext;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Errors.Users;
 using Authorization.Application.Features.SignIn.Marker;
+using Authorization.Application.Features.SignIn.Models;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
-using Authorization.Domain.Users.ValueObjects.PasswordUser;
 
 namespace Authorization.Application.Features.SignIn
 {
@@ -20,7 +21,6 @@ namespace Authorization.Application.Features.SignIn
     {
         private readonly IRateLimiter _rateLimiter;
         private readonly IUserContext _userContext;
-        private readonly IPasswordHasher _passwordHasher;
         private readonly IClock _clock;
         private readonly ITokenService _tokenService;
         private readonly IAccessService<ISignInMarker> _accessService;
@@ -29,30 +29,35 @@ namespace Authorization.Application.Features.SignIn
         private readonly IUserRefreshTokenRepository _userRefreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
 
+        private readonly IUserPasswordAttemptService _userPasswordAttemptService;
+
         private readonly IDomainEventDispatcher _domainEventDispatcher;
+        private readonly IAggregateChangesDispatcher _aggregateChangesDispatcher;
 
         public SignInFlowCoordinator(
             IRateLimiter rateLimiter,
             IUserContext userContext,
-            IPasswordHasher passwordHasher,
             IClock clock,
             ITokenService tokenService,
             IAccessService<ISignInMarker> accessService,
             IUserRepository userRepository,
             IUserRefreshTokenRepository userRefreshTokenRepository,
             IUnitOfWork unitOfWork,
-            IDomainEventDispatcher domainEventDispatcher)
+            IUserPasswordAttemptService userPasswordAttemptService,
+            IDomainEventDispatcher domainEventDispatcher,
+            IAggregateChangesDispatcher aggregateChangesDispatcher)
         {
             _rateLimiter = rateLimiter;
             _userContext = userContext;
-            _passwordHasher = passwordHasher;
             _clock = clock;
             _tokenService = tokenService;
             _accessService = accessService;
             _userRepository = userRepository;
             _userRefreshTokenRepository = userRefreshTokenRepository;
             _unitOfWork = unitOfWork;
+            _userPasswordAttemptService = userPasswordAttemptService;
             _domainEventDispatcher = domainEventDispatcher;
+            _aggregateChangesDispatcher = aggregateChangesDispatcher;
         }
 
         public async Task<Result<SignInResult<Guid>>> ProcessAsync(
@@ -77,66 +82,72 @@ namespace Authorization.Application.Features.SignIn
             if (resultLimiter.IsFailure)
                 return Result<SignInResult<Guid>>.Failure(resultLimiter.Errors);
 
-            var plainPasswordResult = PlainPassword.Create(rawPassword);
+            var existingUserResult = await _userPasswordAttemptService.ProcessAsync(login, rawPassword, cancellationToken);
 
-            if (plainPasswordResult.IsFailure)
-                return Result<SignInResult<Guid>>.Failure(plainPasswordResult.Errors);
+            if (existingUserResult.IsFailure)
+                return Result<SignInResult<Guid>>.Failure(existingUserResult.Errors);
 
-            var existingUser = await _userRepository.GetUserByLoginAsync(login, cancellationToken);
+            var verifiedUser = existingUserResult.Value;
+            var verifiedPasswordHash = verifiedUser.Password.Value;
 
-            if (existingUser is null)
+            var signInTransaction = await _unitOfWork.ExecuteAsync(async ct =>
             {
-                _passwordHasher.FakeVerifyPassword(plainPasswordResult.Value);
+                var currentUser = await _userRepository.GetUserByIdForUpdateAsync(verifiedUser.Id, ct);
 
-                return Result<SignInResult<Guid>>.Failure(UserErrors.NotFound<SignInFlowCoordinator>(login.Value));
-            }
+                if (currentUser is null)
+                    return Result<SignInTransactionResult>.Failure(UserErrors.NotFound<SignInFlowCoordinator>(verifiedUser.Login.Value));
 
-            var passwordResult = _passwordHasher.VerifyPassword(plainPasswordResult.Value, existingUser.Password.Value);
-
-            if (!passwordResult)
-            {
-                existingUser.RecordFailedPasswordAttempt(_clock.UtcNow);
-
-                // TODO Не зберігає бан тимчасовий, бо я тільки оновлюю юзера ) 
-                await _unitOfWork.ExecuteAsync(async ct =>
+                if (!string.Equals(
+                        currentUser.Password.Value,
+                        verifiedPasswordHash,
+                        StringComparison.Ordinal))
                 {
-                    await _userRepository.UpdateUserAsync(existingUser, ct);
-                }, cancellationToken);
+                    return Result<SignInTransactionResult>.Failure(UserErrors.CredentialsChanged<SignInFlowCoordinator>());
+                }
+                    
+                var accessResult = await _accessService.CheckUserAccess(currentUser);
 
-                return Result<SignInResult<Guid>>.Failure(UserErrors.InvalidPassword<SignInFlowCoordinator>(login.Value));
-            }
+                if (accessResult.IsFailure)
+                    return Result<SignInTransactionResult>.Failure(accessResult.Errors);
 
-            var accessResult = await _accessService.CheckUserAccess(existingUser);
+                var loginSuccess = currentUser.LoginSuccess(_clock.UtcNow);
 
-            if (accessResult.IsFailure)
-                return Result<SignInResult<Guid>>.Failure(accessResult.Errors);
+                if (loginSuccess.IsFailure)
+                    return Result<SignInTransactionResult>.Failure(loginSuccess.Errors);
 
-            var loginSuccess = existingUser.LoginSuccess(_clock.UtcNow);
+                var userToken = _tokenService.CreateUserSession(currentUser, ct);
 
-            if (loginSuccess.IsFailure)
-                return Result<SignInResult<Guid>>.Failure(loginSuccess.Errors);
+                if (userToken.IsFailure)
+                    return Result<SignInTransactionResult>.Failure(userToken.Errors);
 
-            var userToken = _tokenService.CreateUserSessionAsync(existingUser, cancellationToken);
-
-            if (userToken.IsFailure)
-                return Result<SignInResult<Guid>>.Failure(userToken.Errors);
-
-            await _unitOfWork.ExecuteAsync(async ct =>
-            {
-                await _userRepository.UpdateUserAsync(existingUser, ct);
+                await _userRepository.UpdateUserAsync(currentUser, ct);
 
                 await _userRefreshTokenRepository.CreateRefreshTokenAsync(userToken.Value.UserRefreshToken, ct);
+
+                await _aggregateChangesDispatcher.DispatchAsync(currentUser.AggregateChanges, ct);
+
+                currentUser.ClearAggregateChanges();
+
+                var result = new SignInTransactionResult(currentUser, userToken.Value);
+
+                return Result<SignInTransactionResult>.Success(result);
             }, cancellationToken);
 
-            await _domainEventDispatcher.DispatchAsync(existingUser.DomainEvents, cancellationToken);
+            if (signInTransaction.IsFailure)
+                return Result<SignInResult<Guid>>.Failure(signInTransaction.Errors);
 
-            existingUser.ClearDomainEvents();
+            var currentUser = signInTransaction.Value.User;
+            var userToken = signInTransaction.Value.TokenResponse;
+
+            await _domainEventDispatcher.DispatchAsync(currentUser.DomainEvents, cancellationToken);
+
+            currentUser.ClearDomainEvents();
 
             var signInResult = SignInResult.Success<Guid>(
-                existingUser.Id,
-                existingUser.Role,
-                userToken.Value.AccessToken,
-                userToken.Value.UserRefreshToken.RefreshToken.Value
+                currentUser.Id,
+                currentUser.Role,
+                userToken.AccessToken,
+                userToken.UserRefreshToken.RefreshToken.Value
             );
 
             return Result<SignInResult<Guid>>.Success(signInResult);

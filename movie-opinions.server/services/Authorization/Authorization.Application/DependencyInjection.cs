@@ -2,6 +2,9 @@
 using Authorization.Application.Abstractions.Orchestrator;
 using Authorization.Application.Abstractions.Security.Access;
 using Authorization.Application.Abstractions.Services;
+using Authorization.Application.Abstractions.Services.UserActionConfirmation;
+using Authorization.Application.Abstractions.Services.UserActiveContacts;
+using Authorization.Application.Abstractions.Services.UserPassword;
 using Authorization.Application.Behaviors;
 using Authorization.Application.Common.Orchestrator;
 using Authorization.Application.Common.Security.Services;
@@ -11,6 +14,10 @@ using Authorization.Application.DomainEvents.Mapping;
 using Authorization.Application.Features.Registration.ConfirmRegistration;
 using Authorization.Application.Features.Registration.ConfirmRegistration.Steps;
 using Authorization.Application.Features.Registration.StartRegistration;
+using Authorization.Application.Features.Services.UserActionConfirmation;
+using Authorization.Application.Features.Services.UserActionConfirmation.Mappers;
+using Authorization.Application.Features.Services.UserActiveContacts;
+using Authorization.Application.Features.Services.UserPassword;
 using Authorization.Application.Features.SignIn;
 using FluentValidation;
 using MediatR;
@@ -48,6 +55,15 @@ namespace Authorization.Application
 
             services.AddScoped<IUserActionNotificationMapper, UserActionNotificationMapper>();
             services.AddScoped<IUserPendingActionNotificationMapper, UserPendingActionNotificationMapper>();
+            services.AddScoped<IUserActionConfirmationMapping, UserActionConfirmationMapping>();
+
+            services.AddScoped<ISendUserActionConfirmationService, SendUserActionConfirmationService>();
+            services.AddScoped<IVerifyUserActionConfirmationService, VerifyUserActionConfirmationService>();
+            services.AddScoped<IUserPasswordAttemptService, UserPasswordAttemptService>();
+
+            services.AddScoped<IUserPendingActionRetriever, UserPendingActionRetriever>();
+            services.AddScoped<IActiveContactsProvider, ActiveContactsProvider>();
+            services.AddScoped<IPendingActionContactsCoordinator, PendingActionContactsCoordinator>();
 
             return services;
         }

@@ -25,7 +25,7 @@ namespace Authorization.Application.Common.Security.Services
             _clock = clock;
         }
 
-        public Result<TokenResponse> CreateUserSessionAsync(User user, CancellationToken cancellationToken = default)
+        public Result<TokenResponse> CreateUserSession(User user, CancellationToken cancellationToken = default)
         {
             var userSessionDTO = UserSessionDTO.Create(
                 user.Id, 
