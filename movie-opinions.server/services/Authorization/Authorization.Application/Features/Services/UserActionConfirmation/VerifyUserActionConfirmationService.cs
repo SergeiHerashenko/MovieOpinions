@@ -73,9 +73,9 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
                 verificationConfig.VerificationType,
                 data.VerificationValue
             );
-
+            
             var resultVerify = await _verificationSender.VerifyCodeAsync(verificationCommand, cancellationToken);
-
+            
             if (resultVerify.IsFailure)
                 return Result<VerifiedUserActionResult>.Failure(resultVerify.Errors);
 

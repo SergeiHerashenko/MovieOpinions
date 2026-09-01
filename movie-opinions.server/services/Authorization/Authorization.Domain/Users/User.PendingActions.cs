@@ -98,7 +98,9 @@ namespace Authorization.Domain.Users
             return Result<UserPendingAction>.Success(createdAction);
         }
 
-        public Result<UserPendingAction> ActionDeletingUser(string? reason, DateTimeOffset now)
+        public Result<UserPendingAction> ActionDeletingUser(
+            string? reason, 
+            DateTimeOffset now)
         {
             var access = ProvideAccess();
 

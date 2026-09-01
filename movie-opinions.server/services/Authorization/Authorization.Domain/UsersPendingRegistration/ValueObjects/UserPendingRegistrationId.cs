@@ -3,9 +3,14 @@ using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
 {
+    /// <summary>
+    /// Строго типізований ідентифікатор агрегату UserPendingRegistration.
+    ///
+    /// (Strongly typed identifier of the UserPendingRegistration aggregate.)
+    /// </summary>
     public sealed class UserPendingRegistrationId : AggregateRootId<Guid>
     {
-        public override Guid Value { get; protected set; }
+        public override Guid Value { get; }
 
         private UserPendingRegistrationId(Guid value)
         {
@@ -13,6 +18,11 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         }
 
         #region Creation
+        /// <summary>
+        /// Створює новий ідентифікатор на основі UUID версії 7.
+        ///
+        /// (Creates a new identifier based on a version 7 UUID.)
+        /// </summary>
         public static UserPendingRegistrationId Create()
         {
             return new(Guid.CreateVersion7());
@@ -20,6 +30,13 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         #endregion
 
         #region Restoration
+        /// <summary>
+        /// Відновлює ідентифікатор із збереженого скалярного значення.
+        ///
+        /// (Restores the identifier from a persisted scalar value.)
+        /// </summary>
+        /// <param name="value">Збережене значення ідентифікатора.</param>
+        /// <exception cref="DomainDataInconsistencyException">Виникає, якщо збережене значення дорівнює Guid.Empty.</exception>
         public static UserPendingRegistrationId Restore(Guid value)
         {
             if (value == Guid.Empty)
@@ -28,11 +45,6 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
             return new(value);
         }
         #endregion
-
-        public override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
 
         public static implicit operator Guid(UserPendingRegistrationId data)
             => data.Value;

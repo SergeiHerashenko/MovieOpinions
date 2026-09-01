@@ -4,7 +4,7 @@
     {
         public static class GeneralError
         {
-            public const string InvalidOperation = "INVALID_OPERATION";
+            public const string InvalidOperation = "APPLICATION.INVALID_OPERATION";
         }
 
         public static class UsersError
@@ -34,6 +34,15 @@
         public static class ContactError
         {
             public const string ContactInvariantViolated = "CONTACT_INVARIANT_VIOLATED";
+        }
+
+        public static class RegistrationError
+        {
+            public const string ConfirmPasswordRequired = "CONFIRM_PASSWORD_REQUIRED";
+
+            public const string PasswordsDoNotMatch = "PASSWORDS_DO_NOT_MATCH";
+
+            public const string TermsMustBeAccepted = "TERMS_MUST_ACCEPTED";
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Authorization.Cookie;
 using Authorization.ErrorHandling;
 using Authorization.MessageHandling;
+using Authorization.ResponseHandling;
+using Authorization.ResponseHandling.Abstractions;
 
 namespace Authorization
 {
@@ -14,6 +16,10 @@ namespace Authorization
             services.AddSingleton<IErrorStatusCodeMapper, ErrorStatusCodeMapper>();
             services.AddSingleton<IErrorMessageProvider, ErrorMessageProvider>();
             services.AddScoped<ICookieProvider, CookieProvider>();
+
+            services.AddScoped<IAuthResultDispatcher, AuthResultDispatcher>();
+            services.AddScoped<IAuthErrorResponseHandler, AuthErrorResponseHandler>();
+            services.AddScoped<IAuthSuccessResponseHandler, AuthSuccessResponseHandler>();
 
             return services;
         }

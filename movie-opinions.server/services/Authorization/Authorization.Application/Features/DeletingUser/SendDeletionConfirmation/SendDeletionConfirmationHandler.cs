@@ -6,7 +6,8 @@ using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.SendDeletionConfirmation
 {
-    public class SendDeletionConfirmationHandler : IRequestHandler<SendDeletionConfirmationCommand, Result<SendDeletionConfirmationResult>>
+    public class SendDeletionConfirmationHandler 
+        : IRequestHandler<SendDeletionConfirmationCommand, Result<SendDeletionConfirmationResult>>
     {
         private readonly ISendUserActionConfirmationService _sendUserActionConfirmationService;
 

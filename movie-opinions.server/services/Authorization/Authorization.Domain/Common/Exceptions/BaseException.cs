@@ -1,48 +1,57 @@
-﻿using Authorization.Domain.Common.Errors.Enums;
+﻿using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions
 {
     /// <summary>
-    /// Базовий абстрактний клас для всіх специфічних винятків у домені. 
-    /// (A base abstract class for all domain-specific exceptions.)
-    /// Забезпечує стандартизовану структуру для передачі помилок з кодом, типом та контекстом.
-    /// (Provides a standardized structure for communicating errors with code, type, and context.)
+    /// Базовий клас структурованих внутрішніх винятків.
+    /// Зберігає діагностичний код, категорію та контекст винятку.
+    ///
+    /// (Base class for structured internal exceptions.
+    /// Stores the diagnostic code, category, and exception context.)
     /// </summary>
     public abstract class BaseException : Exception
     {
         /// <summary>
-        /// Унікальний ідентифікатор помилки. (Unique error identifier.)
+        /// Стабільний діагностичний код виду винятку.
+        /// 
+        /// (Stable diagnostic code identifying the exception kind.)
         /// </summary>
-        public string ErrorCode { get; }
+        public string ExceptionCode { get; }
 
         /// <summary>
-        /// Категорія помилки, що визначає, як її обробляти. (The category of the error, which determines how it should be handled.)
+        /// Категорія винятку, що визначає, як її обробляти. 
+        /// 
+        /// (The category of the exception, which determines how it should be handled.)
         /// </summary>
-        public ErrorType ErrorType { get; }
+        public ExceptionType ExceptionType { get; }
 
         /// <summary>
-        /// Додаткові дані про стан системи під час виникнення помилки для полегшення дебагу. (Additional data about the system state when the error occurred to facilitate debugging.)
+        /// Додаткові дані про стан системи під час виникнення винятку для полегшення дебагу. 
+        /// 
+        /// (Additional data about the system state when an exception occurs to facilitate debugging.)
         /// </summary>
         public IReadOnlyDictionary<string, object> Context { get; }
 
         /// <summary>
         /// Конструктор для ініціалізації базового винятку.
+        /// 
+        /// (Constructor for initializing the base selection.)
         /// </summary>
-        /// <param name="errorCode">Код помилки. (Error code.)</param>
-        /// <param name="errorType">Тип помилки. (Error type.)</param>
-        /// <param name="message">Опис помилки для розробника або логів. (A description of the error for developers or logs.)</param>
+        /// <param name="exceptionCode">Код винятку. (Error code.)</param>
+        /// <param name="exceptionType">Категорія винятку. (Exception category.)</param>
+        /// <param name="message">Опис винятку для розробника або логів. (A description of the error for developers or logs.)</param>
         /// <param name="context">Словник з додатковими даними (опціонально). (A dictionary with additional data (optional).)</param>
         /// <param name="innerException">Оригінальний виняток, що спричинив цей виняток (опціонально). (The original exception that caused this exception (optional).)</param>
         protected BaseException(
-            string errorCode,
-            ErrorType errorType,
+            string exceptionCode,
+            ExceptionType exceptionType,
             string message,
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
             : base(message, innerException)
         {
-            ErrorCode = errorCode;
-            ErrorType = errorType;
+            ExceptionCode = exceptionCode;
+            ExceptionType = exceptionType;
             Context = context ?? new Dictionary<string, object>();
         }
     }

@@ -2,7 +2,8 @@
 
 namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 {
-    public sealed class ConfirmationDeletingValidator : AbstractValidator<ConfirmationDeletingCommand>
+    public sealed class ConfirmationDeletingValidator 
+        : AbstractValidator<ConfirmationDeletingCommand>
     {
         public ConfirmationDeletingValidator()
         {

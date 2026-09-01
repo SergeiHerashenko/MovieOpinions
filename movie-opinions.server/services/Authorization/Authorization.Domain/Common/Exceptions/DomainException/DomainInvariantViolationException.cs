@@ -1,30 +1,35 @@
-﻿using Authorization.Domain.Common.Errors;
-using Authorization.Domain.Common.Errors.Enums;
-using Authorization.Domain.Common.Exceptions.Enums;
+﻿using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
 {
+    /// <summary>
+    /// Виняток, що виникає при критичному порушенні інваріанта доменного агрегату або сутності.
+    /// 
+    /// (Exception that occurs upon a critical violation of a domain aggregate or entity invariant.)
+    /// </summary>
     public sealed class DomainInvariantViolationException : BaseException
     {
         private DomainInvariantViolationException(
-            string errorCode,
-            ErrorType errorType,
+            string exceptionCode,
+            ExceptionType exceptionType,
             string message,
             IReadOnlyDictionary<string, object> context,
             Exception? innerException = null)
-            : base(errorCode, errorType, message, context, innerException) { }
+            : base(exceptionCode, exceptionType, message, context, innerException) { }
 
         #region BrokenState
         /// <summary>
         /// Створює виняток для випадку, коли стан є критично невалідним.
+        /// 
         /// (Raises an exception for the case when the condition is critically invalid.)
         /// </summary>
-        /// <typeparam name="TEntity">Тип сутності, стан якої порушено.</typeparam>
+        /// <typeparam name="TType">Тип агрегату або сутності, інваріант якої порушено.</typeparam>
         /// <param name="ruleDescription">Опис бізнес-правила, яке було порушено.</param>
-        /// <param name="stateContext">Зліпок стану (набір полів та їх значень), які викликали конфлікт.</param>
+        /// <param name="stateContext">Зліпок стану, який демонструє порушення інваріанта.</param>
         /// <param name="operationType">Назва операції.</param>
+        /// <param name="message">Власне діагностичне повідомлення. Якщо null — формується стандартне.</param>
         /// <param name="innerException">Внутрішній виняток.</param>
-        public static DomainInvariantViolationException BrokenState<TEntity>(
+        public static DomainInvariantViolationException BrokenState<TType>(
             string ruleDescription,
             IReadOnlyDictionary<string, object?> stateContext,
             OperationType operationType = OperationType.Restore,
@@ -34,8 +39,9 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             var data = new Dictionary<string, object>()
             {
                 ["Layer"] = "Domain",
-                ["Entity"] = typeof(TEntity).Name,
-                ["Operation"] = operationType.ToString()
+                ["Type"] = typeof(TType).Name,
+                ["Operation"] = operationType.ToString(),
+                ["Rule"] = ruleDescription
             };
 
             foreach (var (key, value) in stateContext)
@@ -43,11 +49,11 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
                 data[$"State_{key}"] = value ?? "null";
             }
 
-            var errorMessage = message ?? BuildBrokenStateMessage<TEntity>(ruleDescription);
+            var errorMessage = message ?? BuildBrokenStateMessage<TType>(ruleDescription);
 
             return new(
-                DomainErrorCodes.General.InvalidState,
-                ErrorType.InvariantViolation,
+                DomainExceptionCodes.DomainInvariantViolation.InvalidState,
+                ExceptionType.InvariantViolation,
                 errorMessage,
                 data,
                 innerException

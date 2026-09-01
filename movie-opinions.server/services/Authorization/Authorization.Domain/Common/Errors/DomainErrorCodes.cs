@@ -1,16 +1,82 @@
 ﻿namespace Authorization.Domain.Common.Errors
 {
-    public sealed class DomainErrorCodes
+    public static class DomainErrorCodes
     {
+        public static class RegistrationFlowToken
+        {
+            public const string Empty =
+                "REGISTRATION_FLOW_TOKEN.EMPTY";
+
+            public const string InvalidLength =
+                "REGISTRATION_FLOW_TOKEN.INVALID_LENGTH";
+
+            public const string InvalidFormat =
+                "REGISTRATION_FLOW_TOKEN.INVALID_FORMAT";
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public static class DomainExceptions
+        {
+            public const string UnsupportedType = "UNSUPPORTED_TYPE";
+        }
+
         // Загальні помилки (General errors)
         public static class General
         {
-            public const string InvalidState = "INVALID_STATE";
-
-            public const string InvalidOperation = "INVALID_OPERATION";
-
-            public const string UnsupportedType = "UNSUPPORTED_TYPE";
-
             public const string NoUpdateNeeded = "NO_UPDATE_NEEDED";
 
             public const string Expired = "EXPIRED";
@@ -23,20 +89,9 @@
         {
             public const string Empty = "EMPTY_IDENTIFIER";
 
-            public const string IdentifierMismatch = "IDENTIFIER_MISMATHC";
+            public const string IdentifierMismatch = "IDENTIFIER_MISMATCH";
         }
 
-        // Помилки даних / формату
-        public static class Data
-        {
-            public const string EmptyValue = "VALUE_EMPTY";
-
-            public const string InvalidFormat = "INVALID_FORMAT";
-
-            public const string UnsupportedType = "UNSUPPORTED_TYPE";
-
-            public const string OutOfRange = "OUT_OF_RANGE";
-        }
 
         // Email
         public static class Email
@@ -180,6 +235,8 @@
             public const string ExpiredToken = "EXPIRED_TOKEN";
 
             public const string NotFoundToken = "NOT_FOUND_TOKEN";
+
+            public const string TokenIsNotActive = "TOKEN_IS_NOT_ACTIVE";
         }
 
         // Action

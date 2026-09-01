@@ -12,7 +12,8 @@ using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 {
-    public class ConfirmationDeletingHandler : IRequestHandler<ConfirmationDeletingCommand, Result>
+    public class ConfirmationDeletingHandler 
+        : IRequestHandler<ConfirmationDeletingCommand, Result>
     {
         private readonly IClock _clock;
 
@@ -70,6 +71,14 @@ namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 
                 if (deletionResult.IsFailure)
                     return Result<User>.Failure(deletionResult.Errors);
+
+                foreach (var refreshToken in currentUser.RefreshTokens.ToList())
+                {
+                    var revokeToken = currentUser.RevokeRefreshToken(refreshToken.Id, _clock.UtcNow);
+
+                    if(revokeToken.IsFailure)
+                        return Result<User>.Failure(revokeToken.Errors);
+                }
 
                 await _aggregateChangesDispatcher.DispatchAsync(currentUser.AggregateChanges, ct);
                 

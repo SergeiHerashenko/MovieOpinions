@@ -44,6 +44,12 @@ namespace Authorization.Domain.Common.Errors.Users
                        $"Refresh token is expired. Owner: {typeof(TValue).Name}!",
                        ErrorType.Forbidden
                 );
+
+            public static Error TokenNotActive<TValue>()
+                => new(DomainErrorCodes.RefreshToken.TokenIsNotActive,
+                       $"Refresh token is not active. Owner: {typeof(TValue).Name}",
+                       ErrorType.Conflict
+                );
         }
     }
 }

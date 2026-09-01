@@ -81,7 +81,7 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
             if (limiterResult.IsFailure)
                 return Result<ConfirmRegistrationResult<Guid>>.Failure(limiterResult.Errors);
 
-            var registrationToken = RegistrationFlowToken.Restore(command.RegistrationToken);
+            var registrationToken = RegistrationFlowToken.Parse(command.RegistrationToken);
 
             var pendingRegistration = await _userPendingRegistrationRepository.GetPendingUserByTokenAsync(registrationToken, cancellationToken);
 

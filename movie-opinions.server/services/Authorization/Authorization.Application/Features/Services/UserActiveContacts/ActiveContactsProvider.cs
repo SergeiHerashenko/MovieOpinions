@@ -1,7 +1,9 @@
 ﻿using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Services.UserActiveContacts;
+using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Errors.Users;
 using Authorization.Application.DTOs.Communication.Contacts.Requests;
+using Authorization.Application.DTOs.Communication.Contacts.Responses;
 using Authorization.Application.Features.Services.UserActiveContacts.Models;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.ValueObjects;
@@ -27,30 +29,44 @@ namespace Authorization.Application.Features.Services.UserActiveContacts
             CancellationToken cancellationToken = default)
         {
             var request = ActiveChannelsRequest.Create(userId);
-
+            
             var contactsResult = await _contactsSender.GetActiveContactsAsync(
                 request, 
                 cancellationToken
             );
-
+            
             if (contactsResult.IsFailure)
             {
                 return Result<IReadOnlyCollection<ActiveContactChannel>>
                     .Failure(contactsResult.Errors);
             }
                 
-
+            
             if (contactsResult.Value.Channels.Count == 0)
             {
                 _logger.LogCritical(
                     "User {UserId} has no active verified contact channels. The user-contact invariant is violated!",
                     userId.Value
                 );
-
+            
                 return Result<IReadOnlyCollection<ActiveContactChannel>>.
                     Failure(ContactErrors.ContactInvariantViolated<ActiveContactsProvider>(userId.Value.ToString()));
             }
-            
+
+            //IReadOnlyCollection<ActiveContactChannelResponse> contactsResult = new List<ActiveContactChannelResponse>
+            //{
+            //    new ActiveContactChannelResponse(
+            //        Guid.NewGuid(),
+            //        CommunicationChannel.Email,
+            //        "s*****@gmail.com"
+            //    ),
+            //    new ActiveContactChannelResponse(
+            //        Guid.NewGuid(),
+            //        CommunicationChannel.Phone,
+            //        "+380****5646"
+            //    )
+            //};
+
             var channels = contactsResult.Value.Channels
                 .Select(contact => new ActiveContactChannel(
                     contact.ContactId,

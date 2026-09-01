@@ -17,8 +17,4 @@
     <ProjectReference Include="..\Authorization.Domain\Authorization.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\ChangingPassword\SendChangePasswordConfirmation\" />
-  </ItemGroup>
-
 </Project>

@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using Authorization.Application.Common.Validation;
+using Authorization.Domain.Common.Errors.Users;
+using FluentValidation;
 
 namespace Authorization.Application.Features.Registration.StartRegistration.Phones
 {
@@ -7,10 +9,12 @@ namespace Authorization.Application.Features.Registration.StartRegistration.Phon
         public RegistrationWithPhoneCommandValidator()
         {
             RuleFor(x => x.CountryCode)
-                .NotEmpty().WithMessage("Код країни є обов'язковим для заповнення!");
+                .NotEmpty()
+                    .WithDomainError(PhoneErrors.EmptyCountryCode<RegistrationWithPhoneCommandValidator>());
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty().WithMessage("Номер телефону є обов'язковим для заповнення!");
+                .NotEmpty()
+                    .WithDomainError(PhoneErrors.EmptyNationalNumber<RegistrationWithPhoneCommandValidator>());
 
             RuleFor(x => x.Password).PasswordRules();
 

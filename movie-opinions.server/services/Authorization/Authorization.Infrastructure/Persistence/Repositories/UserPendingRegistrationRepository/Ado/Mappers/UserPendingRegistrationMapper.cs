@@ -25,7 +25,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
             var passwprdHash = new PasswordHash(reader.GetString(ordinals.PasswordHash));
             var password = Password.Restore(passwprdHash);
 
-            var registrationFlowToken = RegistrationFlowToken.Restore(reader.GetString(ordinals.RegistrationToken));
+            var registrationFlowToken = RegistrationFlowToken.Parse(reader.GetString(ordinals.RegistrationToken));
 
             var expiresAt = reader.GetFieldValue<DateTimeOffset>(ordinals.ExpiresAt);
             var createdAt = reader.GetFieldValue<DateTimeOffset>(ordinals.CreatedAt);

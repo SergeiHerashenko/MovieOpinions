@@ -3,6 +3,7 @@ using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Persistence;
 using Authorization.Application.Abstractions.UserContext;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.Entities.UsersRefreshToken;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects;
 using Authorization.Domain.Users.ValueObjects;
 using MediatR;
@@ -46,51 +47,43 @@ namespace Authorization.Application.Features.LogOut
 
             var result = await _unitOfWork.ExecuteAsync(async ct =>
             {
+                var userResult = await _userRepository.GetUserByIdForUpdateAsync(userId, ct);
+
+                if(userResult is null)
+                {
+                    _logger.LogCritical(
+                        "Logout could not inspect the refresh-token session because authenticated user {UserId} was not found.",
+                        userId.Value
+                    );
+
+                    return Result.Success();
+                }
+
                 var refreshToken = await _userRefreshTokenRepository.GetByTokenForUpdateAsync(refreshTokenResult, ct);
 
                 if (refreshToken is null)
                 {
                     _logger.LogError("Logout completed without token revocation because the refresh token was not found!");
-                    return Result.Success();
-                }
-                
-                var userResult = await _userRepository.GetUserByIdAsync(refreshToken.UserId, ct);
-
-                if(userResult is null)
-                {
-                    _logger.LogError("Refresh token {RefreshTokenId} references missing user {UserId}.",
-                        refreshToken.Id.Value,
-                        refreshToken.UserId.Value
-                    );
 
                     return Result.Success();
                 }
 
-                if(userId != userResult.Id)
-                {
-                    _logger.LogError("Logout token owner mismatch. Authenticated user: {AuthenticatedUserId}; token owner: {TokenUserId}!",
-                        userId.Value,
-                        refreshToken.Id.Value
-                    );
-
-                    return Result.Success();
-                }
-                
                 var revokeResult = userResult.RevokeRefreshToken(refreshToken.Id, _clock.UtcNow);
 
                 if (revokeResult.IsFailure)
                 {
-                    _logger.LogError("Refresh token {RefreshTokenId} could not be revoked during logout. Error: {Error}.",
+                    _logger.LogCritical("Refresh token {RefreshTokenId} could not be revoked during logout. Error: {Error}.",
                         refreshToken.Id.Value,
                         revokeResult.Errors
                     );
 
-                    return revokeResult;
+                    return Result.Success();
                 }
-                
+
                 await _aggregateChangesDispatcher.DispatchAsync(userResult.AggregateChanges, ct);
 
                 return Result.Success();
+
             }, cancellationToken);
 
             return result;

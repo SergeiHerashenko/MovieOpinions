@@ -190,6 +190,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
 
         internal Result Revoke(DateTimeOffset now)
         {
+            if (TokenStatus != TokenStatus.Active)
+                return Result.Failure(RefreshTokenErrors.TokenStatus.TokenNotActive<UserRefreshToken>());
+
             TokenStatus = TokenStatus.Revoked;
             RevokedAt = now;
 

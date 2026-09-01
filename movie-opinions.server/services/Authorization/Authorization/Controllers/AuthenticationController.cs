@@ -8,6 +8,7 @@ using Authorization.Cookie;
 using Authorization.Requests.ConfirmRegistration;
 using Authorization.Requests.Login;
 using Authorization.Requests.Registration;
+using Authorization.ResponseHandling.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,13 +20,16 @@ namespace Authorization.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ICookieProvider _cookieProvider;
+        private readonly IAuthResultDispatcher _authResultDispatcher;
 
         public AuthenticationController(
             IMediator mediator,
-            ICookieProvider cookieProvider)
+            ICookieProvider cookieProvider,
+            IAuthResultDispatcher authResultDispatcher)
         {
             _mediator = mediator;
             _cookieProvider = cookieProvider;
+            _authResultDispatcher = authResultDispatcher;
         }
 
         [HttpPost("register/email")]
@@ -43,10 +47,7 @@ namespace Authorization.Controllers
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            if (result.IsFailure)
-                return BadRequest(result.Errors);
-
-            return Ok(result.Value);
+            return await _authResultDispatcher.DispatchAsync(result, cancellationToken);
         }
 
         [HttpPost("register/phone")]
@@ -65,10 +66,7 @@ namespace Authorization.Controllers
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            if (result.IsFailure)
-                return BadRequest(result.Errors);
-
-            return Ok(result.Value);
+            return await _authResultDispatcher.DispatchAsync(result, cancellationToken);
         }
 
         [HttpPost("register/confirm-registration")]

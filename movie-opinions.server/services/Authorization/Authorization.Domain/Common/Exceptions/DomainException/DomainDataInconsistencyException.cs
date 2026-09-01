@@ -1,22 +1,21 @@
-﻿using Authorization.Domain.Common.Errors;
-using Authorization.Domain.Common.Errors.Enums;
-using Authorization.Domain.Common.Exceptions.Enums;
+﻿using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
 {
+    /// <summary>
+    /// Виняток, що виникає при порушенні консистентності даних у доменному шарі.
+    /// 
+    /// (Exception that occurs when data consistency is violated in the domain layer.)
+    /// </summary>
     public sealed class DomainDataInconsistencyException : BaseException
     {
-        /// <summary>
-        /// Виняток, що виникає при порушенні консистентності даних у доменному шарі.
-        /// (Exception that occurs when data consistency is violated in the domain layer.)
-        /// </summary>
         private DomainDataInconsistencyException(
-            string errorCode,
-            ErrorType errorType,
+            string exceptionCode,
+            ExceptionType exceptionType,
             string message,
             IReadOnlyDictionary<string, object> context,
             Exception? innerException = null)
-            : base(errorCode, errorType, message, context, innerException) { }
+            : base(exceptionCode, exceptionType, message, context, innerException) { }
 
         #region Helpers
         private static Dictionary<string, object> BuildContext<TType>(
@@ -46,13 +45,14 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         #region Empty
         /// <summary>
-        /// Створює виняток для випадку, коли у агрегаті виявлено пусте значення.
-        /// (Raises an exception when an empty value is found in the aggregate.)
+        /// Створює виняток, коли в доменному об’єкті виявлено порожнє обов’язкове поле.
+        ///
+        /// (Creates an exception when an empty required field is found in a domain object.)
         /// </summary>
-        /// <typeparam name="TType">Назва типу.</typeparam>
-        /// <param name="fieldName">Назва параметра, яке викликало проблему.</param>
-        /// <param name="operationType">Назва операції.</param>
-        /// <param name="message">Користувацьке повідомлення. Якщо null – формується стандартне.</param>
+        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
+        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
+        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
+        /// <param name="message">Діагностичне повідомлення. Якщо null – формується стандартне.</param>
         /// <param name="context">Додатковий контекст.</param>
         /// <param name="innerException">Внутрішній виняток.</param>
         public static DomainDataInconsistencyException Empty<TType>(
@@ -67,8 +67,8 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             var errorMessage = message ?? BuildEmptyMessage<TType>(fieldName, operationType);
 
             return new(
-                DomainErrorCodes.Data.EmptyValue,
-                ErrorType.EmptyValue,
+                DomainExceptionCodes.DomainDataInconsistency.EmptyValue,
+                ExceptionType.DataInconsistency,
                 errorMessage,
                 data,
                 innerException
@@ -77,20 +77,21 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         private static string BuildEmptyMessage<TType>(string fieldName, OperationType operationType)
         {
-            return $"An error occurred during the {operationType} operation. The field '{fieldName}' in type '{typeof(TType).Name}' is empty!";
+            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in type '{typeof(TType).Name}' is empty!";
         }
         #endregion
 
         #region InvalidFieldFormat
         /// <summary>
-        /// Створює виняток для випадку, коли агрегат має невалідне значення.
-        /// (Raises an exception for the case when the aggregate has an invalid value.)
+        /// Створює виняток, коли значення поля доменного об’єкта має невалідний формат.
+        ///
+        /// (Creates an exception when a domain object field has an invalid format.)
         /// </summary>
-        /// <typeparam name="TType">Назва типу.</typeparam>
-        /// <param name="fieldName">Назва параметра, яке викликало проблему.</param>
-        /// <param name="value">Саме значення параметру.</param>
-        /// <param name="operationType">Назва операції.</param>
-        /// <param name="message">Користувацьке повідомлення. Якщо null – формується стандартне.</param>
+        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
+        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
+        /// <param name="value">Значення, тип якого буде додано до діагностичного контексту.</param>
+        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
+        /// <param name="message">Діагностичне повідомлення. Якщо null – формується стандартне.</param>
         /// <param name="context">Додатковий контекст.</param>
         /// <param name="innerException">Внутрішній виняток.</param>
         public static DomainDataInconsistencyException InvalidFieldFormat<TType>(
@@ -103,35 +104,36 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         {
             var data = BuildContext<TType>(fieldName, operationType, context);
 
-            data["Value"] = value ?? "null";
+            data["ValueType"] = value?.GetType().Name ?? "null";
 
-            var errorMessage = message ?? BuildInvalidFieldFormatMessage<TType>(fieldName, operationType, value);
+            var errorMessage = message ?? BuildInvalidFieldFormatMessage<TType>(fieldName, operationType);
 
             return new(
-                DomainErrorCodes.Data.InvalidFormat,
-                ErrorType.InvalidFormat,
+                DomainExceptionCodes.DomainDataInconsistency.InvalidFormat,
+                ExceptionType.DataInconsistency,
                 errorMessage,
                 data,
                 innerException
             );
         }
 
-        private static string BuildInvalidFieldFormatMessage<TType>(string fieldName, OperationType operationType, object? value)
+        private static string BuildInvalidFieldFormatMessage<TType>(string fieldName, OperationType operationType)
         {
-            return $"An error occurred during the {operationType} operation. The field '{fieldName}' in type '{typeof(TType).Name}' has an invalid format. Provided value: '{value}'!";
+            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in type '{typeof(TType).Name}' has an invalid format!";
         }
         #endregion
 
         #region UnsupportedDiscriminator
         /// <summary>
         /// Створює виняток для випадку, коли отримано непідтримуваний дискримінатор.
+        /// 
         /// (Raises an exception for the case when an unsupported discriminator is received.)
         /// </summary>
-        /// <typeparam name="TType">Назва типу.</typeparam>
-        /// <param name="fieldName">Назва параметра, яке викликало проблему.</param>
+        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
+        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
         /// <param name="discriminatorValue">Непідтримуване значення.</param>
-        /// <param name="operationType">Операція (за замовчуванням "restore").</param>
-        /// <param name="message">Користувацьке повідомлення.</param>
+        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
+        /// <param name="message">Діагностичне повідомлення. Якщо null — формується стандартне.</param>
         /// <param name="context">Додатковий контекст.</param>
         /// <param name="innerException">Внутрішній виняток.</param>
         public static DomainDataInconsistencyException UnsupportedDiscriminator<TType>(
@@ -144,13 +146,13 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         {
             var data = BuildContext<TType>(fieldName, operationType, context);
 
-            data["Value"] = discriminatorValue ?? "Unknow";
+            data["Value"] = discriminatorValue ?? "Unknown";
 
-            var errorMessage = message ?? BuildUnsupportedMessage<TType>(discriminatorValue ?? "Unknow", operationType);
+            var errorMessage = message ?? BuildUnsupportedMessage<TType>(discriminatorValue ?? "Unknown", operationType);
 
             return new(
-                DomainErrorCodes.Data.UnsupportedType,
-                ErrorType.UnsupportedType,
+                DomainExceptionCodes.DomainDataInconsistency.UnsupportedType,
+                ExceptionType.DataInconsistency,
                 errorMessage,
                 data,
                 innerException
@@ -159,20 +161,21 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         private static string BuildUnsupportedMessage<TType>(object discriminatorValue, OperationType operationType)
         {
-            return $"An error occurred during the {operationType} operation. Unsupported discriminator value '{discriminatorValue.ToString()}' for type '{typeof(TType).Name}'!";
+            return $"An error occurred during the '{operationType}' operation. Unsupported discriminator value '{discriminatorValue.ToString()}' for type '{typeof(TType).Name}'!";
         }
         #endregion
 
         #region ValueOutOfRange
         /// <summary>
-        /// Створює виняток для випадку, коли формат і тип абсолютно правильні, але саме значення є абсурдним.
-        /// (Raises an exception for the case where the format and type are absolutely correct, but the value itself is absurd.)
+        /// Створює виняток, коли значення поля виходить за допустимий діапазон.
+        ///
+        /// (Creates an exception when a field value is outside its allowed range.)
         /// </summary>
-        /// /// <typeparam name="TType">Назва типу.</typeparam>
-        /// <param name="fieldName">Назва параметра, яке викликало проблему.</param>
-        /// <param name="value">Значення яке вишло за межі.</param>
-        /// <param name="operationType">Операція (за замовчуванням "restore").</param>
-        /// <param name="message">Користувацьке повідомлення.</param>
+        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
+        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
+        /// <param name="value">Значення, тип якого буде додано до діагностичного контексту.</param>
+        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
+        /// <param name="message">Діагностичне повідомлення. Якщо null — формується стандартне.</param>
         /// <param name="context">Додатковий контекст.</param>
         /// <param name="innerException">Внутрішній виняток.</param>
         public static DomainDataInconsistencyException ValueOutOfRange<TType>(
@@ -185,22 +188,22 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         {
             var data = BuildContext<TType>(fieldName, operationType, context);
 
-            data["Value"] = value ?? "null";
+            data["ValueType"] = value?.GetType().Name ?? "null";
 
-            var errorMessage = message ?? BuildValueOutOfRangeMessage<TType>(fieldName, operationType, value);
+            var errorMessage = message ?? BuildValueOutOfRangeMessage<TType>(fieldName, operationType);
 
             return new(
-                DomainErrorCodes.Data.OutOfRange,
-                ErrorType.OutOfRange,
+                DomainExceptionCodes.DomainDataInconsistency.OutOfRange,
+                ExceptionType.DataInconsistency,
                 errorMessage,
                 data,
                 innerException
             );
         }
 
-        private static string BuildValueOutOfRangeMessage<TType>(string fieldName, OperationType operationType, object? value)
+        private static string BuildValueOutOfRangeMessage<TType>(string fieldName, OperationType operationType)
         {
-            return $"An error occurred during the {operationType} operation. The field '{fieldName}' in type '{typeof(TType).Name}' has a value that is out of acceptable range. Provided value: {value}!";
+            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in type '{typeof(TType).Name}' has a value that is out of acceptable range!";
         }
         #endregion
     }

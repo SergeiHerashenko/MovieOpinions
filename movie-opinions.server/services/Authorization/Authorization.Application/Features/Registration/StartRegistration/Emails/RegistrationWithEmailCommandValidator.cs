@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using Authorization.Application.Common.Validation;
+using Authorization.Domain.Common.Errors.Users;
+using FluentValidation;
 
 namespace Authorization.Application.Features.Registration.StartRegistration.Emails
 {
@@ -7,7 +9,8 @@ namespace Authorization.Application.Features.Registration.StartRegistration.Emai
         public RegistrationWithEmailCommandValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Логін є обов'язковим");
+                .NotEmpty()
+                    .WithDomainError(EmailErrors.EmptyEmail<RegistrationWithEmailCommandValidator>());
 
             RuleFor(x => x.Password).PasswordRules();
 

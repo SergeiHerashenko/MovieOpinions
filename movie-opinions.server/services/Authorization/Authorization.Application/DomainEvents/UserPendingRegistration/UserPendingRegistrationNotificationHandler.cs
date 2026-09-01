@@ -10,7 +10,7 @@ using MediatR;
 namespace Authorization.Application.DomainEvents.UserPendingRegistration
 {
     public sealed class UserPendingRegistrationNotificationHandler 
-        : INotificationHandler<DomainEventNotification<UserPendingRegistrationEvent>>
+        : INotificationHandler<DomainEventNotification<UserRegistrationRequestedEvent>>
     {
         private readonly INotificationSender _notificationSender;
 
@@ -20,7 +20,7 @@ namespace Authorization.Application.DomainEvents.UserPendingRegistration
         }
 
         public async Task Handle(
-            DomainEventNotification<UserPendingRegistrationEvent> notification,
+            DomainEventNotification<UserRegistrationRequestedEvent> notification,
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;
