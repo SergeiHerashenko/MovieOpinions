@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRefreshToken;
+using Authorization.Domain.Users.Entities.UsersRefreshToken;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;

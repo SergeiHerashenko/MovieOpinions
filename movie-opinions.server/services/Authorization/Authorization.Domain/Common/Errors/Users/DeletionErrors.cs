@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors.Enums;
+using Authorization.Domain.Common.Errors.Enums;
 
 namespace Authorization.Domain.Common.Errors.Users
 {
@@ -20,12 +20,6 @@ namespace Authorization.Domain.Common.Errors.Users
             => new(DomainErrorCodes.Access.UserIsDeleted,
                    $"User deleted. Owner: {typeof(TValue).Name}!",
                    ErrorType.Forbidden
-            );
-
-        public static Error TooLongReason<TValue>()
-            => new(DomainErrorCodes.Deletion.TooLongReason,
-                   $"This description of the reason for deletion is too long. Owner: {typeof(TValue).Name}!",
-                   ErrorType.Validation
             );
 
         public static Error NotFoundAction<TValue>()

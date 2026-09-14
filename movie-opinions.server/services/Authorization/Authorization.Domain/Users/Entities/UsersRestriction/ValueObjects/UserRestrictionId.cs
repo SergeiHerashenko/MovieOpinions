@@ -1,11 +1,21 @@
-﻿using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
 {
-    public sealed class UserRestrictionId : AggregateRootId<Guid>
+    /// <summary>
+    /// Строго типізований ідентифікатор сутності UserRestriction.
+    ///
+    /// (Strongly typed identifier of the UserRestriction entity.)
+    /// </summary>
+    public sealed class UserRestrictionId : StronglyTypedId<Guid>
     {
-        public override Guid Value { get; protected set; }
+        /// <summary>
+        /// Скалярне значення ідентифікатора.
+        ///
+        /// (Scalar value of the identifier.)
+        /// </summary>
+        public override Guid Value { get; }
 
         private UserRestrictionId(Guid value)
         {
@@ -13,6 +23,12 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
         }
 
         #region Creation
+        /// <summary>
+        /// Створює новий ідентифікатор на основі UUID версії 7.
+        ///
+        /// (Creates a new identifier based on a version 7 UUID.)
+        /// </summary>
+        /// <returns>Новий ідентифікатор обмеження користувача.</returns>
         internal static UserRestrictionId Create()
         {
             return new(Guid.CreateVersion7());
@@ -20,6 +36,16 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
         #endregion
 
         #region Restoration
+        /// <summary>
+        /// Відновлює ідентифікатор зі збереженого скалярного значення.
+        ///
+        /// (Restores the identifier from a persisted scalar value.)
+        /// </summary>
+        /// <param name="value">Збережене значення ідентифікатора.</param>
+        /// <returns>Відновлений ідентифікатор обмеження користувача.</returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо збережене значення дорівнює Guid.Empty.
+        /// </exception>
         public static UserRestrictionId Restore(Guid value)
         {
             if (value == Guid.Empty)
@@ -28,11 +54,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
             return new(value);
         }
         #endregion
-
-        public override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
 
         public static implicit operator Guid(UserRestrictionId data)
             => data.Value;

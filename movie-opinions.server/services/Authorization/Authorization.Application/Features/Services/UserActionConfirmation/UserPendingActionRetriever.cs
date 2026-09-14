@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Clock;
+using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Persistence;
 using Authorization.Application.Abstractions.Services.UserActionConfirmation;
 using Authorization.Application.Common.Errors.Users;
@@ -34,7 +34,7 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
             if (existingUser is null)
                 return Result<UserPendingAction>.Failure(UserErrors.NotFound<UserPendingActionRetriever>(userId.Value.ToString()));
 
-            var tokenConfirmation = ConfirmationToken.Restore(confirmationToken);
+            var tokenConfirmation = ConfirmationFlowToken.Restore(confirmationToken);
 
             var actionResult = existingUser.GetActionForConfirmation<TAction>(tokenConfirmation, _clock.UtcNow);
 

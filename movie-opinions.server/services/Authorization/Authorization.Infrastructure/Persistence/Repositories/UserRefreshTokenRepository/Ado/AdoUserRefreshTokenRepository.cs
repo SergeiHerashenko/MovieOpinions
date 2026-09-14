@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Persistence;
+using Authorization.Application.Abstractions.Persistence;
 using Authorization.Domain.Users.AggregateChanges.Tokens;
 using Authorization.Domain.Users.Entities.UsersRefreshToken;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects;

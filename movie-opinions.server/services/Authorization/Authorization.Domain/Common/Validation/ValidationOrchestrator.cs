@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Validation
+namespace Authorization.Domain.Common.Validation
 {
     /// <summary>
     /// Упорядковує доменні правила за пріоритетом та виконує їх послідовно.
@@ -9,7 +9,7 @@
     /// </summary>
     /// <typeparam name="TValue">Тип значення, яке перевіряється.</typeparam>
     /// <typeparam name="TFailure">Тип результату невдалої перевірки.</typeparam>
-    public sealed class ValidationOrchestrator<TValue, TFailure>
+    internal sealed class ValidationOrchestrator<TValue, TFailure>
         where TFailure : ValidationFailure
     {
         private readonly IReadOnlyCollection<IValidationRule<TValue, TFailure>> _rules;

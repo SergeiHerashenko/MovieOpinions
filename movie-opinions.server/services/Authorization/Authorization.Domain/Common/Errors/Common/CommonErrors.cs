@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors.Enums;
+using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
 
 namespace Authorization.Domain.Common.Errors.Common
@@ -26,21 +26,6 @@ namespace Authorization.Domain.Common.Errors.Common
                 => new(DomainErrorCodes.General.UnsupportedType,
                        $"The type '{unsupportedValue}' is not supported for '{typeof(TValue).Name}'!",
                        ErrorType.UnsupportedType
-                );
-        }
-
-        public static class StateConflict
-        {
-            public static Error NoUpdateNeeded<TValue>(string fieldName)
-                => new(DomainErrorCodes.General.NoUpdateNeeded,
-                       $"Update '{fieldName}' is not required because the entity state '{typeof(TValue).Name}' is already up to date!",
-                       ErrorType.Conflict
-                );
-
-            public static Error ActionCancelled<TValue>(UserActionType actionType)
-                => new(DomainErrorCodes.General.ActionCancelled,
-                       $"Action of type {actionType} has been canceled!",
-                       ErrorType.Conflict
                 );
         }
     }

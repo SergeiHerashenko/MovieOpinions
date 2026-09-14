@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Models;
 
 namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
@@ -36,7 +36,9 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         /// (Restores the identifier from a persisted scalar value.)
         /// </summary>
         /// <param name="value">Збережене значення ідентифікатора.</param>
-        /// <exception cref="DomainDataInconsistencyException">Виникає, якщо збережене значення дорівнює Guid.Empty.</exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо збережене значення дорівнює Guid.Empty.
+        /// </exception>
         public static UserPendingRegistrationId Restore(Guid value)
         {
             if (value == Guid.Empty)
@@ -46,6 +48,11 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         }
         #endregion
 
+        /// <summary>
+        /// Повертає скалярне значення строго типізованого ідентифікатора.
+        ///
+        /// (Returns the scalar value of the strongly typed identifier.)
+        /// </summary>
         public static implicit operator Guid(UserPendingRegistrationId data)
             => data.Value;
     }

@@ -1,16 +1,16 @@
-﻿using Authorization.Application.Features.Services.UserActiveContacts.Models;
+using Authorization.Application.Features.Services.UserActiveContacts.Models;
 using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
 
 namespace Authorization.Application.Features.ChangingPassword.StartChangePassword
 {
     public sealed class StartChangePasswordResult
     {
-        public ConfirmationToken ConfirmationToken { get; }
+        public ConfirmationFlowToken ConfirmationToken { get; }
 
         public IReadOnlyCollection<ActiveContactChannel> Channels { get; }
 
         public StartChangePasswordResult(
-            ConfirmationToken confirmationToken,
+            ConfirmationFlowToken confirmationToken,
             IReadOnlyCollection<ActiveContactChannel> channels)
         {
             ConfirmationToken = confirmationToken;

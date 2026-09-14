@@ -1,13 +1,13 @@
-﻿-- 1. Створення таблиці
+-- 1. Створення таблиці
 CREATE TABLE IF NOT EXISTS user_restriction(
 	id					UUID		NOT NULL,
 	user_id				UUID		NOT NULL,
 	restriction_rule	JSONB		NOT NULL,
 	restriction_type	VARCHAR(50)	NOT NULL,
 	reason				TEXT		NULL,
-	restricted_by		VARCHAR(50)	NOT NULL,
+	imposed_By			VARCHAR(50)	NOT NULL,
 	is_revoked			BOOLEAN		NOT NULL DEFAULT FALSE,
-	cancellation_date	TIMESTAMPTZ	NULL,
+	revoked_At			TIMESTAMPTZ	NULL,
 	created_at			TIMESTAMPTZ	NOT NULL,
 
 	CONSTRAINT pk_user_restriction PRIMARY KEY (id),

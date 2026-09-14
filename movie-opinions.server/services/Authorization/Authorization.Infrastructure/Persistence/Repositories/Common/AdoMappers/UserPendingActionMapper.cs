@@ -1,6 +1,6 @@
-﻿using Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects;
+using Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersPendingAction;
-using Authorization.Domain.Users.Entities.UsersPendingAction.Action;
+using Authorization.Domain.Users.Entities.UsersPendingAction.Actions;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
 using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
 using Authorization.Domain.Users.Enums;
@@ -27,7 +27,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
 
             var userId = UserId.Restore(reader.GetGuid(ordinals.UserId));
 
-            var confirmationToken = ConfirmationToken.Restore(reader.GetString(ordinals.ConfirmationToken));
+            var confirmationToken = ConfirmationFlowToken.Parse(reader.GetString(ordinals.ConfirmationToken));
 
             var actionType = EnumMapper.Restore<UserActionType>(
                 reader.GetString(ordinals.UserActionType),
@@ -39,9 +39,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
 
             UserAction action = actionType switch
             {
-                UserActionType.ActionChangePassword => RestorePasswordChangeAction(userActionDataJson, id.Value),
-                UserActionType.ActionChangeLogin => RestoreLoginChangeAction(reader, ordinals.LoginType, id.Value, userActionDataJson),
-                UserActionType.ActionDeleteUser => DeleteAccountAction.Restore(DeletionReason.Restore(userActionDataJson)),
+                UserActionType.ChangePassword => RestorePasswordChangeAction(userActionDataJson, id.Value),
+                UserActionType.ChangeLogin => RestoreLoginChangeAction(reader, ordinals.LoginType, id.Value, userActionDataJson),
+                UserActionType.DeleteUser => DeleteUserAction.Restore(DeletionReason.Restore(userActionDataJson)),
 
                 _ => throw DataConsistencyException.UnknownType(
                     $"Unknown type for {nameof(UserActionType)}",
@@ -69,7 +69,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
             return UserPendingAction.Restore(id, userId, confirmationToken, action, expiresAt, confirmationTime, expiredAt, cancelledTime, status, createdAt);
         }
 
-        private static LoginChangeAction RestoreLoginChangeAction<T>(NpgsqlDataReader reader, int loginTypeOrd, T entityId, string json)
+        private static ChangeLoginAction RestoreLoginChangeAction<T>(NpgsqlDataReader reader, int loginTypeOrd, T entityId, string json)
             where T : notnull
         {
             var loginType = EnumMapper.Restore<LoginType>(
@@ -80,8 +80,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
 
             return loginType switch
             {
-                LoginType.Email => LoginChangeAction.Restore(RestoreEmail(json, entityId)),
-                LoginType.Phone => LoginChangeAction.Restore(RestorePhone(json, entityId)),
+                LoginType.Email => ChangeLoginAction.Restore(RestoreEmail(json, entityId)),
+                LoginType.Phone => ChangeLoginAction.Restore(RestorePhone(json, entityId)),
                 _ => throw DataConsistencyException.UnknownType(
                     $"Unknown type for {nameof(LoginType)}",
                     new Dictionary<string, object>
@@ -94,7 +94,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
             };
         }
 
-        private static PasswordChangeAction RestorePasswordChangeAction<T>(string json, T entityId)
+        private static ChangePasswordAction RestorePasswordChangeAction<T>(string json, T entityId)
             where T : notnull
         {
             try
@@ -102,16 +102,16 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
                 var passwordHash = JsonSerializer.Deserialize<PasswordHash>(json)
                     ?? throw DataConsistencyException.InvalidData(
                         "UserActionData contains null password data.",
-                        BuildContext(entityId, UserActionType.ActionChangePassword)
+                        BuildContext(entityId, UserActionType.ChangePassword)
                     );
 
-                return PasswordChangeAction.Restore(passwordHash);
+                return ChangePasswordAction.Restore(passwordHash);
             }
             catch (JsonException ex)
             {
                 throw DataConsistencyException.InvalidData(
                     "UserActionData contains invalid password data.",
-                    BuildContext(entityId, UserActionType.ActionChangePassword),
+                    BuildContext(entityId, UserActionType.ChangePassword),
                     ex
                 );
             }
@@ -124,14 +124,14 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
                 return JsonSerializer.Deserialize<Email>(json)
                     ?? throw DataConsistencyException.InvalidData(
                         "UserActionData contains null email data.",
-                        BuildContext(entityId, UserActionType.ActionChangeLogin, LoginType.Email)
+                        BuildContext(entityId, UserActionType.ChangeLogin, LoginType.Email)
                     );
             }
             catch (JsonException ex)
             {
                 throw DataConsistencyException.InvalidData(
                     "UserActionData contains invalid email data.",
-                    BuildContext(entityId, UserActionType.ActionChangeLogin, LoginType.Email),
+                    BuildContext(entityId, UserActionType.ChangeLogin, LoginType.Email),
                     ex
                 );
             }
@@ -144,14 +144,14 @@ namespace Authorization.Infrastructure.Persistence.Repositories.Common.AdoMapper
                 return JsonSerializer.Deserialize<Phone>(json)
                     ?? throw DataConsistencyException.InvalidData(
                         "UserActionData contains null phone data.",
-                        BuildContext(entityId, UserActionType.ActionChangeLogin, LoginType.Phone)
+                        BuildContext(entityId, UserActionType.ChangeLogin, LoginType.Phone)
                     );
             }
             catch (JsonException ex)
             {
                 throw DataConsistencyException.InvalidData(
                     "UserActionData contains invalid phone data.",
-                    BuildContext(entityId, UserActionType.ActionChangeLogin, LoginType.Phone),
+                    BuildContext(entityId, UserActionType.ChangeLogin, LoginType.Phone),
                     ex
                 );
             }

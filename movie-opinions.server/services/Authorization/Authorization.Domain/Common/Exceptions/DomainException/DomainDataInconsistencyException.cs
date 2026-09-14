@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
 {
@@ -64,7 +64,10 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         {
             var data = BuildContext<TType>(fieldName, operationType, context);
 
-            var errorMessage = message ?? BuildEmptyMessage<TType>(fieldName, operationType);
+            var errorMessage = message ?? BuildEmptyMessage<TType>(
+                fieldName,
+                operationType
+            );
 
             return new(
                 DomainExceptionCodes.DomainDataInconsistency.EmptyValue,
@@ -77,7 +80,8 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         private static string BuildEmptyMessage<TType>(string fieldName, OperationType operationType)
         {
-            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in type '{typeof(TType).Name}' is empty!";
+            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' " +
+                $"in type '{typeof(TType).Name}' is empty!";
         }
         #endregion
 
@@ -106,7 +110,10 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
             data["ValueType"] = value?.GetType().Name ?? "null";
 
-            var errorMessage = message ?? BuildInvalidFieldFormatMessage<TType>(fieldName, operationType);
+            var errorMessage = message ?? BuildInvalidFieldFormatMessage<TType>(
+                fieldName,
+                operationType
+            );
 
             return new(
                 DomainExceptionCodes.DomainDataInconsistency.InvalidFormat,
@@ -119,7 +126,8 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         private static string BuildInvalidFieldFormatMessage<TType>(string fieldName, OperationType operationType)
         {
-            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in type '{typeof(TType).Name}' has an invalid format!";
+            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in " +
+                $"type '{typeof(TType).Name}' has an invalid format!";
         }
         #endregion
 
@@ -148,7 +156,10 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
             data["Value"] = discriminatorValue ?? "Unknown";
 
-            var errorMessage = message ?? BuildUnsupportedMessage<TType>(discriminatorValue ?? "Unknown", operationType);
+            var errorMessage = message ?? BuildUnsupportedMessage<TType>(
+                discriminatorValue ?? "Unknown",
+                operationType
+            );
 
             return new(
                 DomainExceptionCodes.DomainDataInconsistency.UnsupportedType,
@@ -161,7 +172,8 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         private static string BuildUnsupportedMessage<TType>(object discriminatorValue, OperationType operationType)
         {
-            return $"An error occurred during the '{operationType}' operation. Unsupported discriminator value '{discriminatorValue.ToString()}' for type '{typeof(TType).Name}'!";
+            return $"An error occurred during the '{operationType}' operation. Unsupported discriminator " +
+                $"value '{discriminatorValue.ToString()}' for type '{typeof(TType).Name}'!";
         }
         #endregion
 
@@ -190,7 +202,10 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
             data["ValueType"] = value?.GetType().Name ?? "null";
 
-            var errorMessage = message ?? BuildValueOutOfRangeMessage<TType>(fieldName, operationType);
+            var errorMessage = message ?? BuildValueOutOfRangeMessage<TType>(
+                fieldName,
+                operationType
+            );
 
             return new(
                 DomainExceptionCodes.DomainDataInconsistency.OutOfRange,
@@ -203,7 +218,8 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         private static string BuildValueOutOfRangeMessage<TType>(string fieldName, OperationType operationType)
         {
-            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' in type '{typeof(TType).Name}' has a value that is out of acceptable range!";
+            return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' " +
+                $"in type '{typeof(TType).Name}' has a value that is out of acceptable range!";
         }
         #endregion
     }

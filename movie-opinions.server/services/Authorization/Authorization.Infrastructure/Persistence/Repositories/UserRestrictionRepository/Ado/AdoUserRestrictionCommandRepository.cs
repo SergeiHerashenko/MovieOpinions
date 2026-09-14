@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRestriction;
+using Authorization.Domain.Users.Entities.UsersRestriction;
 using Authorization.Infrastructure.Persistence.Context;
 using Authorization.Infrastructure.Persistence.Repositories.Base;
 using Microsoft.Extensions.Logging;
@@ -49,8 +49,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
 
                 command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlDbType.Uuid) { Value = entity.Id.Value });
                 command.Parameters.Add(new NpgsqlParameter("@Reason", NpgsqlDbType.Varchar) { Value = DbValue(entity.Reason) });
-                command.Parameters.Add(new NpgsqlParameter("@IsRevoked", NpgsqlDbType.Boolean) { Value = entity.IsRevoked });
-                command.Parameters.Add(new NpgsqlParameter("@CancellationDate", NpgsqlDbType.TimestampTz) { Value = DbValue(entity.CancellationDate) });
+                command.Parameters.Add(new NpgsqlParameter("@IsRevoked", NpgsqlDbType.Boolean) { Value = entity.Status });
+                command.Parameters.Add(new NpgsqlParameter("@CancellationDate", NpgsqlDbType.TimestampTz) { Value = DbValue(entity.RevokedAt) });
 
                 await command.ExecuteNonQueryAsync(ct);
             }, cancellationToken);
@@ -67,9 +67,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
 
             command.Parameters.Add(new NpgsqlParameter("@RestrictionType", NpgsqlDbType.Varchar) { Value = entity.RestrictionType.ToString() });
             command.Parameters.Add(new NpgsqlParameter("@Reason", NpgsqlDbType.Varchar) { Value = DbValue(entity.Reason) });
-            command.Parameters.Add(new NpgsqlParameter("@RestrictedBy", NpgsqlDbType.Varchar) { Value = entity.RestrictedBy });
-            command.Parameters.Add(new NpgsqlParameter("@IsRevoked", NpgsqlDbType.Boolean) { Value = entity.IsRevoked });
-            command.Parameters.Add(new NpgsqlParameter("@CancellationDate", NpgsqlDbType.TimestampTz) { Value = DbValue(entity.CancellationDate) });
+            command.Parameters.Add(new NpgsqlParameter("@RestrictedBy", NpgsqlDbType.Varchar) { Value = entity.ImposedBy });
+            command.Parameters.Add(new NpgsqlParameter("@IsRevoked", NpgsqlDbType.Boolean) { Value = entity.Status });
+            command.Parameters.Add(new NpgsqlParameter("@CancellationDate", NpgsqlDbType.TimestampTz) { Value = DbValue(entity.RevokedAt) });
         }
     }
 }

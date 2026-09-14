@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRestrictionSession;
+using Authorization.Domain.Users.Entities.UsersRestrictionSession;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Infrastructure.Persistence.Context;
 using Authorization.Infrastructure.Persistence.Repositories.Base;
@@ -50,7 +50,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
                 command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlDbType.Uuid) { Value = entity.Id.Value });
                 command.Parameters.Add(new NpgsqlParameter("@ActiveRestrictionsIds", NpgsqlDbType.Jsonb)
                 {
-                    Value = JsonSerializer.Serialize(entity.ActiveRestrictionsIds.Select(x => x.Value))
+                    Value = JsonSerializer.Serialize(entity.ActiveRestrictionIds.Select(x => x.Value))
                 });
                 command.Parameters.Add(new NpgsqlParameter("@TotalBlockedMinutes", NpgsqlDbType.Integer) { Value = entity.TotalBlockedMinutes });
 
@@ -81,7 +81,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
             command.Parameters.Add(new NpgsqlParameter("@UserId", NpgsqlDbType.Uuid) { Value = entity.UserId.Value });
             command.Parameters.Add(new NpgsqlParameter("@ActiveRestrictionsIds", NpgsqlDbType.Jsonb)
             {
-                Value = JsonSerializer.Serialize(entity.ActiveRestrictionsIds.Select(x => x.Value))
+                Value = JsonSerializer.Serialize(entity.ActiveRestrictionIds.Select(x => x.Value))
             });
             command.Parameters.Add(new NpgsqlParameter("@RestrictionType", NpgsqlDbType.Varchar) { Value = entity.RestrictionType.ToString() });
             command.Parameters.Add(new NpgsqlParameter("@TotalBlockedMinutes", NpgsqlDbType.Integer) { Value = entity.TotalBlockedMinutes });

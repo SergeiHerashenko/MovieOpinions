@@ -1,12 +1,22 @@
-﻿using Authorization.Domain.Common.Models;
-using Authorization.Domain.Common.Validation;
+using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Rules;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Validation;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses
 {
+    /// <summary>
+    /// Представляє нормалізовану IPv4-адресу.
+    ///
+    /// (Represents a normalized IPv4 address.)
+    /// </summary>
     public sealed class IpAddress : ValueObject
     {
+        /// <summary>
+        /// Канонічне десяткове представлення IPv4-адреси.
+        ///
+        /// (Canonical dotted-decimal representation of the IPv4 address.)
+        /// </summary>
         public string Value { get; }
 
         private IpAddress(string value)
@@ -14,34 +24,45 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
             Value = value;
         }
 
-        private static readonly ValidationOrchestrator<string, ValidationRestoreFailure> _validator = new(
-            [
-                new EmptyIpAddressRule(),
-                new ValidIpAddressRule()
-            ]
-        );
-
         #region Creation
-        public static Result<IpAddress> Create(string value)
+        /// <summary>
+        /// Нормалізує та перевіряє зовнішнє значення IP-адреси.
+        ///
+        /// (Normalizes and validates an external IP-address value.)
+        /// </summary>
+        public static Result<IpAddress> Create(string? rawIpAddress)
         {
-            value = value.Trim();
+            var normalizedIpAddress = rawIpAddress?.Trim() ?? string.Empty;
 
-            var failure = _validator.Validate(value);
+            var failure = IpAddressValidator.ValidateForError(normalizedIpAddress);
 
             if (failure is not null)
-                return Result<IpAddress>.Failure(failure.Error);
+                return Result<IpAddress>.Failure(failure.Value);
 
-            return Result<IpAddress>.Success(new IpAddress(value)); 
+            return Result<IpAddress>.Success(new IpAddress(normalizedIpAddress)); 
         }
         #endregion
 
         #region Restoration
+        /// <summary>
+        /// Відновлює IP-адресу зі збереженого значення.
+        ///
+        /// (Restores an IP address from its persisted value.)
+        /// </summary>
+        /// <param name="value">Збережене значення IPv4-адреси.</param>
+        /// <returns>Відновлена IPv4-адреса.</returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо збережене значення не є валідною IPv4-адресою.
+        /// </exception>
         public static IpAddress Restore(string value)
         {
-            var failure = _validator.Validate(value);
+            var failure = IpAddressValidator.ValidateForException(
+                value,
+                OperationType.Restore
+            );
 
             if (failure is not null)
-                throw failure.BuildException();
+                throw failure.Value;
 
             return new IpAddress(value);
         }

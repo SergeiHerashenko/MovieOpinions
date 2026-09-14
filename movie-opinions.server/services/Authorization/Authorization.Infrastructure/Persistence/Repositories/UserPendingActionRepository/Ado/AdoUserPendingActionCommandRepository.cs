@@ -1,5 +1,5 @@
-﻿using Authorization.Domain.Users.Entities.UsersPendingAction;
-using Authorization.Domain.Users.Entities.UsersPendingAction.Action;
+using Authorization.Domain.Users.Entities.UsersPendingAction;
+using Authorization.Domain.Users.Entities.UsersPendingAction.Actions;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Infrastructure.Exceptions;
 using Authorization.Infrastructure.Persistence.Context;
@@ -72,8 +72,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingActio
             { 
                 Value = entity.UserAction switch
                 {
-                    LoginChangeAction loginAction => loginAction.Value,
-                    PasswordChangeAction passwordAction => passwordAction.Value,
+                    ChangeLoginAction loginAction => loginAction.Value,
+                    ChangePasswordAction passwordAction => passwordAction.Value,
                     _ => DBNull.Value
                 }
             });
@@ -81,17 +81,17 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingActio
             {
                 Value = entity.UserAction switch
                 {
-                    PasswordChangeAction passwordAction => JsonSerializer.Serialize(new
+                    ChangePasswordAction passwordAction => JsonSerializer.Serialize(new
                     {
                         passwordAction.NewPassword.Value
                     }),
 
-                    DeleteAccountAction deleteAction => JsonSerializer.Serialize(new
+                    DeleteUserAction deleteAction => JsonSerializer.Serialize(new
                     {
                         deleteAction.Reason
                     }),
 
-                    LoginChangeAction loginAction => loginAction.NewLogin switch
+                    ChangeLoginAction loginAction => loginAction.NewLogin switch
                     {
                         EmailLogin emailLogin => JsonSerializer.Serialize(emailLogin.Email),
                         PhoneLogin phoneLogin => JsonSerializer.Serialize(phoneLogin.Phone),

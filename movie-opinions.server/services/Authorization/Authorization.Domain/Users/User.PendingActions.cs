@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors.Common;
+using Authorization.Domain.Common.Errors.Common;
 using Authorization.Domain.Common.Errors.Users;
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
@@ -159,7 +159,7 @@ namespace Authorization.Domain.Users
             return Result<UserPendingAction>.Success(_action);
         }
 
-        public Result<UserPendingAction> GetActionForConfirmation<TAction>(ConfirmationToken confirmationToken, DateTimeOffset now)
+        public Result<UserPendingAction> GetActionForConfirmation<TAction>(ConfirmationFlowToken confirmationToken, DateTimeOffset now)
         {
             var access = ProvideAccess();
 

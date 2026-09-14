@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions
 {
@@ -37,11 +37,22 @@ namespace Authorization.Domain.Common.Exceptions
         /// 
         /// (Constructor for initializing the base selection.)
         /// </summary>
-        /// <param name="exceptionCode">Код винятку. (Error code.)</param>
-        /// <param name="exceptionType">Категорія винятку. (Exception category.)</param>
-        /// <param name="message">Опис винятку для розробника або логів. (A description of the error for developers or logs.)</param>
-        /// <param name="context">Словник з додатковими даними (опціонально). (A dictionary with additional data (optional).)</param>
-        /// <param name="innerException">Оригінальний виняток, що спричинив цей виняток (опціонально). (The original exception that caused this exception (optional).)</param>
+        /// <param name="exceptionCode">
+        /// Код винятку. (Error code.)
+        /// </param>
+        /// <param name="exceptionType">
+        /// Категорія винятку. (Exception category.)
+        /// </param>
+        /// <param name="message">
+        /// Опис винятку для розробника або логів. (A description of the error for developers or logs.)
+        /// </param>
+        /// <param name="context">
+        /// Словник з додатковими даними (опціонально). (A dictionary with additional data (optional).)
+        /// </param>
+        /// <param name="innerException">
+        /// Оригінальний виняток, що спричинив цей виняток (опціонально).
+        /// (The original exception that caused this exception (optional).)
+        /// </param>
         protected BaseException(
             string exceptionCode,
             ExceptionType exceptionType,

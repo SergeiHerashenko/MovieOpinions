@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Enums;
 
 namespace Authorization.Domain.Common.Validation
 {
@@ -11,7 +11,7 @@ namespace Authorization.Domain.Common.Validation
     /// </summary>
     /// <typeparam name="TValue">Тип значення, яке перевіряється.</typeparam>
     /// <typeparam name="TFailure">Тип результату невдалої перевірки.</typeparam>
-    public interface IValidationRule<TValue, TFailure>
+    internal interface IValidationRule<TValue, TFailure>
         where TFailure : ValidationFailure
     {
         /// <summary>

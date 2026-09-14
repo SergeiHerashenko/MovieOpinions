@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Exceptions.Enums;
 
 namespace Authorization.Domain.Common.Exceptions.DomainException
 {
@@ -19,16 +19,30 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 
         #region ValueAccessOnFailure
         /// <summary>
-        /// Створює виняток для випадку, коли здійснюється спроба отримати значення, доступ до якого неможливий у поточному стані системи.
+        /// Створює виняток для випадку, коли здійснюється спроба отримати значення,
+        /// доступ до якого неможливий у поточному стані системи.
         /// 
-        /// (Creates an exception for cases when an attempt is made to access a value that is unavailable in the current state.)
+        /// (Creates an exception for cases when an attempt is made to access a value that is
+        /// unavailable in the current state.)
         /// </summary>
-        /// <typeparam name="TType">Тип, у якому виконується невалідна операція.</typeparam>
-        /// <param name="valueName">Назва значення або властивості, до якої намагалися отримати доступ.</param>
-        /// <param name="operationType">Тип операції, під час якої стався збій (за замовчуванням Read).</param>
-        /// <param name="message">Діагностичне повідомлення про помилку. Якщо null – формується стандартне повідомлення.</param>
-        /// <param name="context">Додатковий контекст із даними стану для структурованого логування.</param>
-        /// <param name="innerException">Внутрішній виняток, який став першопричиною збою.</param>
+        /// <typeparam name="TType">
+        /// Тип, у якому виконується невалідна операція.
+        /// </typeparam>
+        /// <param name="valueName">
+        /// Назва значення або властивості, до якої намагалися отримати доступ.
+        /// </param>
+        /// <param name="operationType">
+        /// Тип операції, під час якої стався збій (за замовчуванням Read).
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення про помилку. Якщо null – формується стандартне повідомлення.
+        /// </param>
+        /// <param name="context">
+        /// Додатковий контекст із даними стану для структурованого логування.
+        /// </param>
+        /// <param name="innerException">
+        /// Внутрішній виняток, який став першопричиною збою.
+        /// </param>
         public static DomainInvalidOperationException ValueAccessOnFailure<TType>(
             string valueName,
             OperationType operationType = OperationType.Read,
@@ -104,7 +118,10 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
                 }
             }
 
-            var errorMessage = message ?? BuildNullCallbackMessage<TType>(callbackName, operationType);
+            var errorMessage = message ?? BuildNullCallbackMessage<TType>(
+                callbackName,
+                operationType
+            );
 
             return new(
                 DomainExceptionCodes.DomainInvalidOperation.NullCallback,

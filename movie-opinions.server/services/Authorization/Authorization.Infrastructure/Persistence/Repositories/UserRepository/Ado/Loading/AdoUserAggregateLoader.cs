@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users;
+using Authorization.Domain.Users;
 using Authorization.Domain.Users.Entities.UsersDeletion;
 using Authorization.Domain.Users.Entities.UsersPendingAction;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
@@ -27,7 +27,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
             var restrictionSessions = await LoadUserRestrictionSession(connection, transaction, userData.Id, cancellationToken);
 
             var restrictionsIds = restrictionSessions
-                .SelectMany(x => x.ActiveRestrictionsIds)
+                .SelectMany(x => x.ActiveRestrictionIds)
                 .Distinct()
                 .ToList();
 

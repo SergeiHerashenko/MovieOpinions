@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
 using Authorization.Application.DomainEvents.UserRestrictionSessions.Data;
@@ -31,7 +31,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
                 : CommunicationChannel.Phone;
 
             var restrictionItems = domainEvent.RestrictionDescription
-                .Select(x => new RestrictionDetails(x.Rule.Name, x.Rule.DurationMinute, x.Reason))
+                .Select(x => new RestrictionDetails(x.Rule.Name, x.Rule.DurationMinutes, x.Reason))
                 .ToList();
 
             var sessionData = new SessionRestrictionNotificationData(

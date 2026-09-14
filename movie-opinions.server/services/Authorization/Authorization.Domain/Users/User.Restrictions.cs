@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors.Common;
+using Authorization.Domain.Common.Errors.Common;
 using Authorization.Domain.Common.Errors.Users;
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Results;
@@ -97,7 +97,7 @@ namespace Authorization.Domain.Users
             if (restriction is null)
                 return Result.Failure(RestrictionErrors.NotFoundRestriction<User>());
 
-            var resultCancel = restriction.CancelRestriction(now);
+            var resultCancel = restriction.RevokeRestriction(now);
 
             if (resultCancel.IsFailure)
                 return resultCancel;
@@ -105,6 +105,7 @@ namespace Authorization.Domain.Users
             var session = _restrictionSessions
                 .FirstOrDefault(x => x.RestrictionType == restriction.RestrictionType);
 
+            // Треба ексепшин
             if (session is null)
                 return Result.Failure(RestrictionErrors.NotFoundSession<User>(restriction.RestrictionType.ToString()));
 
@@ -150,7 +151,7 @@ namespace Authorization.Domain.Users
 
             var restrictions = _restrictions
                 .Where(x =>
-                    !x.IsRevoked &&
+                    !x.Status &&
                     x.RestrictionType == restrictionType)
                 .ToList();
 

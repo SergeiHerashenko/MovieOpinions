@@ -1,6 +1,7 @@
-﻿using Authorization.Domain.Common.Errors.Enums;
+using Authorization.Domain.Common.Errors.Enums;
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Guard;
 
 namespace Authorization.Domain.Common.Errors
 {
@@ -44,23 +45,25 @@ namespace Authorization.Domain.Common.Errors
             ErrorType errorType)
         {
             if (string.IsNullOrWhiteSpace(code))
+            {
                 throw DomainDataInconsistencyException.Empty<Error>(
                     nameof(code),
                     OperationType.Create
                 );
-
+            }
+                
             if (string.IsNullOrWhiteSpace(message))
+            {
                 throw DomainDataInconsistencyException.Empty<Error>(
                     nameof(message),
                     OperationType.Create
                 );
-
-            if (!Enum.IsDefined(typeof(ErrorType), errorType))
-                throw DomainDataInconsistencyException.UnsupportedDiscriminator<Error>(
-                    nameof(errorType),
-                    errorType,
-                    OperationType.Create
-                );
+            }
+                
+            DomainGuard.AgainstUndefinedEnum<Error>(
+                OperationType.Create,
+                (errorType, nameof(errorType))
+            );
 
             Code = code;
             Message = message;

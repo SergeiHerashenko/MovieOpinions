@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
 using Authorization.Application.DomainEvents.UserRestrictionSessions.Data;
@@ -32,7 +32,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
 
             var restrictionItem = new RestrictionInfo(
                 domainEvent.RestrictionRule.Name,
-                domainEvent.RestrictionRule.DurationMinute
+                domainEvent.RestrictionRule.DurationMinutes
             );
 
             IReadOnlyCollection<RestrictionInfo> restrictionCollection = [restrictionItem];

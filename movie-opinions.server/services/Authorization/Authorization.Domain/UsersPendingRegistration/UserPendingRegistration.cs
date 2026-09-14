@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
@@ -22,7 +22,7 @@ namespace Authorization.Domain.UsersPendingRegistration
     {
         private static readonly TimeSpan RegistrationLifetime = TimeSpan.FromHours(1);
 
-        #region Fields
+        #region Properties
         /// <summary>
         /// Логін, для якого виконується реєстрація.
         ///
@@ -66,7 +66,9 @@ namespace Authorization.Domain.UsersPendingRegistration
         /// <param name="password">Валідний пароль у доменному представленні.</param>
         /// <param name="now">Поточний час доменної операції.</param>
         /// <returns>Створена незавершена реєстрація.</returns>
-        /// <exception cref="DomainDataInconsistencyException">Виникає, якщо обов’язковий доменний об’єкт дорівнює null.</exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язковий доменний об’єкт дорівнює null.
+        /// </exception>
         private UserPendingRegistration(
             UserPendingRegistrationId userPendingRegistrationId,
             Login login,
@@ -160,6 +162,7 @@ namespace Authorization.Domain.UsersPendingRegistration
             );
 
             if (expiresAt <= createdAt)
+            {
                 throw DomainInvariantViolationException.BrokenState<UserPendingRegistration>(
                     "Expiration time must be later than creation time.",
                     new Dictionary<string, object?>
@@ -169,6 +172,7 @@ namespace Authorization.Domain.UsersPendingRegistration
                     },
                     OperationType.Restore
                 );
+            }
 
             return new UserPendingRegistration(
                 userPendingRegistrationId, 
@@ -191,7 +195,9 @@ namespace Authorization.Domain.UsersPendingRegistration
         /// </summary>
         /// <param name="password">Новий валідний пароль у доменному представленні.</param>
         /// <param name="now">Поточний час доменної операції.</param>
-        /// <exception cref="DomainDataInconsistencyException">Виникає, якщо пароль дорівнює null або час операції передує створенню агрегату.</exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо пароль дорівнює null або час операції передує створенню агрегату.
+        /// </exception>
         public void Refresh(
             Password password, 
             DateTimeOffset now)
@@ -201,19 +207,11 @@ namespace Authorization.Domain.UsersPendingRegistration
                 (password, nameof(password))
             );
 
-            if (now < CreatedAt)
-            {
-                throw DomainDataInconsistencyException.ValueOutOfRange<UserPendingRegistration>(
-                    nameof(now),
-                    now,
-                    OperationType.Update,
-                    context: new Dictionary<string, object>
-                    {
-                        ["CreatedAt"] = CreatedAt,
-                        ["ProvidedNow"] = now
-                    }
-                );
-            }
+            DomainGuard.AgainstEarlierThan<UserPendingRegistration>(
+                OperationType.Update,
+                (now, nameof(now)),
+                (CreatedAt, nameof(CreatedAt))
+            );
 
             Password = password;
             RegistrationFlowToken = RegistrationFlowToken.Create();
@@ -235,8 +233,8 @@ namespace Authorization.Domain.UsersPendingRegistration
         /// </summary>
         /// <param name="now">Час, відносно якого виконується перевірка.</param>
         /// <returns>true, якщо now дорівнює ExpiresAt або перевищує його; інакше false.</returns>
-        public bool IsExpired(DateTimeOffset now)
-            => now >= ExpiresAt;
+        public bool IsExpired(DateTimeOffset pointInTime)
+            => pointInTime >= ExpiresAt;
         #endregion
     }
 }
