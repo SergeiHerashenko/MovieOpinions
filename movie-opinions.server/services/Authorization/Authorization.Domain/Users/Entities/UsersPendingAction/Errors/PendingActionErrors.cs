@@ -13,15 +13,6 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Errors
     /// </summary>
     public static class PendingActionErrors
     {
-        public static Error InvalidStatusTransition<TType>(
-            ActionStatus currentStatus,
-            ActionStatus targetStatus)
-            => new(
-                DomainErrorCodes.PendingAction.InvalidStatusTransition,
-                $"Cannot transition '{typeof(TType).Name}' from status '{currentStatus}' to '{targetStatus}'!",
-                ErrorType.Conflict
-            );
-
         public static Error ExpiredAction<TType>()
             => new(
                 DomainErrorCodes.PendingAction.ExpiredAction,

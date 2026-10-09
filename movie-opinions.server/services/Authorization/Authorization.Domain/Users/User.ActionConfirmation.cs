@@ -1,8 +1,5 @@
-using Authorization.Domain.Common.Errors.Users;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.AggregateChanges.Action;
-using Authorization.Domain.Users.DomainEvents;
-using Authorization.Domain.Users.Entities.UsersPendingAction.Action;
 using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
 
 namespace Authorization.Domain.Users

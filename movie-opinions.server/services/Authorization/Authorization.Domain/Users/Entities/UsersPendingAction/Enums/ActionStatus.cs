@@ -34,15 +34,6 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Enums
         ///
         /// (The action confirmation period has expired.)
         /// </summary>
-        Expired = 3,
-
-        /// <summary>
-        /// Дію не вдалося завершити, і вона перейшла
-        /// в кінцевий стан помилки.
-        ///
-        /// (The action could not be completed and entered
-        /// a terminal failure state.)
-        /// </summary>
-        Failed = 4,
+        Expired = 3
     }
 }
