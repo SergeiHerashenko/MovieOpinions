@@ -1,7 +1,7 @@
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.Errors;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Validation
 {
@@ -11,16 +11,18 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
         /// Перевіряє, що значення відповідає канонічному десятковому
         /// формату IPv4: чотири октети в діапазоні від 0 до 255
         /// без початкових нулів.
-        /// Порожні значення пропускаються, оскільки їх обробляє
-        /// <see cref="RequiredRule"/>.
+        ///
+        /// Правило повинно виконуватися лише після успішної перевірки
+        /// наявності значення правилом <see cref="RequiredRule"/>.
         ///
         /// (Validates that the value uses the canonical dotted-decimal
         /// IPv4 format: four octets in the range from 0 to 255
         /// without leading zeros.
-        /// Empty values are skipped because they are handled by
-        /// <see cref="RequiredRule"/>.)
+        ///
+        /// The rule must only execute after the value presence has been
+        /// successfully validated by <see cref="RequiredRule"/>.)
         /// </summary>
-        private sealed class ValidFormatRule : IValidationRule<string, ValidationFailure>
+        private sealed class ValidFormatRule : IValidationRule<IpAddressValidationData, ValidationFailure>
         {
             private const int IPV4_OCTET_COUNT = 4;
 
@@ -28,12 +30,18 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
 
             public ValidationPriority Priority => ValidationPriority.Format;
 
-            public ValidationFailure? Validate(string value)
+            public ValidationFailure? Validate(IpAddressValidationData data)
             {
-                if (string.IsNullOrEmpty(value))
-                    return null;
+                if (string.IsNullOrWhiteSpace(data.Value))
+                {
+                    throw DomainInvalidOperationException.PreconditionFailed<IpAddress>(
+                        nameof(ValidFormatRule),
+                        nameof(RequiredRule),
+                        data.OperationType
+                    );
+                }
 
-                if (IsValidIPv4(value))
+                if (IsValidIPv4(data.Value))
                     return null;
 
                 return new ValidationFailure()
@@ -42,7 +50,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
                     BuildException = operationType =>
                         DomainDataInconsistencyException.InvalidFieldFormat<IpAddress>(
                             nameof(IpAddress.Value),
-                            value,
+                            data.Value,
                             operationType
                         )
                 };

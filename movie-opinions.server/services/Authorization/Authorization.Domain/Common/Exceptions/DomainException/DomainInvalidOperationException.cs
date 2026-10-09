@@ -132,9 +132,86 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             );
         }
 
-        private static string BuildNullCallbackMessage<TType>(string callbackName, OperationType operationType)
+        private static string BuildNullCallbackMessage<TType>(
+            string callbackName,
+            OperationType operationType)
         {
             return $"The callback '{callbackName}' is null during {operationType} for type '{typeof(TType).Name}'!";
+        }
+        #endregion
+
+        #region PreconditionFailed
+        /// <summary>
+        /// Створює виняток для випадку, коли порушено передумову (precondition)
+        /// або необхідний стан для виконання операції.
+        /// 
+        /// (Creates an exception for cases when a precondition or required state for executing an
+        /// operation is violated.)
+        /// </summary>
+        /// <typeparam name="TType">Тип, у якому виконується невалідна операція.</typeparam>
+        /// <param name="sourceContext">
+        /// Назва компонента, правила або методу, у якому виявлено порушення передумови.
+        /// </param>
+        /// <param name="prerequisite">
+        /// Опис попередньої вимоги, кроку або правила, яке мало бути задоволене раніше.
+        /// </param>
+        /// <param name="operationType">
+        /// Тип операції, під час якої стався збій (за замовчуванням Read).
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення. Якщо null — формується стандартне повідомлення.
+        /// </param>
+        /// <param name="context">
+        /// Додатковий контекст із даними стану для структурованого логування.
+        /// </param>
+        /// <param name="innerException">
+        /// Внутрішній виняток, який став першопричиною збою.
+        /// </param>
+        public static DomainInvalidOperationException PreconditionFailed<TType>(
+            string sourceContext,
+            string prerequisite,
+            OperationType operationType = OperationType.Read,
+            string? message = null,
+            IReadOnlyDictionary<string, object>? context = null,
+            Exception? innerException = null)
+        {
+            var data = new Dictionary<string, object>()
+            {
+                ["Layer"] = "Domain",
+                ["Type"] = typeof(TType).Name,
+                ["Operation"] = operationType.ToString(),
+                ["SourceContext"] = sourceContext,
+                ["Prerequisite"] = prerequisite
+            };
+
+            if (context is not null)
+            {
+                foreach (var (key, value) in context)
+                {
+                    data[$"Custom_{key}"] = value;
+                }
+            }
+
+            var errorMessage = message ?? BuildPreconditionFailedMessage<TType>(
+                sourceContext,
+                prerequisite
+            );
+
+            return new(
+                DomainExceptionCodes.DomainInvalidOperation.PreconditionFailed,
+                ExceptionType.InvalidOperation,
+                errorMessage,
+                data,
+                innerException
+            );
+        }
+
+        private static string BuildPreconditionFailedMessage<TType>(
+            string sourceContext,
+            string prerequisite)
+        {
+            return $"Precondition failed in '{sourceContext}' for type '{typeof(TType).Name}'. " +
+                $"Required prerequisite '{prerequisite}' was not satisfied.";
         }
         #endregion
     }

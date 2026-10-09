@@ -16,9 +16,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         {
             public ValidationPriority Priority => ValidationPriority.Presence;
 
-            public ValidationFailure? Validate(RestrictionRuleValidationData value)
+            public ValidationFailure? Validate(RestrictionRuleValidationData data)
             {
-                if (!string.IsNullOrWhiteSpace(value.Name))
+                if (!string.IsNullOrWhiteSpace(data.Name))
                     return null;
 
                 return new ValidationFailure()

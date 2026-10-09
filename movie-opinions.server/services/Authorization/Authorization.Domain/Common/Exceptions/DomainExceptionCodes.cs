@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Exceptions
+namespace Authorization.Domain.Common.Exceptions
 {
     /// <summary>
     /// Містить стабільні діагностичні коди внутрішніх винятків Domain.
@@ -33,6 +33,9 @@
 
             public const string NullCallback =
                 "DOMAIN.INVALID_OPERATION.NULL_CALLBACK";
+
+            public const string PreconditionFailed =
+                "DOMAIN.PRECONDITION_FAILED";
         }
 
         public static class DomainInvariantViolation

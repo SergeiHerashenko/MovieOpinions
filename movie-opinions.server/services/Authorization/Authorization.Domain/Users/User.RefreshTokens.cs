@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors.Users;
+using Authorization.Domain.Common.Errors.Users;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.AggregateChanges.Tokens;
 using Authorization.Domain.Users.DomainEvents;
@@ -17,7 +17,7 @@ namespace Authorization.Domain.Users
             DateTimeOffset now,
             string? city = null)
         {
-            var access = ProvideAccess();
+            var access = ProvideAccess(now);
 
             if (!access.IsSuccess)
                 return Result<UserRefreshToken>.Failure(access.Errors);

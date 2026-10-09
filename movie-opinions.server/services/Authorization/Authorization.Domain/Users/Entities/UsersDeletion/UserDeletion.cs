@@ -3,6 +3,7 @@ using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.Contracts;
 using Authorization.Domain.Users.Entities.UsersDeletion.Errors;
 using Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects;
 using Authorization.Domain.Users.Enums;
@@ -21,7 +22,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
     /// and controls its lifecycle. Supports transitions from Deleted
     /// to Restored or PermanentlyDeleted.)
     /// </summary>
-    public sealed class UserDeletion : Entity<UserDeletionId>
+    public sealed class UserDeletion : Entity<UserDeletionId>, IUserOwned
     {
         private const int RESTORATION_PERIOD_IN_DAYS = 30;
 
@@ -282,7 +283,8 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
                     {
                         ["CreatedAt"] = createdAt,
                         ["RestoreUntil"] = restoreUntil
-                    }
+                    },
+                    operationType
                 );
             }
                 
@@ -294,7 +296,8 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
                     {
                         ["CreatedAt"] = createdAt,
                         ["UpdatedAt"] = updatedAt
-                    }
+                    },
+                    operationType
                 );
             }
                 
@@ -307,7 +310,8 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
                    {
                        ["RestoredAt"] = restoredAt,
                        ["CreatedAt"] = createdAt
-                   }
+                   },
+                   operationType
                );
             }
             
@@ -343,7 +347,8 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
                         ["RestoredAt"] = restoredAt,
                         ["CreatedAt"] = createdAt,
                         ["RestoreUntil"] = restoreUntil,
-                    }
+                    },
+                    operationType
                 );
             }
         }

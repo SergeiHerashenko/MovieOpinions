@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors.Users;
+using Authorization.Domain.Common.Errors.Users;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.AggregateChanges.Action;
 using Authorization.Domain.Users.DomainEvents;
@@ -69,7 +69,7 @@ namespace Authorization.Domain.Users
             Func<TAction, Result> applyAction)
             where TAction : UserAction
         {
-            var access = ProvideAccess();
+            var access = ProvideAccess(now);
 
             if (access.IsFailure)
                 return access;

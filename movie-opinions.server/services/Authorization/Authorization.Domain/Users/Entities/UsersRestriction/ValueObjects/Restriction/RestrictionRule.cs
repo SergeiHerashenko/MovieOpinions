@@ -49,6 +49,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         internal static Result<RestrictionRule> Create(string name, int durationMinutes)
         {
             var failure = RestrictionRuleValidator.ValidateForError(
+                OperationType.Create,
                 name,
                 durationMinutes
             );
@@ -80,9 +81,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         public static RestrictionRule Restore(string name, int durationMinutes)
         {
             var failure = RestrictionRuleValidator.ValidateForException(
+                OperationType.Restore,
                 name,
-                durationMinutes,
-                OperationType.Restore
+                durationMinutes
             );
 
             if (failure is not null)

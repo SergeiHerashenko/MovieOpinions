@@ -2,6 +2,7 @@ using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Validation;
+using Authorization.Domain.Common.Exceptions.DomainException;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses
 {
@@ -34,7 +35,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
         {
             var normalizedIpAddress = rawIpAddress?.Trim() ?? string.Empty;
 
-            var failure = IpAddressValidator.ValidateForError(normalizedIpAddress);
+            var failure = IpAddressValidator.ValidateForError(
+                OperationType.Create,
+                normalizedIpAddress
+            );
 
             if (failure is not null)
                 return Result<IpAddress>.Failure(failure.Value);
@@ -57,8 +61,8 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
         public static IpAddress Restore(string value)
         {
             var failure = IpAddressValidator.ValidateForException(
-                value,
-                OperationType.Restore
+                OperationType.Restore,
+                value
             );
 
             if (failure is not null)

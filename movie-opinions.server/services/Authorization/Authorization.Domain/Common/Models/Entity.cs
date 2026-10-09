@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Models.Interfaces;
+using Authorization.Domain.Common.Models.Interfaces;
 
 namespace Authorization.Domain.Common.Models
 {

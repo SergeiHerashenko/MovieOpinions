@@ -3,6 +3,7 @@ using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.Contracts;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Errors;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
@@ -21,7 +22,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
     /// Stores the token creation context and supports transitions between
     /// Active, Consumed, Revoked, and Expired states.)
     /// </summary>
-    public sealed class UserRefreshToken : Entity<UserRefreshTokenId>
+    public sealed class UserRefreshToken : Entity<UserRefreshTokenId>, IUserOwned
     {
         private static readonly TimeSpan ExpirationTime = TimeSpan.FromDays(7);
 

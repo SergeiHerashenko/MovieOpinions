@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
+using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
 using Authorization.Domain.Users.Enums;
 
 namespace Authorization.Domain.Users.Contracts
@@ -9,7 +9,7 @@ namespace Authorization.Domain.Users.Contracts
 
         public required RestrictionRule RestrictionRule { get; set; }
 
-        public required string RestrictedBy { get; set; }
+        public required string ImposedBy { get; set; }
 
         public string? Reason { get; set; }
     }

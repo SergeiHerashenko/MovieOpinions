@@ -16,18 +16,18 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         {
             public ValidationPriority Priority => ValidationPriority.Format;
 
-            public ValidationFailure? Validate(RestrictionRuleValidationData value)
+            public ValidationFailure? Validate(RestrictionRuleValidationData data)
             {
-                if (value.DurationMinutes > 0)
+                if (data.DurationMinutes > 0)
                     return null;
 
                 return new ValidationFailure()
                 {
-                    Error = RestrictionErrors.InvalidDuration<RestrictionRule>(value.DurationMinutes),
+                    Error = RestrictionErrors.InvalidDuration<RestrictionRule>(data.DurationMinutes),
                     BuildException = operationType =>
                         DomainDataInconsistencyException.ValueOutOfRange<RestrictionRule>(
                             nameof(RestrictionRule.DurationMinutes),
-                            value.DurationMinutes,
+                            data.DurationMinutes,
                             operationType
                         )
                 };

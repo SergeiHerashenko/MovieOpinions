@@ -4,14 +4,14 @@ using Authorization.Application.Common.Events;
 using Authorization.Application.DomainEvents.UserRestrictionSessions.Data;
 using Authorization.Application.DTOs.Communication;
 using Authorization.Application.DTOs.Communication.Notifications.Enums;
-using Authorization.Domain.Users.DomainEvents;
+using Authorization.Domain.Users.DomainEvents.SessionRestriction;
 using Authorization.Domain.Users.Enums;
 using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserRestrictionSessions
 {
     public sealed class RestrictionRemovedFromSessionNotificationHandler
-        : INotificationHandler<DomainEventNotification<UserRestrictionSessionRemovedRestrictionEvent>>
+        : INotificationHandler<DomainEventNotification<UserRestrictionsRemovedFromSessionEvent>>
     {
         private readonly INotificationSender _notificationSender;
 
@@ -21,7 +21,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
         }
 
         public async Task Handle(
-            DomainEventNotification<UserRestrictionSessionRemovedRestrictionEvent> notification,
+            DomainEventNotification<UserRestrictionsRemovedFromSessionEvent> notification,
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;

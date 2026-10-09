@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Models;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 
@@ -10,8 +10,11 @@ namespace Authorization.Domain.Users.DomainEvents
 
         public Login Login { get; }
 
-        public UserRegisteredEvent(UserId userId, Login login, DateTimeOffset createdAt)
-            : base(createdAt)
+        public UserRegisteredEvent(
+            UserId userId,
+            Login login,
+            DateTimeOffset occurredOn)
+            : base(occurredOn)
         {
             UserId = userId;
             Login = login;

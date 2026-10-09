@@ -1,7 +1,7 @@
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.Errors;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Validation
 {
@@ -12,13 +12,13 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
         ///
         /// (Validates the presence of the required IPv4-address value.)
         /// </summary>
-        private sealed class RequiredRule : IValidationRule<string, ValidationFailure>
+        private sealed class RequiredRule : IValidationRule<IpAddressValidationData, ValidationFailure>
         {
             public ValidationPriority Priority => ValidationPriority.Presence;
 
-            public ValidationFailure? Validate(string value)
+            public ValidationFailure? Validate(IpAddressValidationData data)
             {
-                if (!string.IsNullOrWhiteSpace(value))
+                if (!string.IsNullOrWhiteSpace(data.Value))
                     return null;
 
                 return new ValidationFailure()

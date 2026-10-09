@@ -4,14 +4,14 @@ using Authorization.Application.Common.Events;
 using Authorization.Application.DomainEvents.UserRestrictionSessions.Data;
 using Authorization.Application.DTOs.Communication;
 using Authorization.Application.DTOs.Communication.Notifications.Enums;
-using Authorization.Domain.Users.DomainEvents;
+using Authorization.Domain.Users.DomainEvents.SessionRestriction;
 using Authorization.Domain.Users.Enums;
 using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserRestrictionSessions
 {
     public sealed class RestrictionAddedToSessionNotificationHandler 
-        : INotificationHandler<DomainEventNotification<UserRestrictionSessionAddRestrictionEvent>>
+        : INotificationHandler<DomainEventNotification<UserRestrictionsAddedToSessionEvent>>
     {
         private readonly INotificationSender _notificationSender;
 
@@ -21,7 +21,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
         }
 
         public async Task Handle(
-            DomainEventNotification<UserRestrictionSessionAddRestrictionEvent> notification, 
+            DomainEventNotification<UserRestrictionsAddedToSessionEvent> notification, 
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;
@@ -30,7 +30,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
                 ? CommunicationChannel.Email
                 : CommunicationChannel.Phone;
 
-            var restrictionItems = domainEvent.RestrictionDescription
+            var restrictionItems = domainEvent.RestrictionDescriptions
                 .Select(x => new RestrictionDetails(x.Rule.Name, x.Rule.DurationMinutes, x.Reason))
                 .ToList();
 

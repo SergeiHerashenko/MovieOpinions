@@ -4,6 +4,7 @@ using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.Contracts;
 using Authorization.Domain.Users.Entities.UsersRestriction.Enums;
 using Authorization.Domain.Users.Entities.UsersRestriction.Errors;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects;
@@ -22,7 +23,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
     /// Stores the rule, type, issuer, and current state of the restriction.
     /// The overall blocking period is determined by the restriction session.)
     /// </summary>
-    public sealed class UserRestriction : Entity<UserRestrictionId>
+    public sealed class UserRestriction : Entity<UserRestrictionId>, IUserOwned
     {
         #region Properties
         /// <summary>
@@ -115,8 +116,8 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
             RestrictionType restrictionType,
             RestrictionRule restrictionRule,
             string imposedBy,
-            DateTimeOffset now,
-            string? reason = null)
+            string? reason,
+            DateTimeOffset now)
         {
             DomainGuard.AgainstNull<UserRestriction>(
                 OperationType.Create,
@@ -232,67 +233,114 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         }
         #endregion
 
-        #region Behavior
+        #region Behavior (Complete)
         /// <summary>
-        /// Достроково знімає активне обмеження.
-        ///
-        /// (Revokes an active restriction before its natural completion.)
+        /// Перевіряє, чи може активне обмеження системно перейти
+        /// у завершений стан, не змінюючи його.
+        /// 
+        /// Неактивний статус у цьому внутрішньому сценарії
+        /// вважається порушенням доменного стану.
+        /// 
+        /// (Verifies that an active restriction can systematically
+        /// transition to the completed state without modifying it.
+        /// 
+        /// A non-active status in this internal scenario
+        /// is treated as a domain-state violation.)
         /// </summary>
-        /// <param name="now">Час виконання операції.</param>
-        /// <returns>
-        /// Успішний результат або помилка, якщо обмеження вже завершене чи зняте.
-        /// </returns>
-        internal Result RevokeRestriction(DateTimeOffset now)
-        {
-            return TransitionFromActive(
-                now,
-                RestrictionStatus.Revoked
-            );
-        }
-
-        /// <summary>
-        /// Позначає активне обмеження як повністю відбуте.
-        ///
-        /// (Marks an active restriction as fully completed.)
-        /// </summary>
-        /// <param name="now">Час виконання операції.</param>
-        /// <returns>
-        /// Успішний результат або помилка, якщо обмеження вже завершене чи зняте.
-        /// </returns>
-        /// <remarks>
-        /// Рішення про завершення строку приймає сесія обмежень.
-        ///
-        /// (The restriction session determines whether the restriction period
-        /// has been completed.)
-        /// </remarks>
-        internal Result MarkAsCompleted(DateTimeOffset now)
-        {
-            return TransitionFromActive(
-                now,
-                RestrictionStatus.Completed
-            );
-        }
-
-        /// <summary>
-        /// Виконує дозволений перехід активного обмеження
-        /// у завершений або достроково знятий стан.
-        ///
-        /// (Performs an allowed transition of an active restriction
-        /// to either the completed or revoked state.)
-        /// </summary>
-        /// <param name="now">Час виконання переходу.</param>
-        /// <param name="targetStatus">Цільовий кінцевий статус обмеження.</param>
-        /// <returns>
-        /// Успішний результат або помилка, якщо обмеження вже перебуває
-        /// в кінцевому стані.
-        /// </returns>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо час операції некоректний або передано
-        /// непідтримуваний поточний чи цільовий статус.
+        /// <param name="now">Час виконання перевірки.</param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо переданий час передує часу створення обмеження.
         /// </exception>
-        private Result TransitionFromActive(
-            DateTimeOffset now,
-            RestrictionStatus targetStatus)
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо поточний статус не підтримується доменною моделлю.
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо обмеження вже не є активним.
+        /// </exception>
+        internal void ValidateCanComplete(DateTimeOffset now)
+        {
+            DomainGuard.AgainstEarlierThan<UserRestriction>(
+               OperationType.Update,
+               (now, nameof(now)),
+               (CreatedAt, nameof(CreatedAt))
+            );
+
+            DomainGuard.AgainstUndefinedEnum<UserRestriction>(
+                OperationType.Update,
+                (Status, nameof(Status))
+            );
+
+            if (Status == RestrictionStatus.Active)
+                return;
+
+            throw DomainInvariantViolationException.BrokenState<UserRestriction>(
+                 "Only an active restriction can transition to the 'Completed' state.",
+                new Dictionary<string, object?>
+                {
+                    ["RestrictionId"] = Id.Value,
+                    ["RestrictionType"] = RestrictionType,
+                    ["RestrictionStatus"] = Status
+                },
+                OperationType.Update
+            );
+        }
+
+        /// <summary>
+        /// Системно переводить активне обмеження у завершений стан.
+        /// 
+        /// Перед зміною повторно перевіряє внутрішні передумови переходу.
+        /// 
+        /// (Systematically transitions an active restriction
+        /// to the completed state.
+        /// 
+        /// Revalidates the internal transition preconditions
+        /// before modifying the state.)
+        /// </summary>
+        /// <param name="now">Час завершення обмеження.</param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо переданий час передує часу створення обмеження.
+        /// </exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо поточний або цільовий статус не підтримується.
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо обмеження вже не є активним.
+        /// </exception>
+        internal void MarkAsCompleted(DateTimeOffset now)
+        {
+            TransitionFromActive(
+                RestrictionStatus.Completed,
+                now
+            );
+        }
+        #endregion
+
+        #region Behavior (Revoke)
+        /// <summary>
+        /// Перевіряє можливість дострокового зняття обмеження
+        /// без зміни його поточного стану.
+        /// 
+        /// Завершене або вже зняте обмеження повертає
+        /// очікувану доменну помилку.
+        /// 
+        /// (Verifies that the restriction can be revoked early
+        /// without modifying its current state.
+        /// 
+        /// A completed or already revoked restriction returns
+        /// an expected domain error.)
+        /// </summary>
+        /// <param name="now">Час виконання перевірки.</param>
+        /// <returns>
+        /// Успішний результат, якщо обмеження активне;
+        /// інакше очікувана помилка поточного стану.
+        /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо переданий час передує часу створення обмеження.
+        /// </exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо поточний статус не підтримується доменною моделлю.
+        /// </exception>
+        internal Result ValidateRevocation(DateTimeOffset now)
         {
             DomainGuard.AgainstEarlierThan<UserRestriction>(
                 OperationType.Update,
@@ -300,24 +348,113 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
                 (CreatedAt, nameof(CreatedAt))
             );
 
-            if (Status != RestrictionStatus.Active)
+            if (Status == RestrictionStatus.Active)
+                return Result.Success();
+
+            Error error = Status switch
             {
-                Error error = Status switch
-                {
-                    RestrictionStatus.Completed =>
-                        RestrictionErrors.AlreadyCompleted<UserRestriction>(),
+                RestrictionStatus.Completed =>
+                    RestrictionErrors.AlreadyCompleted<UserRestriction>(),
 
-                    RestrictionStatus.Revoked =>
-                        RestrictionErrors.AlreadyRevoked<UserRestriction>(),
+                RestrictionStatus.Revoked =>
+                    RestrictionErrors.AlreadyRevoked<UserRestriction>(),
 
-                    _ => throw DomainDataInconsistencyException.UnsupportedDiscriminator<UserRestriction>(
-                        nameof(Status),
-                        Status,
-                        OperationType.Update
-                    )
-                };
+                _ => throw DomainDataInconsistencyException.UnsupportedDiscriminator<UserRestriction>(
+                    nameof(Status),
+                    Status,
+                    OperationType.Update
+                )
+            };
 
-                return Result.Failure(error);
+            return Result.Failure(error);
+        }
+
+        /// <summary>
+        /// Достроково знімає активне обмеження
+        /// та записує час його зняття.
+        /// 
+        /// Перед зміною повторно перевіряє внутрішні передумови переходу.
+        /// 
+        /// (Revokes an active restriction early
+        /// and records its revocation time.
+        /// 
+        /// Revalidates the internal transition preconditions
+        /// before modifying the state.)
+        /// </summary>
+        /// <param name="now">Час дострокового зняття обмеження.</param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо переданий час передує часу створення обмеження.
+        /// </exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо поточний або цільовий статус не підтримується.
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо обмеження вже не є активним.
+        /// </exception>
+        internal void RevokeRestriction(DateTimeOffset now)
+        {
+            TransitionFromActive(
+                RestrictionStatus.Revoked,
+                now
+            );
+        }
+        #endregion
+
+        #region Behavior
+        /// <summary>
+        /// Виконує внутрішній перехід активного обмеження
+        /// у завершений або достроково знятий стан.
+        /// 
+        /// Метод приймає лише <see cref="RestrictionStatus.Completed"/>
+        /// та <see cref="RestrictionStatus.Revoked"/> як цільові статуси.
+        /// 
+        /// (Performs the internal transition of an active restriction
+        /// to the completed or revoked state.
+        /// 
+        /// The method accepts only <see cref="RestrictionStatus.Completed"/>
+        /// and <see cref="RestrictionStatus.Revoked"/> as target statuses.)
+        /// </summary>
+        /// <param name="targetStatus">Цільовий статус обмеження.</param>
+        /// <param name="now">Час виконання переходу.</param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо переданий час передує часу створення обмеження.
+        /// </exception>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо поточний або цільовий статус не підтримується
+        /// чи не може бути ціллю цього переходу.
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо поточне обмеження вже не є активним.
+        /// </exception>
+        private void TransitionFromActive(
+            RestrictionStatus targetStatus,
+            DateTimeOffset now)
+        {
+            DomainGuard.AgainstEarlierThan<UserRestriction>(
+               OperationType.Update,
+               (now, nameof(now)),
+               (CreatedAt, nameof(CreatedAt))
+           );
+
+            DomainGuard.AgainstUndefinedEnum<UserRestriction>(
+                OperationType.Update,
+                (targetStatus, nameof(targetStatus)),
+                (Status, nameof(Status))
+            );
+
+            if(Status != RestrictionStatus.Active)
+            {
+                throw DomainInvariantViolationException.BrokenState<UserRestriction>(
+                    $"Only an active restriction can transition to the '{targetStatus}' state.",
+                    new Dictionary<string, object?>
+                    {
+                        ["RestrictionId"] = Id.Value,
+                        ["RestrictionType"] = RestrictionType,
+                        ["RestrictionStatus"] = Status,
+                        ["TargetStatus"] = targetStatus
+                    },
+                    OperationType.Update
+                );
             }
 
             switch (targetStatus)
@@ -338,8 +475,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
                         OperationType.Update
                     );
             }
-
-            return Result.Success();
         }
         #endregion
 

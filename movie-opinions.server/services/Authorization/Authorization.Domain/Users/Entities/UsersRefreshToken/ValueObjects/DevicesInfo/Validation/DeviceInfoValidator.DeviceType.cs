@@ -1,10 +1,8 @@
 using Authorization.Domain.Common.Exceptions.DomainException;
-using Authorization.Domain.Common.Exceptions.Enums;
-using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.Errors;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation
 {
@@ -21,11 +19,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         {
             public ValidationPriority Priority => ValidationPriority.Format;
 
-            public ValidationFailure? Validate(DeviceInfoValidationData value)
+            public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
-                DomainGuard.AgainstUndefinedEnum<DeviceInfo>(
-                    OperationType.Read,
-                    (value.DeviceType, nameof(DeviceInfo.DeviceType)));
+                if (Enum.IsDefined(typeof(DeviceType), data.DeviceType))
+                    return null;
 
                 return new ValidationFailure()
                 {
@@ -33,7 +30,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                     BuildException = operationType =>
                         DomainDataInconsistencyException.UnsupportedDiscriminator<DeviceInfo>(
                             nameof(DeviceInfo.DeviceType),
-                            value.DeviceType,
+                            data.DeviceType,
                             operationType
                         )
                 };

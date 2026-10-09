@@ -1,5 +1,6 @@
 using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 
 namespace Authorization.Domain.Common.Validation
 {
@@ -10,7 +11,7 @@ namespace Authorization.Domain.Common.Validation
     /// (Contains both possible representations of a violated rule:
     /// an expected error and a domain-exception factory.)
     /// </summary>
-    internal class ValidationFailure
+    internal class ValidationFailure : IExceptionValidationFailure
     {
         /// <summary>
         /// Доменна помилка, яка описує причину невдалої перевірки.

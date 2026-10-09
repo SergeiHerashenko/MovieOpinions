@@ -1,13 +1,13 @@
-﻿namespace Authorization.Domain.Users.Enums
+namespace Authorization.Domain.Users.Enums
 {
     public enum RestrictionType
     {
-        Ban,
+        Ban = 0,
 
-        CommentMute,
+        CommentMute = 1,
 
-        ChatMute,
+        ChatMute = 2,
 
-        AllMute
+        AllMute = 3
     }
 }

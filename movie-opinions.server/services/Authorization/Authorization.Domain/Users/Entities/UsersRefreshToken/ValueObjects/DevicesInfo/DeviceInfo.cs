@@ -3,6 +3,7 @@ using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation;
+using Authorization.Domain.Common.Exceptions.DomainException;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo
 {
@@ -74,6 +75,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// <returns>
         /// Успішний результат із DeviceInfo або першу виявлену помилку валідації.
         /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо порушено внутрішню передумову
+        /// або порядок виконання правил валідації.
+        /// </exception>
         public static Result<DeviceInfo> Create(
             DeviceType deviceType,
             string operatingSystem,
@@ -81,6 +86,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             string deviceModel)
         {
             var failure = DeviceInfoValidator.ValidateForError(
+                OperationType.Create,
                 deviceType,
                 operatingSystem,
                 browser,
@@ -117,6 +123,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережені значення порушують правила DeviceInfo.
         /// </exception>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо порушено внутрішню передумову
+        /// або порядок виконання правил валідації.
+        /// </exception>
         public static DeviceInfo Restore(
             DeviceType deviceType,
             string operatingSystem,
@@ -124,11 +134,11 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             string deviceModel)
         {
             var failure = DeviceInfoValidator.ValidateForException(
+                OperationType.Restore,
                 deviceType,
                 operatingSystem,
                 browser,
-                deviceModel,
-                OperationType.Restore
+                deviceModel
             );
 
             if (failure is not null)

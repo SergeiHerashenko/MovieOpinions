@@ -27,22 +27,25 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         ///
         /// (Validates input data and returns an expected domain error.)
         /// </summary>
+        /// <param name="operationType">Операція, під час якої виконується валідація.</param>
         /// <param name="name">Назва правила обмеження.</param>
         /// <param name="durationMinutes">Тривалість обмеження у хвилинах.</param>
         /// <returns>Обгортка з помилкою валідації або null.</returns>
         internal static ValidationRulesFailure<Error>? ValidateForError(
+            OperationType operationType,
             string name,
             int durationMinutes)
         {
-            var failure = Validate(
+            var data = BuildData(
+                operationType,
                 name,
                 durationMinutes
             );
 
-            if (failure is null)
-                return null;
-
-            return new ValidationRulesFailure<Error>(failure.Error);
+            return DomainValidationExecutor.ValidateForError(
+                _validation,
+                data
+            );
         }
 
         /// <summary>
@@ -52,39 +55,38 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         /// (Validates restored data and creates the corresponding domain exception.
         /// The method returns the exception object but does not throw it.)
         /// </summary>
+        /// <param name="operationType">Операція, для якої створюється виняток.</param>
         /// <param name="name">Відновлена назва правила.</param>
         /// <param name="durationMinutes">Відновлена тривалість у хвилинах.</param>
-        /// <param name="operationType">Операція, для якої створюється виняток.</param>
         /// <returns>Обгортка зі створеним винятком або null.</returns>
         internal static ValidationRulesFailure<Exception>? ValidateForException(
+            OperationType operationType,
             string name,
-            int durationMinutes,
-            OperationType operationType)
+            int durationMinutes)
         {
-            var failure = Validate(
+            var data = BuildData(
+                operationType,
                 name,
                 durationMinutes
             );
 
-            if (failure is null)
-                return null;
-
-            var exception = failure.BuildException(operationType);
-
-            return new ValidationRulesFailure<Exception>(exception);
+            return DomainValidationExecutor.ValidateForException(
+                _validation,
+                data
+            );
         }
 
-        private static ValidationFailure? Validate(
+        private static RestrictionRuleValidationData BuildData(
+            OperationType operationType,
             string name,
             int durationMinutes)
         {
-            var data = new RestrictionRuleValidationData()
+            return new RestrictionRuleValidationData()
             {
+                OperationType = operationType,
                 Name = name,
                 DurationMinutes = durationMinutes
             };
-
-            return _validation.Validate(data);
         }
     }
 }

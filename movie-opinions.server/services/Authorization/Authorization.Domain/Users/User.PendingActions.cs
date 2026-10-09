@@ -21,7 +21,7 @@ namespace Authorization.Domain.Users
             if (newLogin is null)
                 return Result<UserPendingAction>.Failure(LoginErrors.EmptyLogin<User>());
 
-            var access = ProvideAccess();
+            var access = ProvideAccess(now);
 
             if (access.IsFailure)
                 return Result<UserPendingAction>.Failure(access.Errors);
@@ -66,7 +66,7 @@ namespace Authorization.Domain.Users
             if(plainNewPassword is null)
                 return Result<UserPendingAction>.Failure(PasswordErrors.EmptyPlainPassword<User>());
 
-            var access = ProvideAccess();
+            var access = ProvideAccess(now);
 
             if (access.IsFailure)
                 return Result<UserPendingAction>.Failure(access.Errors);
@@ -102,7 +102,7 @@ namespace Authorization.Domain.Users
             string? reason, 
             DateTimeOffset now)
         {
-            var access = ProvideAccess();
+            var access = ProvideAccess(now);
 
             if (access.IsFailure)
                 return Result<UserPendingAction>.Failure(access.Errors);
@@ -161,7 +161,7 @@ namespace Authorization.Domain.Users
 
         public Result<UserPendingAction> GetActionForConfirmation<TAction>(ConfirmationFlowToken confirmationToken, DateTimeOffset now)
         {
-            var access = ProvideAccess();
+            var access = ProvideAccess(now);
 
             if (access.IsFailure)
                 return Result<UserPendingAction>.Failure(access.Errors);

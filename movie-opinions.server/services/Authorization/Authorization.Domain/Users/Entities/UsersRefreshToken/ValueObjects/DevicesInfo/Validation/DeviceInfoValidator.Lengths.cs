@@ -1,19 +1,28 @@
 using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.Errors;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation
 {
     internal static partial class DeviceInfoValidator
     {
         /// <summary>
-        /// Перевіряє, що довжина текстових полів DeviceInfo
+        /// Перевіряє, що довжина обов’язкових текстових полів DeviceInfo
         /// не перевищує встановлені обмеження.
         ///
-        /// (Validates that DeviceInfo text fields
-        /// do not exceed their configured length limits.)
+        /// Правило повинно виконуватися лише після успішної перевірки
+        /// наявності всіх текстових значень правилом
+        /// <see cref="RequiredFieldsRule"/>.
+        ///
+        /// (Validates that required DeviceInfo text fields
+        /// do not exceed their configured length limits.
+        ///
+        /// The rule must only execute after the presence of all text values
+        /// has been successfully validated by
+        /// <see cref="RequiredFieldsRule"/>.)
         /// </summary>
         private sealed class FieldLengthsRule : IValidationRule<DeviceInfoValidationData, ValidationFailure>
         {
@@ -25,17 +34,31 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
 
             public ValidationPriority Priority => ValidationPriority.Length;
 
-            public ValidationFailure? Validate(DeviceInfoValidationData value)
+            public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
-                return ValidateOperatingSystemLength(value.OperatingSystem)
-                    ?? ValidateBrowserLength(value.Browser)
-                    ?? ValidateDeviceModelLength(value.DeviceModel);
+                return ValidateOperatingSystemLength(
+                    data.OperationType,
+                    data.OperatingSystem
+                ) ?? ValidateBrowserLength(
+                    data.OperationType,
+                    data.Browser
+                ) ?? ValidateDeviceModelLength(
+                    data.OperationType,
+                    data.DeviceModel
+                );
             }
 
-            private static ValidationFailure? ValidateOperatingSystemLength(string? operatingSystem)
+            private static ValidationFailure? ValidateOperatingSystemLength(
+                OperationType operationType,
+                string operatingSystem)
             {
                 if (string.IsNullOrWhiteSpace(operatingSystem))
-                    return null;
+                {
+                    throw CreatePreconditionException(
+                        nameof(DeviceInfo.OperatingSystem),
+                        operationType
+                    );
+                }
 
                 if (operatingSystem.Length <= MAX_OPERATING_SYSTEM_LENGTH)
                     return null;
@@ -51,10 +74,17 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 );
             }
 
-            private static ValidationFailure? ValidateBrowserLength(string? browser)
+            private static ValidationFailure? ValidateBrowserLength(
+                OperationType operationType,
+                string browser)
             {
                 if (string.IsNullOrWhiteSpace(browser))
-                    return null;
+                {
+                    throw CreatePreconditionException(
+                        nameof(DeviceInfo.Browser),
+                        operationType
+                    );
+                }
 
                 if (browser.Length <= MAX_BROWSER_LENGTH)
                     return null;
@@ -70,11 +100,18 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 );
             }
 
-            private static ValidationFailure? ValidateDeviceModelLength(string? deviceModel)
+            private static ValidationFailure? ValidateDeviceModelLength(
+                OperationType operationType,
+                string deviceModel)
             {
                 if (string.IsNullOrWhiteSpace(deviceModel))
-                    return null;
-
+                {
+                    throw CreatePreconditionException(
+                        nameof(DeviceInfo.DeviceModel),
+                        operationType
+                    );
+                }
+                
                 if (deviceModel.Length <= MAX_DEVICE_MODEL_LENGTH)
                     return null;
 
@@ -109,6 +146,21 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                         }
                     )
                 };
+            }
+
+            private static DomainInvalidOperationException CreatePreconditionException(
+                string fieldName,
+                OperationType operationType)
+            {
+                return DomainInvalidOperationException.PreconditionFailed<DeviceInfo>(
+                    nameof(FieldLengthsRule),
+                    nameof(RequiredFieldsRule),
+                    operationType,
+                    context: new Dictionary<string, object>
+                    {
+                        ["FieldName"] = fieldName
+                    }
+                );
             }
         }
     }

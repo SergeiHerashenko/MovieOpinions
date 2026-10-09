@@ -2,8 +2,11 @@ using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Users.Contracts;
 using Authorization.Domain.Users.Entities.UsersRestriction;
+using Authorization.Domain.Users.Entities.UsersRestriction.Enums;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects;
+using Authorization.Domain.Users.Entities.UsersRestrictionSession.Enums;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
@@ -21,7 +24,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
     /// Stores unique identifiers of active restrictions
     /// and their total duration.)
     /// </summary>
-    public sealed class UserRestrictionSession : Entity<UserRestrictionSessionId>
+    public sealed class UserRestrictionSession : Entity<UserRestrictionSessionId>, IUserOwned
     {
         #region Properties
         /// <summary>
@@ -339,41 +342,186 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
 
             return expiration - now;
         }
+
+        /// <summary>
+        /// Визначає, чи завершилася сесія на вказаний момент
+        /// у контексті внутрішньої доменної операції.
+        ///
+        /// Переданий час не може передувати часу створення сесії.
+        ///
+        /// (Determines whether the session has expired at the specified time
+        /// in the context of an internal domain operation.
+        ///
+        /// The supplied time cannot precede the session creation time.)
+        /// </summary>
+        /// <param name="now">Час, відносно якого виконується перевірка.</param>
+        /// <returns>
+        /// true, якщо вказаний час дорівнює часу завершення
+        /// сесії або перевищує його; інакше false.
+        /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо переданий час передує часу створення сесії.
+        /// </exception>
+        internal bool IsExpiredAt(DateTimeOffset now)
+        {
+            DomainGuard.AgainstEarlierThan<UserRestrictionSession>(
+                OperationType.Read,
+                (now, nameof(now)),
+                (CreatedAt, nameof(CreatedAt))
+            );
+
+            return now >= GetExpirationDate();
+        }
         #endregion
 
-        #region Behavior
+        #region Behavior (Addition)
         /// <summary>
-        /// Додає до сесії нові обмеження та збільшує
-        /// її сумарну тривалість.
+        /// Перевіряє можливість додавання обмежень до сесії
+        /// без зміни її поточного стану.
         ///
-        /// (Adds new restrictions to the session and increases
-        /// its total duration.)
+        /// Успішне завершення методу означає, що обмеження
+        /// можуть бути безпечно застосовані.
+        ///
+        /// (Verifies that restrictions can be added to the session
+        /// without modifying its current state.
+        ///
+        /// Successful completion means that the restrictions
+        /// can be safely applied.)
         /// </summary>
-        /// <param name="userRestrictions">Обмеження, які потрібно додати.</param>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо колекція відсутня, порожня або містить null.
+        /// <param name="userRestrictions">
+        /// Обмеження, можливість додавання яких необхідно перевірити.
+        /// </param>
+        /// <param name="now">
+        /// Час операції, який використовується для перевірки
+        /// часової послідовності.
+        /// </param>
+        internal void ValidateCanAddRestrictions(
+            IReadOnlyCollection<UserRestriction> userRestrictions,
+            DateTimeOffset now)
+        {
+            _ = PrepareAddition(
+                userRestrictions,
+                now
+            );
+        }
+
+        /// <summary>
+        /// Додає попередньо перевірені активні обмеження до сесії.
+        ///
+        /// Перед мутацією повторно перевіряє та обчислює майбутній
+        /// стан, після чого додає ідентифікатори й оновлює
+        /// загальну тривалість блокування.
+        ///
+        /// (Adds pre-validated active restrictions to the session.
+        ///
+        /// Before mutation, revalidates and calculates the resulting state,
+        /// then adds the identifiers and updates the total blocked duration.)
+        /// </summary>
+        /// <param name="userRestrictions">
+        /// Активні обмеження, які необхідно додати.
+        /// </param>
+        /// <param name="now">
+        /// Час операції, який використовується для повторної
+        /// перевірки часової послідовності.
+        /// </param>
+        internal void AddRestrictions(
+            IReadOnlyCollection<UserRestriction> userRestrictions,
+            DateTimeOffset now)
+        {
+            var addition = PrepareAddition(
+                userRestrictions,
+                now
+            );
+
+            _activeRestrictionIds.UnionWith(addition.NewRestrictionIds);
+
+            TotalBlockedMinutes = addition.UpdatedTotalBlockedMinutes;
+        }
+
+        /// <summary>
+        /// Перевіряє передані обмеження та обчислює результат
+        /// їх додавання без зміни стану сесії.
+        ///
+        /// Перевіряє активний статус, належність користувачу,
+        /// відповідність типу сесії, відсутність повторних
+        /// або вже доданих ідентифікаторів, а також те,
+        /// що час операції не передує часу створення сесії.
+        ///
+        /// (Validates the supplied restrictions and calculates
+        /// the result of adding them without mutating the session.
+        ///
+        /// Verifies active status, user ownership, session-type compatibility,
+        /// the absence of duplicate or already included identifiers,
+        /// and that the operation time is not earlier than
+        /// the session creation time.)
+        /// </summary>
+        /// <param name="userRestrictions">
+        /// Обмеження, які необхідно підготувати до додавання.
+        /// </param>
+        /// <param name="now">
+        /// Час, відносно якого перевіряється хронологічна
+        /// коректність операції.
+        /// </param>
+        /// <returns>
+        /// Ідентифікатори нових обмежень і розрахована
+        /// загальна тривалість блокування після їх додавання.
+        /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо колекція відсутня, порожня,
+        /// містить null-елементи або час операції
+        /// передує часу створення сесії.
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо обмеження належать іншому користувачу,
-        /// мають інший тип, уже входять до сесії або містять дублікати.
+        /// Виникає, якщо обмеження неактивне, належить іншому
+        /// користувачу, має інший тип або дублює ідентифікатор.
         /// </exception>
         /// <exception cref="OverflowException">
-        /// Виникає, якщо нова сумарна тривалість перевищує діапазон Int32.
+        /// Виникає, якщо сумарна тривалість виходить за межі Int32.
         /// </exception>
-        internal void AddRestrictions(IEnumerable<UserRestriction> userRestrictions)
+        private (
+            IReadOnlyCollection<UserRestrictionId> NewRestrictionIds,
+            int UpdatedTotalBlockedMinutes)
+            PrepareAddition(
+                IReadOnlyCollection<UserRestriction> userRestrictions,
+                DateTimeOffset now)
         {
             DomainGuard.AgainstNull<UserRestrictionSession>(
                 OperationType.Update,
                 (userRestrictions, nameof(userRestrictions))
             );
 
+            DomainGuard.AgainstEarlierThan<UserRestrictionSession>(
+                OperationType.Update,
+                (now, nameof(now)),
+                (CreatedAt, nameof(CreatedAt))
+            );
+
             var restrictions = userRestrictions.ToList();
 
             if (restrictions.Count == 0)
             {
-                throw DomainDataInconsistencyException.Empty<UserRestrictionSession>(
-                    nameof(userRestrictions),
-                    OperationType.Update
+                throw DomainInvalidOperationException.PreconditionFailed<UserRestrictionSession>(
+                    nameof(PrepareAddition),
+                    "A non-empty restriction collection.",
+                    OperationType.Update,
+                    context: new Dictionary<string, object>
+                    {
+                        ["RestrictionCount"] = restrictions.Count
+                    }
+                );
+            }
+
+            if (restrictions.Any(x => x is null))
+            {
+                throw DomainInvalidOperationException.PreconditionFailed<UserRestrictionSession>(
+                    nameof(PrepareAddition),
+                    "The restriction collection contains a null value.",
+                    OperationType.Update,
+                    context: new Dictionary<string, object>
+                    {
+                        ["RestrictionCount"] = restrictions.Count,
+                        ["NullRestrictionCount"] = restrictions.Count(x => x is null)
+                    }
                 );
             }
 
@@ -382,10 +530,15 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
 
             foreach (var restriction in restrictions)
             {
-                if (restriction is null)
+                if (restriction.Status != RestrictionStatus.Active)
                 {
-                    throw DomainDataInconsistencyException.Empty<UserRestrictionSession>(
-                        nameof(userRestrictions),
+                    throw DomainInvariantViolationException.BrokenState<UserRestrictionSession>(
+                        "Only active restrictions can be added to an active restriction session.",
+                        new Dictionary<string, object?>
+                        {
+                            ["RestrictionId"] = restriction.Id.Value,
+                            ["RestrictionStatus"] = restriction.Status
+                        },
                         OperationType.Update
                     );
                 }
@@ -445,28 +598,258 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                 addedBlockedMinutes = checked(addedBlockedMinutes + restriction.RestrictionRule.DurationMinutes);
             }
 
-            var updatedTotalBlockedMinutes = checked(TotalBlockedMinutes + addedBlockedMinutes);
+            var updatedTotalBlockedMinutes = checked(
+                TotalBlockedMinutes + addedBlockedMinutes
+            );
 
-            _activeRestrictionIds.UnionWith(newRestrictionIds);
-            TotalBlockedMinutes = updatedTotalBlockedMinutes;
+            return (
+                newRestrictionIds,
+                updatedTotalBlockedMinutes
+            );
+        }
+        #endregion
+
+        #region Behavior (Removal)
+        /// <summary>
+        /// Перевіряє передані обмеження та визначає наслідок
+        /// їх вилучення для сесії у вказаний момент часу,
+        /// не змінюючи її поточного стану.
+        ///
+        /// Метод розрізняє сесію, яка вже завершилася,
+        /// і можливі результати вилучення: сесія залишиться
+        /// активною, стане порожньою або завершиться через
+        /// зменшення загальної тривалості.
+        ///
+        /// (Validates the supplied restrictions and determines
+        /// the effect their removal would have on the session
+        /// at the specified time without mutating its current state.
+        ///
+        /// Distinguishes an already expired session from the possible
+        /// removal outcomes: remaining active, becoming empty,
+        /// or becoming expired due to the reduced total duration.)
+        /// </summary>
+        /// <param name="userRestrictions">
+        /// Обмеження, наслідок вилучення яких необхідно визначити.
+        /// </param>
+        /// <param name="now">
+        /// Зафіксований час, відносно якого оцінюється стан сесії.
+        /// </param>
+        /// <returns>
+        /// <see cref="RestrictionSessionRemovalEffect.AlreadyExpired"/>,
+        /// якщо сесія вже завершилася;
+        /// <see cref="RestrictionSessionRemovalEffect.BecomesEmpty"/>,
+        /// якщо після вилучення в ній не залишиться обмежень;
+        /// <see cref="RestrictionSessionRemovalEffect.BecomesExpired"/>,
+        /// якщо після вилучення перерахований час завершення не пізніший за
+        /// <paramref name="now"/>; інакше
+        /// <see cref="RestrictionSessionRemovalEffect.RemainsActive"/>.
+        /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо колекція порожня або містить null-елементи.
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо обмеження не належать сесії, мають інший тип,
+        /// належать іншому користувачу, дублюються або розрахований
+        /// стан сесії є неконсистентним.
+        /// </exception>
+        internal RestrictionSessionRemovalEffect ValidateCanRemoveRestrictions(
+            IReadOnlyCollection<UserRestriction> userRestrictions,
+            DateTimeOffset now)
+        {
+            var removal = PrepareRemoval(
+                userRestrictions,
+                now
+            );
+
+            if (IsExpiredAt(now))
+                return RestrictionSessionRemovalEffect.AlreadyExpired;
+
+            var remainingRestrictionCount = _activeRestrictionIds.Count - removal.RestrictionIdsToRemove.Count;
+
+            if (remainingRestrictionCount == 0)
+                return RestrictionSessionRemovalEffect.BecomesEmpty;
+
+            var updatedExpirationDate = CreatedAt.AddMinutes(removal.UpdatedTotalBlockedMinutes);
+
+            if (now >= updatedExpirationDate)
+                return RestrictionSessionRemovalEffect.BecomesExpired;
+
+            return RestrictionSessionRemovalEffect.RemainsActive;
         }
 
         /// <summary>
-        /// Видаляє обмеження із сесії та зменшує
-        /// її сумарну тривалість.
+        /// Вилучає передані обмеження зі складу сесії.
         ///
-        /// (Removes a restriction from the session and decreases
-        /// its total duration.)
+        /// Перед мутацією повторно перевіряє вхідні дані
+        /// та обчислює майбутній стан, після чого вилучає
+        /// ідентифікатори й оновлює загальну тривалість блокування.
+        ///
+        /// Метод змінює лише стан сесії та не змінює
+        /// статуси самих обмежень.
+        ///
+        /// (Removes the supplied restrictions from the session.
+        ///
+        /// Before mutation, revalidates the input and calculates
+        /// the resulting state, then removes the identifiers and
+        /// updates the total blocked duration.
+        ///
+        /// The method modifies only the session state and does not
+        /// change the statuses of the restrictions themselves.)
         /// </summary>
-        /// <param name="userRestriction">Обмеження, яке потрібно видалити.</param>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обмеження відсутнє.
+        /// <param name="userRestrictions">Обмеження, які необхідно вилучити зі складу сесії.</param>
+        /// <param name="now">Зафіксований час виконання операції.</param>
+        internal void RemoveRestrictions(
+            IReadOnlyCollection<UserRestriction> userRestrictions,
+            DateTimeOffset now)
+        {
+            var removal = PrepareRemoval(
+                userRestrictions,
+                now
+            );
+
+            _activeRestrictionIds.ExceptWith(removal.RestrictionIdsToRemove);
+
+            TotalBlockedMinutes = removal.UpdatedTotalBlockedMinutes;
+        }
+
+        /// <summary>
+        /// Перевіряє передані обмеження та обчислює стан сесії
+        /// після їх вилучення без виконання мутації.
+        ///
+        /// Формує унікальний набір ідентифікаторів, обчислює
+        /// тривалість, яку необхідно відняти, та перевіряє,
+        /// що отриманий стан сесії залишається консистентним.
+        ///
+        /// (Validates the supplied restrictions and calculates
+        /// the session state after their removal without mutating it.
+        ///
+        /// Builds a unique identifier set, calculates the duration
+        /// to subtract, and verifies that the resulting session state
+        /// remains consistent.)
+        /// </summary>
+        /// <param name="userRestrictions">
+        /// Обмеження, які необхідно підготувати до вилучення.
+        /// </param>
+        /// <param name="now">
+        /// Зафіксований час виконання операції.
+        /// </param>
+        /// <returns>
+        /// Ідентифікатори обмежень для вилучення та розрахована
+        /// загальна тривалість блокування після операції.
+        /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо колекція порожня або містить null-елементи.
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо обмеження не належить цій сесії
-        /// або його видалення створює неузгоджений стан.
+        /// Виникає, якщо обмеження не належить сесії, має інший тип,
+        /// належить іншому користувачу, дублюється або призводить
+        /// до неконсистентного стану сесії.
         /// </exception>
-        internal void RemoveRestriction(UserRestriction userRestriction)
+        private (
+            IReadOnlyCollection<UserRestrictionId> RestrictionIdsToRemove,
+            int UpdatedTotalBlockedMinutes)
+            PrepareRemoval(
+                IReadOnlyCollection<UserRestriction> userRestrictions,
+                DateTimeOffset now)
+        {
+            DomainGuard.AgainstNull<UserRestrictionSession>(
+                OperationType.Update,
+                (userRestrictions, nameof(userRestrictions))
+            );
+
+            DomainGuard.AgainstEarlierThan<UserRestrictionSession>(
+                OperationType.Update,
+                (now, nameof(now)),
+                (CreatedAt, nameof(CreatedAt))
+            );
+
+            var restrictions = userRestrictions.ToArray();
+
+            if (restrictions.Length == 0)
+            {
+                throw DomainInvalidOperationException.PreconditionFailed<UserRestrictionSession>(
+                    nameof(PrepareRemoval),
+                    "A non-empty restriction collection.",
+                    OperationType.Update,
+                    context: new Dictionary<string, object>
+                    {
+                        ["RestrictionCount"] = restrictions.Length
+                    }
+                );
+            }
+
+            if(restrictions.Any(x => x is null))
+            {
+                throw DomainInvalidOperationException.PreconditionFailed<UserRestrictionSession>(
+                    nameof(PrepareRemoval),
+                    "All restrictions must be non-null.",
+                    OperationType.Update,
+                    context: new Dictionary<string, object>
+                    {
+                        ["RestrictionCount"] = restrictions.Length,
+                        ["NullRestrictionCount"] = restrictions.Count(x => x is null)
+                    }
+                );
+            }
+
+            var restrictionIdsToRemove = new HashSet<UserRestrictionId>();
+
+            var totalMinutesToRemove = 0;
+
+            foreach (var restriction in restrictions)
+            {
+                ValidateSingleRestriction(restriction);
+
+                if (!restrictionIdsToRemove.Add(restriction.Id))
+                {
+                    throw DomainInvariantViolationException.BrokenState<UserRestrictionSession>(
+                        "Restrictions being removed contain duplicate identifiers.",
+                        new Dictionary<string, object?>
+                        {
+                            ["SessionId"] = Id.Value,
+                            ["DuplicateRestrictionId"] = restriction.Id.Value
+                        },
+                        OperationType.Update
+                    );
+                }
+
+                totalMinutesToRemove = checked(totalMinutesToRemove + restriction.RestrictionRule.DurationMinutes);
+            }
+
+            var updatedTotalBlockedMinutes = checked(TotalBlockedMinutes - totalMinutesToRemove);
+
+            var remainingRestrictionCount = _activeRestrictionIds.Count - restrictionIdsToRemove.Count;
+
+            EnsureSessionConsistency(
+                remainingRestrictionCount,
+                updatedTotalBlockedMinutes
+            );
+
+            return (
+                restrictionIdsToRemove,
+                updatedTotalBlockedMinutes
+            );
+        }
+
+        /// <summary>
+        /// Перевіряє належність одного обмеження поточній сесії.
+        ///
+        /// Обмеження повинно належати тому самому користувачу,
+        /// мати відповідний тип і бути присутнім серед активних
+        /// ідентифікаторів сесії.
+        ///
+        /// (Validates that a single restriction belongs to the current session.
+        ///
+        /// The restriction must belong to the same user, have the matching type,
+        /// and be present among the session’s active identifiers.)
+        /// </summary>
+        /// <param name="userRestriction">
+        /// Обмеження, належність якого необхідно перевірити.
+        /// </param>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо обмеження не відповідає стану сесії.
+        /// </exception>
+        private void ValidateSingleRestriction(UserRestriction userRestriction)
         {
             DomainGuard.AgainstNull<UserRestrictionSession>(
                 OperationType.Update,
@@ -511,11 +894,33 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                     OperationType.Update
                 );
             }
+        }
 
-            var updatedTotalBlockedMinutes = TotalBlockedMinutes - userRestriction.RestrictionRule.DurationMinutes;
-
-            var remainingRestrictionCount = _activeRestrictionIds.Count - 1;
-
+        /// <summary>
+        /// Перевіряє консистентність розрахованого стану сесії.
+        ///
+        /// Порожня сесія повинна мати нульову тривалість,
+        /// а непорожня — додатну тривалість блокування.
+        ///
+        /// (Validates the consistency of the calculated session state.
+        ///
+        /// An empty session must have zero duration, while a non-empty
+        /// session must have a positive blocked duration.)
+        /// </summary>
+        /// <param name="remainingRestrictionCount">
+        /// Кількість обмежень, що залишаться в сесії.
+        /// </param>
+        /// <param name="updatedTotalBlockedMinutes">
+        /// Загальна тривалість блокування після вилучення.
+        /// </param>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо кількість обмежень і тривалість
+        /// утворюють неконсистентний стан.
+        /// </exception>
+        private void EnsureSessionConsistency(
+            int remainingRestrictionCount,
+            int updatedTotalBlockedMinutes)
+        {
             bool hasConsistentResult = (remainingRestrictionCount, updatedTotalBlockedMinutes) switch
             {
                 (0, 0) => true,
@@ -526,32 +931,69 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             if (!hasConsistentResult)
             {
                 throw DomainInvariantViolationException.BrokenState<UserRestrictionSession>(
-                    "Removing the restriction would produce an inconsistent restriction session.",
+                    "Removing the restrictions would produce an inconsistent restriction session.",
                     new Dictionary<string, object?>
                     {
                         ["CurrentTotalBlockedMinutes"] = TotalBlockedMinutes,
-                        ["RestrictionDurationMinutes"] = userRestriction.RestrictionRule.DurationMinutes,
-                        ["RemainingRestrictionCount"] = remainingRestrictionCount,
-                        ["RestrictionId"] = userRestriction.Id.Value
+                        ["UpdatedTotalBlockedMinutes"] = updatedTotalBlockedMinutes,
+                        ["RemainingRestrictionCount"] = remainingRestrictionCount
                     },
                     OperationType.Update
                 );
             }
+        }
+        #endregion
 
-            _activeRestrictionIds.Remove(userRestriction.Id);
-            TotalBlockedMinutes = updatedTotalBlockedMinutes;
+        #region Behavior
+        /// <summary>
+        /// Перевіряє, чи містить сесія точно переданий набір
+        /// ідентифікаторів активних обмежень.
+        ///
+        /// Порівнює як склад множини, так і кількість елементів,
+        /// тому дублікати також вважаються невідповідністю.
+        ///
+        /// (Checks whether the session contains exactly the supplied set
+        /// of active restriction identifiers.
+        ///
+        /// Compares both set membership and element count,
+        /// so duplicates are also treated as a mismatch.)
+        /// </summary>
+        /// <param name="restrictionIds">Ідентифікатори обмежень для порівняння.</param>
+        /// <returns>
+        /// true, якщо набори ідентифікаторів повністю збігаються; інакше false.
+        /// </returns>
+        internal bool ContainsExactly(IEnumerable<UserRestrictionId> restrictionIds)
+        {
+            DomainGuard.AgainstNull<UserRestrictionSession>(
+                OperationType.Read,
+                (restrictionIds, nameof(restrictionIds))
+            );
+
+            var identifiers = restrictionIds.ToList();
+
+            if (identifiers.Any(id => id is null))
+            {
+                throw DomainInvariantViolationException.BrokenState<UserRestrictionSession>(
+                    "The restriction identifier collection contains a null value.",
+                    new Dictionary<string, object?>
+                    {
+                        ["RestrictionIdentifierCount"] = identifiers.Count
+                    },
+                    OperationType.Read
+                );
+            }
+
+            return identifiers.Count == _activeRestrictionIds.Count &&
+                _activeRestrictionIds.SetEquals(identifiers);
         }
 
-        /// <summary>
-        /// Визначає, чи містить сесія обмеження із заданим ідентифікатором.
-        ///
-        /// (Determines whether the session contains a restriction
-        /// with the specified identifier.)
-        /// </summary>
-        /// <param name="restrictionId">Ідентифікатор обмеження.</param>
-        /// <returns>true, якщо обмеження входить до сесії; інакше false.</returns>
         internal bool ContainsRestriction(UserRestrictionId restrictionId)
         {
+            DomainGuard.AgainstNull<UserRestrictionSession>(
+                OperationType.Read,
+                (restrictionId, nameof(restrictionId))
+            );
+
             return _activeRestrictionIds.Contains(restrictionId);
         }
 

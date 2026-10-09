@@ -231,8 +231,8 @@ namespace Authorization.Domain.UsersPendingRegistration
         /// (Determines whether the registration flow has expired
         /// at the specified point in time.)
         /// </summary>
-        /// <param name="now">Час, відносно якого виконується перевірка.</param>
-        /// <returns>true, якщо now дорівнює ExpiresAt або перевищує його; інакше false.</returns>
+        /// <param name="pointInTime">Час, відносно якого виконується перевірка.</param>
+        /// <returns>true, якщо pointInTime дорівнює ExpiresAt або перевищує його; інакше false.</returns>
         public bool IsExpired(DateTimeOffset pointInTime)
             => pointInTime >= ExpiresAt;
         #endregion

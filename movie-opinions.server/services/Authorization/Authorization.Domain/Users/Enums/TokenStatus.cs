@@ -1,13 +1,13 @@
-﻿namespace Authorization.Domain.Users.Enums
+namespace Authorization.Domain.Users.Enums
 {
     public enum TokenStatus
     {
-        Active,
+        Active = 0,
 
-        Expired,
+        Expired = 1,
 
-        Consumed,
+        Consumed = 2,
 
-        Revoked
+        Revoked = 3
     }
 }

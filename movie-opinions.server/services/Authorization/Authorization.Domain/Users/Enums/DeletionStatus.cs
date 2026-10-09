@@ -1,11 +1,11 @@
-﻿namespace Authorization.Domain.Users.Enums
+namespace Authorization.Domain.Users.Enums
 {
     public enum DeletionStatus
     {
-        Deleted,
+        Deleted = 0,
 
-        Restored,
+        Restored = 1,
 
-        PermanentlyDeleted
+        PermanentlyDeleted = 2
     }
 }

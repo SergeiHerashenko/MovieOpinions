@@ -13,35 +13,53 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
     /// </summary>
     internal static partial class IpAddressValidator
     {
-        private static readonly ValidationOrchestrator<string, ValidationFailure> _validation = new(
+        private static readonly ValidationOrchestrator<IpAddressValidationData, ValidationFailure> _validation = new(
             [
                 new RequiredRule(),
                 new ValidFormatRule()
             ]
         );
 
-        internal static ValidationRulesFailure<Error>? ValidateForError(string value)
+        internal static ValidationRulesFailure<Error>? ValidateForError(
+            OperationType operationType,
+            string value)
         {
-            var failure = _validation.Validate(value);
+            var data = BuildData(
+                operationType,
+                value
+            );
 
-            if (failure is null)
-                return null;
-
-            return new ValidationRulesFailure<Error>(failure.Error);
+            return DomainValidationExecutor.ValidateForError(
+                _validation,
+                data
+            );
         }
+            
 
         internal static ValidationRulesFailure<Exception>? ValidateForException(
-            string value,
-            OperationType operationType)
+            OperationType operationType,
+            string value)
         {
-            var failure = _validation.Validate(value);
+            var data = BuildData(
+                operationType,
+                value
+            );
 
-            if (failure is null)
-                return null;
+            return DomainValidationExecutor.ValidateForException(
+                _validation,
+                data
+            );
+        }
 
-            var exception = failure.BuildException(operationType);
-
-            return new ValidationRulesFailure<Exception>(exception);
+        private static IpAddressValidationData BuildData(
+            OperationType operationType,
+            string value)
+        {
+            return new IpAddressValidationData()
+            {
+                OperationType = operationType,
+                Value = value
+            };
         }
     }
 }

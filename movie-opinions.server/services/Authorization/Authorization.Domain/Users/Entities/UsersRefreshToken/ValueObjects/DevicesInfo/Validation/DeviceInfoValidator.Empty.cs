@@ -2,7 +2,7 @@ using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
-using Authorization.Domain.Users.Entities.UsersRefreshToken.Errors;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation
 {
@@ -19,14 +19,14 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         {
             public ValidationPriority Priority => ValidationPriority.Presence;
 
-            public ValidationFailure? Validate(DeviceInfoValidationData value)
+            public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
-                return ValidateOperatingSystem(value.OperatingSystem)
-                    ?? ValidateBrowser(value.Browser)
-                    ?? ValidateDeviceModel(value.DeviceModel);
+                return ValidateOperatingSystem(data.OperatingSystem)
+                    ?? ValidateBrowser(data.Browser)
+                    ?? ValidateDeviceModel(data.DeviceModel);
             }
 
-            private static ValidationFailure? ValidateOperatingSystem(string? operatingSystem)
+            private static ValidationFailure? ValidateOperatingSystem(string operatingSystem)
             {
                 if (!string.IsNullOrWhiteSpace(operatingSystem))
                     return null;
@@ -37,7 +37,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 );
             }
 
-            private static ValidationFailure? ValidateBrowser(string? browser)
+            private static ValidationFailure? ValidateBrowser(string browser)
             {
                 if (!string.IsNullOrWhiteSpace(browser))
                     return null;
@@ -48,7 +48,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 );
             }
 
-            private static ValidationFailure? ValidateDeviceModel(string? deviceModel)
+            private static ValidationFailure? ValidateDeviceModel(string deviceModel)
             {
                 if (!string.IsNullOrWhiteSpace(deviceModel))
                     return null;

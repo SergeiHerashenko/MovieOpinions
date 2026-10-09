@@ -3,6 +3,7 @@ using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
+using Authorization.Domain.Users.Contracts;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Actions;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Errors;
@@ -20,7 +21,7 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
     /// and managing its lifecycle. Stores the action data, confirmation token,
     /// expiration time, and current status.)
     /// </summary>
-    public sealed class UserPendingAction : Entity<UserPendingActionId>
+    public sealed class UserPendingAction : Entity<UserPendingActionId>, IUserOwned
     {
         private const int EXPIRATION_TIME_IN_MINUTES = 30;
 

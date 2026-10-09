@@ -1,18 +1,24 @@
 using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 
 namespace Authorization.Domain.Common.Validation
 {
     /// <summary>
     /// Контракт окремого доменного правила валідації.
-    /// Повертає опис помилки при невдачі або null, якщо правило виконано.
+    /// Повертає опис виявленого порушення або null,
+    /// якщо правило виконано.
     ///
     /// (Contract for an individual domain validation rule.
-    /// Returns a failure when validation fails, or null when the rule succeeds.) 
+    /// Returns a description of a detected violation,
+    /// or null when the rule succeeds.)
     /// </summary>
-    /// <typeparam name="TValue">Тип значення, яке перевіряється.</typeparam>
-    /// <typeparam name="TFailure">Тип результату невдалої перевірки.</typeparam>
-    internal interface IValidationRule<TValue, TFailure>
-        where TFailure : ValidationFailure
+    /// <typeparam name="TData">Тип даних, які перевіряються.</typeparam>
+    /// <typeparam name="TFailure">
+    /// Тип представлення виявленого порушення.
+    /// </typeparam>
+    internal interface IValidationRule<TData, TFailure>
+        where TData : class, IValidationData
+        where TFailure : class, IValidationFailure
     {
         /// <summary>
         /// Пріоритет, який визначає порядок виконання правила.
@@ -26,10 +32,11 @@ namespace Authorization.Domain.Common.Validation
         /// 
         /// (Validates the supplied value against the rule.)
         /// </summary>
-        /// <param name="value">Значення для перевірки.</param>
+        /// <param name="data">Значення для перевірки.</param>
         /// <returns>
-        /// Помилка валідації або null, якщо правило виконано.
+        /// Опис виявленого порушення або null,
+        /// якщо правило виконано.
         /// </returns>
-        TFailure? Validate(TValue value);
+        TFailure? Validate(TData data);
     }
 }

@@ -2,6 +2,7 @@ using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
+using Authorization.Domain.Common.Exceptions.DomainException;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation
 {
@@ -31,6 +32,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// (Validates DeviceInfo data and returns an expected domain error.
         /// Used when processing external input.)
         /// </summary>
+        /// <param name="operationType">Операція, під час якої виконується валідація.</param>
         /// <param name="deviceType">Визначений тип пристрою.</param>
         /// <param name="operatingSystem">Назва операційної системи.</param>
         /// <param name="browser">Назва браузера.</param>
@@ -39,81 +41,93 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// Обгортка з доменною помилкою, якщо правило порушено;
         /// інакше null.
         /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо порушено внутрішню передумову
+        /// або порядок виконання правил валідації.
+        /// </exception>
         internal static ValidationRulesFailure<Error>? ValidateForError(
+            OperationType operationType,
             DeviceType deviceType,
-            string? operatingSystem,
-            string? browser,
-            string? deviceModel)
+            string operatingSystem,
+            string browser,
+            string deviceModel)
         {
-            var failure = Validate(
+            var data = BuildData(
+                operationType,
                 deviceType,
                 operatingSystem,
                 browser,
                 deviceModel
             );
 
-            if (failure is null)
-                return null;
-
-            return new ValidationRulesFailure<Error>(failure.Error);
+            return DomainValidationExecutor.ValidateForError(
+                _validation,
+                data
+            );
         }
 
         /// <summary>
-        /// Перевіряє дані DeviceInfo та створює відповідний доменний виняток.
-        /// Метод лише повертає об’єкт винятку й самостійно його не кидає.
+        /// Перевіряє дані DeviceInfo та для звичайного порушення створює
+        /// відповідний об’єкт доменного винятку, не кидаючи його.
+        ///
+        /// Винятки, спричинені порушенням внутрішніх передумов правил,
+        /// передаються безпосередньо виклику.
         ///
         /// (Validates DeviceInfo data and creates the corresponding domain
-        /// exception. The method only returns the exception object and does
-        /// not throw it.)
+        /// exception object for a regular validation failure without throwing it.
+        ///
+        /// Exceptions caused by violated internal rule preconditions
+        /// propagate directly to the caller.)
         /// </summary>
+        /// <param name="operationType">Операція, під час якої виконується валідація.</param>
         /// <param name="deviceType">Відновлений тип пристрою.</param>
         /// <param name="operatingSystem">Відновлена назва операційної системи.</param>
         /// <param name="browser">Відновлена назва браузера.</param>
         /// <param name="deviceModel">Відновлена назва або модель пристрою.</param>
-        /// <param name="operationType">
-        /// Операція, для якої створюється діагностичний виняток.
-        /// </param>
         /// <returns>
         /// Обгортка зі створеним винятком, якщо правило порушено;
         /// інакше null.
         /// </returns>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо порушено внутрішню передумову
+        /// або порядок виконання правил валідації.
+        /// </exception>
         internal static ValidationRulesFailure<Exception>? ValidateForException(
+            OperationType operationType,
             DeviceType deviceType,
-            string? operatingSystem,
-            string? browser,
-            string? deviceModel,
-            OperationType operationType)
+            string operatingSystem,
+            string browser,
+            string deviceModel)
         {
-            var failure = Validate(
+            var data = BuildData(
+                operationType,
                 deviceType,
                 operatingSystem,
                 browser,
                 deviceModel
             );
 
-            if (failure is null)
-                return null;
-
-            var exception = failure.BuildException(operationType);
-
-            return new ValidationRulesFailure<Exception>(exception);
+            return DomainValidationExecutor.ValidateForException(
+                _validation,
+                data
+            );
         }
 
-        private static ValidationFailure? Validate(
+        private static DeviceInfoValidationData BuildData(
+            OperationType operationType,
             DeviceType deviceType,
-            string? operatingSystem,
-            string? browser,
-            string? deviceModel)
+            string operatingSystem,
+            string browser,
+            string deviceModel)
         {
-            var data = new DeviceInfoValidationData()
+            return new DeviceInfoValidationData()
             {
                 DeviceType = deviceType,
                 OperatingSystem = operatingSystem,
                 Browser = browser,
-                DeviceModel = deviceModel
+                DeviceModel = deviceModel,
+                OperationType = operationType
             };
-
-            return _validation.Validate(data);
         }
     }
 }
