@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Security.Hashers;
+using Authorization.Application.Abstractions.Security.Hashers;
 using Authorization.Domain.Users.ValueObjects.PasswordUser;
 
 namespace Authorization.Infrastructure.Security.Hashers
@@ -17,9 +17,9 @@ namespace Authorization.Infrastructure.Security.Hashers
             return new PasswordHash(BCrypt.Net.BCrypt.HashPassword(password.Value));
         }
 
-        public bool VerifyPassword(PlainPassword password, string hash)
+        public bool VerifyPassword(PlainPassword password, PasswordHash hash)
         {
-            return BCrypt.Net.BCrypt.Verify(password.Value, hash);
+            return BCrypt.Net.BCrypt.Verify(password.Value, hash.Value);
         }
     }
 }

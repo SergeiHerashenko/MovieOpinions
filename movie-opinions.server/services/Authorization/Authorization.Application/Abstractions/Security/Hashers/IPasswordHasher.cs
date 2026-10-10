@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.ValueObjects.PasswordUser;
+using Authorization.Domain.Users.ValueObjects.PasswordUser;
 
 namespace Authorization.Application.Abstractions.Security.Hashers
 {
@@ -6,7 +6,7 @@ namespace Authorization.Application.Abstractions.Security.Hashers
     {
         PasswordHash HashPassword(PlainPassword password);
 
-        bool VerifyPassword(PlainPassword password, string hash);
+        bool VerifyPassword(PlainPassword password, PasswordHash hash);
 
         void FakeVerifyPassword(PlainPassword password);
     }

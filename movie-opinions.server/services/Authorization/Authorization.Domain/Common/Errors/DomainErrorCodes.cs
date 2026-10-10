@@ -101,6 +101,12 @@ namespace Authorization.Domain.Common.Errors
 
             public const string InvalidConfirmationToken =
                 "PENDING_ACTION.INVALID_CONFIRMATION_TOKEN";
+
+            public const string NoUpdateNeeded =
+                "PENDING_ACTION.NO_UPDATE_NEEDED";
+
+            public const string ActionAlreadyExists =
+                "PENDING_ACTION.ACTION_ALREADY_EXISTS";
         }
 
         public static class TokenStatus

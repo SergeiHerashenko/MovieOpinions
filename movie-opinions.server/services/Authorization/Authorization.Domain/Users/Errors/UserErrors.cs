@@ -48,5 +48,19 @@ namespace Authorization.Domain.Users.Errors
                 $"{string.Join(", ", missingIds.Select(x => x.Value))}",
                 ErrorType.NotFound
             );
+
+        public static Error NoUpdateNeeded<TType>()
+            => new(
+                DomainErrorCodes.PendingAction.NoUpdateNeeded,
+                $"",
+                ErrorType.Conflict
+            );
+
+        public static Error ActionAlreadyExists<TType>()
+            => new(
+                DomainErrorCodes.PendingAction.ActionAlreadyExists,
+                $"",
+                ErrorType.Conflict
+            );
     }
 }
