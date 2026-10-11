@@ -116,7 +116,7 @@ namespace Authorization.Domain.Users.ValueObjects.PasswordUser
             Func<PlainPassword, PasswordHash, bool> verifier)
         {
             DomainGuard.AgainstNull<Password>(
-                OperationType.Update,
+                OperationType.Compare,
                 (plainPassword, nameof(plainPassword)),
                 (verifier, nameof(verifier))
             );
