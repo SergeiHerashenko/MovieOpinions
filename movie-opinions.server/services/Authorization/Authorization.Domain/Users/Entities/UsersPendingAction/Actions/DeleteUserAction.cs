@@ -32,12 +32,22 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
 
         #region Creation
         /// <summary>
-        /// Створює дію видалення користувача
-        /// з валідної причини видалення.
+        /// Створює дані відкладеної дії з видалення користувача
+        /// з попередньо перевіреної причини видалення.
         ///
-        /// (Creates a user-deletion action
-        /// from a valid deletion reason.)
+        /// (Creates pending user-deletion action data
+        /// from a previously validated deletion reason.)
         /// </summary>
+        /// <param name="reason">
+        /// Доменне представлення причини видалення.
+        ///
+        /// (The domain representation of the deletion reason.)
+        /// </param>
+        /// <returns>
+        /// Створена дія видалення користувача.
+        ///
+        /// (The created user-deletion action.)
+        /// </returns>
         internal static DeleteUserAction Create(DeletionReason reason)
         {
             DomainGuard.AgainstNull<DeleteUserAction>(
@@ -51,12 +61,22 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
 
         #region Restoration
         /// <summary>
-        /// Відновлює дію видалення користувача
-        /// з відновленої причини видалення.
+        /// Відновлює дані відкладеної дії з видалення користувача
+        /// з попередньо відновленої причини видалення.
         ///
-        /// (Restores a user-deletion action
-        /// from a restored deletion reason.)
+        /// (Restores pending user-deletion action data
+        /// from a previously restored deletion reason.)
         /// </summary>
+        /// <param name="reason">
+        /// Відновлена причина видалення.
+        ///
+        /// (The restored deletion reason.)
+        /// </param>
+        /// <returns>
+        /// Відновлена дія видалення користувача.
+        ///
+        /// (The restored user-deletion action.)
+        /// </returns>
         public static DeleteUserAction Restore(DeletionReason reason)
         {
             DomainGuard.AgainstNull<DeleteUserAction>(
@@ -68,6 +88,7 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
         }
         #endregion
 
+        /// <inheritdoc/>
         public override IEnumerable<object> GetEqualityComponents()
         {
             yield return Reason;

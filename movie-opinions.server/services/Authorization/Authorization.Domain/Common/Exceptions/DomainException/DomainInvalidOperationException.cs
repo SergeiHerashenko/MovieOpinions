@@ -26,23 +26,44 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// unavailable in the current state.)
         /// </summary>
         /// <typeparam name="TType">
-        /// Тип, у якому виконується невалідна операція.
+        /// Тип, у якому виконується некоректна операція.
+        /// 
+        /// (The type in which the invalid operation is performed.)
         /// </typeparam>
         /// <param name="valueName">
-        /// Назва значення або властивості, до якої намагалися отримати доступ.
+        /// Назва значення або властивості, до яких намагалися отримати доступ.
+        /// 
+        /// (The name of the value or property that was accessed.)
         /// </param>
         /// <param name="operationType">
-        /// Тип операції, під час якої стався збій (за замовчуванням Read).
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Read.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Read.)
         /// </param>
         /// <param name="message">
-        /// Діагностичне повідомлення про помилку. Якщо null – формується стандартне повідомлення.
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
-        /// Додатковий контекст із даними стану для структурованого логування.
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
-        /// Внутрішній виняток, який став першопричиною збою.
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
         /// </param>
+        /// <returns>
+        /// Створений виняток некоректної операції.
+        ///
+        /// (The created invalid operation exception.)
+        /// </returns>
         public static DomainInvalidOperationException ValueAccessOnFailure<TType>(
             string valueName,
             OperationType operationType = OperationType.Read,
@@ -89,12 +110,45 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// 
         /// (Creates an exception for cases when a provided callback delegate is null.)
         /// </summary>
-        /// <typeparam name="TType">Тип, у якому виконується невалідна операція.</typeparam>
-        /// <param name="callbackName">Назва колбеку, який виявився null.</param>
-        /// <param name="operationType">Тип операції, під час якої стався збій (за замовчуванням Read).</param>
-        /// <param name="message">Діагностичне повідомлення. Якщо null — формується стандартне.</param>
-        /// <param name="context">Додатковий контекст із даними стану для структурованого логування.</param>
-        /// <param name="innerException">Внутрішній виняток, який став першопричиною збою.</param>
+        /// <typeparam name="TType">
+        /// Тип, у якому виконується некоректна операція.
+        /// 
+        /// (The type in which the invalid operation is performed.)
+        /// </typeparam>
+        /// <param name="callbackName">
+        /// Назва колбеку, значення якого дорівнює null.
+        /// 
+        /// (The name of the callback whose value is null.)
+        /// </param>
+        /// <param name="operationType">
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Read.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Read.)
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
+        /// </param>
+        /// <param name="context">
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
+        /// </param>
+        /// <param name="innerException">
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
+        /// </param>
+        /// <returns>
+        /// Створений виняток некоректної операції.
+        ///
+        /// (The created invalid operation exception.)
+        /// </returns>
         public static DomainInvalidOperationException NullCallback<TType>(
             string callbackName,
             OperationType operationType = OperationType.Read,
@@ -148,25 +202,53 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// (Creates an exception for cases when a precondition or required state for executing an
         /// operation is violated.)
         /// </summary>
-        /// <typeparam name="TType">Тип, у якому виконується невалідна операція.</typeparam>
+        /// <typeparam name="TType">
+        /// Тип, у якому виконується некоректна операція.
+        /// 
+        /// (The type in which the invalid operation is performed.)
+        /// </typeparam>
         /// <param name="sourceContext">
-        /// Назва компонента, правила або методу, у якому виявлено порушення передумови.
+        /// Назва компонента, правила або методу,
+        /// у якому виявлено порушення передумови.
+        /// 
+        /// (The name of the component, rule, or method
+        /// where the precondition violation was detected.)
         /// </param>
         /// <param name="prerequisite">
-        /// Опис попередньої вимоги, кроку або правила, яке мало бути задоволене раніше.
+        /// Опис умови, яка має виконуватися для здійснення операції.
+        /// 
+        /// (A description of the condition that must hold
+        /// for the operation to proceed.)
         /// </param>
         /// <param name="operationType">
-        /// Тип операції, під час якої стався збій (за замовчуванням Read).
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Read.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Read.)
         /// </param>
         /// <param name="message">
-        /// Діагностичне повідомлення. Якщо null — формується стандартне повідомлення.
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
-        /// Додатковий контекст із даними стану для структурованого логування.
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
-        /// Внутрішній виняток, який став першопричиною збою.
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
         /// </param>
+        /// <returns>
+        /// Створений виняток некоректної операції.
+        ///
+        /// (The created invalid operation exception.)
+        /// </returns>
         public static DomainInvalidOperationException PreconditionFailed<TType>(
             string sourceContext,
             string prerequisite,

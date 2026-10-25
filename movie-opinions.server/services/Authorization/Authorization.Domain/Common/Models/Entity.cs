@@ -8,10 +8,14 @@ namespace Authorization.Domain.Common.Models
     /// Також накопичує доменні події й зміни агрегату до моменту їх обробки.
     /// 
     /// (Base class for domain entities. 
-    /// An entity's identity and equality are determined by its concrete type and ID.. 
+    /// An entity's identity and equality are determined by its concrete type and ID.
     /// Also accumulates domain events and aggregate changes until they are processed.)
     /// </summary>
-    /// <typeparam name="TId">Тип унікального ідентифікатора сутності.</typeparam>
+    /// <typeparam name="TId">
+    /// Тип унікального ідентифікатора сутності.
+    ///
+    /// (The unique entity identifier type.)
+    /// </typeparam>
     public abstract class Entity<TId> : IEquatable<Entity<TId>>, IHasDomainEvents, IHasAggregateChanges
         where TId : notnull
     {
@@ -19,6 +23,7 @@ namespace Authorization.Domain.Common.Models
 
         private readonly List<IAggregateChange> _aggregateChanges = new();
 
+        #region Properties
         /// <summary>
         /// Унікальний ідентифікатор сутності.
         /// 
@@ -46,14 +51,23 @@ namespace Authorization.Domain.Common.Models
         /// (Accumulated aggregate changes awaiting processing and clearing.)
         /// </summary>
         public IReadOnlyList<IAggregateChange> AggregateChanges => _aggregateChanges.AsReadOnly();
+        #endregion
 
         /// <summary>
         /// Ініціалізує новий екземпляр сутності.
         /// 
         /// (Initializes a new instance of the entity.)
         /// </summary>
-        /// <param name="id">Унікальний ідентифікатор.</param>
-        /// <param name="createdAt">Дата створення (якщо null — встановлюється поточний UtcNow).</param>
+        /// <param name="id">
+        /// Унікальний ідентифікатор сутності.
+        ///
+        /// (The unique entity identifier.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Дата створення (якщо null — встановлюється поточний UtcNow).
+        ///
+        /// (Creation date (if null, the current UtcNow is set).)
+        /// </param>
         protected Entity(TId id, DateTimeOffset? createdAt = null)
         {
             Id = id;
@@ -70,19 +84,61 @@ namespace Authorization.Domain.Common.Models
             return EqualityComparer<TId>.Default.Equals(Id, entity.Id);
         }
 
+        /// <inheritdoc/>
         public bool Equals(Entity<TId>? other)
             => Equals((object?)other);
 
+        /// <summary>
+        /// Порівнює два об’єкти на рівність.
+        /// 
+        /// (Compares two objects for equality.)
+        /// </summary>
+        /// <param name="left">
+        /// Лівий операнд.
+        /// 
+        /// (The left operand.)
+        /// </param>
+        /// <param name="right">
+        /// Правий операнд.
+        ///
+        /// (The right operand.)
+        /// </param>
+        /// <returns>
+        /// true, якщо об’єкти рівні або обидва дорівнюють null; інакше false.
+        /// 
+        /// (true if the objects are equal or both are null; otherwise, false.)
+        /// </returns>
         public static bool operator ==(
-            Entity<TId>? left, 
+            Entity<TId>? left,
             Entity<TId>? right)
             => object.Equals(left, right);
 
+        /// <summary>
+        /// Порівнює два об’єкти на нерівність.
+        /// 
+        /// (Compares two objects for inequality.)
+        /// </summary>
+        /// <param name="left">
+        /// Лівий операнд.
+        ///
+        /// (The left operand.)
+        /// </param>
+        /// <param name="right">
+        /// Правий операнд.
+        ///
+        /// (The right operand.)
+        /// </param>
+        /// <returns>
+        /// true, якщо об’єкти нерівні; інакше false.
+        /// 
+        /// (true if the objects are unequal; otherwise, false.)
+        /// </returns>
         public static bool operator !=(
             Entity<TId>? left,
             Entity<TId>? right)
             => !object.Equals(left, right);
 
+        /// <inheritdoc/>
         public override int GetHashCode()
             => HashCode.Combine(GetType(), Id);
 
@@ -91,7 +147,11 @@ namespace Authorization.Domain.Common.Models
         /// 
         /// (Registers a new domain event.)
         /// </summary>
-        /// <param name="domainEvent">Екземпляр доменної події.</param>
+        /// <param name="domainEvent">
+        /// Екземпляр доменної події.
+        ///
+        /// (An instance of a domain event.)
+        /// </param>
         protected void AddDomainEvent(IDomainEvent domainEvent)
             => _domainEvents.Add(domainEvent);
 
@@ -100,7 +160,11 @@ namespace Authorization.Domain.Common.Models
         /// 
         /// (Registers an aggregate change.)
         /// </summary>
-        /// <param name="aggregateChange">Екземпляр зміни агрегату.</param>
+        /// <param name="aggregateChange">
+        /// Екземпляр зміни агрегату.
+        ///
+        /// (Aggregate change instance)
+        /// </param>
         protected void AddAggregateChange(IAggregateChange aggregateChange)
             => _aggregateChanges.Add(aggregateChange);
 

@@ -10,23 +10,23 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Enums
     public enum UserActionType
     {
         /// <summary>
-        /// Підтвердження зміни пароля.
+        /// Зміна пароля користувача.
         ///
-        /// (Password change confirmation.)
+        /// (User password change.)
         /// </summary>
         ChangePassword = 0,
 
         /// <summary>
-        /// Підтвердження зміни логіна.
+        /// Зміна логіна користувача.
         ///
-        /// (Login change confirmation.)
+        /// (User login change.)
         /// </summary>
         ChangeLogin = 1,
 
         /// <summary>
-        /// Підтвердження видалення користувача.
+        /// Видалення користувача.
         ///
-        /// (User deletion confirmation.)
+        /// (User deletion.)
         /// </summary>
         DeleteUser = 2
     }

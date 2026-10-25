@@ -3,6 +3,7 @@ using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation
@@ -32,8 +33,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
 
             private const int MAX_DEVICE_MODEL_LENGTH = 200;
 
+            /// <inheritdoc/>
             public ValidationPriority Priority => ValidationPriority.Length;
 
+            /// <inheritdoc/>
             public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
                 return ValidateOperatingSystemLength(
@@ -111,7 +114,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                         operationType
                     );
                 }
-                
+
                 if (deviceModel.Length <= MAX_DEVICE_MODEL_LENGTH)
                     return null;
 

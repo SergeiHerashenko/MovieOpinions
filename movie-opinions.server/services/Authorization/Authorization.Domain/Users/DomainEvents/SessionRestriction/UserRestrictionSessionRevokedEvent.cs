@@ -1,20 +1,24 @@
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
 {
     /// <summary>
-    /// Представляє факт повного ручного скасування сесії обмежень.
+    /// Представляє факт повного ручного відкликання
+    /// сесії обмежень користувача.
     ///
-    /// Подія виникає, коли всі обмеження сесії були відкликані,
-    /// унаслідок чого сесія стала порожньою та припинила існування.
+    /// Фіксує відкликання всіх обмежень сесії
+    /// та вилучення сесії з активної колекції
+    /// сесій агрегату User.
     ///
-    /// (Represents the complete manual revocation of a restriction session.
+    /// (Represents the complete manual revocation
+    /// of a user's restriction session.
     ///
-    /// The event occurs when all restrictions in the session have been
-    /// revoked, causing the session to become empty and cease to exist.)
+    /// Records the revocation of all restrictions in the session
+    /// and the removal of the session from the User aggregate's
+    /// active session collection.)
     /// </summary>
     public sealed class UserRestrictionSessionRevokedEvent : DomainEvent
     {
@@ -25,15 +29,31 @@ namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
         public RestrictionType RestrictionType { get; }
 
         /// <summary>
-        /// Створює подію повного скасування сесії обмежень.
+        /// Створює подію повного відкликання сесії обмежень користувача.
         ///
-        /// (Creates an event representing complete revocation
-        /// of a restriction session.)
+        /// (Creates an event representing the complete revocation
+        /// of a user restriction session.)
         /// </summary>
-        /// <param name="userRestrictionSessionId">Ідентифікатор скасованої сесії.</param>
-        /// <param name="login">Логін користувача, якому належала сесія.</param>
-        /// <param name="restrictionType">Тип обмежень скасованої сесії.</param>
-        /// <param name="occurredOn">Час скасування сесії.</param>
+        /// <param name="userRestrictionSessionId">
+        /// Ідентифікатор відкликаної сесії.
+        ///
+        /// (The revoked session identifier.)
+        /// </param>
+        /// <param name="login">
+        /// Логін користувача, якому належала сесія.
+        ///
+        /// (The login of the user who owned the session.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Тип обмежень відкликаної сесії.
+        ///
+        /// (The restriction type of the revoked session.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час відкликання сесії.
+        ///
+        /// (The session revocation time.)
+        /// </param>
         public UserRestrictionSessionRevokedEvent(
             UserRestrictionSessionId userRestrictionSessionId,
             Login login,

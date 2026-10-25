@@ -39,9 +39,13 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         /// </summary>
         /// <param name="rawRegistrationFlowToken">
         /// Необроблене закодоване значення токена.
+        ///
+        /// (The raw encoded token value.)
         /// </param>
         /// <returns>
         /// Валідний токен або очікувану помилку довжини, формату чи порожнього значення.
+        ///
+        /// (A valid token or an expected error regarding length, format, or empty value.)
         /// </returns>
         public static Result<RegistrationFlowToken> Parse(string? rawRegistrationFlowToken)
         {
@@ -51,7 +55,7 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
                     RegistrationFlowTokenErrors.Empty<RegistrationFlowToken>()
                 );
             }
-            
+
             if (!HasExpectedLength(rawRegistrationFlowToken))
             {
                 return Result<RegistrationFlowToken>.Failure(

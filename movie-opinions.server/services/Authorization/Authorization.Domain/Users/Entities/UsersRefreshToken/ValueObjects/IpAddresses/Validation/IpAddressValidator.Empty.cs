@@ -1,6 +1,7 @@
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Validation
@@ -14,8 +15,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
         /// </summary>
         private sealed class RequiredRule : IValidationRule<IpAddressValidationData, ValidationFailure>
         {
+            /// <inheritdoc/>
             public ValidationPriority Priority => ValidationPriority.Presence;
 
+            /// <inheritdoc/>
             public ValidationFailure? Validate(IpAddressValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Value))

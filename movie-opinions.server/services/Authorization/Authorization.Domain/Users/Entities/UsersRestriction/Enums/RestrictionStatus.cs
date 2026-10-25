@@ -1,30 +1,38 @@
 namespace Authorization.Domain.Users.Entities.UsersRestriction.Enums
 {
     /// <summary>
-    /// Визначає поточний стан обмеження користувача.
+    /// Визначає збережений стан життєвого циклу
+    /// обмеження користувача.
     ///
-    /// (Defines the current state of a user restriction.)
+    /// (Defines the stored lifecycle state
+    /// of a user restriction.)
     /// </summary>
     public enum RestrictionStatus
     {
         /// <summary>
-        /// Обмеження активне та продовжує застосовуватися до користувача.
+        /// Обмеження ще не переведене у завершений або відкликаний стан.
+        /// Фактична дія обмеження у певний момент визначається
+        /// часовими правилами пов’язаної сесії.
         ///
-        /// (The restriction is active and continues to apply to the user.)
+        /// (The restriction has not transitioned to a completed
+        /// or revoked state. Its effective application at a given time
+        /// is determined by the timing rules of the associated session.)
         /// </summary>
         Active = 0,
 
         /// <summary>
-        /// Користувач повністю відбув встановлений строк обмеження.
+        /// Обмеження завершене відповідно до часових правил
+        /// пов’язаної сесії, зокрема після перерахунку її тривалості.
         ///
-        /// (The user has fully completed the configured restriction period.)
+        /// (The restriction has completed under the timing rules
+        /// of its associated session, including after duration recalculation.)
         /// </summary>
         Completed = 1,
 
         /// <summary>
-        /// Обмеження було достроково зняте до природного завершення строку.
+        /// Обмеження було достроково відкликане.
         ///
-        /// (The restriction was revoked before its natural completion.)
+        /// (The restriction was revoked early.)
         /// </summary>
         Revoked = 2,
     }

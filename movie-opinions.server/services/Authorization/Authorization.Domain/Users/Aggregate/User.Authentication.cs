@@ -2,41 +2,45 @@ using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Contracts;
+using Authorization.Domain.Users.DomainEvents;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
+using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.Policies;
 
-namespace Authorization.Domain.Users
+namespace Authorization.Domain.Users.Aggregate
 {
     public partial class User
     {
         /// <summary>
-        /// Фіксує невдалу спробу введення пароля користувачем.
+        /// Фіксує невдалу спробу перевірки пароля,
+        /// якщо користувачу дозволений доступ.
         ///
-        /// Перед зміною стану перевіряє допустимість операції
-        /// та обчислює майбутню кількість невдалих спроб.
-        /// Якщо встановлений поріг досягнуто, додає користувачу
-        /// обмеження типу Ban і після успішного додавання
-        /// скидає лічильник спроб.
+        /// Якщо наступна спроба досягає встановленого порогу,
+        /// застосовує системний бан і після його успішного застосування
+        /// скидає лічильник невдалих спроб. Інакше збільшує лічильник.
         ///
-        /// Якщо підготовка або додавання обмеження завершується
-        /// помилкою, стан користувача залишається незмінним.
+        /// Після успішної операції оновлює час зміни користувача.
         ///
-        /// (Records a failed password attempt for the user.
+        /// (Records a failed password verification attempt
+        /// if the user is allowed access.
         ///
-        /// Before changing state, validates that the operation is allowed
-        /// and calculates the resulting failed-attempt count.
-        /// When the configured threshold is reached, adds a Ban restriction
-        /// and resets the counter after the restriction is successfully added.
+        /// If the next attempt reaches the configured threshold,
+        /// applies a system ban and resets the failed-attempt counter
+        /// after the ban is successfully applied. Otherwise, increments the counter.
         ///
-        /// If restriction preparation or addition fails,
-        /// the user's state remains unchanged.)
+        /// Updates the user modification time after a successful operation.)
         /// </summary>
-        /// <param name="now">Час, у який зафіксовано невдалу спробу введення пароля.</param>
+        /// <param name="now">
+        /// Час невдалої спроби перевірки пароля.
+        /// (Time of the failed password verification attempt.)
+        /// </param>
         /// <returns>
-        /// Успіх після запису спроби або створення бану;
-        /// помилка, якщо доступ до операції заборонений
-        /// чи обмеження не вдалося підготувати або додати.
+        /// Успіх після оновлення лічильника або застосування бану;
+        /// інакше — помилка доступу чи застосування обмеження.
+        /// (Success after updating the counter or applying the ban;
+        /// otherwise, an access or restriction application error.)
         /// </returns>
         public Result RecordFailedPasswordAttempt(DateTimeOffset now)
         {
@@ -61,38 +65,81 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Фіксує успішний вхід користувача.
+        /// Фіксує успішний вхід користувача після перевірки доступу.
         ///
-        /// Перед зміною стану перевіряє часову послідовність
-        /// і можливість надання доступу. Після успішної перевірки
-        /// скидає лічильник невдалих спроб введення пароля,
-        /// записує час останнього входу та оновлення користувача.
+        /// Якщо поєднання інформації про пристрій та IP-адреси
+        /// відсутнє серед refresh-токенів агрегату, додає подію
+        /// входу з пристрою, який система визначила як новий.
         ///
-        /// Якщо доступ заборонено, стан користувача
-        /// залишається незмінним.
+        /// Скидає лічильник невдалих спроб перевірки пароля
+        /// та оновлює час останнього входу й зміни користувача.
         ///
-        /// (Records a successful user login.
+        /// (Records a successful user sign-in after checking access.
         ///
-        /// Before changing state, validates chronological consistency
-        /// and verifies that access can be granted. After successful
-        /// validation, resets the failed-password-attempt counter
-        /// and records the user's last login and update timestamps.
+        /// If the device-information and IP-address combination
+        /// is absent from the aggregate's refresh tokens, records
+        /// a sign-in event for a device identified by the system as new.
         ///
-        /// If access is denied, the user's state remains unchanged.)
+        /// Resets the failed password verification counter
+        /// and updates the last sign-in and user modification times.)
         /// </summary>
-        /// <param name="now">Час успішного входу користувача.</param>
+        /// <remarks>
+        /// Метод викликається після успішної перевірки облікових даних
+        /// і до додавання refresh-токена поточного входу до агрегату.
+        ///
+        /// (Call this method after successfully verifying the credentials
+        /// and before adding the refresh token for the current sign-in
+        /// to the aggregate.)
+        /// </remarks>
+        /// <param name="deviceInfo">
+        /// Інформація про пристрій, з якого виконано вхід.
+        /// (Information about the device used to sign in.)
+        /// </param>
+        /// <param name="ipAddress">
+        /// IP-адреса клієнта під час входу.
+        /// (Client IP address at sign-in.)
+        /// </param>
+        /// <param name="now">
+        /// Час успішного входу користувача.
+        /// (Time of the successful user sign-in.)
+        /// </param>
         /// <returns>
-        /// Успіх після запису входу або помилка,
-        /// якщо користувачу не може бути надано доступ.
+        /// Успіх після фіксації входу або помилка доступу.
+        /// (Success after recording the sign-in, or an access error.)
         /// </returns>
-        public Result LoginSuccess(DateTimeOffset now)
+        public Result LoginSuccess(
+            DeviceInfo deviceInfo,
+            IpAddress ipAddress,
+            DateTimeOffset now)
         {
+            DomainGuard.AgainstNull<User>(
+                OperationType.Update,
+                (deviceInfo, nameof(deviceInfo)),
+                (ipAddress, nameof(ipAddress))
+            );
+
             EnsureValidOperationTimestamp(now);
 
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
                 return access;
+
+            var isNewDevice = IsNewDevice(
+                deviceInfo,
+                ipAddress
+            );
+
+            if (isNewDevice)
+            {
+                AddDomainEvent(new UserSignedInFromNewDeviceEvent(
+                    Id,
+                    Login,
+                    deviceInfo,
+                    ipAddress,
+                    now)
+                );
+            }
 
             FailedPasswordAttempts = 0;
             LastLoginAt = now;
@@ -102,22 +149,23 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Формує дані автоматичного бану, який застосовується
-        /// після досягнення граничної кількості невдалих
-        /// спроб введення пароля.
+        /// Формує дані системного бану за надмірну кількість
+        /// невдалих спроб перевірки пароля.
         ///
-        /// Створює правило обмеження на основі доменної політики
-        /// без зміни стану користувача.
+        /// Назва, тривалість, причина та ініціатор обмеження
+        /// визначаються політикою <see cref="RestrictionPolicy"/>.
         ///
-        /// (Builds the automatic ban data applied after reaching
-        /// the failed-password-attempt threshold.
+        /// (Builds system-ban data for excessive failed
+        /// password verification attempts.
         ///
-        /// Creates the restriction rule from the domain policy
-        /// without modifying the user's state.)
+        /// The restriction name, duration, reason, and issuer
+        /// are defined by <see cref="RestrictionPolicy"/>.)
         /// </summary>
         /// <returns>
-        /// Дані для створення обмеження типу Ban або помилка,
-        /// якщо правило обмеження не вдалося створити.
+        /// Успішний результат із даними бану
+        /// або помилка валідації правила обмеження.
+        /// (Success containing the ban data,
+        /// or a restriction-rule validation error.)
         /// </returns>
         private static Result<RestrictionData> CreateFailedPasswordAttemptBanData()
         {
@@ -139,28 +187,27 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Готує та застосовує автоматичний бан після досягнення
-        /// граничної кількості невдалих спроб введення пароля.
+        /// Формує дані системного бану та додає відповідне
+        /// обмеження до агрегату користувача.
         ///
         /// Після успішного додавання обмеження скидає лічильник
-        /// невдалих спроб і оновлює час зміни користувача.
+        /// невдалих спроб перевірки пароля та оновлює час зміни користувача.
         ///
-        /// Якщо правило або обмеження не вдалося створити,
-        /// стан користувача залишається незмінним.
+        /// (Builds system-ban data and adds the corresponding
+        /// restriction to the user aggregate.
         ///
-        /// (Prepares and applies the automatic ban after reaching
-        /// the failed-password-attempt threshold.
-        ///
-        /// After successfully adding the restriction, resets the failed-attempt
-        /// counter and updates the user's modification timestamp.
-        ///
-        /// If the rule or restriction cannot be created,
-        /// the user's state remains unchanged.)
+        /// After successfully adding the restriction, resets the failed
+        /// password verification counter and updates the user modification time.)
         /// </summary>
-        /// <param name="now">Час застосування автоматичного бану.</param>
+        /// <param name="now">
+        /// Час застосування системного бану.
+        /// (Time the system ban is applied.)
+        /// </param>
         /// <returns>
-        /// Успіх після додавання бану або помилка,
-        /// отримана під час підготовки чи додавання обмеження.
+        /// Успіх після застосування бану
+        /// або помилка формування чи додавання обмеження.
+        /// (Success after applying the ban,
+        /// or an error while building or adding the restriction.)
         /// </returns>
         private Result ApplyFailedPasswordAttemptBan(DateTimeOffset now)
         {
@@ -181,6 +228,39 @@ namespace Authorization.Domain.Users
             UpdatedAt = now;
 
             return Result.Success();
+        }
+
+        /// <summary>
+        /// Визначає, чи є поєднання інформації про пристрій
+        /// та IP-адреси новим для refresh-токенів, наявних в агрегаті.
+        ///
+        /// (Determines whether the device-information and IP-address
+        /// combination is new relative to the refresh tokens held by the aggregate.)
+        /// </summary>
+        /// <param name="deviceInfo">
+        /// Інформація про пристрій, яку потрібно порівняти.
+        /// (Device information to compare.)
+        /// </param>
+        /// <param name="ipAddress">
+        /// IP-адреса, яку потрібно порівняти.
+        /// (IP address to compare.)
+        /// </param>
+        /// <returns>
+        /// <c>true</c>, якщо жоден refresh-токен агрегату не містить
+        /// такого самого поєднання інформації про пристрій та IP-адреси;
+        /// інакше — <c>false</c>.
+        /// (<c>true</c> if no refresh token in the aggregate contains
+        /// the same device-information and IP-address combination;
+        /// otherwise, <c>false</c>.)
+        /// </returns>
+        private bool IsNewDevice(
+            DeviceInfo deviceInfo,
+            IpAddress ipAddress)
+        {
+            return !_refreshTokens.Any(x =>
+                x.DeviceInfo == deviceInfo &&
+                x.IpAddress == ipAddress
+            );
         }
     }
 }

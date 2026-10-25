@@ -14,6 +14,21 @@ namespace Authorization.Domain.Users.AggregateChanges.SessionRestriction
     {
         public UserRestrictionSession UserRestrictionSession { get; }
 
+        /// <summary>
+        /// Створює зміну агрегату для збереження нової сесії обмежень.
+        ///
+        /// (Creates an aggregate change for persisting a new restriction session.)
+        /// </summary>
+        /// <param name="userRestrictionSession">
+        /// Створена сесія обмежень користувача.
+        ///
+        /// (The newly created user restriction session.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час створення сесії.
+        ///
+        /// (The session creation time.)
+        /// </param>
         public UserRestrictionSessionCreated(
             UserRestrictionSession userRestrictionSession,
             DateTimeOffset occurredOn)

@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Models.Interfaces
+namespace Authorization.Domain.Common.Models.Interfaces
 {
     /// <summary>
     /// Представляє зафіксовану зміну стану агрегату,

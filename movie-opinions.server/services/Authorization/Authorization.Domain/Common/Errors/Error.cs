@@ -39,9 +39,37 @@ namespace Authorization.Domain.Common.Errors
         /// </summary>
         public ErrorType ErrorType { get; }
 
+        /// <summary>
+        /// Створює опис очікуваної помилки з кодом, повідомленням і категорією.
+        ///
+        /// (Creates an expected error description with a code, message, and category.)
+        /// </summary>
+        /// <param name="code">
+        /// Стабільний непорожній код помилки.
+        /// 
+        /// (A stable, non-blank error code.)
+        /// </param>
+        /// <param name="message">
+        /// Непорожній внутрішній нелокалізований опис помилки.
+        /// 
+        /// (A non-blank internal, non-localized error description.)
+        /// </param>
+        /// <param name="errorType">
+        /// Визначене значення категорії очікуваної помилки.
+        /// 
+        /// (A defined category of the expected error.)
+        /// </param>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Код або повідомлення відсутнє, є порожнім чи складається
+        /// лише з пробільних символів, або категорія помилки
+        /// не відповідає жодному оголошеному значенню ErrorType.
+        ///
+        /// (The code or message is null, empty, or whitespace-only,
+        /// or the error category is not a defined ErrorType value.)
+        /// </exception>
         public Error(
-            string code, 
-            string message, 
+            string code,
+            string message,
             ErrorType errorType)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -51,7 +79,7 @@ namespace Authorization.Domain.Common.Errors
                     OperationType.Create
                 );
             }
-                
+
             if (string.IsNullOrWhiteSpace(message))
             {
                 throw DomainDataInconsistencyException.Empty<Error>(
@@ -59,7 +87,7 @@ namespace Authorization.Domain.Common.Errors
                     OperationType.Create
                 );
             }
-                
+
             DomainGuard.AgainstUndefinedEnum<Error>(
                 OperationType.Create,
                 (errorType, nameof(errorType))

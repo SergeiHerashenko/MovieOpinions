@@ -13,6 +13,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
     /// </summary>
     internal static partial class RestrictionRuleValidator
     {
+        /// <summary>
+        /// Містить правила перевірки назви та тривалості обмеження,
+        /// упорядковані за пріоритетом.
+        ///
+        /// (Contains restriction name and duration validation rules
+        /// ordered by priority.)
+        /// </summary>
         private static readonly ValidationOrchestrator<
             RestrictionRuleValidationData,
             ValidationFailure> _validation = new(
@@ -27,10 +34,28 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         ///
         /// (Validates input data and returns an expected domain error.)
         /// </summary>
-        /// <param name="operationType">Операція, під час якої виконується валідація.</param>
-        /// <param name="name">Назва правила обмеження.</param>
-        /// <param name="durationMinutes">Тривалість обмеження у хвилинах.</param>
-        /// <returns>Обгортка з помилкою валідації або null.</returns>
+        /// <param name="operationType">
+        /// Операція, під час якої виконується валідація.
+        ///
+        /// (The operation during which validation is performed.)
+        /// </param>
+        /// <param name="name">
+        /// Назва правила обмеження.
+        ///
+        /// (The restriction rule name.)
+        /// </param>
+        /// <param name="durationMinutes">
+        /// Тривалість обмеження у хвилинах.
+        ///
+        /// (The restriction duration in minutes.)
+        /// </param>
+        /// <returns>
+        /// Обгортка з першою виявленою доменною помилкою
+        /// або null, якщо всі правила виконані.
+        ///
+        /// (A wrapper containing the first detected domain error,
+        /// or null if all rules succeed.)
+        /// </returns>
         internal static ValidationRulesFailure<Error>? ValidateForError(
             OperationType operationType,
             string name,
@@ -55,10 +80,28 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         /// (Validates restored data and creates the corresponding domain exception.
         /// The method returns the exception object but does not throw it.)
         /// </summary>
-        /// <param name="operationType">Операція, для якої створюється виняток.</param>
-        /// <param name="name">Відновлена назва правила.</param>
-        /// <param name="durationMinutes">Відновлена тривалість у хвилинах.</param>
-        /// <returns>Обгортка зі створеним винятком або null.</returns>
+        /// <param name="operationType">
+        /// Операція, для якої створюється виняток.
+        ///
+        /// (The operation for which the exception is created.)
+        /// </param>
+        /// <param name="name">
+        /// Відновлена назва правила.
+        ///
+        /// (The restored restriction rule name.)
+        /// </param>
+        /// <param name="durationMinutes">
+        /// Відновлена тривалість у хвилинах.
+        ///
+        /// (The restored restriction duration in minutes.)
+        /// </param>
+        /// <returns>
+        /// Обгортка зі створеним винятком або null,
+        /// якщо всі правила виконані.
+        ///
+        /// (A wrapper containing the constructed exception,
+        /// or null if all rules succeed.)
+        /// </returns>
         internal static ValidationRulesFailure<Exception>? ValidateForException(
             OperationType operationType,
             string name,

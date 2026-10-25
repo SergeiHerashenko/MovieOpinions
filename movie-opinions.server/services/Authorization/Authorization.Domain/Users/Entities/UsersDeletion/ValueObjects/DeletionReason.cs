@@ -32,11 +32,29 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects
         #region Creation
         /// <summary>
         /// Створює причину видалення з отриманого тексту.
-        /// Порожнє значення замінюється стандартною причиною.
         ///
-        /// (Creates a deletion reason from the provided text.
-        /// An empty value is replaced with the default reason.)
+        /// Значення null, порожній або пробільний текст замінюється
+        /// стандартною причиною. Для іншого тексту видаляються зовнішні
+        /// пробільні символи та перевіряється допустима довжина.
+        ///
+        /// (Creates a deletion reason from the supplied text.
+        ///
+        /// A null, empty, or whitespace-only value is replaced with the default
+        /// reason. Otherwise, surrounding whitespace is removed
+        /// and the permitted length is validated.)
         /// </summary>
+        /// <param name="rawReason">
+        /// Зовнішній текст причини видалення або null, якщо причину не вказано.
+        ///
+        /// (The external deletion reason text, or null when no reason is provided.)
+        /// </param>
+        /// <returns>
+        /// Успішний результат із нормалізованою причиною або невдалий
+        /// результат із помилкою перевищення допустимої довжини.
+        ///
+        /// (A successful result containing the normalized reason,
+        /// or a failed result indicating that the permitted length was exceeded.)
+        /// </returns>
         internal static Result<DeletionReason> Create(string? rawReason)
         {
             var normalizedReason = string.IsNullOrWhiteSpace(rawReason)
@@ -52,13 +70,30 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects
 
         #region Restoration
         /// <summary>
-        /// Відновлює причину видалення зі збереженого значення.
+        /// Відновлює причину видалення зі збереженого тексту,
+        /// видаляє зовнішні пробільні символи та перевіряє допустиму довжину.
         ///
-        /// (Restores a deletion reason from its persisted value.)
+        /// (Restores a deletion reason from persisted text,
+        /// removes surrounding whitespace, and validates the permitted length.)
         /// </summary>
-        /// <param name="value">Збережений текст причини видалення.</param>
+        /// <param name="value">
+        /// Збережений текст причини видалення.
+        ///
+        /// (The persisted deletion reason text.)
+        /// </param>
+        /// <returns>
+        /// Відновлена нормалізована причина видалення.
+        ///
+        /// (The restored normalized deletion reason.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо збережене значення порожнє або перевищує допустиму довжину.
+        /// Виникає, якщо збережене значення відсутнє, порожнє
+        /// або складається лише з пробільних символів,
+        /// чи нормалізований текст перевищує допустиму довжину.
+        ///
+        /// (Thrown when the persisted value is missing, empty,
+        /// or contains only whitespace, or when the normalized text
+        /// exceeds the permitted length.)
         /// </exception>
         public static DeletionReason Restore(string value)
         {
@@ -74,6 +109,7 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects
         }
         #endregion
 
+        /// <inheritdoc/>
         public override IEnumerable<object> GetEqualityComponents()
         {
             yield return Value;

@@ -4,11 +4,13 @@ using Authorization.Domain.Common.Errors.Enums;
 namespace Authorization.Domain.Users.Entities.UsersRestriction.Errors
 {
     /// <summary>
-    /// Містить фабрики очікуваних помилок валідації
-    /// правила обмеження користувача.
+    /// Містить фабрики очікуваних доменних помилок,
+    /// пов’язаних із валідацією правила обмеження
+    /// та переходами стану обмеження користувача.
     ///
-    /// (Provides factories for expected user-restriction
-    /// rule validation errors.)
+    /// (Provides factories for expected domain errors related
+    /// to restriction rule validation and user restriction
+    /// status transitions.)
     /// </summary>
     public static class RestrictionErrors
     {

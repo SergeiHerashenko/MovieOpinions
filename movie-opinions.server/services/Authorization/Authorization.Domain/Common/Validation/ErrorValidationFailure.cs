@@ -14,6 +14,7 @@ namespace Authorization.Domain.Common.Validation
     /// </summary>
     internal sealed class ErrorValidationFailure : IValidationFailure
     {
+        /// <inheritdoc/>
         public required Error Error { get; init; }
     }
 }

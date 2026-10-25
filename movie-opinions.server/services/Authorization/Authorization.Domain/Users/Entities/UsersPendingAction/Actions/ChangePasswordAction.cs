@@ -1,7 +1,7 @@
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
+using Authorization.Domain.Common.ValueObjects.PasswordUser;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
-using Authorization.Domain.Users.ValueObjects.PasswordUser;
 
 namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
 {
@@ -26,14 +26,31 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
             NewPassword = newPassword;
         }
 
+        /// <summary>
+        /// Текстове значення хешу нового пароля.
+        ///
+        /// (The textual hash value of the new password.)
+        /// </summary>
         public override string Value => NewPassword.Value;
 
         #region Creation
         /// <summary>
-        /// Створює дію зміни пароля з валідного доменного пароля.
+        /// Створює дані відкладеної дії зі зміни пароля
+        /// з попередньо створеного доменного пароля.
         ///
-        /// (Creates a password-change action from a valid domain password.)
+        /// (Creates pending password-change action data
+        /// from a previously created domain password.)
         /// </summary>
+        /// <param name="passwordHash">
+        /// Новий доменний пароль, що містить його хеш.
+        ///
+        /// (The new domain password containing its hash.)
+        /// </param>
+        /// <returns>
+        /// Створена дія зміни пароля.
+        ///
+        /// (The created password-change action.)
+        /// </returns>
         internal static ChangePasswordAction Create(Password passwordHash)
         {
             DomainGuard.AgainstNull<ChangePasswordAction>(
@@ -47,11 +64,22 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
 
         #region Restoration
         /// <summary>
-        /// Відновлює дію зміни пароля зі збереженого хешу.
+        /// Відновлює дані відкладеної дії зі зміни пароля
+        /// з попередньо відновленого хешу.
         ///
-        /// (Restores a password-change action from a persisted password hash.)
+        /// (Restores pending password-change action data
+        /// from a previously restored password hash.)
         /// </summary>
-        /// <param name="passwordHash">Збережений хеш нового пароля.</param>
+        /// <param name="hashPassword">
+        /// Відновлений хеш нового пароля.
+        ///
+        /// (The restored hash of the new password.)
+        /// </param>
+        /// <returns>
+        /// Відновлена дія зміни пароля.
+        ///
+        /// (The restored password-change action.)
+        /// </returns>
         public static ChangePasswordAction Restore(PasswordHash hashPassword)
         {
             DomainGuard.AgainstNull<ChangePasswordAction>(
@@ -63,6 +91,7 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
         }
         #endregion
 
+        /// <inheritdoc/>
         public override IEnumerable<object> GetEqualityComponents()
         {
             yield return NewPassword;

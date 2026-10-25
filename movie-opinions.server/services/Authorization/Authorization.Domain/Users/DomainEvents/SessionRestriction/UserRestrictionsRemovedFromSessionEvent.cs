@@ -1,8 +1,8 @@
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
 using Authorization.Domain.Users.Entities.UsersRestriction;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
 {
@@ -32,17 +32,42 @@ namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
         public int TotalBlockedMinutes { get; }
 
         /// <summary>
-        /// Створює подію відкликання частини обмежень із сесії.
+        /// Створює подію відкликання частини обмежень
+        /// із наявної сесії обмежень користувача.
         ///
-        /// (Creates an event representing the revocation
-        /// of some restrictions from a session.)
+        /// (Creates an event representing the revocation of some restrictions
+        /// from an existing user restriction session.)
         /// </summary>
-        /// <param name="userRestrictionSessionId">Ідентифікатор оновленої сесії.</param>
-        /// <param name="restrictionType">Тип оновленої сесії.</param>
-        /// <param name="userRestrictions">Обмеження, відкликані із сесії.</param>
-        /// <param name="login">Логін користувача, якому належить сесія.</param>
-        /// <param name="totalBlockedMinutes">Загальна тривалість блокування після відкликання обмежень.</param>
-        /// <param name="occurredOn">Час відкликання обмежень.</param>
+        /// <param name="userRestrictionSessionId">
+        /// Ідентифікатор оновленої сесії.
+        ///
+        /// (The updated session identifier.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Тип обмежень оновленої сесії.
+        ///
+        /// (The restriction type of the updated session.)
+        /// </param>
+        /// <param name="userRestrictions">
+        /// Обмеження, відкликані із сесії.
+        ///
+        /// (The restrictions revoked from the session.)
+        /// </param>
+        /// <param name="login">
+        /// Логін користувача, якому належить сесія.
+        ///
+        /// (The login of the user who owns the session.)
+        /// </param>
+        /// <param name="totalBlockedMinutes">
+        /// Загальна тривалість блокування у хвилинах після відкликання обмежень.
+        ///
+        /// (The total blocked duration in minutes after the restrictions are revoked.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час відкликання обмежень.
+        ///
+        /// (The restriction revocation time.)
+        /// </param>
         public UserRestrictionsRemovedFromSessionEvent(
             UserRestrictionSessionId userRestrictionSessionId,
             RestrictionType restrictionType,

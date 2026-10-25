@@ -1,6 +1,7 @@
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 using Authorization.Domain.Users.Entities.UsersRestriction.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction.Validation
@@ -14,8 +15,10 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         /// </summary>
         private sealed class RequiredNameRule : IValidationRule<RestrictionRuleValidationData, ValidationFailure>
         {
+            /// <inheritdoc/>
             public ValidationPriority Priority => ValidationPriority.Presence;
 
+            /// <inheritdoc/>
             public ValidationFailure? Validate(RestrictionRuleValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Name))

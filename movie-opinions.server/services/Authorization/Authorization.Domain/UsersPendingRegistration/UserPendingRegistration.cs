@@ -2,8 +2,8 @@ using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Common.Models;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
-using Authorization.Domain.Users.ValueObjects.PasswordUser;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
+using Authorization.Domain.Common.ValueObjects.PasswordUser;
 using Authorization.Domain.UsersPendingRegistration.DomainEvents;
 using Authorization.Domain.UsersPendingRegistration.ValueObjects;
 
@@ -55,20 +55,6 @@ namespace Authorization.Domain.UsersPendingRegistration
         #endregion
 
         #region Creation
-        /// <summary>
-        /// Створює нову незавершену реєстрацію, генерує її ID і flow token,
-        /// встановлює строк дії та реєструє доменну подію.
-        ///
-        /// (Creates a new pending registration, generates its ID and flow token,
-        /// sets its lifetime, and records a domain event.)
-        /// </summary>
-        /// <param name="login">Валідний логін майбутнього користувача.</param>
-        /// <param name="password">Валідний пароль у доменному представленні.</param>
-        /// <param name="now">Поточний час доменної операції.</param>
-        /// <returns>Створена незавершена реєстрація.</returns>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обов’язковий доменний об’єкт дорівнює null.
-        /// </exception>
         private UserPendingRegistration(
             UserPendingRegistrationId userPendingRegistrationId,
             Login login,
@@ -83,9 +69,41 @@ namespace Authorization.Domain.UsersPendingRegistration
             ExpiresAt = now.Add(RegistrationLifetime);
         }
 
+        /// <summary>
+        /// Створює нову незавершену реєстрацію, генерує її ID і flow token,
+        /// встановлює строк дії та реєструє доменну подію.
+        ///
+        /// (Creates a new pending registration, generates its ID and flow token,
+        /// sets its lifetime, and records a domain event.)
+        /// </summary>
+        /// <param name="login">
+        /// Валідний логін майбутнього користувача.
+        ///
+        /// (The valid login of the prospective user.)
+        /// </param>
+        /// <param name="password">
+        /// Валідний пароль у доменному представленні.
+        ///
+        /// (The valid password in its domain representation.)
+        /// </param>
+        /// <param name="now">
+        /// Поточний час доменної операції.
+        ///
+        /// (The current domain operation timestamp.)
+        /// </param>
+        /// <returns>
+        /// Створена незавершена реєстрація.
+        ///
+        /// (The created pending registration.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язковий доменний об’єкт дорівнює null.
+        ///
+        /// (Thrown when a required domain object is null.)
+        /// </exception>
         public static UserPendingRegistration Create(
-            Login login, 
-            Password password, 
+            Login login,
+            Password password,
             DateTimeOffset now)
         {
             DomainGuard.AgainstNull<UserPendingRegistration>(
@@ -115,21 +133,6 @@ namespace Authorization.Domain.UsersPendingRegistration
         #endregion
 
         #region Restoration
-        /// <summary>
-        /// Відновлює агрегат зі збереженого стану без створення доменних подій.
-        ///
-        /// (Restores the aggregate from persisted state without recording
-        /// domain events.)
-        /// </summary>
-        /// <param name="userPendingRegistrationId">Ідентифікатор агрегату.</param>
-        /// <param name="login">Збережений логін.</param>
-        /// <param name="password">Збережений пароль у доменному представленні.</param>
-        /// <param name="registrationFlowToken">Збережений flow token.</param>
-        /// <param name="createdAt">Час створення агрегату.</param>
-        /// <param name="expiresAt">Час завершення строку дії.</param>
-        /// <returns>Відновлений агрегат.</returns>
-        /// <exception cref="DomainDataInconsistencyException">Виникає, якщо обов’язковий доменний об’єкт дорівнює null.</exception>
-        /// <exception cref="DomainInvariantViolationException">Виникає, якщо строк дії завершується не пізніше часу створення.</exception>
         private UserPendingRegistration(
             UserPendingRegistrationId userPendingRegistrationId,
             Login login,
@@ -145,6 +148,57 @@ namespace Authorization.Domain.UsersPendingRegistration
             ExpiresAt = expiresAt;
         }
 
+        /// <summary>
+        /// Відновлює агрегат зі збереженого стану без створення доменних подій.
+        ///
+        /// (Restores the aggregate from persisted state without recording
+        /// domain events.)
+        /// </summary>
+        /// <param name="userPendingRegistrationId">
+        /// Ідентифікатор агрегату.
+        ///
+        /// (The aggregate identifier.)
+        /// </param>
+        /// <param name="login">
+        /// Збережений логін.
+        ///
+        /// (The stored login.)
+        /// </param>
+        /// <param name="password">
+        /// Збережений пароль у доменному представленні.
+        ///
+        /// (The stored password in its domain representation.)
+        /// </param>
+        /// <param name="registrationFlowToken">
+        /// Збережений flow token.
+        ///
+        /// (The stored flow token.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Час створення агрегату.
+        ///
+        /// (The aggregate creation timestamp.)
+        /// </param>
+        /// <param name="expiresAt">
+        /// Час завершення строку дії.
+        ///
+        /// (The expiration timestamp.)
+        /// </param>
+        /// <returns>
+        /// Відновлений агрегат.
+        ///
+        /// (The restored aggregate.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язковий доменний об’єкт дорівнює null.
+        ///
+        /// (Thrown when a required domain object is null.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо строк дії завершується не пізніше часу створення.
+        ///
+        /// (Thrown when the expiration time precedes or equals the creation time.)
+        /// </exception>
         public static UserPendingRegistration Restore(
             UserPendingRegistrationId userPendingRegistrationId,
             Login login,
@@ -175,11 +229,11 @@ namespace Authorization.Domain.UsersPendingRegistration
             }
 
             return new UserPendingRegistration(
-                userPendingRegistrationId, 
-                login, 
-                password, 
-                registrationFlowToken, 
-                createdAt, 
+                userPendingRegistrationId,
+                login,
+                password,
+                registrationFlowToken,
+                createdAt,
                 expiresAt
             );
         }
@@ -193,13 +247,23 @@ namespace Authorization.Domain.UsersPendingRegistration
         /// (Renews the registration flow by replacing the password and flow token,
         /// resetting its lifetime, and recording a domain event.)
         /// </summary>
-        /// <param name="password">Новий валідний пароль у доменному представленні.</param>
-        /// <param name="now">Поточний час доменної операції.</param>
+        /// <param name="password">
+        /// Новий валідний пароль у доменному представленні.
+        ///
+        /// (The new valid password in its domain representation.)
+        /// </param>
+        /// <param name="now">
+        /// Поточний час доменної операції.
+        ///
+        /// (The current time of the domain operation.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо пароль дорівнює null або час операції передує створенню агрегату.
+        ///
+        /// (Thrown when the password is null or the operation time precedes the aggregate creation.)
         /// </exception>
         public void Refresh(
-            Password password, 
+            Password password,
             DateTimeOffset now)
         {
             DomainGuard.AgainstNull<UserPendingRegistration>(
@@ -218,8 +282,8 @@ namespace Authorization.Domain.UsersPendingRegistration
             ExpiresAt = now.Add(RegistrationLifetime);
 
             AddDomainEvent(new UserRegistrationRequestedEvent(
-                Id, 
-                Login, 
+                Id,
+                Login,
                 now)
             );
         }
@@ -231,8 +295,16 @@ namespace Authorization.Domain.UsersPendingRegistration
         /// (Determines whether the registration flow has expired
         /// at the specified point in time.)
         /// </summary>
-        /// <param name="pointInTime">Час, відносно якого виконується перевірка.</param>
-        /// <returns>true, якщо pointInTime дорівнює ExpiresAt або перевищує його; інакше false.</returns>
+        /// <param name="pointInTime">
+        /// Час, відносно якого виконується перевірка.
+        ///
+        /// (The time against which the check is performed.)
+        /// </param>
+        /// <returns>
+        /// true, якщо pointInTime дорівнює ExpiresAt або перевищує його; інакше false.
+        ///
+        /// (true if pointInTime is greater than or equal to ExpiresAt; otherwise, false.)
+        /// </returns>
         public bool IsExpired(DateTimeOffset pointInTime)
             => pointInTime >= ExpiresAt;
         #endregion

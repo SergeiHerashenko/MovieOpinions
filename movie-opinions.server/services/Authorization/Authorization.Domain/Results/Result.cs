@@ -1,5 +1,7 @@
 using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.Enums;
+using Authorization.Domain.Common.Guard;
 
 namespace Authorization.Domain.Results
 {
@@ -49,22 +51,54 @@ namespace Authorization.Domain.Results
         /// (Initializes a result and validates consistency
         /// between its status and the supplied error collection.)
         /// </summary>
-        /// <param name="isSuccess">Ознака успішного виконання.</param>
-        /// <param name="errors">Помилки, пов’язані з результатом.</param>
+        /// <param name="isSuccess">
+        /// Ознака успішного виконання.
+        ///
+        /// (Indicates whether the operation succeeded.)
+        /// </param>
+        /// <param name="errors">
+        /// Колекція помилок результату без елементів null.
+        ///
+        /// (The result's error collection containing no null entries.)
+        /// </param>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо успішний результат містить помилки
-        /// або невдалий результат не містить жодної помилки.
+        /// Успішний результат містить помилки, невдалий результат
+        /// не містить жодної помилки або колекція містить null-елементи.
+        ///
+        /// (A successful result contains errors, a failed result
+        /// contains no errors, or the collection contains null entries.)
         /// </exception>
         protected Result(
             bool isSuccess,
             IEnumerable<Error> errors)
         {
+            DomainGuard.AgainstNull<Result>(
+                OperationType.Create,
+                (errors, nameof(errors))
+            );
+
             var errorList = errors.ToList();
+
+            if(errorList.Any(x => x is null))
+            {
+                throw DomainInvariantViolationException.BrokenState<Result>(
+                    "A result's error collection must not contain null entries.",
+                    new Dictionary<string, object?>
+                    {
+                        ["IsSuccess"] = isSuccess,
+                        ["ErrorCount"] = errorList.Count,
+                        ["NullErrorCount"] = errorList.Count(error => error is null),
+                        ["Expected"] = "Every error entry must be a non-null Error instance.",
+                        ["Violation"] = "The error collection contains null entries."
+                    },
+                    OperationType.Create
+                );
+            }
 
             if (isSuccess && errorList.Any())
             {
                 throw DomainInvariantViolationException.BrokenState<Result>(
-                    "A successful result cannot contain errors!",
+                    "A successful result cannot contain errors.",
                     new Dictionary<string, object?>
                     {
                         ["IsSuccess"] = isSuccess,
@@ -77,22 +111,23 @@ namespace Authorization.Domain.Results
                             Type = e.ErrorType.ToString()
                         }).ToArray(),
                         ["Violation"] = "A successful result contains unexpected errors."
-                    }
+                    },
+                    OperationType.Create
                 );
             }
 
             if (!isSuccess && !errorList.Any())
             {
                 throw DomainInvariantViolationException.BrokenState<Result>(
-                    "A failed result must contain at least one error!",
+                    "A failed result must contain at least one error.",
                     new Dictionary<string, object?>
                     {
                         ["IsSuccess"] = isSuccess,
-                        ["Expected"] = "Failure => Error != None",
-                        ["Actual"] = $"isSuccess={isSuccess}, Errors=NONE",
-                        ["Error.isNone"] = true,
+                        ["Expected"] = "Failure => Errors.Count >= 1",
+                        ["Actual"] = $"isSuccess={isSuccess}, errors.Count={errorList.Count}",
                         ["Violation"] = "A failed result was created without errors"
-                    }
+                    },
+                    OperationType.Create
                 );
             }
 
@@ -105,7 +140,11 @@ namespace Authorization.Domain.Results
         ///
         /// (Creates a successful result without a value.)
         /// </summary>
-        /// <returns>Успішний результат.</returns>
+        /// <returns>
+        /// Успішний результат.
+        ///
+        /// (A successful result.)
+        /// </returns>
         public static Result Success() => new(
             true,
             Array.Empty<Error>()
@@ -116,8 +155,16 @@ namespace Authorization.Domain.Results
         ///
         /// (Creates a failed result containing one error.)
         /// </summary>
-        /// <param name="error">Помилка, що описує причину невдачі.</param>
-        /// <returns>Невдалий результат.</returns>
+        /// <param name="error">
+        /// Помилка, що описує причину невдачі.
+        ///
+        /// (The error describing the reason for failure.)
+        /// </param>
+        /// <returns>
+        /// Невдалий результат.
+        ///
+        /// (A failed result.)
+        /// </returns>
         public static Result Failure(Error error) => new(
             false,
             new[] { error }
@@ -128,8 +175,16 @@ namespace Authorization.Domain.Results
         ///
         /// (Creates a failed result containing a collection of errors.)
         /// </summary>
-        /// <param name="errors">Помилки, що описують причини невдачі.</param>
-        /// <returns>Невдалий результат.</returns>
+        /// <param name="errors">
+        /// Непорожня колекція помилок без елементів null.
+        ///
+        /// (A non-empty error collection containing no null entries.)
+        /// </param>
+        /// <returns>
+        /// Невдалий результат.
+        ///
+        /// (A failed result.)
+        /// </returns>
         public static Result Failure(IEnumerable<Error> errors) => new(
             false,
             errors
@@ -143,7 +198,11 @@ namespace Authorization.Domain.Results
     /// (Represents the outcome of an operation that returns
     /// a value of the specified type on success.)
     /// </summary>
-    /// <typeparam name="T">Тип значення успішного результату.</typeparam>
+    /// <typeparam name="T">
+    /// Тип значення успішного результату.
+    ///
+    /// (The type of the value carried by a successful result.)
+    /// </typeparam>
     public class Result<T> : Result
     {
         private readonly T? _value;
@@ -155,6 +214,8 @@ namespace Authorization.Domain.Results
         /// </summary>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає під час спроби отримати значення невдалого результату.
+        ///
+        /// (Occurs when attempting to retrieve the value of a failed result.)
         /// </exception>
         public T Value => IsSuccess
             ? _value!
@@ -177,8 +238,16 @@ namespace Authorization.Domain.Results
         ///
         /// (Creates a successful result containing the supplied value.)
         /// </summary>
-        /// <param name="value">Значення успішного результату.</param>
-        /// <returns>Успішний результат із значенням.</returns>
+        /// <param name="value">
+        /// Значення успішного результату.
+        ///
+        /// (The value of the successful result.)
+        /// </param>
+        /// <returns>
+        /// Успішний результат із заданим значенням.
+        ///
+        /// (A successful result containing the supplied value.)
+        /// </returns>
         public static Result<T> Success(T value)
             => new(value);
 
@@ -187,8 +256,16 @@ namespace Authorization.Domain.Results
         ///
         /// (Creates a failed result containing one error.)
         /// </summary>
-        /// <param name="error">Помилка, що описує причину невдачі.</param>
-        /// <returns>Невдалий generic-result.</returns>
+        /// <param name="error">
+        /// Помилка, що описує причину невдачі.
+        ///
+        /// (The error describing the reason for failure.)
+        /// </param>
+        /// <returns>
+        /// Невдалий результат.
+        ///
+        /// (A failed result.)
+        /// </returns>
         public static new Result<T> Failure(Error error)
             => new(new[] { error });
 
@@ -197,8 +274,16 @@ namespace Authorization.Domain.Results
         ///
         /// (Creates a failed result containing a collection of errors.)
         /// </summary>
-        /// <param name="errors">Помилки, що описують причини невдачі.</param>
-        /// <returns>Невдалий generic-result.</returns>
+        /// <param name="errors">
+        /// Непорожня колекція помилок без елементів null.
+        ///
+        /// (A non-empty error collection containing no null entries.)
+        /// </param>
+        /// <returns>
+        /// Невдалий результат.
+        ///
+        /// (A failed result.)
+        /// </returns>
         public static new Result<T> Failure(IEnumerable<Error> errors)
             => new(errors);
     }

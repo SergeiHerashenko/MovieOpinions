@@ -25,16 +25,32 @@ namespace Authorization.Domain.Common.Validation
         ///
         /// (Executes validation and returns an expected domain error.)
         /// </summary>
-        /// <typeparam name="TData">Тип даних, що перевіряються.</typeparam>
-        /// <typeparam name="TFailure">
-        /// Тип представлення порушення, що містить очікувану
-        /// доменну помилку.
+        /// <typeparam name="TData">
+        /// Тип даних, що перевіряються.
+        /// 
+        /// (The type of the data being validated.)
         /// </typeparam>
-        /// <param name="validator">Оркестратор правил валідації.</param>
-        /// <param name="data">Дані для перевірки.</param>
+        /// <typeparam name="TFailure">
+        /// Тип представлення порушення, що містить очікувану доменну помилку.
+        /// 
+        /// (The violation representation type containing an expected domain error.)
+        /// </typeparam>
+        /// <param name="validator">
+        /// Оркестратор правил валідації.
+        /// 
+        /// (The validation rule orchestrator.)
+        /// </param>
+        /// <param name="data">
+        /// Дані для перевірки.
+        /// 
+        /// (The data to validate.)
+        /// </param>
         /// <returns>
-        /// Обгортка з першою виявленою доменною помилкою
-        /// або null, якщо всі правила виконані.
+        /// Обгортка з доменною помилкою виявленого порушення
+        /// або null, якщо порушень не виявлено.
+        /// 
+        /// (A wrapper containing the domain error for the detected violation,
+        /// or null if no violation was detected.)
         /// </returns>
         internal static ValidationRulesFailure<Error>? ValidateForError<TData, TFailure>(
             ValidationOrchestrator<TData, TFailure> validator,
@@ -59,18 +75,30 @@ namespace Authorization.Domain.Common.Validation
         /// </summary>
         /// <typeparam name="TData">
         /// Тип даних, що перевіряються та містять контекст операції.
+        /// 
+        /// (The type of validation data containing the operation context.)
         /// </typeparam>
         /// <typeparam name="TFailure">
-        /// Тип представлення порушення, що підтримує
-        /// побудову доменного винятку.
+        /// Тип представлення порушення, що підтримує побудову доменного винятку.
+        /// 
+        /// (The violation representation type supporting domain exception construction.)
         /// </typeparam>
-        /// <param name="validator">Оркестратор правил валідації.</param>
+        /// <param name="validator">
+        /// Оркестратор правил валідації.
+        /// 
+        /// (The validation rule orchestrator.)
+        /// </param>
         /// <param name="data">
         /// Дані для перевірки разом із типом виконуваної операції.
+        /// 
+        /// (The data to validate, including the operation type.)
         /// </param>
         /// <returns>
         /// Обгортка зі створеним об’єктом винятку
-        /// або null, якщо всі правила виконані.
+        /// або null, якщо порушень не виявлено.
+        /// 
+        /// (A wrapper containing the created exception object,
+        /// or null if no violation was detected.)
         /// </returns>
         internal static ValidationRulesFailure<Exception>? ValidateForException<TData, TFailure>(
             ValidationOrchestrator<TData, TFailure> validator,

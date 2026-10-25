@@ -10,6 +10,7 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
     /// </summary>
     public sealed class UserPendingRegistrationId : AggregateRootId<Guid>
     {
+        /// <inheritdoc/>
         public override Guid Value { get; }
 
         private UserPendingRegistrationId(Guid value)
@@ -35,9 +36,15 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         ///
         /// (Restores the identifier from a persisted scalar value.)
         /// </summary>
-        /// <param name="value">Збережене значення ідентифікатора.</param>
+        /// <param name="value">
+        /// Збережене значення ідентифікатора.
+        ///
+        /// (The stored identifier value.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережене значення дорівнює Guid.Empty.
+        ///
+        /// (Thrown when the stored value is Guid.Empty.)
         /// </exception>
         public static UserPendingRegistrationId Restore(Guid value)
         {

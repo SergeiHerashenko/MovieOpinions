@@ -12,7 +12,7 @@ using Authorization.Domain.Users.Entities.UsersRestrictionSession;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.Errors;
 
-namespace Authorization.Domain.Users
+namespace Authorization.Domain.Users.Aggregate
 {
     public partial class User
     {
@@ -20,44 +20,91 @@ namespace Authorization.Domain.Users
         /// <summary>
         /// Додає користувачу одне або кілька активних обмежень.
         ///
-        /// Перед зміною стану агрегату створює обмеження, групує
-        /// їх за типом і готує перевірені плани створення,
-        /// оновлення або заміни відповідних сесій.
+        /// Перевіряє вхідні дані та часову послідовність операції,
+        /// створює обмеження й готує плани створення, оновлення
+        /// або заміни відповідних сесій. Сесію із завершеним строком
+        /// замінює новою після завершення її поточних обмежень.
         ///
-        /// Якщо наявна сесія вже завершилася, її активні обмеження
-        /// переводяться у завершений стан, а сама сесія замінюється новою.
-        ///
-        /// Після успішного застосування всіх планів записує
-        /// доменні події та зміни агрегату.
+        /// Після застосування планів приєднує нові обмеження
+        /// та записує доменні події й зміни агрегату.
+        /// Якщо додано хоча б одне обмеження типу Ban,
+        /// завершує всі поточні refresh-токени користувача.
+        /// Наприкінці успішної операції оновлює UpdatedAt.
         ///
         /// (Adds one or more active restrictions to the user.
         ///
-        /// Before modifying the aggregate, creates the restrictions,
-        /// groups them by type, and prepares validated plans for creating,
-        /// updating, or replacing the corresponding sessions.
+        /// Validates input and operation chronology, creates restrictions,
+        /// and prepares plans for creating, updating, or replacing
+        /// the corresponding sessions. Replaces an expired session
+        /// after completing its current restrictions.
         ///
-        /// If an existing session has expired, its active restrictions
-        /// are completed and the session is replaced with a new one.
-        ///
-        /// After successfully applying all plans, records the resulting
-        /// domain events and aggregate changes.)
+        /// After applying the plans, attaches the new restrictions
+        /// and records domain events and aggregate changes.
+        /// If at least one Ban restriction is added, terminates
+        /// all current user refresh tokens. Updates UpdatedAt
+        /// at the end of a successful operation.)
         /// </summary>
-        /// <param name="restrictionDataCollection">Дані обмежень, які необхідно додати.</param>
-        /// <param name="now">Фіксований час виконання операції.</param>
+        /// <remarks>
+        /// Додавання лише мутів не завершує refresh-токени.
+        /// Під час завершення токенів прострочені переходять у Expired,
+        /// а решта активних — у Revoked.
+        ///
+        /// Підготовка обмежень і планів виконується до їх застосування.
+        /// Метод не виконує автоматичного відкату змін у пам’яті,
+        /// якщо під час застосування виникне виняток.
+        ///
+        /// (Adding only mute restrictions does not terminate refresh tokens.
+        /// During termination, elapsed tokens become Expired
+        /// and the remaining active tokens become Revoked.
+        ///
+        /// Restrictions and plans are prepared before being applied.
+        /// The method does not automatically revert in-memory changes
+        /// if an exception occurs during application.)
+        /// </remarks>
+        /// <param name="restrictionDataCollection">
+        /// Дані обмежень, які необхідно створити та додати користувачу.
+        ///
+        /// (Data for the restrictions to create and add to the user.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час усієї операції. Не може передувати часу
+        /// створення, останнього оновлення чи останнього успішного входу
+        /// користувача за наявності відповідних часових позначок.
+        ///
+        /// (The fixed timestamp for the entire operation. It cannot precede
+        /// the user's creation, last update, or last successful sign-in
+        /// timestamp when the corresponding values are present.)
+        /// </param>
         /// <returns>
-        /// Успіх або очікувана помилка, якщо не передано
-        /// жодного обмеження.
+        /// Успіх після додавання обмежень та виконання пов’язаних змін;
+        /// інакше — доменна помилка порожньої колекції.
+        ///
+        /// (Success after adding restrictions and applying related changes;
+        /// otherwise, a domain error indicating an empty collection.)
         /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язкові дані відсутні,
+        /// тип обмеження не підтримується або порушено часові передумови.
+        ///
+        /// (Thrown when required data is missing, a restriction type
+        /// is unsupported, or timestamp preconditions are violated.)
+        /// </exception>
         /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо колекція відсутня, містить null-елементи
-        /// або переданий час є некоректним.
+        /// Виникає, якщо колекція містить null-елементи
+        /// або порушено внутрішні передумови застосування змін.
+        ///
+        /// (Thrown when the collection contains null entries
+        /// or internal preconditions for applying changes are violated.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо стан сесії та активних обмежень
-        /// агрегату є неузгодженим.
+        /// Виникає, якщо обмеження та сесії утворюють неузгоджений стан.
+        ///
+        /// (Thrown when restrictions and sessions form an inconsistent state.)
         /// </exception>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо отримано непідтримуваний тип плану.
+        /// <exception cref="OverflowException">
+        /// Виникає, якщо сумарна тривалість обмежень виходить за межі Int32.
+        ///
+        /// (Thrown when the total restriction duration exceeds the Int32 range.)
         /// </exception>
         public Result AddRestrictions(
             IEnumerable<RestrictionData> restrictionDataCollection,
@@ -68,11 +115,7 @@ namespace Authorization.Domain.Users
                 (restrictionDataCollection, nameof(restrictionDataCollection))
             );
 
-            DomainGuard.AgainstEarlierThan<User>(
-                OperationType.Update,
-                (now, nameof(now)),
-                (CreatedAt, nameof(CreatedAt))
-            );
+            EnsureValidOperationTimestamp(now);
 
             var restrictionData = restrictionDataCollection.ToList();
 
@@ -124,6 +167,14 @@ namespace Authorization.Domain.Users
                 now
             );
 
+            if(preparedGroups.Any(
+                group => group.RestrictionType == RestrictionType.Ban))
+            {
+                TerminateAllRefreshToken(now);
+            }
+
+            UpdatedAt = now;
+
             return Result.Success();
         }
         #endregion
@@ -131,24 +182,40 @@ namespace Authorization.Domain.Users
         #region Restriction Preparation
         /// <summary>
         /// Містить підготовлену групу новостворених обмежень
-        /// одного типу та їх описи для майбутніх доменних подій.
+        /// одного типу та їх описи для доменних подій.
         ///
-        /// Склад колекцій фіксується під час створення групи.
-        /// Обмеження ще не приєднані до агрегату.
+        /// Склад колекцій копіюється під час створення групи.
+        /// Підготовка групи не приєднує обмеження до агрегату.
         ///
         /// (Contains a prepared group of newly created restrictions
-        /// of the same type together with their descriptions for
-        /// future domain events.
+        /// of the same type and their descriptions for domain events.
         ///
-        /// Collection membership is captured when the group is created.
-        /// The restrictions have not yet been attached to the aggregate.)
+        /// Collection membership is copied when the group is created.
+        /// Preparing the group does not attach restrictions to the aggregate.)
         /// </summary>
         private sealed class PreparedRestrictionGroup
         {
+            /// <summary>
+            /// Тип обмежень, об’єднаних у підготовлену групу.
+            ///
+            /// (Type of the restrictions in the prepared group.)
+            /// </summary>
             public RestrictionType RestrictionType { get; }
 
+            /// <summary>
+            /// Новостворені обмеження підготовленої групи.
+            ///
+            /// (Newly created restrictions in the prepared group.)
+            /// </summary>
             public IReadOnlyCollection<UserRestriction> CreatedRestrictions { get; }
 
+            /// <summary>
+            /// Правила та причини обмежень, підготовлені
+            /// на основі вхідних даних для доменних подій.
+            ///
+            /// (Restriction rules and reasons prepared
+            /// from the input data for domain events.)
+            /// </summary>
             public IReadOnlyCollection<(RestrictionRule Rule, string? Reason)> Descriptions { get; }
 
             public PreparedRestrictionGroup(
@@ -163,22 +230,32 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Групує перевірені вхідні дані за типом і створює
-        /// відокремлені від агрегату обмеження разом з описами
-        /// для майбутніх доменних подій.
+        /// Групує вхідні дані за типом обмеження та створює
+        /// відповідні обмеження й описи для доменних подій.
         ///
-        /// Метод не змінює поточний стан агрегату.
+        /// Нові обмеження створюються окремо від агрегату.
+        /// Метод не змінює поточний стан користувача.
         ///
-        /// (Groups validated input data by restriction type and creates
-        /// restrictions detached from the aggregate together with
-        /// descriptions for future domain events.
+        /// (Groups input data by restriction type and creates
+        /// the corresponding restrictions and descriptions for domain events.
         ///
-        /// The method does not modify the current aggregate state.)
+        /// New restrictions are created separately from the aggregate.
+        /// The method does not modify the user's current state.)
         /// </summary>
-        /// <param name="restrictionData">Матеріалізовані та перевірені дані обмежень.</param>
-        /// <param name="now">Час створення обмежень.</param>
+        /// <param name="restrictionData">
+        /// Матеріалізовані дані обмежень без null-елементів.
+        ///
+        /// (Materialized restriction data containing no null elements.)
+        /// </param>
+        /// <param name="now">
+        /// Час створення нових обмежень.
+        ///
+        /// (Creation time of the new restrictions.)
+        /// </param>
         /// <returns>
-        /// Підготовлені групи новостворених обмежень.
+        /// Підготовлені групи обмежень з описами для доменних подій.
+        ///
+        /// (Prepared restriction groups with descriptions for domain events.)
         /// </returns>
         private IReadOnlyCollection<PreparedRestrictionGroup> PrepareRestrictionGroups(
             IReadOnlyCollection<RestrictionData> restrictionData,
@@ -213,22 +290,32 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Створює обмеження з переданих даних,
-        /// не приєднуючи їх до агрегату.
+        /// Створює обмеження для поточного користувача
+        /// на основі переданих даних.
         ///
-        /// Це дозволяє створити й перевірити всі обмеження
-        /// до початку зміни стану користувача.
+        /// Не приєднує створені обмеження до агрегату,
+        /// що дозволяє підготувати їх до початку зміни стану користувача.
         ///
-        /// (Creates restrictions from the supplied data without
-        /// attaching them to the aggregate.
+        /// (Creates restrictions for the current user
+        /// from the supplied data.
         ///
-        /// This allows every restriction to be created and validated
-        /// before the user state begins to change.)
+        /// Does not attach the created restrictions to the aggregate,
+        /// allowing them to be prepared before modifying user state.)
         /// </summary>
-        /// <param name="restrictionDataCollection">Дані обмежень для створення.</param>
-        /// <param name="now">Час створення обмежень.</param>
+        /// <param name="restrictionDataCollection">
+        /// Дані обмежень, які необхідно створити.
+        ///
+        /// (Data for the restrictions to create.)
+        /// </param>
+        /// <param name="now">
+        /// Час створення всіх обмежень колекції.
+        ///
+        /// (Creation time of all restrictions in the collection.)
+        /// </param>
         /// <returns>
-        /// Колекція новостворених відокремлених обмежень.
+        /// Колекція новостворених обмежень, ще не приєднаних до агрегату.
+        ///
+        /// (Collection of newly created restrictions not yet attached to the aggregate.)
         /// </returns>
         private List<UserRestriction> CreateRestrictions(
             IEnumerable<RestrictionData> restrictionDataCollection,
@@ -256,21 +343,29 @@ namespace Authorization.Domain.Users
 
         #region Session Planning
         /// <summary>
-        /// Представляє попередньо перевірений виконуваний план
-        /// додавання обмежень у межах однієї сесії.
+        /// Представляє виконуваний план додавання підготовленої
+        /// групи обмежень у межах відповідної сесії.
         ///
-        /// План окремо визначає мутацію доменного стану та запис
-        /// подій і змін агрегату. Його створення не змінює агрегат.
+        /// Визначає окремі етапи застосування доменного стану
+        /// та запису доменних подій і змін агрегату.
+        /// Створення плану не змінює стан агрегату.
         ///
-        /// (Represents a pre-validated executable plan for adding
-        /// restrictions within a single session.
+        /// (Represents an executable plan for adding a prepared
+        /// restriction group within its corresponding session.
         ///
-        /// The plan separately defines domain-state mutation and the
-        /// recording of events and aggregate changes. Creating the plan
-        /// does not modify the aggregate.)
+        /// Defines separate stages for applying domain state
+        /// and recording domain events and aggregate changes.
+        /// Creating the plan does not modify aggregate state.)
         /// </summary>
         private abstract class RestrictionAdditionPlan
         {
+            /// <summary>
+            /// Підготовлена група нових обмежень,
+            /// для якої виконується план.
+            ///
+            /// (Prepared group of new restrictions
+            /// for which the plan is executed.)
+            /// </summary>
             public PreparedRestrictionGroup Group { get; }
 
             public RestrictionAdditionPlan(PreparedRestrictionGroup group)
@@ -279,51 +374,72 @@ namespace Authorization.Domain.Users
             }
 
             /// <summary>
-            /// Застосовує попередньо перевірені переходи стану,
-            /// визначені цим планом.
+            /// Застосовує попередньо перевірені переходи
+            /// доменного стану, визначені планом.
             ///
-            /// Метод повинен викликатися лише після успішної
+            /// Повинен викликатися лише після успішної
             /// підготовки всіх планів операції.
             ///
-            /// (Applies the pre-validated state transitions represented
-            /// by this plan.
+            /// (Applies the pre-validated domain-state transitions
+            /// defined by the plan.
             ///
-            /// The method must be called only after all operation plans
+            /// Must be called only after all operation plans
             /// have been successfully prepared.)
             /// </summary>
-            /// <param name="user">Агрегат, до якого застосовується план.</param>
-            /// <param name="now">Фіксований час виконання операції.</param>
+            /// <param name="user">
+            /// Агрегат користувача, до якого застосовується план.
+            ///
+            /// (User aggregate to which the plan is applied.)
+            /// </param>
+            /// <param name="now">
+            /// Фіксований час виконання операції.
+            ///
+            /// (Fixed operation time.)
+            /// </param>
             public abstract void Apply(
                 User user,
                 DateTimeOffset now);
 
             /// <summary>
-            /// Записує доменні події та зміни агрегату, які відповідають
-            /// уже застосованому плану.
+            /// Записує доменні події та зміни агрегату,
+            /// визначені вже застосованим планом.
             ///
-            /// Метод не виконує повторних переходів доменного стану.
+            /// Не виконує повторних переходів доменного стану.
             ///
-            /// (Records domain events and aggregate changes corresponding
-            /// to a plan that has already been applied.
+            /// (Records domain events and aggregate changes
+            /// defined by a plan that has already been applied.
             ///
-            /// The method does not perform domain-state transitions again.)
+            /// Does not repeat domain-state transitions.)
             /// </summary>
-            /// <param name="user">Агрегат, у якому записуються наслідки.</param>
-            /// <param name="now">Фіксований час виконання операції.</param>
+            /// <param name="user">
+            /// Агрегат користувача, до якого додаються події та зміни.
+            ///
+            /// (User aggregate to which events and changes are added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до подій і записів змін.
+            ///
+            /// (Operation time passed to events and change records.)
+            /// </param>
             public abstract void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now);
         }
 
         /// <summary>
-        /// Представляє план створення нової сесії для групи
-        /// обмежень, яка не має відповідної активної сесії.
+        /// Представляє план додавання підготовленої нової сесії
+        /// для групи обмежень, що не має відповідної наявної сесії.
         ///
-        /// (Represents a plan for creating a new session for a group
-        /// of restrictions that has no corresponding active session.)
+        /// (Represents a plan for adding a prepared new session
+        /// for a restriction group without a corresponding existing session.)
         /// </summary>
         private sealed class CreateRestrictionSessionPlan : RestrictionAdditionPlan
         {
+            /// <summary>
+            /// Підготовлена нова сесія, яку план додає до агрегату.
+            ///
+            /// (Prepared new session that the plan adds to the aggregate.)
+            /// </summary>
             public UserRestrictionSession NewSession { get; }
 
             public CreateRestrictionSessionPlan(
@@ -334,6 +450,25 @@ namespace Authorization.Domain.Users
                 NewSession = newSession;
             }
 
+            /// <summary>
+            /// Додає підготовлену нову сесію
+            /// до активної колекції сесій агрегату.
+            ///
+            /// (Adds the prepared new session
+            /// to the aggregate's active session collection.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, до якого додається сесія.
+            ///
+            /// (User to which the session is added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, переданий спільним контрактом плану.
+            /// У цьому варіанті плану параметр не використовується.
+            ///
+            /// (Operation time passed through the shared plan contract.
+            /// This implementation does not use the parameter.)
+            /// </param>
             public override void Apply(
                 User user,
                 DateTimeOffset now)
@@ -341,6 +476,29 @@ namespace Authorization.Domain.Users
                 user.AddRestrictionSession(NewSession);
             }
 
+            /// <summary>
+            /// Записує доменну подію створення нової сесії
+            /// та відповідну зміну агрегату.
+            ///
+            /// Подія містить описи обмежень, тип сесії
+            /// та її загальну тривалість.
+            ///
+            /// (Records a domain event for the new session's creation
+            /// and the corresponding aggregate change.
+            ///
+            /// The event includes restriction descriptions, session type,
+            /// and total session duration.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, до якого додаються подія та зміна агрегату.
+            ///
+            /// (User to which the event and aggregate change are added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до події та запису зміни.
+            ///
+            /// (Operation time passed to the event and change record.)
+            /// </param>
             public override void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now)
@@ -370,6 +528,11 @@ namespace Authorization.Domain.Users
         /// </summary>
         private sealed class UpdateRestrictionSessionPlan : RestrictionAdditionPlan
         {
+            /// <summary>
+            /// Наявна сесія, яку план оновлює додаванням нових обмежень.
+            ///
+            /// (Existing session that the plan updates by adding new restrictions.)
+            /// </summary>
             public UserRestrictionSession ExistingSession { get; }
 
             public UpdateRestrictionSessionPlan(
@@ -380,6 +543,27 @@ namespace Authorization.Domain.Users
                 ExistingSession = existingSession;
             }
 
+            /// <summary>
+            /// Додає обмеження підготовленої групи
+            /// до наявної сесії.
+            ///
+            /// (Adds the prepared group's restrictions
+            /// to the existing session.)
+            /// </summary>
+            /// <param name="user">
+            /// Агрегат користувача, для якого підготовлено план.
+            /// Ця реалізація використовує збережене посилання на сесію
+            /// та безпосередньо не звертається до параметра.
+            ///
+            /// (User aggregate for which the plan was prepared.
+            /// This implementation uses the stored session reference
+            /// and does not directly access the parameter.)
+            /// </param>
+            /// <param name="now">
+            /// Час додавання нових обмежень до сесії.
+            ///
+            /// (Time used for adding new restrictions to the session.)
+            /// </param>
             public override void Apply(
                 User user,
                 DateTimeOffset now)
@@ -390,6 +574,29 @@ namespace Authorization.Domain.Users
                 );
             }
 
+            /// <summary>
+            /// Записує доменну подію додавання обмежень до сесії
+            /// та зміну агрегату про її оновлення.
+            ///
+            /// Подія містить описи доданих обмежень
+            /// і загальну тривалість уже оновленої сесії.
+            ///
+            /// (Records a domain event for adding restrictions to the session
+            /// and an aggregate change for the session's update.
+            ///
+            /// The event includes descriptions of the added restrictions
+            /// and the total duration of the updated session.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, до якого додаються подія та зміна агрегату.
+            ///
+            /// (User to which the event and aggregate change are added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до події та запису зміни.
+            ///
+            /// (Operation time passed to the event and change record.)
+            /// </param>
             public override void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now)
@@ -411,31 +618,47 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Представляє план заміни простроченої сесії новою.
+        /// Представляє план заміни сесії із завершеним строком новою.
         ///
-        /// Активні обмеження старої сесії переходять у завершений
-        /// стан, стара сесія видаляється, а підготовлена група
-        /// обмежень утворює нову сесію.
+        /// Під час застосування завершує обмеження старої сесії,
+        /// видаляє її з активної колекції та додає підготовлену нову сесію.
         ///
-        /// План фіксує склад обмежень старої сесії, які необхідно
-        /// завершити під час застосування.
+        /// Фіксує склад обмежень, які необхідно завершити,
+        /// і окремо записує доменні події та зміни агрегату.
         ///
-        /// (Represents a plan for replacing an expired session
-        /// with a new one.
+        /// (Represents a plan for replacing a session whose lifetime
+        /// has ended with a new one.
         ///
-        /// Active restrictions from the old session transition to the
-        /// completed state, the old session is removed, and the prepared
-        /// restriction group forms a new session.
+        /// When applied, completes the old session's restrictions,
+        /// removes the session from the active collection,
+        /// and adds the prepared new session.
         ///
-        /// The plan captures the old session restrictions that must
-        /// be completed when the plan is applied.)
+        /// Captures the restrictions to complete and separately records
+        /// domain events and aggregate changes.)
         /// </summary>
         private sealed class ReplaceExpiredRestrictionSessionPlan : RestrictionAdditionPlan
         {
+            /// <summary>
+            /// Сесія із завершеним строком, яку необхідно замінити.
+            ///
+            /// (Session whose lifetime has ended and which must be replaced.)
+            /// </summary>
             public UserRestrictionSession ExpiredSession { get; }
 
+            /// <summary>
+            /// Підготовлена нова сесія, що замінює попередню.
+            ///
+            /// (Prepared new session that replaces the previous one.)
+            /// </summary>
             public UserRestrictionSession ReplacementSession { get; }
 
+            /// <summary>
+            /// Зафіксована колекція обмежень старої сесії,
+            /// які необхідно завершити під час застосування плану.
+            ///
+            /// (Captured collection of the old session's restrictions
+            /// to complete when applying the plan.)
+            /// </summary>
             public IReadOnlyCollection<UserRestriction> RestrictionsToComplete { get; }
 
             public ReplaceExpiredRestrictionSessionPlan(
@@ -450,6 +673,29 @@ namespace Authorization.Domain.Users
                 RestrictionsToComplete = restrictionsToComplete.ToArray();
             }
 
+            /// <summary>
+            /// Завершує обмеження старої сесії та видаляє їх
+            /// з активної колекції обмежень агрегату.
+            ///
+            /// Після цього видаляє стару сесію
+            /// та додає підготовлену сесію заміни.
+            ///
+            /// (Completes the old session's restrictions and removes them
+            /// from the aggregate's active restriction collection.
+            ///
+            /// Then removes the old session
+            /// and adds the prepared replacement session.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, обмеження та сесія якого замінюються.
+            ///
+            /// (User whose restrictions and session are replaced.)
+            /// </param>
+            /// <param name="now">
+            /// Час, яким фіксується завершення попередніх обмежень.
+            ///
+            /// (Time recorded for completing the previous restrictions.)
+            /// </param>
             public override void Apply(
                 User user,
                 DateTimeOffset now)
@@ -466,6 +712,33 @@ namespace Authorization.Domain.Users
                 user.AddRestrictionSession(ReplacementSession);
             }
 
+            /// <summary>
+            /// Записує наслідки вже застосованої заміни сесії.
+            ///
+            /// Створює доменні події завершення старої сесії
+            /// та створення нової. Записує оновлення завершених обмежень,
+            /// видалення старої сесії та створення сесії заміни.
+            ///
+            /// Не виконує повторних переходів доменного стану.
+            ///
+            /// (Records the consequences of an already applied session replacement.
+            ///
+            /// Creates domain events for completing the old session
+            /// and creating the new one. Records updates to completed restrictions,
+            /// deletion of the old session, and creation of the replacement session.
+            ///
+            /// Does not repeat domain-state transitions.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, до якого додаються події та зміни агрегату.
+            ///
+            /// (User to which events and aggregate changes are added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до подій і записів змін.
+            ///
+            /// (Operation time passed to events and change records.)
+            /// </param>
             public override void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now)
@@ -504,40 +777,57 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Готує виконуваний план для кожної підготовленої
-        /// групи обмежень.
+        /// Готує виконуваний план для кожної підготовленої групи обмежень.
         ///
-        /// Якщо відповідна сесія відсутня, готує її створення.
-        /// Якщо сесія активна, перевіряє можливість її оновлення.
-        /// Якщо сесія прострочена, перевіряє точну відповідність
-        /// її складу активним обмеженням агрегату, можливість
-        /// завершення цих обмежень і готує нову сесію.
+        /// Якщо відповідна сесія відсутня, створює нову сесію
+        /// та готує план її додавання.
+        ///
+        /// Якщо строк наявної сесії завершився, перевіряє точний збіг
+        /// її ідентифікаторів з активними обмеженнями агрегату її типу,
+        /// перевіряє можливість завершення цих обмежень
+        /// і готує нову сесію та план заміни.
+        ///
+        /// Якщо строк сесії ще не завершився, перевіряє можливість
+        /// додавання нових обмежень і готує план її оновлення.
         ///
         /// Метод не змінює поточний стан агрегату.
         ///
-        /// (Prepares an executable plan for every prepared
-        /// restriction group.
+        /// (Prepares an executable plan for each prepared restriction group.
         ///
-        /// If the corresponding session is absent, prepares its creation.
-        /// If the session is active, validates that it can be updated.
-        /// If the session is expired, verifies that its contents exactly
-        /// match the aggregate’s active restrictions, validates their
-        /// completion, and prepares a replacement session.
+        /// If the corresponding session is absent, creates a new session
+        /// and prepares a plan to add it.
+        ///
+        /// If an existing session's lifetime has ended, verifies that its
+        /// restriction identifiers exactly match the aggregate's active
+        /// restrictions of its type, validates their completion,
+        /// and prepares a new session and replacement plan.
+        ///
+        /// If the session's lifetime has not ended, validates that new
+        /// restrictions can be added and prepares an update plan.
         ///
         /// The method does not modify the current aggregate state.)
         /// </summary>
-        /// <param name="preparedGroups">Підготовлені групи новостворених обмежень.</param>
-        /// <param name="now">Фіксований час виконання операції.</param>
+        /// <param name="preparedGroups">
+        /// Підготовлені групи новостворених обмежень.
+        ///
+        /// (Prepared groups of newly created restrictions.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час перевірок і створення нових сесій.
+        ///
+        /// (Fixed time used for validation and new session creation.)
+        /// </param>
         /// <returns>
-        /// Повністю перевірені плани майбутніх змін сесій.
+        /// Підготовлені та перевірені плани додавання, оновлення або заміни сесій.
+        ///
+        /// (Prepared and validated plans for adding, updating, or replacing sessions.)
         /// </returns>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо прострочена сесія не відповідає активним
-        /// обмеженням агрегату або обмеження не можуть бути завершені.
-        /// </exception>
-        /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо порушено передумови створення,
-        /// оновлення або заміни сесії.
+        /// Виникає, якщо набір ідентифікаторів у простроченій сесії
+        /// не збігається з активними обмеженнями агрегату її типу.
+        ///
+        /// (Thrown when an expired session's restriction identifier set
+        /// does not match the aggregate's active restrictions of its type.)
         /// </exception>
         private IReadOnlyCollection<RestrictionAdditionPlan> PrepareRestrictionSessionPlans(
             IReadOnlyCollection<PreparedRestrictionGroup> preparedGroups,
@@ -630,26 +920,33 @@ namespace Authorization.Domain.Users
 
         #region Addition Plan Application
         /// <summary>
-        /// Послідовно застосовує всі попередньо перевірені
+        /// Послідовно застосовує всі підготовлені
         /// плани додавання обмежень.
         ///
-        /// Делегує кожному плану створення, оновлення
+        /// Делегує кожному плану додавання, оновлення
         /// або заміну відповідної сесії.
         ///
-        /// Метод повинен викликатися лише після успішної
-        /// підготовки всіх планів.
+        /// Повинен викликатися лише після успішної
+        /// підготовки та перевірки всіх планів операції.
         ///
-        /// (Sequentially applies all previously validated
-        /// restriction-addition plans.
+        /// (Sequentially applies all prepared restriction-addition plans.
         ///
-        /// Delegates creation, updating, or replacement of the
-        /// corresponding session to each plan.
+        /// Delegates adding, updating, or replacing
+        /// the corresponding session to each plan.
         ///
-        /// The method must be called only after every plan has
-        /// been successfully prepared.)
+        /// Must be called only after all operation plans
+        /// have been successfully prepared and validated.)
         /// </summary>
-        /// <param name="additionPlans">Попередньо перевірені плани додавання обмежень.</param>
-        /// <param name="now">Фіксований час виконання операції.</param>
+        /// <param name="additionPlans">
+        /// Підготовлені та перевірені плани додавання обмежень.
+        ///
+        /// (Prepared and validated restriction-addition plans.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час застосування всіх планів.
+        ///
+        /// (Fixed time used for applying all plans.)
+        /// </param>
         private void ApplyRestrictionAdditionPlans(
             IReadOnlyCollection<RestrictionAdditionPlan> additionPlans,
             DateTimeOffset now)
@@ -666,19 +963,26 @@ namespace Authorization.Domain.Users
 
         #region Addition Events And Changes
         /// <summary>
-        /// Записує зміну агрегату для кожного
-        /// новоствореного обмеження.
+        /// Записує зміну агрегату про створення
+        /// для кожного переданого обмеження.
         ///
-        /// Метод не змінює доменний стан обмежень.
+        /// Не змінює доменний стан самих обмежень.
         ///
-        /// (Records an aggregate change for every newly
-        /// created restriction.
+        /// (Records an aggregate creation change
+        /// for each supplied restriction.
         ///
-        /// The method does not modify the domain state
-        /// of the restrictions.)
+        /// Does not modify the restrictions' domain state.)
         /// </summary>
-        /// <param name="restrictions">Новостворені обмеження, які необхідно зберегти.</param>
-        /// <param name="now">Час виникнення змін агрегату.</param>
+        /// <param name="restrictions">
+        /// Новостворені обмеження, для яких необхідно записати створення.
+        ///
+        /// (Newly created restrictions whose creation must be recorded.)
+        /// </param>
+        /// <param name="now">
+        /// Час операції, що передається до записів змін агрегату.
+        ///
+        /// (Operation time passed to the aggregate-change records.)
+        /// </param>
         private void AddRestrictionCreatedChanges(
             IEnumerable<UserRestriction> restrictions,
             DateTimeOffset now)
@@ -693,24 +997,32 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// Записує доменні події та зміни агрегату для всіх
-        /// уже застосованих планів додавання обмежень.
+        /// Записує доменні події та зміни агрегату
+        /// для всіх уже застосованих планів додавання обмежень.
         ///
-        /// Делегує кожному плану запис наслідків відповідного
-        /// сценарію створення, оновлення або заміни сесії.
+        /// Делегує кожному плану запис наслідків
+        /// додавання, оновлення або заміни відповідної сесії.
         ///
-        /// Метод не виконує повторних переходів доменного стану.
+        /// Не виконує повторних переходів доменного стану.
         ///
-        /// (Records domain events and aggregate changes for all
-        /// restriction-addition plans that have already been applied.
+        /// (Records domain events and aggregate changes
+        /// for all restriction-addition plans that have already been applied.
         ///
-        /// Delegates recording of the corresponding session creation,
-        /// update, or replacement consequences to each plan.
+        /// Delegates recording the consequences of adding, updating,
+        /// or replacing the corresponding session to each plan.
         ///
-        /// The method does not perform domain-state transitions again.)
+        /// Does not repeat domain-state transitions.)
         /// </summary>
-        /// <param name="additionPlans">Застосовані плани додавання обмежень.</param>
-        /// <param name="now">Фіксований час виконання операції.</param>
+        /// <param name="additionPlans">
+        /// Застосовані плани додавання обмежень.
+        ///
+        /// (Applied restriction-addition plans.)
+        /// </param>
+        /// <param name="now">
+        /// Час операції, що передається до подій і записів змін.
+        ///
+        /// (Operation time passed to events and change records.)
+        /// </param>
         private void RecordRestrictionAdditionEventsAndChanges(
             IReadOnlyCollection<RestrictionAdditionPlan> additionPlans,
             DateTimeOffset now)
@@ -727,19 +1039,23 @@ namespace Authorization.Domain.Users
 
         #region Addition Helpers
         /// <summary>
-        /// Додає попередньо створену сесію до активної
-        /// колекції сесій агрегату.
+        /// Додає попередньо створену сесію
+        /// до активної колекції сесій агрегату.
         ///
-        /// Метод повинен викликатися лише для сесії,
+        /// Повинен викликатися лише для сесії,
         /// створення якої було попередньо перевірено.
         ///
-        /// (Adds a previously created session to the aggregate’s
-        /// active session collection.
+        /// (Adds a previously created session
+        /// to the aggregate's active session collection.
         ///
-        /// The method must be called only for a session whose
-        /// creation has already been validated.)
+        /// Must be called only for a session
+        /// whose creation has already been validated.)
         /// </summary>
-        /// <param name="session">Сесія, яку необхідно додати.</param>
+        /// <param name="session">
+        /// Підготовлена сесія, яку необхідно додати до агрегату.
+        ///
+        /// (Prepared session to add to the aggregate.)
+        /// </param>
         private void AddRestrictionSession(UserRestrictionSession session)
         {
             _restrictionSessions.Add(session);

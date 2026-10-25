@@ -94,22 +94,6 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         #endregion
 
         #region Creation
-        /// <summary>
-        /// Створює активний refresh-токен для користувача, генерує його ID
-        /// і секретне значення та встановлює строк дії.
-        ///
-        /// (Creates an active refresh token for a user, generates its ID
-        /// and secret value, and establishes its lifetime.)
-        /// </summary>
-        /// <param name="userId">Ідентифікатор власника токена.</param>
-        /// <param name="deviceInfo">Інформація про пристрій поточної сесії.</param>
-        /// <param name="ipAddress">IP-адреса створення токена.</param>
-        /// <param name="now">Поточний час доменної операції.</param>
-        /// <param name="city">Визначене місто або null, якщо воно невідоме.</param>
-        /// <returns>Створений активний refresh-токен.</returns>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обов’язковий доменний об’єкт дорівнює null.
-        /// </exception>
         private UserRefreshToken(
             UserRefreshTokenId userRefreshTokenId,
             UserId userId,
@@ -131,6 +115,48 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
             RevokedAt = null;
         }
 
+        /// <summary>
+        /// Створює активний refresh-токен для користувача, генерує його
+        /// ідентифікатор і секретне значення та встановлює строк дії.
+        ///
+        /// (Creates an active refresh token for a user, generates its
+        /// identifier and secret value, and establishes its lifetime.)
+        /// </summary>
+        /// <param name="userId">
+        /// Ідентифікатор власника токена.
+        ///
+        /// (Identifier of the token owner.)
+        /// </param>
+        /// <param name="deviceInfo">
+        /// Інформація про пристрій поточної сесії.
+        ///
+        /// (Device information for the current session.)
+        /// </param>
+        /// <param name="ipAddress">
+        /// IP-адреса, з якої створюється токен.
+        ///
+        /// (The IP address from which the token is created.)
+        /// </param>
+        /// <param name="now">
+        /// Поточний час доменної операції.
+        ///
+        /// (The current domain-operation time.)
+        /// </param>
+        /// <param name="city">
+        /// Визначене місто або null, якщо воно невідоме.
+        ///
+        /// (The resolved city, or null when it is unknown.)
+        /// </param>
+        /// <returns>
+        /// Створений активний refresh-токен.
+        ///
+        /// (The newly created active refresh token.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язковий доменний об’єкт дорівнює null.
+        ///
+        /// (Thrown when a required domain object is null.)
+        /// </exception>
         internal static UserRefreshToken Create(
             UserId userId,
             DeviceInfo deviceInfo,
@@ -158,32 +184,6 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         #endregion
 
         #region Restoration
-        /// <summary>
-        /// Відновлює refresh-токен зі збереженого стану
-        /// та перевіряє його часові й статусні інваріанти.
-        ///
-        /// (Restores a refresh token from persisted state
-        /// and validates its temporal and status invariants.)
-        /// </summary>
-        /// <param name="userRefreshTokenId">Ідентифікатор сутності токена.</param>
-        /// <param name="userId">Ідентифікатор власника токена.</param>
-        /// <param name="refreshToken">Збережене значення refresh-токена.</param>
-        /// <param name="deviceInfo">Збережена інформація про пристрій.</param>
-        /// <param name="ipAddress">Збережена IP-адреса.</param>
-        /// <param name="city">Збережене місто або null.</param>
-        /// <param name="tokenStatus">Збережений статус токена.</param>
-        /// <param name="expiresAt">Час завершення строку дії.</param>
-        /// <param name="consumedAt">Час використання або null.</param>
-        /// <param name="createdAt">Час створення токена.</param>
-        /// <param name="revokedAt">Час відкликання або null.</param>
-        /// <returns>Відновлений refresh-токен.</returns>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає через відсутні обов’язкові дані, невідомий статус
-        /// або некоректні часові значення.
-        /// </exception>
-        /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо статус токена суперечить його часовим полям.
-        /// </exception>
         private UserRefreshToken(
             UserRefreshTokenId userRefreshTokenId,
             UserId userId,
@@ -209,6 +209,89 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
             RevokedAt = revokedAt;
         }
 
+        /// <summary>
+        /// Відновлює refresh-токен зі збереженого стану
+        /// та перевіряє його часові й статусні інваріанти.
+        ///
+        /// (Restores a refresh token from its persisted state
+        /// and validates its temporal and status invariants.)
+        /// </summary>
+        /// <param name="userRefreshTokenId">
+        /// Збережений ідентифікатор сутності токена.
+        ///
+        /// (The persisted token entity identifier.)
+        /// </param>
+        /// <param name="userId">
+        /// Ідентифікатор власника токена.
+        ///
+        /// (Identifier of the token owner.)
+        /// </param>
+        /// <param name="refreshToken">
+        /// Відновлене доменне значення refresh-токена.
+        ///
+        /// (The restored domain refresh token value.)
+        /// </param>
+        /// <param name="deviceInfo">
+        /// Відновлена інформація про пристрій.
+        ///
+        /// (The restored device information.)
+        /// </param>
+        /// <param name="ipAddress">
+        /// Відновлена IP-адреса.
+        ///
+        /// (The restored IP address.)
+        /// </param>
+        /// <param name="city">
+        /// Збережене місто або null, якщо воно невідоме.
+        ///
+        /// (The persisted city, or null when it is unknown.)
+        /// </param>
+        /// <param name="tokenStatus">
+        /// Збережений статус токена.
+        ///
+        /// (The persisted token status.)
+        /// </param>
+        /// <param name="expiresAt">
+        /// Збережений час завершення строку дії токена.
+        ///
+        /// (The persisted token expiration time.)
+        /// </param>
+        /// <param name="consumedAt">
+        /// Час одноразового використання або null, якщо токен не використано.
+        ///
+        /// (The consumption time, or null when the token has not been consumed.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Збережений час створення токена.
+        ///
+        /// (The persisted token creation time.)
+        /// </param>
+        /// <param name="revokedAt">
+        /// Час відкликання або null, якщо токен не відкликано.
+        ///
+        /// (The revocation time, or null when the token has not been revoked.)
+        /// </param>
+        /// <returns>
+        /// Відновлений refresh-токен.
+        ///
+        /// (The restored refresh token.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язкові доменні об’єкти відсутні,
+        /// статус не підтримується або час використання чи відкликання
+        /// передує часу створення токена.
+        ///
+        /// (Thrown when required domain objects are missing,
+        /// the status is unsupported, or the consumption or revocation time
+        /// precedes the token creation time.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо час завершення строку дії не пізніший за час створення
+        /// або статус токена не узгоджується з його часовими полями.
+        ///
+        /// (Thrown when the expiration time is not later than the creation time
+        /// or the token status is inconsistent with its lifecycle timestamps.)
+        /// </exception>
         public static UserRefreshToken Restore(
             UserRefreshTokenId userRefreshTokenId,
             UserId userId,
@@ -257,6 +340,13 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         #endregion
 
         #region Validation
+        /// <summary>
+        /// Перевіряє строк дії токена, хронологію його використання
+        /// й відкликання та узгодженість статусу з часовими полями.
+        ///
+        /// (Validates the token lifetime, the chronology of its consumption
+        /// and revocation, and the consistency of its status with its timestamps.)
+        /// </summary>
         private static void ValidateState(
             OperationType operationType,
             TokenStatus tokenStatus,
@@ -329,6 +419,33 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
             }
         }
 
+        /// <summary>
+        /// Перевіряє, що кожне задане часове значення не передує
+        /// часу створення токена. Значення null пропускаються.
+        ///
+        /// (Validates that each supplied timestamp does not precede
+        /// the token creation time. Null values are skipped.)
+        /// </summary>
+        /// <param name="operationType">
+        /// Операція, під час якої виконується перевірка.
+        ///
+        /// (The operation during which validation is performed.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Час створення токена.
+        ///
+        /// (The token creation time.)
+        /// </param>
+        /// <param name="currentsTime">
+        /// Необов’язкові часові значення з назвами відповідних полів.
+        ///
+        /// (Optional timestamps paired with their corresponding field names.)
+        /// </param>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо задане часове значення передує часу створення токена.
+        ///
+        /// (Thrown when a supplied timestamp precedes the token creation time.)
+        /// </exception>
         private static void ValidateLifecycleTimestamps(
             OperationType operationType,
             DateTimeOffset createdAt,
@@ -343,23 +460,30 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
                         (time.Value, name),
                         (createdAt, nameof(createdAt))
                     );
-                } 
+                }
             }
         }
         #endregion
 
         #region Queries
         /// <summary>
-        /// Визначає, чи може refresh token бути використаний
+        /// Визначає, чи може refresh-токен бути використаний
         /// у вказаний момент часу.
         ///
         /// (Determines whether the refresh token can be used
         /// at the specified point in time.)
         /// </summary>
-        /// <param name="now">Час, для якого виконується перевірка.</param>
+        /// <param name="now">
+        /// Час, для якого виконується перевірка.
+        ///
+        /// (The point in time for which the check is performed.)
+        /// </param>
         /// <returns>
         /// true, якщо токен має статус Active, уже створений
         /// і строк його дії ще не завершився; інакше false.
+        ///
+        /// (true when the token is Active, has already been created,
+        /// and has not yet expired; otherwise, false.)
         /// </returns>
         public bool CanBeUsed(DateTimeOffset now)
         {
@@ -371,11 +495,22 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         /// <summary>
         /// Визначає, чи настав або минув час завершення строку дії токена.
         ///
-        /// (Determines whether the token expiration time
-        /// has been reached or passed.)
+        /// Перевірка не залежить від поточного статусу токена.
+        ///
+        /// (Determines whether the token expiration time has been reached or passed.
+        ///
+        /// The check is independent of the current token status.)
         /// </summary>
-        /// <param name="now">Час, для якого виконується перевірка.</param>
-        /// <returns>true, якщо now дорівнює ExpiresAt або перевищує його.</returns>
+        /// <param name="now">
+        /// Час, для якого виконується перевірка.
+        ///
+        /// (The point in time for which the check is performed.)
+        /// </param>
+        /// <returns>
+        /// true, якщо now дорівнює ExpiresAt або перевищує його; інакше false.
+        ///
+        /// (true when now is equal to or later than ExpiresAt; otherwise, false.)
+        /// </returns>
         public bool HasExpirationElapsed(DateTimeOffset now)
         {
             return now >= ExpiresAt;
@@ -386,10 +521,17 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         ///
         /// (Returns the remaining period during which the token can be used.)
         /// </summary>
-        /// <param name="now">Час, відносно якого обчислюється залишок.</param>
+        /// <param name="now">
+        /// Час, відносно якого обчислюється залишок.
+        ///
+        /// (The point in time from which the remaining period is calculated.)
+        /// </param>
         /// <returns>
         /// Залишок часу до завершення строку дії або TimeSpan.Zero,
-        /// якщо токен зараз не може бути використаний.
+        /// якщо токен не може бути використаний у вказаний момент.
+        ///
+        /// (The remaining time until expiration, or TimeSpan.Zero
+        /// when the token cannot be used at the specified point in time.)
         /// </returns>
         public TimeSpan GetRemainingUsableTime(DateTimeOffset now)
         {
@@ -402,19 +544,34 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
 
         #region Behavior
         /// <summary>
-        /// Намагається одноразово використати активний refresh-токен.
-        /// Якщо строк дії вже завершився, ліниво переводить токен у стан Expired.
+        /// Намагається одноразово використати активний refresh-токен
+        /// та зафіксувати час його використання.
         ///
-        /// (Attempts to consume an active refresh token once.
-        /// If its lifetime has elapsed, lazily transitions it to Expired.)
+        /// Якщо активний токен прострочений, переводить його у стан Expired
+        /// і повертає помилку завершення строку дії.
+        ///
+        /// (Attempts to consume an active refresh token once
+        /// and record its consumption time.
+        ///
+        /// If the active token has expired, transitions it to Expired
+        /// and returns an expiration error.)
         /// </summary>
-        /// <param name="now">Поточний час доменної операції.</param>
+        /// <param name="now">
+        /// Поточний час доменної операції.
+        ///
+        /// (The current domain-operation time.)
+        /// </param>
         /// <returns>
-        /// Успішний результат переходу в Consumed або помилка,
-        /// що пояснює причину відмови.
+        /// Успішний результат переходу в Consumed або невдалий результат
+        /// із помилкою, що пояснює причину відмови.
+        ///
+        /// (A successful result for the transition to Consumed,
+        /// or a failed result containing an error explaining the rejection.)
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо час операції передує часу створення токена.
+        ///
+        /// (Thrown when the operation time precedes the token creation time.)
         /// </exception>
         internal Result Consume(DateTimeOffset now)
         {
@@ -426,19 +583,34 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         }
 
         /// <summary>
-        /// Намагається явно відкликати активний refresh-токен.
-        /// Якщо строк дії вже завершився, ліниво переводить токен у стан Expired.
+        /// Намагається явно відкликати активний refresh-токен
+        /// та зафіксувати час його відкликання.
         ///
-        /// (Attempts to explicitly revoke an active refresh token.
-        /// If its lifetime has elapsed, lazily transitions it to Expired.)
+        /// Якщо активний токен прострочений, переводить його у стан Expired
+        /// і повертає помилку завершення строку дії.
+        ///
+        /// (Attempts to explicitly revoke an active refresh token
+        /// and record its revocation time.
+        ///
+        /// If the active token has expired, transitions it to Expired
+        /// and returns an expiration error.)
         /// </summary>
-        /// <param name="now">Поточний час доменної операції.</param>
+        /// <param name="now">
+        /// Поточний час доменної операції.
+        ///
+        /// (The current domain-operation time.)
+        /// </param>
         /// <returns>
-        /// Успішний результат переходу в Revoked або помилка,
-        /// що пояснює причину відмови.
+        /// Успішний результат переходу в Revoked або невдалий результат
+        /// із помилкою, що пояснює причину відмови.
+        ///
+        /// (A successful result for the transition to Revoked,
+        /// or a failed result containing an error explaining the rejection.)
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо час операції передує часу створення токена.
+        ///
+        /// (Thrown when the operation time precedes the token creation time.)
         /// </exception>
         internal Result Revoke(DateTimeOffset now)
         {
@@ -450,28 +622,117 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         }
 
         /// <summary>
-        /// Фіксує завершення строку дії активного токена.
-        /// Не перезаписує термінальні стани Consumed, Revoked або Expired.
+        /// Завершує дію активного refresh-токена.
+        /// Якщо строк дії вже минув, переводить токен у стан Expired.
+        /// Інакше переводить токен у стан Revoked та встановлює RevokedAt.
         ///
-        /// (Records the expiration of an active token.
-        /// Does not overwrite the Consumed, Revoked, or Expired terminal states.)
+        /// (Terminates an active refresh token.
+        /// If its lifetime has elapsed, transitions it to Expired.
+        /// Otherwise, transitions it to Revoked and assigns RevokedAt.)
         /// </summary>
-        /// <param name="now">Поточний час доменної операції.</param>
-        /// <returns>true, якщо токен переведено в Expired; інакше false.</returns>
+        /// <remarks>
+        /// Метод призначений для токенів зі збереженим статусом Active.
+        /// Завершення строку дії такого токена є звичайним сценарієм
+        /// і не спричиняє відмови.
+        ///
+        /// Метод змінює лише стан самої сутності. Вилучення токена
+        /// з поточної колекції та реєстрацію зміни виконує агрегат.
+        ///
+        /// (The method is intended for tokens whose stored status is Active.
+        /// An elapsed lifetime is a normal scenario and does not cause
+        /// the operation to fail.
+        ///
+        /// The method changes only the entity's own state. Removing the token
+        /// from the current collection and recording its change are handled
+        /// by the aggregate.)
+        /// </remarks>
+        /// <param name="now">
+        /// Час завершення дії токена.
+        ///
+        /// (The token termination time.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо час операції передує часу створення токена.
+        ///
+        /// (Thrown when the operation time precedes the token creation time.)
         /// </exception>
-        internal bool MarkAsExpired(DateTimeOffset now)
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо токен не має статусу Active.
+        ///
+        /// (Thrown when the token does not have Active status.)
+        /// </exception>
+        internal void Terminate(DateTimeOffset now)
         {
             DomainGuard.AgainstEarlierThan<UserRefreshToken>(
-               OperationType.Update,
-               (now, nameof(now)),
-               (CreatedAt, nameof(CreatedAt))
+                OperationType.Update,
+                (now, nameof(now)),
+                (CreatedAt, nameof(CreatedAt))
             );
 
-            return TryMarkAsExpired(now);
+            if (TokenStatus != TokenStatus.Active)
+            {
+                throw DomainInvalidOperationException.PreconditionFailed<UserRefreshToken>(
+                    nameof(Terminate),
+                    "The refresh token must have Active status before termination.",
+                    OperationType.Update,
+                    context: new Dictionary<string, object>
+                    {
+                        ["RefreshTokenId"] = Id.Value,
+                        ["TokenStatus"] = TokenStatus,
+                        ["OperationTime"] = now
+                    }
+                );
+            }
+
+            if (TryMarkAsExpired(now))
+                return;
+
+            RevokedAt = now;
+            TokenStatus = TokenStatus.Revoked;
         }
 
+        /// <summary>
+        /// Перевіряє час операції та обробляє прострочення активного токена.
+        /// Якщо токен залишається активним, виконує передану дію
+        /// та встановлює цільовий статус.
+        ///
+        /// Перехід у Expired може відбутися навіть при поверненні
+        /// невдалого результату. Винятки переданої дії передаються виклику.
+        ///
+        /// (Validates the operation time and handles expiration of an active token.
+        /// If the token remains active, executes the supplied action
+        /// and assigns the target status.
+        ///
+        /// A transition to Expired may occur even when a failed result
+        /// is returned. Exceptions from the supplied action propagate to the caller.)
+        /// </summary>
+        /// <param name="now">
+        /// Поточний час доменної операції.
+        ///
+        /// (The current domain-operation time.)
+        /// </param>
+        /// <param name="targetStatus">
+        /// Цільовий статус токена.
+        ///
+        /// (The target token status.)
+        /// </param>
+        /// <param name="applyTransitionData">
+        /// Дія, що встановлює дані переходу перед зміною статусу.
+        ///
+        /// (The action that assigns transition data before the status is changed.)
+        /// </param>
+        /// <returns>
+        /// Успішний результат переходу або невдалий результат
+        /// через прострочення чи неактивний статус токена.
+        ///
+        /// (A successful transition result, or a failed result
+        /// caused by expiration or a non-active token status.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо час операції передує часу створення токена.
+        ///
+        /// (Thrown when the operation time precedes the token creation time.)
+        /// </exception>
         private Result ChangeTokenStatus(
             DateTimeOffset now,
             TokenStatus targetStatus,
@@ -481,6 +742,11 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
                 OperationType.Update,
                 (now, nameof(now)),
                 (CreatedAt, nameof(CreatedAt))
+            );
+
+            DomainGuard.AgainstUndefinedEnum<UserRefreshToken>(
+                OperationType.Update,
+                (targetStatus, nameof(targetStatus))
             );
 
             if (TryMarkAsExpired(now))
@@ -500,6 +766,23 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
             return Result.Success();
         }
 
+        /// <summary>
+        /// Переводить токен у стан Expired, лише якщо він має статус Active
+        /// і час завершення строку дії вже настав.
+        ///
+        /// (Transitions the token to Expired only when its status is Active
+        /// and its expiration time has been reached.)
+        /// </summary>
+        /// <param name="now">
+        /// Час, для якого перевіряється завершення строку дії.
+        ///
+        /// (The point in time used to check expiration.)
+        /// </param>
+        /// <returns>
+        /// true, якщо статус змінено на Expired; інакше false.
+        ///
+        /// (true when the status changes to Expired; otherwise, false.)
+        /// </returns>
         private bool TryMarkAsExpired(DateTimeOffset now)
         {
             if (TokenStatus != TokenStatus.Active)

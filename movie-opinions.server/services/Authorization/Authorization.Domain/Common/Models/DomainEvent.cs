@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Models.Interfaces;
+using Authorization.Domain.Common.Models.Interfaces;
 
 namespace Authorization.Domain.Common.Models
 {
@@ -23,7 +23,11 @@ namespace Authorization.Domain.Common.Models
         /// 
         /// (Initializes a new instance of a domain event.)
         /// </summary>
-        /// <param name="occurredOn">Час настання події.</param>
+        /// <param name="occurredOn">
+        /// Час настання події.
+        ///
+        /// (The time when the domain event occurred.)
+        /// </param>
         protected DomainEvent(DateTimeOffset occurredOn)
         {
             OccurredOn = occurredOn;

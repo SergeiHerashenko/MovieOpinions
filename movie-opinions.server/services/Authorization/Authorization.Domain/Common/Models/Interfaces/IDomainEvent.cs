@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Models.Interfaces
+namespace Authorization.Domain.Common.Models.Interfaces
 {
     /// <summary>
     /// Представляє бізнес-факт, який уже відбувся в доменній моделі

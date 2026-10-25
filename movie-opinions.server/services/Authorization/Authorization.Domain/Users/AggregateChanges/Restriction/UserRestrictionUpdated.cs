@@ -12,6 +12,21 @@ namespace Authorization.Domain.Users.AggregateChanges.Restriction
     {
         public UserRestriction UserRestriction { get; }
 
+        /// <summary>
+        /// Створює зміну агрегату для збереження оновленого обмеження.
+        ///
+        /// (Creates an aggregate change for persisting an updated restriction.)
+        /// </summary>
+        /// <param name="userRestriction">
+        /// Обмеження користувача з оновленим станом.
+        ///
+        /// (The user restriction with its updated state.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час зміни стану обмеження.
+        ///
+        /// (The time when the restriction state changed.)
+        /// </param>
         public UserRestrictionUpdated(
             UserRestriction userRestriction,
             DateTimeOffset occurredOn)

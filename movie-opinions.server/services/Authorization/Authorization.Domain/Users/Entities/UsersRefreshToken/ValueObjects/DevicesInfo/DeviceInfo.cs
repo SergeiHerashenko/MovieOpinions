@@ -20,6 +20,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
     /// </summary>
     public sealed class DeviceInfo : ValueObject
     {
+        #region Properties
         /// <summary>
         /// Категорія клієнтського пристрою.
         ///
@@ -47,6 +48,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// (Device-model name or description.)
         /// </summary>
         public string DeviceModel { get; }
+        #endregion
 
         private DeviceInfo(
             DeviceType deviceType,
@@ -68,16 +70,39 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// (Validates the supplied device information
         /// and creates its domain representation.)
         /// </summary>
-        /// <param name="deviceType">Категорія пристрою.</param>
-        /// <param name="operatingSystem">Назва або опис операційної системи.</param>
-        /// <param name="browser">Назва або опис браузера.</param>
-        /// <param name="deviceModel">Назва або опис моделі пристрою.</param>
+        /// <param name="deviceType">
+        /// Категорія пристрою.
+        ///
+        /// (The device category.)
+        /// </param>
+        /// <param name="operatingSystem">
+        /// Назва або опис операційної системи.
+        ///
+        /// (The operating system name or description.)
+        /// </param>
+        /// <param name="browser">
+        /// Назва або опис браузера.
+        ///
+        /// (The browser name or description.)
+        /// </param>
+        /// <param name="deviceModel">
+        /// Назва або опис моделі пристрою.
+        ///
+        /// (The device model name or description.)
+        /// </param>
         /// <returns>
-        /// Успішний результат із DeviceInfo або першу виявлену помилку валідації.
+        /// Успішний результат із DeviceInfo або першу виявлену
+        /// помилку валідації.
+        ///
+        /// (A successful result containing DeviceInfo, or a failed result
+        /// containing the first detected validation error.)
         /// </returns>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає, якщо порушено внутрішню передумову
         /// або порядок виконання правил валідації.
+        ///
+        /// (Thrown when an internal precondition or the required
+        /// execution order of validation rules is violated.)
         /// </exception>
         public static Result<DeviceInfo> Create(
             DeviceType deviceType,
@@ -115,17 +140,42 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// (Restores DeviceInfo from persisted values
         /// and validates their internal consistency.)
         /// </summary>
-        /// <param name="deviceType">Збережена категорія пристрою.</param>
-        /// <param name="operatingSystem">Збережений опис операційної системи.</param>
-        /// <param name="browser">Збережений опис браузера.</param>
-        /// <param name="deviceModel">Збережений опис моделі пристрою.</param>
-        /// <returns>Відновлений DeviceInfo.</returns>
+        /// <param name="deviceType">
+        /// Збережена категорія пристрою.
+        ///
+        /// (The persisted device category.)
+        /// </param>
+        /// <param name="operatingSystem">
+        /// Збережений опис операційної системи.
+        ///
+        /// (The persisted operating system description.)
+        /// </param>
+        /// <param name="browser">
+        /// Збережений опис браузера.
+        ///
+        /// (The persisted browser description.)
+        /// </param>
+        /// <param name="deviceModel">
+        /// Збережений опис моделі пристрою.
+        ///
+        /// (The persisted device model description.)
+        /// </param>
+        /// <returns>
+        /// Відновлений DeviceInfo.
+        ///
+        /// (The restored DeviceInfo.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережені значення порушують правила DeviceInfo.
+        ///
+        /// (Thrown when the persisted values violate the DeviceInfo validation rules.)
         /// </exception>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає, якщо порушено внутрішню передумову
         /// або порядок виконання правил валідації.
+        ///
+        /// (Thrown when an internal precondition or the required
+        /// execution order of validation rules is violated.)
         /// </exception>
         public static DeviceInfo Restore(
             DeviceType deviceType,
@@ -148,6 +198,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         }
         #endregion
 
+        /// <inheritdoc/>
         public override IEnumerable<object?> GetEqualityComponents()
         {
             yield return DeviceType;

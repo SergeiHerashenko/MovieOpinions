@@ -49,12 +49,45 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         ///
         /// (Creates an exception when an empty required field is found in a domain object.)
         /// </summary>
-        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
-        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
-        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
-        /// <param name="message">Діагностичне повідомлення. Якщо null – формується стандартне.</param>
-        /// <param name="context">Додатковий контекст.</param>
-        /// <param name="innerException">Внутрішній виняток.</param>
+        /// <typeparam name="TType">
+        /// Тип доменного об’єкта, в якому виявлено проблему.
+        /// 
+        /// (The type of the domain object in which the issue was detected.)
+        /// </typeparam>
+        /// <param name="fieldName">
+        /// Назва поля, з яким пов’язана проблема.
+        /// 
+        /// (The name of the field associated with the issue.)
+        /// </param>
+        /// <param name="operationType">
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Restore.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Restore.)
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
+        /// </param>
+        /// <param name="context">
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
+        /// </param>
+        /// <param name="innerException">
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
+        /// </param>
+        /// <returns>
+        /// Створений виняток неузгодженості доменних даних.
+        ///
+        /// (The created domain data inconsistency exception.)
+        /// </returns>
         public static DomainDataInconsistencyException Empty<TType>(
             string fieldName,
             OperationType operationType = OperationType.Restore,
@@ -91,13 +124,52 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         ///
         /// (Creates an exception when a domain object field has an invalid format.)
         /// </summary>
-        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
-        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
-        /// <param name="value">Значення, тип якого буде додано до діагностичного контексту.</param>
-        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
-        /// <param name="message">Діагностичне повідомлення. Якщо null – формується стандартне.</param>
-        /// <param name="context">Додатковий контекст.</param>
-        /// <param name="innerException">Внутрішній виняток.</param>
+        /// <typeparam name="TType">
+        /// Тип доменного об’єкта, в якому виявлено проблему.
+        /// 
+        /// (The type of the domain object in which the issue was detected.)
+        /// </typeparam>
+        /// <param name="fieldName">
+        /// Назва поля, з яким пов’язана проблема.
+        /// 
+        /// (The name of the field associated with the issue.)
+        /// </param>
+        /// <param name="value">
+        /// Значення, назва типу якого додається до діагностичного контексту.
+        /// Для null записується "null".
+        /// 
+        /// (A value whose type name is added to the diagnostic context.
+        /// For null, "null" is recorded.)
+        /// </param>
+        /// <param name="operationType">
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Restore.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Restore.)
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
+        /// </param>
+        /// <param name="context">
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
+        /// </param>
+        /// <param name="innerException">
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
+        /// </param>
+        /// <returns>
+        /// Створений виняток неузгодженості доменних даних.
+        ///
+        /// (The created domain data inconsistency exception.)
+        /// </returns>
         public static DomainDataInconsistencyException InvalidFieldFormat<TType>(
             string fieldName,
             object? value,
@@ -135,15 +207,55 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// <summary>
         /// Створює виняток для випадку, коли отримано непідтримуваний дискримінатор.
         /// 
-        /// (Raises an exception for the case when an unsupported discriminator is received.)
+        /// (Creates an exception when an unsupported discriminator is received.)
         /// </summary>
-        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
-        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
-        /// <param name="discriminatorValue">Непідтримуване значення.</param>
-        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
-        /// <param name="message">Діагностичне повідомлення. Якщо null — формується стандартне.</param>
-        /// <param name="context">Додатковий контекст.</param>
-        /// <param name="innerException">Внутрішній виняток.</param>
+        /// <typeparam name="TType">
+        /// Тип доменного об’єкта, в якому виявлено проблему.
+        /// 
+        /// (The type of the domain object in which the issue was detected.)
+        /// </typeparam>
+        /// <param name="fieldName">
+        /// Назва поля, з яким пов’язана проблема.
+        /// 
+        /// (The name of the field associated with the issue.)
+        /// </param>
+        /// <param name="discriminatorValue">
+        /// Непідтримуване значення дискримінатора.
+        /// Якщо null, у контексті та стандартному повідомленні
+        /// використовується "Unknown".
+        /// 
+        /// (The unsupported discriminator value.
+        /// If null, "Unknown" is used in the context and default message.)
+        /// </param>
+        /// <param name="operationType">
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Restore.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Restore.)
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
+        /// </param>
+        /// <param name="context">
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
+        /// </param>
+        /// <param name="innerException">
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
+        /// </param>
+        /// <returns>
+        /// Створений виняток неузгодженості доменних даних.
+        ///
+        /// (The created domain data inconsistency exception.)
+        /// </returns>
         public static DomainDataInconsistencyException UnsupportedDiscriminator<TType>(
             string fieldName,
             object? discriminatorValue,
@@ -183,13 +295,52 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         ///
         /// (Creates an exception when a field value is outside its allowed range.)
         /// </summary>
-        /// <typeparam name="TType">Тип доменного об’єкта, в якому виявлено проблему.</typeparam>
-        /// <param name="fieldName">Назва поля, яке викликало проблему.</param>
-        /// <param name="value">Значення, тип якого буде додано до діагностичного контексту.</param>
-        /// <param name="operationType">Операція (за замовчуванням "Restore").</param>
-        /// <param name="message">Діагностичне повідомлення. Якщо null — формується стандартне.</param>
-        /// <param name="context">Додатковий контекст.</param>
-        /// <param name="innerException">Внутрішній виняток.</param>
+        /// <typeparam name="TType">
+        /// Тип доменного об’єкта, в якому виявлено проблему.
+        /// 
+        /// (The type of the domain object in which the issue was detected.)
+        /// </typeparam>
+        /// <param name="fieldName">
+        /// Назва поля, з яким пов’язана проблема.
+        /// 
+        /// (The name of the field associated with the issue.)
+        /// </param>
+        /// <param name="value">
+        /// Значення, назва типу якого додається до діагностичного контексту.
+        /// Для null записується "null".
+        /// 
+        /// (A value whose type name is added to the diagnostic context.
+        /// For null, "null" is recorded.)
+        /// </param>
+        /// <param name="operationType">
+        /// Операція, під час якої виявлено проблему.
+        /// За замовчуванням — Restore.
+        /// 
+        /// (The operation during which the issue was detected.
+        /// Defaults to Restore.)
+        /// </param>
+        /// <param name="message">
+        /// Діагностичне повідомлення. Якщо null, формується стандартне.
+        /// 
+        /// (The diagnostic message. If null, a default message is generated.)
+        /// </param>
+        /// <param name="context">
+        /// Додаткові дані, ключі яких додаються до контексту
+        /// з префіксом "Custom_".
+        /// 
+        /// (Additional data whose keys are added to the context
+        /// with the "Custom_" prefix.)
+        /// </param>
+        /// <param name="innerException">
+        /// Початковий виняток, що спричинив проблему, якщо він є.
+        /// 
+        /// (The original exception that caused the issue, if any.)
+        /// </param>
+        /// <returns>
+        /// Створений виняток неузгодженості доменних даних.
+        ///
+        /// (The created domain data inconsistency exception.)
+        /// </returns>
         public static DomainDataInconsistencyException ValueOutOfRange<TType>(
             string fieldName,
             object? value = null,
@@ -219,7 +370,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         private static string BuildValueOutOfRangeMessage<TType>(string fieldName, OperationType operationType)
         {
             return $"An error occurred during the '{operationType}' operation. The field '{fieldName}' " +
-                $"in type '{typeof(TType).Name}' has a value that is out of acceptable range!";
+                $"in type '{typeof(TType).Name}' has a value outside the allowed range!";
         }
         #endregion
     }

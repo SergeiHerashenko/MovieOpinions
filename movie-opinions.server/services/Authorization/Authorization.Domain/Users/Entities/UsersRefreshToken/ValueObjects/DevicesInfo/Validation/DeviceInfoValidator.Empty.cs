@@ -2,6 +2,7 @@ using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Errors;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation
@@ -17,8 +18,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// </summary>
         private sealed class RequiredFieldsRule : IValidationRule<DeviceInfoValidationData, ValidationFailure>
         {
+            /// <inheritdoc/>
             public ValidationPriority Priority => ValidationPriority.Presence;
 
+            /// <inheritdoc/>
             public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
                 return ValidateOperatingSystem(data.OperatingSystem)

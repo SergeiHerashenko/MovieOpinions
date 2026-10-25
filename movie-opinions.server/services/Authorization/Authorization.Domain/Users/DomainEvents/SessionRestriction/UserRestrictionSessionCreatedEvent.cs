@@ -1,8 +1,8 @@
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
 {
@@ -30,17 +30,41 @@ namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
         public int TotalBlockedMinutes { get; }
 
         /// <summary>
-        /// Створює подію створення нової сесії обмежень.
+        /// Створює подію створення нової сесії обмежень користувача.
         ///
         /// (Creates an event representing the creation
-        /// of a new restriction session.)
+        /// of a new user restriction session.)
         /// </summary>
-        /// <param name="userRestrictionSessionId">Ідентифікатор створеної сесії.</param>
-        /// <param name="login">Логін користувача, для якого створено сесію.
-        /// <param name="restrictionDescriptions">Описи початкових обмежень сесії.</param>
-        /// <param name="restrictionType">Тип створеної сесії.</param>
-        /// <param name="totalBlockedMinutes">Загальна тривалість блокування після створення сесії.</param>
-        /// <param name="occurredOn">Час створення сесії.</param>
+        /// <param name="userRestrictionSessionId">
+        /// Ідентифікатор створеної сесії.
+        ///
+        /// (The created session identifier.)
+        /// </param>
+        /// <param name="login">
+        /// Логін користувача, для якого створено сесію.
+        ///
+        /// (The login of the user for whom the session was created.)
+        /// </param>
+        /// <param name="restrictionDescriptions">
+        /// Описи початкових обмежень сесії.
+        ///
+        /// (Descriptions of the initial session restrictions.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Тип обмежень створеної сесії.
+        ///
+        /// (The restriction type of the created session.)
+        /// </param>
+        /// <param name="totalBlockedMinutes">
+        /// Загальна тривалість блокування у хвилинах після створення сесії.
+        ///
+        /// (The total blocked duration in minutes after session creation.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час створення сесії.
+        ///
+        /// (The session creation time.)
+        /// </param>
         public UserRestrictionSessionCreatedEvent(
             UserRestrictionSessionId userRestrictionSessionId,
             Login login,

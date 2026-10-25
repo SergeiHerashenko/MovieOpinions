@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Exceptions.Enums
+namespace Authorization.Domain.Common.Exceptions.Enums
 {
     /// <summary>
     /// Категорія внутрішнього винятку, яка визначає його семантику
@@ -9,10 +9,25 @@
     /// </summary>
     public enum ExceptionType
     {
-        DataInconsistency = 1,
+        /// <summary>
+        /// Некоректні, неузгоджені або непідтримувані доменні дані.
+        ///
+        /// (Invalid, inconsistent, or unsupported domain data.)
+        /// </summary>
+        DataInconsistency = 0,
 
-        InvalidOperation = 2,
+        /// <summary>
+        /// Некоректне використання операції або порушення її передумов.
+        ///
+        /// (Invalid use of an operation or violation of its preconditions.)
+        /// </summary>
+        InvalidOperation = 1,
 
-        InvariantViolation = 3
+        /// <summary>
+        /// Порушення інваріантів доменного об’єкта.
+        ///
+        /// (Violation of a domain object's invariants.)
+        /// </summary>
+        InvariantViolation = 2
     }
 }

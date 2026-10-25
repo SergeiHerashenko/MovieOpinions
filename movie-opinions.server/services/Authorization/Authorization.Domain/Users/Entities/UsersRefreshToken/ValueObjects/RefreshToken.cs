@@ -38,6 +38,11 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         ///
         /// (Generates a new cryptographically random refresh token.)
         /// </summary>
+        /// <returns>
+        /// Новий refresh token зі значенням, закодованим у Base64.
+        ///
+        /// (A new refresh token with its value encoded in Base64.)
+        /// </returns>
         internal static RefreshToken Create()
         {
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(REFRESH_TOKEN_SIZE_IN_BYTES));
@@ -54,10 +59,22 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         /// (Restores a refresh token from its persisted value
         /// and validates its structural correctness.)
         /// </summary>
-        /// <param name="value">Збережене закодоване значення токена.</param>
+        /// <param name="value">
+        /// Збережене Base64-представлення секретного значення refresh-токена.
+        ///
+        /// (The persisted Base64 representation of the refresh token's secret value.)
+        /// </param>
+        /// <returns>
+        /// Відновлений refresh token зі значенням, закодованим у Base64.
+        ///
+        /// (A restored refresh token with its value encoded in Base64.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо значення порожнє, має неправильну довжину
         /// або не є валідним Base64-токеном очікуваного розміру.
+        ///
+        /// (Thrown when the value is missing, has an invalid length,
+        /// or is not valid Base64 representing a token of the expected size.)
         /// </exception>
         public static RefreshToken Restore(string value)
         {
@@ -79,7 +96,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
             }
 
             Span<byte> tokenBytes = stackalloc byte[REFRESH_TOKEN_SIZE_IN_BYTES];
-             
+
             if (!Convert.TryFromBase64String(
                     value,
                     tokenBytes,
@@ -96,6 +113,7 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         }
         #endregion
 
+        /// <inheritdoc/>
         public override IEnumerable<object?> GetEqualityComponents()
         {
             yield return Value;

@@ -29,6 +29,11 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         ///
         /// (Creates a new identifier based on a version 7 UUID.)
         /// </summary>
+        /// <returns>
+        /// Новий ідентифікатор refresh-токена користувача.
+        ///
+        /// (The new user refresh token identifier.)
+        /// </returns>
         internal static UserRefreshTokenId Create()
         {
             return new(Guid.CreateVersion7());
@@ -41,9 +46,20 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         ///
         /// (Restores the identifier from a persisted scalar value.)
         /// </summary>
-        /// <param name="value">Збережене значення ідентифікатора.</param>
+        /// <param name="value">
+        /// Збережене значення ідентифікатора.
+        ///
+        /// (The persisted identifier value.)
+        /// </param>
+        /// <returns>
+        /// Відновлений ідентифікатор refresh-токена користувача.
+        ///
+        /// (The restored user refresh token identifier.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо значення дорівнює Guid.Empty.
+        ///
+        /// (Thrown when the persisted value is Guid.Empty.)
         /// </exception>
         public static UserRefreshTokenId Restore(Guid value)
         {
@@ -54,6 +70,13 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         }
         #endregion
 
+        /// <summary>
+        /// Неявно перетворює ідентифікатор refresh-токена користувача
+        /// на його значення Guid.
+        ///
+        /// (Implicitly converts a user refresh token identifier
+        /// to its Guid value.)
+        /// </summary>
         public static implicit operator Guid(UserRefreshTokenId data)
             => data.Value;
     }

@@ -1,8 +1,8 @@
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction.Validation;
 using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction.Validation;
 
 namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction
 {
@@ -41,12 +41,22 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         ///
         /// (Validates the input and creates a restriction rule.)
         /// </summary>
-        /// <param name="name">Назва правила обмеження.</param>
-        /// <param name="durationMinutes">Тривалість обмеження у хвилинах.</param>
+        /// <param name="name">
+        /// Назва правила обмеження.
+        ///
+        /// (The restriction rule name.)
+        /// </param>
+        /// <param name="durationMinutes">
+        /// Тривалість обмеження у хвилинах.
+        ///
+        /// (The restriction duration in minutes.)
+        /// </param>
         /// <returns>
         /// Успішний результат із правилом або помилка його валідації.
+        ///
+        /// (A successful result containing the restriction rule, or its validation error.)
         /// </returns>
-        internal static Result<RestrictionRule> Create(string name, int durationMinutes)
+        public static Result<RestrictionRule> Create(string name, int durationMinutes)
         {
             var failure = RestrictionRuleValidator.ValidateForError(
                 OperationType.Create,
@@ -72,11 +82,25 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         ///
         /// (Restores a restriction rule from persisted values.)
         /// </summary>
-        /// <param name="name">Збережена назва правила.</param>
-        /// <param name="durationMinutes">Збережена тривалість у хвилинах.</param>
-        /// <returns>Відновлене правило обмеження.</returns>
+        /// <param name="name">
+        /// Збережена назва правила.
+        ///
+        /// (The persisted restriction rule name.)
+        /// </param>
+        /// <param name="durationMinutes">
+        /// Збережена тривалість у хвилинах.
+        ///
+        /// (The persisted restriction duration in minutes.)
+        /// </param>
+        /// <returns>
+        /// Відновлене правило обмеження.
+        ///
+        /// (The restored restriction rule.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережені значення порушують правила RestrictionRule.
+        ///
+        /// (Thrown when the persisted values violate RestrictionRule validation rules.)
         /// </exception>
         public static RestrictionRule Restore(string name, int durationMinutes)
         {
@@ -96,6 +120,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         }
         #endregion
 
+        /// <inheritdoc/>
         public override IEnumerable<object> GetEqualityComponents()
         {
             yield return Name;

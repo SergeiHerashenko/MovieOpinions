@@ -1,0 +1,35 @@
+using Authorization.Domain.Common.Validation;
+using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
+using Authorization.Domain.Common.ValueObjects.PasswordUser.Errors;
+
+namespace Authorization.Domain.Common.ValueObjects.PasswordUser.Validation.ValidatedPlainPassword
+{
+    internal static partial class PlainPasswordValidator
+    {
+        /// <summary>
+        /// Перевіряє, що пароль не є порожнім
+        /// і не складається лише з пробільних символів.
+        ///
+        /// (Validates that the password is not empty
+        /// and does not consist only of whitespace.)
+        /// </summary>
+        private sealed class RequiredRule : IValidationRule<PlainPasswordValidationData, ErrorValidationFailure>
+        {
+            /// <inheritdoc/>
+            public ValidationPriority Priority => ValidationPriority.Presence;
+
+            /// <inheritdoc/>
+            public ErrorValidationFailure? Validate(PlainPasswordValidationData data)
+            {
+                if (!string.IsNullOrWhiteSpace(data.Value))
+                    return null;
+
+                return new ErrorValidationFailure()
+                {
+                    Error = PlainPasswordErrors.EmptyPlainPassword<PlainPassword>()
+                };
+            }
+        }
+    }
+}

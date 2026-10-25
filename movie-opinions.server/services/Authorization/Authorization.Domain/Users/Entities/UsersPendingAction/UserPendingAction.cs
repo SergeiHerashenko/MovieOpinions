@@ -23,6 +23,11 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
     /// </summary>
     public sealed class UserPendingAction : Entity<UserPendingActionId>, IUserOwned
     {
+        /// <summary>
+        /// Тривалість життя активної дії в хвилинах.
+        ///
+        /// (Duration of the active action lifetime in minutes.)
+        /// </summary>
         private const int EXPIRATION_TIME_IN_MINUTES = 30;
 
         #region Properties
@@ -85,35 +90,18 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Creation
         /// <summary>
-        /// Ініціалізує нову відкладену дію з уже підготовленими
-        /// ідентифікатором, токеном підтвердження та даними операції.
+        /// Ініціалізує нову відкладену дію з підготовлених доменних значень,
+        /// установлює строк дії та початковий статус Active.
+        /// Часові позначки кінцевих переходів залишаються порожніми.
         ///
-        /// Обчислює час завершення строку дії, встановлює початковий
-        /// статус <see cref="ActionStatus.Active"/> та залишає часові
-        /// позначки кінцевих переходів порожніми.
-        ///
-        /// Вхідні значення перевіряються фабричним методом
-        /// <see cref="Create(UserId, UserAction, DateTimeOffset)"/>.
-        ///
-        /// (Initializes a new pending action using an already prepared
-        /// identifier, confirmation token, and action data.
-        ///
-        /// Calculates the expiration time, assigns the initial
-        /// <see cref="ActionStatus.Active"/> status, and leaves all terminal
-        /// transition timestamps empty.
-        ///
-        /// Input values are validated by the
-        /// <see cref="Create(UserId, UserAction, DateTimeOffset)"/> factory method.)
+        /// (Initializes a new pending action from prepared domain values,
+        /// sets its lifetime and initial Active status,
+        /// and leaves terminal transition timestamps unset.)
         /// </summary>
-        /// <param name="userPendingActionId">Згенерований ідентифікатор відкладеної дії.</param>
-        /// <param name="userId">Ідентифікатор користувача, якому належить дія.</param>
-        /// <param name="confirmationFlowToken">Згенерований токен підтвердження.</param>
-        /// <param name="userAction">Дані запланованої операції.</param>
-        /// <param name="now">Час створення відкладеної дії.</param>
         private UserPendingAction(
-            UserPendingActionId userPendingActionId, 
-            UserId userId, 
-            ConfirmationFlowToken confirmationFlowToken, 
+            UserPendingActionId userPendingActionId,
+            UserId userId,
+            ConfirmationFlowToken confirmationFlowToken,
             UserAction userAction,
             DateTimeOffset now)
             : base(userPendingActionId, now)
@@ -132,21 +120,37 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         /// Створює нову відкладену дію користувача.
         ///
         /// Перевіряє обов’язкові доменні об’єкти, генерує ідентифікатор
-        /// сутності й токен підтвердження та створює дію у стані
-        /// <see cref="ActionStatus.Active"/>.
+        /// і токен потоку підтвердження та встановлює початковий статус Active.
         ///
         /// (Creates a new pending user action.
         ///
-        /// Validates the required domain objects, generates the entity
-        /// identifier and confirmation token, and creates the action
-        /// in the <see cref="ActionStatus.Active"/> state.)
+        /// Validates required domain objects, generates the identifier
+        /// and confirmation-flow token, and sets the initial Active status.)
         /// </summary>
-        /// <param name="userId">Ідентифікатор користувача, якому належить дія.</param>
-        /// <param name="userAction">Дані запланованої операції.</param>
-        /// <param name="now">Час створення відкладеної дії.</param>
-        /// <returns>Створена відкладена дія користувача.</returns>
+        /// <param name="userId">
+        /// Ідентифікатор користувача, якому належить дія.
+        ///
+        /// (Identifier of the user who owns the action.)
+        /// </param>
+        /// <param name="userAction">
+        /// Дані запланованої операції.
+        ///
+        /// (The planned operation data.)
+        /// </param>
+        /// <param name="now">
+        /// Час створення відкладеної дії.
+        ///
+        /// (The pending action creation time.)
+        /// </param>
+        /// <returns>
+        /// Створена активна відкладена дія користувача.
+        ///
+        /// (The newly created active pending user action.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо обов’язковий доменний об’єкт відсутній.
+        ///
+        /// (Thrown when a required domain object is missing.)
         /// </exception>
         internal static UserPendingAction Create(
             UserId userId,
@@ -173,36 +177,12 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Restoration
         /// <summary>
-        /// Ініціалізує відкладену дію з уже перевіреного
-        /// збереженого стану.
+        /// Ініціалізує відкладену дію зі збережених значень,
+        /// попередньо перевірених фабрикою Restore.
         ///
-        /// Відтворює всі значення без генерації нових ідентифікаторів,
-        /// токенів, часових позначок або доменних подій.
-        ///
-        /// Узгодженість переданого стану перевіряється фабричним методом
-        /// <see cref="Restore(UserPendingActionId, UserId, ConfirmationFlowToken,
-        /// UserAction, DateTimeOffset, DateTimeOffset?, DateTimeOffset?,
-        /// DateTimeOffset?, ActionStatus, DateTimeOffset)"/>.
-        ///
-        /// (Initializes a pending action from an already validated
-        /// persisted state.
-        ///
-        /// Restores all values without generating new identifiers,
-        /// tokens, timestamps, or domain events.
-        ///
-        /// Consistency of the supplied state is validated by the
-        /// Restore factory method.)
+        /// (Initializes a pending action from persisted values
+        /// previously validated by the Restore factory.)
         /// </summary>
-        /// <param name="userPendingActionId">Збережений ідентифікатор відкладеної дії.</param>
-        /// <param name="userId">Ідентифікатор користувача, якому належить дія.</param>
-        /// <param name="confirmationFlowToken">Збережений токен підтвердження.</param>
-        /// <param name="userAction">Збережені дані запланованої операції.</param>
-        /// <param name="expiresAt">Установлений час завершення строку дії.</param>
-        /// <param name="confirmationTime">Час підтвердження або null.</param>
-        /// <param name="expiredAt">Фактичний час переходу у стан Expired або null.</param>
-        /// <param name="cancelledTime">Час скасування або null.</param>
-        /// <param name="actionStatus">Збережений статус життєвого циклу дії.</param>
-        /// <param name="createdAt">Час створення відкладеної дії.</param>
         private UserPendingAction(
             UserPendingActionId userPendingActionId,
             UserId userId,
@@ -231,39 +211,82 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         /// зі збереженого стану.
         ///
         /// Перевіряє обов’язкові доменні об’єкти, допустимість статусу,
-        /// часові межі та відповідність часових позначок поточному
-        /// стану життєвого циклу.
-        ///
-        /// Метод не генерує нових ідентифікаторів або токенів
-        /// і не створює доменних подій.
+        /// часові межі та узгодженість статусу з часовими позначками.
         ///
         /// (Validates and restores a pending user action
-        /// from persisted state.
+        /// from its persisted state.
         ///
         /// Validates required domain objects, the status value,
-        /// timestamp boundaries, and consistency between lifecycle
-        /// timestamps and the current status.
-        ///
-        /// The method does not generate new identifiers or tokens
-        /// and does not record domain events.)
+        /// timestamp boundaries, and consistency between the status and timestamps.)
         /// </summary>
-        /// <param name="userPendingActionId">Збережений ідентифікатор відкладеної дії.</param>
-        /// <param name="userId">Ідентифікатор користувача, якому належить дія.</param>
-        /// <param name="confirmationToken">Збережений токен підтвердження.</param>
-        /// <param name="userAction">Збережені дані запланованої операції.</param>
-        /// <param name="expiresAt">Установлений час завершення строку дії.</param>
-        /// <param name="confirmationTime">Час підтвердження або null.</param>
-        /// <param name="expiredAt">Фактичний час переходу у стан Expired або null.</param>
-        /// <param name="cancelledTime">Час скасування або null.</param>
-        /// <param name="actionStatus">Збережений статус життєвого циклу дії.</param>
-        /// <param name="createdAt">Час створення відкладеної дії.</param>
-        /// <returns>Відновлена відкладена дія користувача.</returns>
+        /// <param name="userPendingActionId">
+        /// Збережений ідентифікатор відкладеної дії.
+        ///
+        /// (The persisted pending action identifier.)
+        /// </param>
+        /// <param name="userId">
+        /// Ідентифікатор користувача, якому належить дія.
+        ///
+        /// (Identifier of the user who owns the action.)
+        /// </param>
+        /// <param name="confirmationToken">
+        /// Збережений токен потоку підтвердження.
+        ///
+        /// (The persisted confirmation-flow token.)
+        /// </param>
+        /// <param name="userAction">
+        /// Збережені дані запланованої операції.
+        ///
+        /// (The persisted planned operation data.)
+        /// </param>
+        /// <param name="expiresAt">
+        /// Установлений час завершення строку дії.
+        ///
+        /// (The configured action expiration time.)
+        /// </param>
+        /// <param name="confirmationTime">
+        /// Час підтвердження або null.
+        ///
+        /// (The confirmation time, or null.)
+        /// </param>
+        /// <param name="expiredAt">
+        /// Фактичний час переходу у стан Expired або null.
+        ///
+        /// (The actual time of transition to Expired, or null.)
+        /// </param>
+        /// <param name="cancelledTime">
+        /// Час скасування або null.
+        ///
+        /// (The cancellation time, or null.)
+        /// </param>
+        /// <param name="actionStatus">
+        /// Збережений статус життєвого циклу дії.
+        ///
+        /// (The persisted action lifecycle status.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Час створення відкладеної дії.
+        ///
+        /// (The pending action creation time.)
+        /// </param>
+        /// <returns>
+        /// Відновлена відкладена дія користувача.
+        ///
+        /// (The restored pending user action.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обов’язкові дані відсутні або статус не підтримується.
+        /// Виникає, якщо обов’язкові доменні об’єкти відсутні
+        /// або статус не підтримується.
+        ///
+        /// (Thrown when required domain objects are missing
+        /// or the status is unsupported.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо часові значення або їх відповідність статусу
         /// утворюють неконсистентний стан.
+        ///
+        /// (Thrown when timestamp values or their relationship
+        /// with the status form an inconsistent state.)
         /// </exception>
         public static UserPendingAction Restore(
             UserPendingActionId userPendingActionId,
@@ -316,7 +339,11 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         ///
         /// (Returns the expiration time of the action confirmation period.)
         /// </summary>
-        /// <returns>Дата й час завершення строку дії.</returns>
+        /// <returns>
+        /// Дата й час завершення строку дії.
+        ///
+        /// (The action expiration date and time.)
+        /// </returns>
         public DateTimeOffset GetExpirationDate()
         {
             return ExpiresAt;
@@ -325,22 +352,28 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         /// <summary>
         /// Визначає, чи є дія активною у вказаний момент.
         ///
-        /// Дія вважається активною, якщо вона перебуває у стані
-        /// <see cref="ActionStatus.Active"/>, уже створена та її строк
-        /// підтвердження ще не завершився.
+        /// Дія вважається активною, якщо вона має статус Active,
+        /// уже створена та її період підтвердження ще не завершився.
         ///
         /// Метод не змінює стан сутності.
         ///
         /// (Determines whether the action is active at the specified time.
         ///
-        /// An action is active when it has the <see cref="ActionStatus.Active"/>
-        /// status, has already been created, and its confirmation period
-        /// has not expired.
+        /// An action is active when its status is Active, it has already
+        /// been created, and its confirmation period has not expired.
         ///
         /// The method does not modify entity state.)
         /// </summary>
-        /// <param name="now">Час, відносно якого перевіряється активність дії.</param>
-        /// <returns><see langword="true"/>, якщо дія активна; інакше — <see langword="false"/>.</returns>
+        /// <param name="now">
+        /// Час, відносно якого перевіряється активність дії.
+        ///
+        /// (The point in time used to check whether the action is active.)
+        /// </param>
+        /// <returns>
+        /// true, якщо дія активна у вказаний момент; інакше false.
+        ///
+        /// (true when the action is active at the specified time; otherwise, false.)
+        /// </returns>
         public bool IsActive(DateTimeOffset now)
         {
             return now >= CreatedAt
@@ -351,22 +384,39 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Behavior (Confirmation)
         /// <summary>
-        /// Перевіряє, чи може активна відкладена дія бути підтверджена.
+        /// Перевіряє можливість підтвердження відкладеної дії
+        /// зі статусом Active.
         ///
-        /// Перевіряє поточний стан сутності, строк дії та відповідність
-        /// токена підтвердження. Метод не змінює стан сутності.
+        /// Перевіряє строк дії та відповідність токена підтвердження.
+        /// Метод не змінює стан сутності.
         ///
-        /// (Validates whether the active pending action can be confirmed.
+        /// (Validates whether a pending action with Active status can be confirmed.
         ///
-        /// Validates the current entity state, expiration time, and confirmation
-        /// token. The method does not modify entity state.)
+        /// Checks the expiration time and confirmation token.
+        /// The method does not modify entity state.)
         /// </summary>
-        /// <param name="confirmationFlowToken">Токен, отриманий для підтвердження дії.</param>
-        /// <param name="now">Час виконання перевірки.</param>
+        /// <param name="confirmationFlowToken">
+        /// Токен, отриманий для підтвердження дії.
+        ///
+        /// (The token supplied to confirm the action.)
+        /// </param>
+        /// <param name="now">
+        /// Час виконання перевірки.
+        ///
+        /// (The time at which validation is performed.)
+        /// </param>
         /// <returns>
-        /// Успіх, якщо дія може бути підтверджена; інакше — очікувана
-        /// доменна помилка про завершення строку дії або неправильний токен.
+        /// Успішний результат, якщо дію можна підтвердити;
+        /// інакше помилка завершення строку дії або невідповідності токена.
+        ///
+        /// (A successful result when the action can be confirmed;
+        /// otherwise, an expiration or token-mismatch error.)
         /// </returns>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         internal Result ValidateConfirmation(
             ConfirmationFlowToken confirmationFlowToken,
             DateTimeOffset now)
@@ -382,18 +432,36 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         /// <summary>
         /// Переводить активну відкладену дію у підтверджений стан.
         ///
-        /// Перед мутацією повторно перевіряє всі передумови підтвердження.
-        /// Після успішної перевірки встановлює статус
-        /// <see cref="ActionStatus.Confirmed"/> і час підтвердження.
+        /// Повторно перевіряє передумови підтвердження, після чого
+        /// встановлює статус Confirmed і час підтвердження.
         ///
-        /// (Transitions the active pending action to the confirmed state.
+        /// (Transitions an active pending action to the confirmed state.
         ///
-        /// Revalidates all confirmation preconditions before mutation.
-        /// After successful validation, sets the
-        /// <see cref="ActionStatus.Confirmed"/> status and confirmation time.)
+        /// Revalidates confirmation preconditions, then sets
+        /// the Confirmed status and confirmation time.)
         /// </summary>
-        /// <param name="confirmationFlowToken">Токен підтвердження дії.</param>
-        /// <param name="now">Час підтвердження дії.</param>
+        /// <param name="confirmationToken">
+        /// Токен підтвердження дії.
+        ///
+        /// (The action confirmation token.)
+        /// </param>
+        /// <param name="now">
+        /// Час підтвердження дії.
+        ///
+        /// (The action confirmation time.)
+        /// </param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо повторна перевірка підтвердження
+        /// повернула очікувану доменну помилку.
+        ///
+        /// (Thrown when confirmation revalidation
+        /// returns an expected domain error.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         internal void MarkAsConfirmed(
             ConfirmationFlowToken confirmationToken,
             DateTimeOffset now)
@@ -430,24 +498,41 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Behavior (Cancellation)
         /// <summary>
-        /// Перевіряє, чи може активна відкладена дія бути скасована.
+        /// Перевіряє можливість скасування відкладеної дії
+        /// зі статусом Active.
         ///
-        /// Перевіряє поточний стан сутності та відповідність токена.
-        /// Завершення строку дії не перешкоджає скасуванню.
+        /// Перевіряє строк дії та відповідність токена.
+        /// Скасування дозволене лише до завершення періоду підтвердження.
         /// Метод не змінює стан сутності.
         ///
-        /// (Validates whether the active pending action can be cancelled.
+        /// (Validates whether a pending action with Active status can be cancelled.
         ///
-        /// Validates the current entity state and confirmation token.
-        /// Expiration of the confirmation period does not prevent cancellation.
+        /// Checks the expiration time and confirmation token.
+        /// Cancellation is allowed only before the confirmation period expires.
         /// The method does not modify entity state.)
         /// </summary>
-        /// <param name="confirmationFlowToken">Токен, що ідентифікує дію для скасування.</param>
-        /// <param name="now">Час виконання перевірки.</param>
+        /// <param name="confirmationFlowToken">
+        /// Токен, що ідентифікує дію для скасування.
+        ///
+        /// (The token identifying the action to cancel.)
+        /// </param>
+        /// <param name="now">
+        /// Час виконання перевірки.
+        ///
+        /// (The time at which validation is performed.)
+        /// </param>
         /// <returns>
-        /// Успіх, якщо дія може бути скасована; інакше — помилка
-        /// про невідповідність токена.
+        /// Успішний результат, якщо дію можна скасувати;
+        /// інакше помилка завершення строку дії або невідповідності токена.
+        ///
+        /// (A successful result when the action can be cancelled;
+        /// otherwise, an expiration or token-mismatch error.)
         /// </returns>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         internal Result ValidateCancellation(
             ConfirmationFlowToken confirmationFlowToken,
             DateTimeOffset now)
@@ -463,18 +548,36 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         /// <summary>
         /// Переводить активну відкладену дію у скасований стан.
         ///
-        /// Перед мутацією повторно перевіряє всі передумови скасування.
-        /// Після успішної перевірки встановлює статус
-        /// <see cref="ActionStatus.Cancelled"/> і час скасування.
+        /// Повторно перевіряє передумови скасування, після чого
+        /// встановлює статус Cancelled і час скасування.
         ///
-        /// (Transitions the active pending action to the cancelled state.
+        /// (Transitions an active pending action to the cancelled state.
         ///
-        /// Revalidates all cancellation preconditions before mutation.
-        /// After successful validation, sets the
-        /// <see cref="ActionStatus.Cancelled"/> status and cancellation time.)
+        /// Revalidates cancellation preconditions, then sets
+        /// the Cancelled status and cancellation time.)
         /// </summary>
-        /// <param name="confirmationFlowToken">Токен дії, що скасовується.</param>
-        /// <param name="now">Час скасування дії.</param>
+        /// <param name="confirmationToken">
+        /// Токен дії, що скасовується.
+        ///
+        /// (The token of the action being cancelled.)
+        /// </param>
+        /// <param name="now">
+        /// Час скасування дії.
+        ///
+        /// (The action cancellation time.)
+        /// </param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо повторна перевірка скасування
+        /// повернула очікувану доменну помилку.
+        ///
+        /// (Thrown when cancellation revalidation
+        /// returns an expected domain error.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         internal void MarkAsCancelled(
             ConfirmationFlowToken confirmationToken,
             DateTimeOffset now)
@@ -511,19 +614,32 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Behavior (Expire)
         /// <summary>
-        /// Перевіряє, чи може активна відкладена дія бути позначена
-        /// як прострочена.
+        /// Перевіряє можливість переведення активної відкладеної дії
+        /// у стан Expired.
         ///
-        /// Перехід дозволений лише після досягнення встановленого часу
-        /// завершення дії. Метод не змінює стан сутності.
+        /// Перехід дозволений, коли час завершення строку дії вже настав.
+        /// Метод не змінює стан сутності.
         ///
-        /// (Validates whether the active pending action can be marked
-        /// as expired.
+        /// (Validates whether an active pending action can transition to Expired.
         ///
-        /// The transition is allowed only after the configured expiration time
-        /// has been reached. The method does not modify entity state.)
+        /// The transition is allowed when the expiration time has been reached.
+        /// The method does not modify entity state.)
         /// </summary>
-        /// <param name="now">Час, відносно якого перевіряється завершення строку дії.</param>
+        /// <param name="now">
+        /// Час, відносно якого перевіряється завершення строку дії.
+        ///
+        /// (The point in time used to check expiration.)
+        /// </param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо час завершення строку дії ще не настав.
+        ///
+        /// (Thrown when the expiration time has not yet been reached.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         internal void ValidateCanExpire(DateTimeOffset now)
         {
             EnsureActiveState(now);
@@ -547,17 +663,29 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         /// <summary>
         /// Переводить активну відкладену дію у прострочений стан.
         ///
-        /// Перед мутацією повторно перевіряє, що строк дії завершився.
-        /// Після успішної перевірки встановлює статус
-        /// <see cref="ActionStatus.Expired"/>.
+        /// Повторно перевіряє передумови переходу, встановлює статус Expired
+        /// та записує фактичний час переходу в ExpiredAt.
         ///
-        /// (Transitions the active pending action to the expired state.
+        /// (Transitions an active pending action to the expired state.
         ///
-        /// Revalidates that the action has expired before mutation.
-        /// After successful validation, sets the
-        /// <see cref="ActionStatus.Expired"/> status.)
+        /// Revalidates transition preconditions, sets the Expired status,
+        /// and records the actual transition time in ExpiredAt.)
         /// </summary>
-        /// <param name="now">Час завершення строку дії.</param>
+        /// <param name="now">
+        /// Фактичний час переведення дії у прострочений стан.
+        ///
+        /// (The actual time at which the action is marked as expired.)
+        /// </param>
+        /// <exception cref="DomainInvalidOperationException">
+        /// Виникає, якщо час завершення строку дії ще не настав.
+        ///
+        /// (Thrown when the expiration time has not yet been reached.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         internal void MarkAsExpired(DateTimeOffset now)
         {
             ValidateCanExpire(now);
@@ -569,22 +697,35 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Behavior
         /// <summary>
-        /// Перевіряє спільні передумови переходу активної відкладеної дії.
+        /// Перевіряє часову послідовність операції, допустимість статусу
+        /// та перебування дії у стані Active.
         ///
-        /// Перевіряє часову послідовність, допустимість значення статусу
-        /// та те, що дія перебуває у стані <see cref="ActionStatus.Active"/>.
-        ///
+        /// Строк дії перевіряється окремо в методах конкретних переходів.
         /// Метод не змінює стан сутності.
         ///
-        /// (Validates the common preconditions for transitioning an active
-        /// pending action.
+        /// (Validates the operation chronology, the status value,
+        /// and that the action is in the Active state.
         ///
-        /// Validates chronological consistency, the status value, and verifies
-        /// that the action has the <see cref="ActionStatus.Active"/> status.
-        ///
+        /// Expiration is validated separately by the individual transition methods.
         /// The method does not modify entity state.)
         /// </summary>
-        /// <param name="now">Час виконання операції.</param>
+        /// <param name="now">
+        /// Час виконання операції.
+        ///
+        /// (The operation time.)
+        /// </param>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо час операції передує часу створення дії
+        /// або поточний статус не підтримується.
+        ///
+        /// (Thrown when the operation time precedes the action creation time
+        /// or the current status is unsupported.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо дія не перебуває у стані Active.
+        ///
+        /// (Thrown when the action is not in the Active state.)
+        /// </exception>
         private void EnsureActiveState(DateTimeOffset now)
         {
             DomainGuard.AgainstEarlierThan<UserPendingAction>(
@@ -620,16 +761,27 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
         ///
         /// Метод не змінює стан сутності.
         ///
-        /// (Validates that the supplied token matches the token
-        /// of the current action.
+        /// (Validates that the supplied token matches the current action token.
         ///
         /// The method does not modify entity state.)
         /// </summary>
-        /// <param name="confirmationFlowToken">Токен, який необхідно перевірити.</param>
+        /// <param name="confirmationFlowToken">
+        /// Токен, який необхідно перевірити.
+        ///
+        /// (The token to validate.)
+        /// </param>
         /// <returns>
-        /// Успіх, якщо токени збігаються; інакше — доменна помилка
-        /// про неправильний токен.
+        /// Успішний результат, якщо токени збігаються;
+        /// інакше помилка невідповідності токена.
+        ///
+        /// (A successful result when the tokens match;
+        /// otherwise, a token-mismatch error.)
         /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо переданий токен відсутній.
+        ///
+        /// (Thrown when the supplied token is missing.)
+        /// </exception>
         private Result ValidateConfirmationToken(ConfirmationFlowToken confirmationFlowToken)
         {
             DomainGuard.AgainstNull<UserPendingAction>(
@@ -646,31 +798,71 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
 
         #region Validation
         /// <summary>
-        /// Перевіряє цілісність відновленого стану відкладеної дії.
+        /// Перевіряє цілісність збереженого стану відкладеної дії.
         ///
         /// Перевіряє допустимість статусу, часові межі та узгодженість
-        /// статусу з часовими позначками підтвердження, скасування
-        /// і завершення строку дії.
+        /// статусу з позначками підтвердження, скасування і прострочення.
         ///
-        /// Для активної дії всі часові позначки переходів мають бути відсутні.
-        /// Для кожного кінцевого статусу має бути встановлена лише відповідна
-        /// часова позначка.
+        /// Для Active всі позначки переходів мають бути відсутні.
+        /// Для кожного кінцевого статусу має бути встановлена лише
+        /// відповідна часова позначка в допустимих межах.
         ///
-        /// (Validates the integrity of a restored pending-action state.
+        /// (Validates the integrity of the persisted pending-action state.
         ///
         /// Validates the status value, timestamp boundaries, and consistency
-        /// between the status and the confirmation, cancellation, and expiration
-        /// timestamps.
+        /// between the status and confirmation, cancellation, and expiration timestamps.
         ///
-        /// An active action must not contain transition timestamps.
-        /// Each terminal status must contain only its corresponding timestamp.)
+        /// Active actions must not contain transition timestamps.
+        /// Each terminal status must contain only its corresponding timestamp
+        /// within the permitted boundaries.)
         /// </summary>
-        /// <param name="status">Відновлений статус дії.</param>
-        /// <param name="createdAt">Час створення дії.</param>
-        /// <param name="expiresAt">Запланований час завершення строку дії.</param>
-        /// <param name="confirmationTime">Час підтвердження, якщо дія підтверджена.</param>
-        /// <param name="cancelledTime">Час скасування, якщо дію скасовано.</param>
-        /// <param name="expiredAt">Фактичний час переведення у прострочений стан.</param>
+        /// <param name="userPendingActionId">
+        /// Ідентифікатор дії для діагностичного контексту.
+        ///
+        /// (The action identifier used in diagnostic context.)
+        /// </param>
+        /// <param name="actionStatus">
+        /// Збережений статус дії.
+        ///
+        /// (The persisted action status.)
+        /// </param>
+        /// <param name="expiresAt">
+        /// Запланований час завершення строку дії.
+        ///
+        /// (The configured action expiration time.)
+        /// </param>
+        /// <param name="confirmationTime">
+        /// Час підтвердження або null.
+        ///
+        /// (The confirmation time, or null.)
+        /// </param>
+        /// <param name="expiredAt">
+        /// Фактичний час переходу у стан Expired або null.
+        ///
+        /// (The actual time of transition to Expired, or null.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Час створення дії.
+        ///
+        /// (The action creation time.)
+        /// </param>
+        /// <param name="cancelledTime">
+        /// Час скасування або null.
+        ///
+        /// (The cancellation time, or null.)
+        /// </param>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо збережений статус не підтримується.
+        ///
+        /// (Thrown when the persisted status is unsupported.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо часові межі або узгодженість статусу
+        /// з часовими позначками порушені.
+        ///
+        /// (Thrown when timestamp boundaries or consistency
+        /// between the status and timestamps are violated.)
+        /// </exception>
         private static void ValidateState(
             UserPendingActionId userPendingActionId,
             ActionStatus actionStatus,
@@ -698,7 +890,7 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
                     }
                 );
             }
-                
+
             bool isValidState = (actionStatus, confirmationTime, expiredAt, cancelledTime) switch
             {
                 (ActionStatus.Active, null, null, null) => true,

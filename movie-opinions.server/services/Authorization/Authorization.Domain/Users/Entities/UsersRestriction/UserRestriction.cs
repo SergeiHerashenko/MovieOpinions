@@ -59,9 +59,11 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         // або обидва значення.
 
         /// <summary>
-        /// Ім’я або нік адміністратора, який наклав обмеження.
+        /// Ім’я або позначення ініціатора накладення обмеження:
+        /// адміністратора чи системи.
         ///
-        /// (Name or nickname of the administrator who imposed the restriction.)
+        /// (Name or designation of the restriction issuer:
+        /// an administrator or the system.)
         /// </summary>
         public string ImposedBy { get; }
 
@@ -83,15 +85,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         #endregion
 
         #region Creation
-        /// <summary>
-        /// Створює нове активне обмеження користувача.
-        ///
-        /// (Creates a new active user restriction.)
-        /// </summary>
-        /// <returns>Створене активне обмеження.</returns>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо внутрішні вхідні дані відсутні або некоректні.
-        /// </exception>
         private UserRestriction(
             UserRestrictionId userRestrictionId,
             UserId userId,
@@ -111,6 +104,53 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
             RevokedAt = null;
         }
 
+        /// <summary>
+        /// Перевіряє вхідні дані та створює нове активне обмеження користувача.
+        ///
+        /// (Validates the input and creates a new active user restriction.)
+        /// </summary>
+        /// <param name="userId">
+        /// Ідентифікатор користувача, на якого накладається обмеження.
+        ///
+        /// (Identifier of the user on whom the restriction is imposed.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Тип обмеження.
+        ///
+        /// (Type of restriction.)
+        /// </param>
+        /// <param name="restrictionRule">
+        /// Правило, що визначає назву та тривалість обмеження.
+        ///
+        /// (Rule defining the restriction name and duration.)
+        /// </param>
+        /// <param name="imposedBy">
+        /// Ім’я або позначення ініціатора накладення обмеження.
+        ///
+        /// (Name or designation of the restriction issuer.)
+        /// </param>
+        /// <param name="reason">
+        /// Необов’язкова причина накладення обмеження.
+        ///
+        /// (Optional reason for imposing the restriction.)
+        /// </param>
+        /// <param name="now">
+        /// Час створення обмеження.
+        ///
+        /// (Restriction creation time.)
+        /// </param>
+        /// <returns>
+        /// Створене активне обмеження.
+        ///
+        /// (The newly created active restriction.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язкові вхідні дані відсутні
+        /// або тип обмеження не підтримується.
+        ///
+        /// (Thrown when required input values are missing
+        /// or the restriction type is unsupported.)
+        /// </exception>
         internal static UserRestriction Create(
             UserId userId,
             RestrictionType restrictionType,
@@ -151,19 +191,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         #endregion
 
         #region Restoration
-        /// <summary>
-        /// Відновлює обмеження зі збереженого стану.
-        ///
-        /// (Restores a restriction from its persisted state.)
-        /// </summary>
-        /// <returns>Відновлене обмеження.</returns>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо збережені дані містять порожні значення,
-        /// невідомі enum або некоректні часові значення.
-        /// </exception>
-        /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо статус не узгоджується з часом дострокового зняття.
-        /// </exception>
         private UserRestriction(
             UserRestrictionId userRestrictionId,
             UserId userId,
@@ -185,6 +212,79 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
             RevokedAt = revokedAt;
         }
 
+        /// <summary>
+        /// Перевіряє збережені дані та відновлює стан обмеження користувача.
+        ///
+        /// (Validates persisted data and restores the user restriction state.)
+        /// </summary>
+        /// <param name="userRestrictionId">
+        /// Збережений ідентифікатор обмеження.
+        ///
+        /// (The persisted restriction identifier.)
+        /// </param>
+        /// <param name="userId">
+        /// Ідентифікатор користувача, якому належить обмеження.
+        ///
+        /// (Identifier of the user who owns the restriction.)
+        /// </param>
+        /// <param name="restrictionRule">
+        /// Відновлене правило обмеження.
+        ///
+        /// (The restored restriction rule.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Збережений тип обмеження.
+        ///
+        /// (The persisted restriction type.)
+        /// </param>
+        /// <param name="imposedBy">
+        /// Збережене ім’я або позначення ініціатора накладення обмеження.
+        ///
+        /// (The persisted name or designation of the restriction issuer.)
+        /// </param>
+        /// <param name="reason">
+        /// Збережена необов’язкова причина накладення обмеження.
+        ///
+        /// (The persisted optional reason for imposing the restriction.)
+        /// </param>
+        /// <param name="restrictionStatus">
+        /// Збережений статус обмеження.
+        ///
+        /// (The persisted restriction status.)
+        /// </param>
+        /// <param name="createdAt">
+        /// Збережений час створення обмеження.
+        ///
+        /// (The persisted restriction creation time.)
+        /// </param>
+        /// <param name="revokedAt">
+        /// Збережений час дострокового зняття або null,
+        /// якщо обмеження не перебуває у стані Revoked.
+        ///
+        /// (The persisted revocation time, or null
+        /// when the restriction is not in the Revoked state.)
+        /// </param>
+        /// <returns>
+        /// Відновлене обмеження користувача.
+        ///
+        /// (The restored user restriction.)
+        /// </returns>
+        /// <exception cref="DomainDataInconsistencyException">
+        /// Виникає, якщо обов’язкові збережені дані відсутні,
+        /// значення переліків не підтримуються або час зняття
+        /// передує часу створення обмеження.
+        ///
+        /// (Thrown when required persisted values are missing,
+        /// enum values are unsupported, or the revocation time
+        /// precedes the restriction creation time.)
+        /// </exception>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо статус обмеження не узгоджується
+        /// з наявністю часу дострокового зняття.
+        ///
+        /// (Thrown when the restriction status is inconsistent
+        /// with the presence of a revocation timestamp.)
+        /// </exception>
         public static UserRestriction Restore(
             UserRestrictionId userRestrictionId,
             UserId userId,
@@ -241,21 +341,28 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// Неактивний статус у цьому внутрішньому сценарії
         /// вважається порушенням доменного стану.
         /// 
-        /// (Verifies that an active restriction can systematically
-        /// transition to the completed state without modifying it.
+        /// (Checks the preconditions for a system operation that marks
+        /// an active restriction as completed, without modifying its state.
         /// 
         /// A non-active status in this internal scenario
         /// is treated as a domain-state violation.)
         /// </summary>
-        /// <param name="now">Час виконання перевірки.</param>
-        /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо переданий час передує часу створення обмеження.
-        /// </exception>
+        /// <param name="now">
+        /// Час виконання перевірки.
+        ///
+        /// (Time at which the validation is performed.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо поточний статус не підтримується доменною моделлю.
+        /// Виникає, якщо переданий час передує часу створення обмеження
+        /// або поточний статус не підтримується доменною моделлю.
+        ///
+        /// (Thrown when the supplied time precedes the restriction creation
+        /// time or the current status is unsupported by the domain model.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження вже не є активним.
+        ///
+        /// (Thrown when the restriction is no longer active.)
         /// </exception>
         internal void ValidateCanComplete(DateTimeOffset now)
         {
@@ -290,21 +397,28 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// 
         /// Перед зміною повторно перевіряє внутрішні передумови переходу.
         /// 
-        /// (Systematically transitions an active restriction
-        /// to the completed state.
+        /// (Marks an active restriction as completed
+        /// as part of a system operation.
         /// 
         /// Revalidates the internal transition preconditions
         /// before modifying the state.)
         /// </summary>
-        /// <param name="now">Час завершення обмеження.</param>
-        /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо переданий час передує часу створення обмеження.
-        /// </exception>
+        /// <param name="now">
+        /// Час завершення обмеження.
+        ///
+        /// (Restriction completion time.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо поточний або цільовий статус не підтримується.
+        /// Виникає, якщо переданий час передує часу створення обмеження
+        /// або поточний чи цільовий статус не підтримується.
+        ///
+        /// (Thrown when the supplied time precedes the restriction
+        /// creation time or the current or target status is unsupported.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження вже не є активним.
+        ///
+        /// (Thrown when the restriction is no longer active.)
         /// </exception>
         internal void MarkAsCompleted(DateTimeOffset now)
         {
@@ -329,16 +443,24 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// A completed or already revoked restriction returns
         /// an expected domain error.)
         /// </summary>
-        /// <param name="now">Час виконання перевірки.</param>
+        /// <param name="now">
+        /// Час виконання перевірки.
+        ///
+        /// (Time at which the validation is performed.)
+        /// </param>
         /// <returns>
         /// Успішний результат, якщо обмеження активне;
         /// інакше очікувана помилка поточного стану.
+        ///
+        /// (A successful result when the restriction is active;
+        /// otherwise, an expected error describing its current state.)
         /// </returns>
-        /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо переданий час передує часу створення обмеження.
-        /// </exception>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо поточний статус не підтримується доменною моделлю.
+        /// Виникає, якщо переданий час передує часу створення обмеження
+        /// або поточний статус не підтримується доменною моделлю.
+        ///
+        /// (Thrown when the supplied time precedes the restriction creation
+        /// time or the current status is unsupported by the domain model.)
         /// </exception>
         internal Result ValidateRevocation(DateTimeOffset now)
         {
@@ -381,15 +503,22 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// Revalidates the internal transition preconditions
         /// before modifying the state.)
         /// </summary>
-        /// <param name="now">Час дострокового зняття обмеження.</param>
-        /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо переданий час передує часу створення обмеження.
-        /// </exception>
+        /// <param name="now">
+        /// Час дострокового зняття обмеження.
+        ///
+        /// (Restriction revocation time.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо поточний або цільовий статус не підтримується.
+        /// Виникає, якщо переданий час передує часу створення
+        /// обмеження або поточний чи цільовий статус не підтримується.
+        ///
+        /// (Thrown when the supplied time precedes the restriction creation
+        /// time or the current or target status is unsupported.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження вже не є активним.
+        ///
+        /// (Thrown when the restriction is no longer active.)
         /// </exception>
         internal void RevokeRestriction(DateTimeOffset now)
         {
@@ -414,17 +543,29 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// The method accepts only <see cref="RestrictionStatus.Completed"/>
         /// and <see cref="RestrictionStatus.Revoked"/> as target statuses.)
         /// </summary>
-        /// <param name="targetStatus">Цільовий статус обмеження.</param>
-        /// <param name="now">Час виконання переходу.</param>
-        /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо переданий час передує часу створення обмеження.
-        /// </exception>
+        /// <param name="targetStatus">
+        /// Цільовий статус обмеження.
+        ///
+        /// (The target restriction status.)
+        /// </param>
+        /// <param name="now">
+        /// Час виконання переходу.
+        ///
+        /// (Time at which the transition is performed.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо поточний або цільовий статус не підтримується
-        /// чи не може бути ціллю цього переходу.
+        /// Виникає, якщо переданий час передує часу створення обмеження, поточний
+        /// або цільовий статус не підтримується чи цільовий статус не дозволений
+        /// для цього переходу.
+        ///
+        /// (Thrown when the supplied time precedes the restriction creation time,
+        /// the current or target status is unsupported, or the target status is not
+        /// permitted for this transition.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо поточне обмеження вже не є активним.
+        ///
+        /// (Thrown when the current restriction is no longer active.)
         /// </exception>
         private void TransitionFromActive(
             RestrictionStatus targetStatus,
@@ -442,7 +583,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
                 (Status, nameof(Status))
             );
 
-            if(Status != RestrictionStatus.Active)
+            if (Status != RestrictionStatus.Active)
             {
                 throw DomainInvariantViolationException.BrokenState<UserRestriction>(
                     $"Only an active restriction can transition to the '{targetStatus}' state.",

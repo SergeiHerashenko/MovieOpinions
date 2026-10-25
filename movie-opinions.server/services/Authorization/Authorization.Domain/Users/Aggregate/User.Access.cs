@@ -2,7 +2,7 @@ using Authorization.Domain.Results;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.Errors;
 
-namespace Authorization.Domain.Users
+namespace Authorization.Domain.Users.Aggregate
 {
     public partial class User
     {
@@ -25,9 +25,15 @@ namespace Authorization.Domain.Users
         ///
         /// The method does not modify aggregate state.)
         /// </summary>
-        /// <param name="now">Час, відносно якого перевіряється активність бану.</param>
+        /// <param name="now">
+        /// Час, відносно якого перевіряється активність бану.
+        /// 
+        /// (Time used to evaluate whether the ban is still effective.)
+        /// </param>
         /// <returns>
         /// Успіх, якщо доступ дозволений; інакше — відповідна доменна помилка.
+        /// 
+        /// (Success if access is allowed; otherwise, the corresponding domain error.)
         /// </returns>
         private Result ProvideAccess(DateTimeOffset now)
         {

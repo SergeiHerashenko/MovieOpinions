@@ -1,6 +1,7 @@
 using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Validation;
 using Authorization.Domain.Common.Validation.Enums;
+using Authorization.Domain.Common.Validation.Interfaces;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Errors;
 
@@ -17,8 +18,10 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
         /// </summary>
         private sealed class ValidDeviceTypeRule : IValidationRule<DeviceInfoValidationData, ValidationFailure>
         {
+            /// <inheritdoc/>
             public ValidationPriority Priority => ValidationPriority.Format;
 
+            /// <inheritdoc/>
             public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
                 if (Enum.IsDefined(typeof(DeviceType), data.DeviceType))

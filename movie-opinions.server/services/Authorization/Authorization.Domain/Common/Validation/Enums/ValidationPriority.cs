@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Validation.Enums
+namespace Authorization.Domain.Common.Validation.Enums
 {
     /// <summary>
     /// Визначає порядок виконання доменних правил валідації.

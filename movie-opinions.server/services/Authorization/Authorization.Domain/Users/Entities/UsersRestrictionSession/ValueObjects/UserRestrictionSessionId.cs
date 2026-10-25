@@ -40,10 +40,20 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjec
         ///
         /// (Restores the identifier from its persisted scalar value.)
         /// </summary>
-        /// <param name="value">Збережене значення ідентифікатора.</param>
-        /// <returns>Відновлений ідентифікатор сесії обмежень.</returns>
+        /// <param name="value">
+        /// Збережене значення ідентифікатора.
+        ///
+        /// (The persisted identifier value.)
+        /// </param>
+        /// <returns>
+        /// Відновлений ідентифікатор сесії обмежень.
+        ///
+        /// (The restored restriction session identifier.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережене значення дорівнює Guid.Empty.
+        ///
+        /// (Thrown when the persisted value is Guid.Empty.)
         /// </exception>
         public static UserRestrictionSessionId Restore(Guid value)
         {
@@ -54,6 +64,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjec
         }
         #endregion
 
+        /// <summary>
+        /// Неявно перетворює ідентифікатор сесії обмежень
+        /// на його значення Guid.
+        ///
+        /// (Implicitly converts the restriction session identifier
+        /// to its Guid value.)
+        /// </summary>
         public static implicit operator Guid(UserRestrictionSessionId data)
             => data.Value;
     }

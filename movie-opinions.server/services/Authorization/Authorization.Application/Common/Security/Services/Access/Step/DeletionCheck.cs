@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Clock;
+using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Security.Access;
 using Authorization.Application.Common.Errors.Users;
 using Authorization.Domain.Results;
@@ -23,7 +23,7 @@ namespace Authorization.Application.Common.Security.Services.Access.Step
             if (!user.IsDeleted)
                 return Task.FromResult(Result.Success());
 
-            user.UpdateExpirationStatus(_clock.UtcNow);
+            user.TryFinalizeDeletion(_clock.UtcNow);
 
             var deletion = user.GetDeletion();
 

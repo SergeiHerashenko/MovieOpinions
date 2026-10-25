@@ -17,11 +17,25 @@ namespace Authorization.Domain.Common.Guard
         /// (Checks required values of a domain object
         /// and stops at the first null value.)
         /// </summary>
-        /// <typeparam name="TContext">Тип доменного об'єкта, для якого виконується перевірка.</typeparam>
-        /// <param name="operationType">Операція, під час якої виконується перевірка.</param>
-        /// <param name="fields">Набір пар, що містять значення та назву відповідного поля.</param>
+        /// <typeparam name="TContext">
+        /// Тип доменного об'єкта, для якого виконується перевірка.
+        /// 
+        /// (The type of the domain object being validated.)
+        /// </typeparam>
+        /// <param name="operationType">
+        /// Операція, під час якої виконується перевірка.
+        /// 
+        /// (The operation during which validation is performed.)
+        /// </param>
+        /// <param name="fields">
+        /// Набір пар зі значеннями та назвами відповідних полів.
+        /// 
+        /// (Pairs containing values and their corresponding field names.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обов'язкове значення дорівнює null.
+        /// Обов'язкове значення дорівнює null.
+        /// 
+        /// (A required value is null.)
         /// </exception>
         public static void AgainstNull<TContext>(
             OperationType operationType,
@@ -36,7 +50,7 @@ namespace Authorization.Domain.Common.Guard
                         fieldName,
                         operationType
                     );
-                }   
+                }
             }
         }
 
@@ -49,18 +63,30 @@ namespace Authorization.Domain.Common.Guard
         /// </summary>
         /// <typeparam name="TContext">
         /// Тип доменного об'єкта, для якого виконується перевірка.
+        /// 
+        /// (The type of the domain object being validated.)
         /// </typeparam>
         /// <param name="operationType">
         /// Операція, під час якої виконується перевірка.
+        /// 
+        /// (The operation during which validation is performed.)
         /// </param>
         /// <param name="actual">
         /// Перевірюваний момент часу та назва відповідного поля.
+        /// 
+        /// (The point in time being validated and its corresponding field name.)
         /// </param>
         /// <param name="minimum">
-        /// Мінімально допустимий момент часу та назва поля, яке визначає нижню межу.
+        /// Мінімально допустимий момент часу та назва поля,
+        /// яке визначає нижню межу.
+        /// 
+        /// (The minimum allowed point in time and the name
+        /// of the field defining the lower bound.)
         /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо перевірюваний момент часу передує мінімально допустимому.
+        /// Перевірюваний момент часу передує мінімально допустимому.
+        /// 
+        /// (The actual point in time is earlier than the minimum allowed.)
         /// </exception>
         public static void AgainstEarlierThan<TContext>(
             OperationType operationType,
@@ -91,17 +117,31 @@ namespace Authorization.Domain.Common.Guard
         /// by their corresponding enum types.)
         /// </summary>
         /// <typeparam name="TEntity">
-        /// Доменний контекст, для якого виконується перевірка.
+        /// Тип доменного об'єкта, для якого виконується перевірка.
+        /// 
+        /// (The type of the domain object being validated.)
         /// </typeparam>
-        /// <param name="operationType">Тип доменної операції.</param>
-        /// <param name="fields">Значення enum разом із назвами відповідних полів.</param>
+        /// <param name="operationType">
+        /// Операція, під час якої виконується перевірка.
+        /// 
+        /// (The operation during which validation is performed.)
+        /// </param>
+        /// <param name="fields">
+        /// Ненульові значення enum разом із назвами відповідних полів.
+        /// 
+        /// (Enum values that are not null, paired with their field names.)
+        /// </param>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо значення не оголошене у відповідному enum.
+        /// Значення не оголошене у відповідному типі enum.
+        /// 
+        /// (A value is not declared in its corresponding enum type.)
         /// </exception>
         /// <remarks>
-        /// Не призначений для перевірки комбінованих значень enum із атрибутом Flags.
+        /// Не призначений для перевірки комбінованих значень enum
+        /// із атрибутом Flags.
         ///
-        /// (Not intended for validating combined values of enums marked with Flags.)
+        /// (Not intended for validating combined values
+        /// of enums marked with Flags.)
         /// </remarks>
         public static void AgainstUndefinedEnum<TEntity>(
             OperationType operationType,

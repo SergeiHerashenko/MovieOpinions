@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Models.Interfaces;
+using Authorization.Domain.Common.Models.Interfaces;
 
 namespace Authorization.Domain.Common.Models
 {
@@ -27,9 +27,14 @@ namespace Authorization.Domain.Common.Models
 
         /// <summary>
         /// Ініціалізує базовий стан зміни агрегату.
+        /// 
         /// (Initializes the base state of an aggregate change.)
         /// </summary>
-        /// <param name="occurredOn">Час настання зміни.</param>
+        /// <param name="occurredOn">
+        /// Час настання зміни.
+        ///
+        /// (The time when the aggregate change occurred.)
+        /// </param>
         protected AggregateChange(DateTimeOffset occurredOn)
         {
             OccurredOn = occurredOn;

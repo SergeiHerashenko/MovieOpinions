@@ -11,6 +11,11 @@ namespace Authorization.Domain.Common.Validation.Interfaces
     /// </summary>
     internal interface IValidationFailure
     {
+        /// <summary>
+        /// Очікувана доменна помилка, що описує виявлене порушення.
+        ///
+        /// (The expected domain error describing the detected violation.)
+        /// </summary>
         Error Error { get; }
     }
 }

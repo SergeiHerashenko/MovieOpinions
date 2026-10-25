@@ -1,8 +1,8 @@
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
 {
@@ -32,17 +32,41 @@ namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
         public int TotalBlockedMinutes { get; }
 
         /// <summary>
-        /// Створює подію додавання обмежень до наявної сесії.
+        /// Створює подію додавання обмежень до наявної сесії обмежень користувача.
         ///
-        /// (Creates an event representing the addition
-        /// of restrictions to an existing session.)
+        /// (Creates an event representing the addition of restrictions
+        /// to an existing user restriction session.)
         /// </summary>
-        /// <param name="userRestrictionSessionId">Ідентифікатор оновленої сесії.</param>
-        /// <param name="login">Логін користувача, якому належить сесія.</param>
-        /// <param name="restrictionDescriptions">Описи обмежень, доданих до сесії.</param>
-        /// <param name="restrictionType">Тип оновленої сесії.</param>
-        /// <param name="totalBlockedMinutes">Загальна тривалість блокування після додавання обмежень.</param>
-        /// <param name="occurredOn">Час додавання обмежень.</param>
+        /// <param name="userRestrictionSessionId">
+        /// Ідентифікатор оновленої сесії.
+        ///
+        /// (The updated session identifier.)
+        /// </param>
+        /// <param name="login">
+        /// Логін користувача, якому належить сесія.
+        ///
+        /// (The login of the user who owns the session.)
+        /// </param>
+        /// <param name="restrictionDescriptions">
+        /// Описи обмежень, доданих до сесії.
+        ///
+        /// (Descriptions of the restrictions added to the session.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Тип обмежень оновленої сесії.
+        ///
+        /// (The restriction type of the updated session.)
+        /// </param>
+        /// <param name="totalBlockedMinutes">
+        /// Загальна тривалість блокування у хвилинах після додавання обмежень.
+        ///
+        /// (The total blocked duration in minutes after the restrictions are added.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час додавання обмежень.
+        ///
+        /// (The time when the restrictions were added.)
+        /// </param>
         public UserRestrictionsAddedToSessionEvent(
             UserRestrictionSessionId userRestrictionSessionId,
             Login login,

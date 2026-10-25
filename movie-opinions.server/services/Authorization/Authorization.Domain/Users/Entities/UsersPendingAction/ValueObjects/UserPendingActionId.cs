@@ -28,6 +28,11 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects
         ///
         /// (Creates a new identifier based on a version 7 UUID.)
         /// </summary>
+        /// <returns>
+        /// Новий ідентифікатор відкладеної дії користувача.
+        ///
+        /// (The new pending user action identifier.)
+        /// </returns>
         internal static UserPendingActionId Create()
         {
             return new(Guid.CreateVersion7());
@@ -40,9 +45,20 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects
         ///
         /// (Restores the identifier from a persisted scalar value.)
         /// </summary>
-        /// <param name="value">Збережене значення ідентифікатора.</param>
+        /// <param name="value">
+        /// Збережене значення ідентифікатора.
+        ///
+        /// (The persisted identifier value.)
+        /// </param>
+        /// <returns>
+        /// Відновлений ідентифікатор відкладеної дії користувача.
+        ///
+        /// (The restored pending user action identifier.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо значення дорівнює Guid.Empty.
+        /// Виникає, якщо збережене значення дорівнює Guid.Empty.
+        ///
+        /// (Thrown when the persisted value is Guid.Empty.)
         /// </exception>
         public static UserPendingActionId Restore(Guid value)
         {

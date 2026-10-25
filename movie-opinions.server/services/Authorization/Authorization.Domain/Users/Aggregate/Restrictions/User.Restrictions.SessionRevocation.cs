@@ -10,7 +10,7 @@ using Authorization.Domain.Users.Entities.UsersRestrictionSession.Enums;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.Errors;
 
-namespace Authorization.Domain.Users
+namespace Authorization.Domain.Users.Aggregate
 {
     public partial class User
     {
@@ -18,54 +18,52 @@ namespace Authorization.Domain.Users
         /// <summary>
         /// Повністю припиняє сесію обмежень указаного типу.
         ///
-        /// Якщо сесія ще активна, усі її обмеження відкликаються.
-        /// Якщо сесія вже завершилася за часом, усі її обмеження
-        /// переводяться у стан завершених.
+        /// Перевіряє тип сесії, час операції та узгодженість
+        /// наявності сесії з відповідними обмеженнями агрегату.
         ///
-        /// Перед зміною агрегату перевіряє відповідність сесії
-        /// та її активних обмежень і готує план операції.
-        /// Після успішної підготовки застосовує зміни, видаляє
-        /// сесію та записує доменну подію і зміни агрегату.
+        /// Для активної сесії відкликає всі її обмеження.
+        /// Для сесії із завершеним строком переводить
+        /// усі її обмеження у завершений стан.
+        ///
+        /// Перед зміною стану перевіряє точну відповідність
+        /// складу сесії її обмеженням і готує план операції.
+        /// Після успішної підготовки застосовує план, вилучає сесію
+        /// та записує доменну подію і зміни агрегату.
         ///
         /// (Completely terminates a restriction session of the specified type.
         ///
-        /// If the session is still active, all its restrictions are revoked.
-        /// If the session has already expired, all its restrictions are marked
-        /// as completed.
+        /// Validates the session type, operation time, and consistency
+        /// between session existence and the corresponding aggregate restrictions.
         ///
-        /// Before mutating the aggregate, verifies that the session matches
-        /// its active restrictions and prepares the appropriate operation plan.
-        /// After successful preparation, applies the changes, removes the session,
-        /// and records the domain event and aggregate changes.)
+        /// Revokes all restrictions of an active session.
+        /// For a session whose lifetime has ended,
+        /// marks all its restrictions as completed.
+        ///
+        /// Before modifying state, verifies that the session's contents
+        /// exactly match its restrictions and prepares the operation plan.
+        /// After successful preparation, applies the plan, removes the session,
+        /// and records a domain event and aggregate changes.)
         /// </summary>
-        /// <param name="restrictionType">Тип сесії обмежень, яку необхідно припинити.</param>
-        /// <param name="now">Зафіксований час виконання операції.</param>
-        /// <returns>
-        /// Успішний результат або помилка, якщо сесію не знайдено
-        /// чи її активні обмеження неможливо відкликати.
-        /// </returns>
-        /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо сесія та обмеження агрегату не відповідають
-        /// одне одному або отримано неможливий результат їх вилучення.
-        /// </exception>
-        /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо отримано непідтримуваний результат
-        /// перевірки вилучення обмежень.
-        /// </exception>
+        /// <param name="restrictionType">
+        /// Тип сесії обмежень, яку необхідно повністю припинити.
+        ///
+        /// (Type of the restriction session to terminate completely.)
+        /// </param>
+        /// <param name="now">
+        /// Час припинення сесії обмежень.
+        ///
+        /// (End time of the restrictions session.)
+        /// </param>
         public Result RevokeRestrictionSession(
             RestrictionType restrictionType,
-            DateTimeOffset now) 
+            DateTimeOffset now)
         {
             DomainGuard.AgainstUndefinedEnum<User>(
-                OperationType.Update,
+                OperationType.Delete,
                 (restrictionType, nameof(restrictionType))
             );
 
-            DomainGuard.AgainstEarlierThan<User>(
-                OperationType.Update,
-                (now, nameof(now)),
-                (CreatedAt, nameof(CreatedAt))
-            );
+            EnsureValidOperationTimestamp(now);
 
             var session = _restrictionSessions
                 .FirstOrDefault(x => x.RestrictionType == restrictionType);
@@ -87,7 +85,7 @@ namespace Authorization.Domain.Users
                         ["RestrictionType"] = restrictionType,
                         ["RestrictionCount"] = 0
                     },
-                    OperationType.Update
+                    OperationType.Delete
                 ),
 
                 (null, [_, ..]) => throw DomainInvariantViolationException.BrokenState<User>(
@@ -101,7 +99,7 @@ namespace Authorization.Domain.Users
                             .Select(x => x.Id.Value)
                             .ToArray()
                     },
-                    OperationType.Update
+                    OperationType.Delete
                 ),
 
                 (not null, [_, ..]) => ProceedRevocation(
@@ -117,24 +115,27 @@ namespace Authorization.Domain.Users
         /// <summary>
         /// Базовий план повного припинення сесії обмежень.
         ///
-        /// Містить спільні для всіх сценаріїв дії:
-        /// вилучення сесії зі стану користувача та запис
-        /// зміни агрегату про її видалення.
+        /// Визначає спільні етапи вилучення сесії
+        /// з активної колекції агрегату та запису її видалення.
         ///
-        /// Похідні плани визначають спосіб зміни статусів
-        /// обмежень і відповідну доменну подію.
+        /// Похідні плани визначають переходи стану обмежень
+        /// і відповідну доменну подію.
         ///
         /// (Base plan for completely terminating a restriction session.
         ///
-        /// Contains the operations shared by all scenarios:
-        /// removing the session from the user state and recording
-        /// its deletion as an aggregate change.
+        /// Defines the shared stages of removing the session
+        /// from the aggregate's active collection and recording its deletion.
         ///
-        /// Derived plans determine how restriction statuses are changed
-        /// and which domain event is recorded.)
+        /// Derived plans define restriction state transitions
+        /// and the corresponding domain event.)
         /// </summary>
         private abstract class RemovalSessionPlan
         {
+            /// <summary>
+            /// Сесія обмежень, яку необхідно припинити та вилучити з агрегату.
+            ///
+            /// (Restriction session to terminate and remove from the aggregate.)
+            /// </summary>
             public UserRestrictionSession Session { get; }
 
             protected RemovalSessionPlan(UserRestrictionSession session)
@@ -143,20 +144,28 @@ namespace Authorization.Domain.Users
             }
 
             /// <summary>
-            /// Виконує спільну мутацію для всіх планів,
-            /// вилучаючи сесію зі стану користувача.
+            /// Вилучає сесію з активної колекції сесій агрегату.
             ///
-            /// Викликається після того, як похідний план змінив
-            /// статуси та вилучив відповідні обмеження.
+            /// Похідний план викликає цей етап після зміни станів
+            /// і вилучення відповідних обмежень.
             ///
-            /// (Applies the mutation shared by all plans by removing
-            /// the session from the user state.
+            /// (Removes the session from the aggregate's active session collection.
             ///
-            /// Called after the derived plan has changed the statuses
-            /// and removed the corresponding restrictions.)
+            /// The derived plan calls this stage after changing restriction
+            /// states and removing the corresponding restrictions.)
             /// </summary>
-            /// <param name="user">Користувач, стан якого змінюється.</param>
-            /// <param name="now">Зафіксований час виконання операції.</param>
+            /// <param name="user">
+            /// Користувач, з активної колекції якого вилучається сесія.
+            ///
+            /// (User from whose active collection the session is removed.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, переданий спільним контрактом плану.
+            /// Базова реалізація не використовує цей параметр.
+            ///
+            /// (Operation time passed through the shared plan contract.
+            /// The base implementation does not use this parameter.)
+            /// </param>
             public virtual void Apply(
                 User user,
                 DateTimeOffset now)
@@ -168,17 +177,25 @@ namespace Authorization.Domain.Users
             /// Записує спільну для всіх планів зміну агрегату
             /// про видалення сесії.
             ///
-            /// Викликається після запису специфічної для сценарію
-            /// доменної події та змін обмежень.
+            /// Похідний план викликає цей етап після запису
+            /// відповідної доменної події та оновлень обмежень.
             ///
-            /// (Records the session deletion aggregate change
+            /// (Records the session-deletion aggregate change
             /// shared by all plans.
             ///
-            /// Called after the scenario-specific domain event
-            /// and restriction changes have been recorded.)
+            /// The derived plan calls this stage after recording
+            /// the corresponding domain event and restriction updates.)
             /// </summary>
-            /// <param name="user">Користувач, для якого записується зміна.</param>
-            /// <param name="now">Час виникнення зміни.</param>
+            /// <param name="user">
+            /// Користувач, до якого додається запис про видалення сесії.
+            ///
+            /// (User to which the session-deletion record is added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до запису зміни агрегату.
+            ///
+            /// (Operation time passed to the aggregate-change record.)
+            /// </param>
             public virtual void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now)
@@ -191,21 +208,29 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// План повного відкликання активної сесії обмежень.
+        /// Представляє план повного відкликання активної сесії.
         ///
-        /// Переводить усі обмеження сесії у стан відкликаних,
-        /// вилучає їх і саму сесію зі стану користувача,
-        /// записує подію відкликання сесії та відповідні
-        /// зміни агрегату.
+        /// Відкликає всі її обмеження та вилучає їх і сесію
+        /// з активних колекцій агрегату.
         ///
-        /// (Plan for completely revoking an active restriction session.
+        /// Окремим етапом записує доменну подію відкликання сесії,
+        /// оновлення обмежень та видалення сесії.
         ///
-        /// Marks all session restrictions as revoked, removes them
-        /// and the session from the user state, and records the session
-        /// revocation event and corresponding aggregate changes.)
+        /// (Represents a plan for completely revoking an active session.
+        ///
+        /// Revokes all its restrictions and removes them and the session
+        /// from the aggregate's active collections.
+        ///
+        /// In a separate stage, records a session-revocation domain event,
+        /// restriction updates, and deletion of the session.)
         /// </summary>
         private sealed class RevokeActiveRestrictionSessionPlan : RemovalSessionPlan
         {
+            /// <summary>
+            /// Зафіксована колекція всіх обмежень сесії для відкликання.
+            ///
+            /// (Captured collection of all session restrictions to revoke.)
+            /// </summary>
             public IReadOnlyCollection<UserRestriction> RestrictionsToRevoke { get; }
 
             public RevokeActiveRestrictionSessionPlan(
@@ -216,6 +241,27 @@ namespace Authorization.Domain.Users
                 RestrictionsToRevoke = restrictionsToRevoke.ToArray();
             }
 
+            /// <summary>
+            /// Відкликає всі підготовлені обмеження та вилучає їх
+            /// з активної колекції обмежень агрегату.
+            ///
+            /// Після цього викликає базовий етап вилучення сесії.
+            ///
+            /// (Revokes all prepared restrictions and removes them
+            /// from the aggregate's active restriction collection.
+            ///
+            /// Then calls the base stage to remove the session.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, обмеження та сесія якого вилучаються.
+            ///
+            /// (User whose restrictions and session are removed.)
+            /// </param>
+            /// <param name="now">
+            /// Час, яким фіксується відкликання обмежень.
+            ///
+            /// (Time recorded for restriction revocation.)
+            /// </param>
             public override void Apply(
                 User user,
                 DateTimeOffset now)
@@ -234,6 +280,29 @@ namespace Authorization.Domain.Users
                 );
             }
 
+            /// <summary>
+            /// Записує доменну подію повного відкликання сесії
+            /// та оновлення всіх відкликаних обмежень.
+            ///
+            /// Після цього викликає базовий етап
+            /// запису видалення сесії.
+            ///
+            /// (Records a domain event for revoking the entire session
+            /// and updates to all revoked restrictions.
+            ///
+            /// Then calls the base stage
+            /// to record deletion of the session.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, до якого додаються подія та зміни агрегату.
+            ///
+            /// (User to which the event and aggregate changes are added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до події та записів змін.
+            ///
+            /// (Operation time passed to the event and change records.)
+            /// </param>
             public override void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now)
@@ -258,21 +327,31 @@ namespace Authorization.Domain.Users
         }
 
         /// <summary>
-        /// План завершення сесії, строк дії якої вже сплив.
+        /// Представляє план завершення сесії із завершеним строком.
         ///
-        /// Переводить усі обмеження сесії у стан завершених,
-        /// вилучає їх і саму сесію зі стану користувача,
-        /// записує подію завершення сесії та відповідні
-        /// зміни агрегату.
+        /// Переводить усі її обмеження у завершений стан
+        /// та вилучає їх і сесію з активних колекцій агрегату.
         ///
-        /// (Plan for completing a restriction session that has already expired.
+        /// Окремим етапом записує доменну подію завершення сесії,
+        /// оновлення обмежень та видалення сесії.
         ///
-        /// Marks all session restrictions as completed, removes them
-        /// and the session from the user state, and records the session
-        /// completion event and corresponding aggregate changes.)
+        /// (Represents a completion plan for a session whose lifetime has ended.
+        ///
+        /// Marks all its restrictions as completed and removes them
+        /// and the session from the aggregate's active collections.
+        ///
+        /// In a separate stage, records a session-completion domain event,
+        /// restriction updates, and deletion of the session.)
         /// </summary>
         private sealed class CompleteExpiredRestrictionSessionPlan : RemovalSessionPlan
         {
+            /// <summary>
+            /// Зафіксована колекція всіх обмежень
+            /// простроченої сесії для завершення.
+            ///
+            /// (Captured collection of all restrictions
+            /// in the expired session to complete.)
+            /// </summary>
             public IReadOnlyCollection<UserRestriction> RestrictionsToComplete { get; }
 
             public CompleteExpiredRestrictionSessionPlan(
@@ -283,6 +362,27 @@ namespace Authorization.Domain.Users
                 RestrictionsToComplete = restrictionsToComplete.ToArray();
             }
 
+            /// <summary>
+            /// Завершує всі підготовлені обмеження та вилучає їх
+            /// з активної колекції обмежень агрегату.
+            ///
+            /// Після цього викликає базовий етап вилучення сесії.
+            ///
+            /// (Completes all prepared restrictions and removes them
+            /// from the aggregate's active restriction collection.
+            ///
+            /// Then calls the base stage to remove the session.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, обмеження та сесія якого вилучаються.
+            ///
+            /// (User whose restrictions and session are removed.)
+            /// </param>
+            /// <param name="now">
+            /// Час, яким фіксується завершення обмежень.
+            ///
+            /// (Time recorded for restriction completion.)
+            /// </param>
             public override void Apply(
                 User user,
                 DateTimeOffset now)
@@ -301,6 +401,29 @@ namespace Authorization.Domain.Users
                 );
             }
 
+            /// <summary>
+            /// Записує доменну подію завершення сесії
+            /// та оновлення всіх завершених обмежень.
+            ///
+            /// Після цього викликає базовий етап
+            /// запису видалення сесії.
+            ///
+            /// (Records a session-completion domain event
+            /// and updates to all completed restrictions.
+            ///
+            /// Then calls the base stage
+            /// to record deletion of the session.)
+            /// </summary>
+            /// <param name="user">
+            /// Користувач, до якого додаються подія та зміни агрегату.
+            ///
+            /// (User to which the event and aggregate changes are added.)
+            /// </param>
+            /// <param name="now">
+            /// Час операції, що передається до події та записів змін.
+            ///
+            /// (Operation time passed to the event and change records.)
+            /// </param>
             public override void RecordEventsAndChanges(
                 User user,
                 DateTimeOffset now)
@@ -327,26 +450,43 @@ namespace Authorization.Domain.Users
 
         #region Session Revocation Orchestration
         /// <summary>
-        /// Координує повне припинення знайденої сесії.
+        /// Координує повне припинення знайденої сесії обмежень.
         ///
         /// Спочатку готує та перевіряє план операції.
-        /// Якщо підготовка завершилася помилкою, повертає її
-        /// без зміни стану агрегату. Після успішної підготовки
-        /// застосовує план і записує події та зміни агрегату.
+        /// Якщо підготовка повертає помилку, план не застосовується.
         ///
-        /// (Coordinates the complete termination of an existing session.
+        /// Після успішної підготовки застосовує план
+        /// і записує відповідні доменні події та зміни агрегату.
+        ///
+        /// (Coordinates complete termination of an existing restriction session.
         ///
         /// First prepares and validates the operation plan.
-        /// If preparation fails, returns the error without mutating
-        /// the aggregate. After successful preparation, applies the plan
-        /// and records its events and aggregate changes.)
+        /// If preparation returns a failure, the plan is not applied.
+        ///
+        /// After successful preparation, applies the plan
+        /// and records the corresponding domain events and aggregate changes.)
         /// </summary>
-        /// <param name="session">Сесія, яку необхідно припинити.</param>
-        /// <param name="restrictions">Усі активні обмеження цієї сесії.</param>
-        /// <param name="now">Зафіксований час виконання операції.</param>
+        /// <param name="session">
+        /// Знайдена сесія, яку необхідно припинити.
+        ///
+        /// (Existing session to terminate.)
+        /// </param>
+        /// <param name="restrictions">
+        /// Усі активні обмеження відповідного типу, знайдені в агрегаті.
+        ///
+        /// (All active restrictions of the corresponding type found in the aggregate.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час підготовки, застосування та запису наслідків плану.
+        ///
+        /// (Fixed time used for preparing, applying, and recording the plan's consequences.)
+        /// </param>
         /// <returns>
-        /// Успішний результат або помилка, отримана
-        /// під час підготовки плану.
+        /// Успіх після застосування плану;
+        /// інакше — доменна помилка його підготовки.
+        ///
+        /// (Success after applying the plan;
+        /// otherwise, the domain error from its preparation.)
         /// </returns>
         private Result ProceedRevocation(
             UserRestrictionSession session,
@@ -374,46 +514,71 @@ namespace Authorization.Domain.Users
                 now
             );
 
+            UpdatedAt = now;
+
             return Result.Success();
         }
         #endregion
 
         #region Session Revocation Plan Preparation
         /// <summary>
-        /// Перевіряє відповідність сесії її активним обмеженням
-        /// і готує план повного припинення сесії без зміни агрегату.
+        /// Перевіряє точну відповідність сесії переданим обмеженням
+        /// і готує план її повного припинення.
         ///
-        /// Для вже простроченої сесії готує план завершення
-        /// обмежень. Для активної сесії, яка стане порожньою,
-        /// готує план їх відкликання.
+        /// Для сесії із завершеним строком готує план завершення обмежень.
+        /// Для активної сесії, яка стане порожньою після їх вилучення,
+        /// готує план повного відкликання.
         ///
-        /// Оскільки передається повний склад сесії, результати,
-        /// за яких вона залишається непорожньою, вважаються
-        /// порушенням стану агрегату.
+        /// Оскільки передається повний набір обмежень сесії,
+        /// наслідки часткового зняття вважаються порушенням інваріанта.
         ///
-        /// (Verifies that the session exactly matches its active restrictions
-        /// and prepares a complete session-termination plan without mutating
-        /// the aggregate.
+        /// Метод не змінює стан агрегату.
         ///
-        /// Prepares a restriction-completion plan for an already expired
-        /// session and a revocation plan for an active session that becomes empty.
+        /// (Verifies an exact match between the session and supplied restrictions
+        /// and prepares a plan for its complete termination.
         ///
-        /// Because the complete session contents are supplied, outcomes in which
-        /// the session remains non-empty are treated as an aggregate-state violation.)
+        /// For a session whose lifetime has ended, prepares a restriction-completion plan.
+        /// For an active session that becomes empty after removal,
+        /// prepares a complete revocation plan.
+        ///
+        /// Because all session restrictions are supplied,
+        /// partial-removal effects are treated as an invariant violation.
+        ///
+        /// The method does not modify aggregate state.)
         /// </summary>
-        /// <param name="session">Сесія, для якої готується план.</param>
-        /// <param name="restrictions">Повний склад активних обмежень сесії.</param>
-        /// <param name="now">Зафіксований час, відносно якого визначається стан сесії.</param>
+        /// <param name="session">
+        /// Сесія, для якої готується план повного припинення.
+        ///
+        /// (Session for which a complete termination plan is prepared.)
+        /// </param>
+        /// <param name="restrictions">
+        /// Повний набір активних обмежень відповідного типу з агрегату.
+        ///
+        /// (Complete set of active restrictions of the corresponding type from the aggregate.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час, відносно якого перевіряється наслідок вилучення.
+        ///
+        /// (Fixed time used to evaluate the removal effect.)
+        /// </param>
         /// <returns>
-        /// Успішний результат із підготовленим планом або
-        /// помилка перевірки відкликання обмежень.
+        /// Підготовлений план; інакше — доменна помилка
+        /// перевірки відкликання обмежень.
+        ///
+        /// (Prepared plan; otherwise, a domain error
+        /// from restriction-revocation validation.)
         /// </returns>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо склад сесії не відповідає обмеженням
-        /// агрегату або отримано неможливий результат вилучення.
+        /// Виникає, якщо набори ідентифікаторів сесії та обмежень
+        /// не збігаються або повне вилучення повернуло наслідок часткового зняття.
+        ///
+        /// (Thrown when the session and restriction identifier sets
+        /// do not match, or full removal produces a partial-removal effect.)
         /// </exception>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає для непідтримуваного значення результату вилучення.
+        /// Виникає, якщо повернуто непідтримуваний результат перевірки вилучення.
+        ///
+        /// (Thrown when removal validation returns an unsupported result.)
         /// </exception>
         private Result<RemovalSessionPlan> PrepareRestrictionSessionRevocationPlan(
             UserRestrictionSession session,
@@ -440,7 +605,7 @@ namespace Authorization.Domain.Users
                             .Select(x => x.Value)
                             .ToArray()
                     },
-                    OperationType.Update
+                    OperationType.Delete
                 );
             }
 
@@ -477,36 +642,50 @@ namespace Authorization.Domain.Users
                             ["RemovalEffect"] = removalEffect,
                             ["RestrictionCount"] = restrictions.Count
                         },
-                        OperationType.Update
+                        OperationType.Delete
                     ),
 
                 _ => throw DomainDataInconsistencyException.UnsupportedDiscriminator<User>(
                     nameof(removalEffect),
                     removalEffect,
-                    OperationType.Update
+                    OperationType.Delete
                 )
             };
         }
 
         /// <summary>
         /// Перевіряє можливість завершення всіх обмежень
-        /// простроченої сесії та створює відповідний план.
+        /// простроченої сесії та готує відповідний план.
         ///
-        /// Метод не змінює стан агрегату.
+        /// Створює план лише після перевірки кожного обмеження.
+        /// Підготовка не змінює стан агрегату.
         ///
         /// (Validates that all restrictions of an expired session
-        /// can be completed and creates the corresponding plan.
+        /// can be completed and prepares the corresponding plan.
         ///
-        /// The method does not mutate the aggregate.)
+        /// Creates the plan only after validating every restriction.
+        /// Preparation does not modify aggregate state.)
         /// </summary>
-        /// <param name="session">Прострочена сесія.</param>
-        /// <param name="restrictions">Обмеження, які необхідно перевести у стан завершених.</param>
-        /// <param name="now">Зафіксований час завершення.</param>
-        /// <returns>Успішний результат із підготовленим планом.</returns>
-        /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо хоча б одне обмеження не може
-        /// перейти у стан завершеного.
-        /// </exception>
+        /// <param name="session">
+        /// Сесія із завершеним строком, яку необхідно припинити.
+        ///
+        /// (Session whose lifetime has ended and which must be terminated.)
+        /// </param>
+        /// <param name="restrictions">
+        /// Усі обмеження сесії, які необхідно перевести у завершений стан.
+        ///
+        /// (All session restrictions to mark as completed.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час перевірки можливості завершення.
+        ///
+        /// (Fixed time used to validate completion.)
+        /// </param>
+        /// <returns>
+        /// Успішний результат із підготовленим планом завершення сесії.
+        ///
+        /// (Successful result containing the prepared session-completion plan.)
+        /// </returns>
         private Result<RemovalSessionPlan> PrepareExpiredSessionCompletionPlan(
             UserRestrictionSession session,
             IReadOnlyCollection<UserRestriction> restrictions,
@@ -527,21 +706,43 @@ namespace Authorization.Domain.Users
 
         /// <summary>
         /// Перевіряє можливість відкликання всіх обмежень
-        /// активної сесії та створює відповідний план.
+        /// активної сесії та готує відповідний план.
+        ///
+        /// Повертає помилку першого обмеження, яке не може бути відкликане.
+        /// Створює план лише після успішної перевірки всіх обмежень.
         ///
         /// Метод не змінює стан агрегату.
         ///
         /// (Validates that all restrictions of an active session
-        /// can be revoked and creates the corresponding plan.
+        /// can be revoked and prepares the corresponding plan.
         ///
-        /// The method does not mutate the aggregate.)
+        /// Returns the first validation failure for a restriction
+        /// that cannot be revoked. Creates the plan only after
+        /// all restrictions have been successfully validated.
+        ///
+        /// The method does not modify aggregate state.)
         /// </summary>
-        /// <param name="session">Активна сесія, яку необхідно відкликати.</param>
-        /// <param name="restrictions">Обмеження, які необхідно відкликати.</param>
-        /// <param name="now">Зафіксований час відкликання.</param>
+        /// <param name="session">
+        /// Активна сесія, яку необхідно повністю відкликати.
+        ///
+        /// (Active session to revoke entirely.)
+        /// </param>
+        /// <param name="restrictions">
+        /// Усі обмеження сесії, які необхідно відкликати.
+        ///
+        /// (All session restrictions to revoke.)
+        /// </param>
+        /// <param name="now">
+        /// Фіксований час перевірки можливості відкликання.
+        ///
+        /// (Fixed time used to validate revocation.)
+        /// </param>
         /// <returns>
-        /// Успішний результат із підготовленим планом або
-        /// перша помилка перевірки відкликання.
+        /// Підготовлений план; інакше — перша доменна помилка
+        /// перевірки відкликання обмежень.
+        ///
+        /// (Prepared plan; otherwise, the first domain error
+        /// from restriction-revocation validation.)
         /// </returns>
         private Result<RemovalSessionPlan> PrepareActiveSessionRevocationPlan(
             UserRestrictionSession session,

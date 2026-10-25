@@ -1,8 +1,8 @@
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
+using Authorization.Domain.Common.ValueObjects.PasswordUser;
 using Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
-using Authorization.Domain.Users.ValueObjects.PasswordUser;
 
 namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
 {
@@ -33,26 +33,56 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.Actions
         public abstract string Value { get; }
 
         /// <summary>
-        /// Створює дію зміни пароля.
+        /// Створює дані відкладеної дії зі зміни пароля користувача.
         ///
-        /// (Creates a password change action.)
+        /// (Creates pending user password-change action data.)
         /// </summary>
+        /// <param name="newPassword">
+        /// Новий доменний пароль, що містить його хеш.
+        ///
+        /// (The new domain password containing its hash.)
+        /// </param>
+        /// <returns>
+        /// Дія зміни пароля.
+        ///
+        /// (A password-change action.)
+        /// </returns>
         public static UserAction From(Password newPassword)
             => ChangePasswordAction.Create(newPassword);
 
         /// <summary>
-        /// Створює дію зміни логіна.
+        /// Створює дані відкладеної дії зі зміни логіна користувача.
         ///
-        /// (Creates a login change action.)
+        /// (Creates pending user login-change action data.)
         /// </summary>
+        /// <param name="login">
+        /// Новий доменний логін користувача.
+        ///
+        /// (The new domain user login.)
+        /// </param>
+        /// <returns>
+        /// Дія зміни логіна.
+        ///
+        /// (A login-change action.)
+        /// </returns>
         public static UserAction From(Login login)
             => ChangeLoginAction.Create(login);
 
         /// <summary>
-        /// Створює дію видалення користувача.
+        /// Створює дані відкладеної дії з видалення користувача.
         ///
-        /// (Creates a user deletion action.)
+        /// (Creates pending user-deletion action data.)
         /// </summary>
+        /// <param name="reason">
+        /// Доменне представлення причини видалення.
+        ///
+        /// (The domain representation of the deletion reason.)
+        /// </param>
+        /// <returns>
+        /// Дія видалення користувача.
+        ///
+        /// (A user-deletion action.)
+        /// </returns>
         public static UserAction From(DeletionReason reason)
             => DeleteUserAction.Create(reason);
     }

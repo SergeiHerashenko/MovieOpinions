@@ -11,6 +11,11 @@ namespace Authorization.Domain.Common.Validation.Interfaces
     /// </summary>
     internal interface IHasOperationType : IValidationData
     {
+        /// <summary>
+        /// Операція, у контексті якої виконується валідація.
+        ///
+        /// (The operation in whose context validation is performed.)
+        /// </summary>
         OperationType OperationType { get; }
     }
 }

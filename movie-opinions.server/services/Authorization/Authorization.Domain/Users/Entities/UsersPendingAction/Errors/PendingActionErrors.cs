@@ -1,6 +1,5 @@
 using Authorization.Domain.Common.Errors;
 using Authorization.Domain.Common.Errors.Enums;
-using Authorization.Domain.Users.Entities.UsersPendingAction.Enums;
 
 namespace Authorization.Domain.Users.Entities.UsersPendingAction.Errors
 {

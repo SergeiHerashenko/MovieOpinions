@@ -41,7 +41,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         ///
         /// (Unique identifiers of restrictions currently included in the session.)
         /// </summary>
-        public IReadOnlyCollection<UserRestrictionId> ActiveRestrictionIds => _activeRestrictionIds;
+        public IReadOnlyCollection<UserRestrictionId> ActiveRestrictionIds => _activeRestrictionIds.ToArray();
 
         /// <summary>
         /// Тип усіх обмежень, що входять до цієї сесії.
@@ -78,24 +78,49 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         #region Creation
         /// <summary>
         /// Створює сесію з початкового непорожнього набору обмежень,
-        /// що належать одному користувачу та мають однаковий тип.
+        /// що належать власнику сесії та мають однаковий тип.
         ///
         /// (Creates a session from an initial non-empty collection of restrictions
-        /// that belong to the same user and have the same type.)
+        /// that belong to the session owner and have the same type.)
         /// </summary>
-        /// <param name="userId">Ідентифікатор власника сесії.</param>
-        /// <param name="userRestrictions">Початковий набір активних обмежень.</param>
-        /// <param name="now">Час створення сесії.</param>
-        /// <returns>Створена сесія обмежень.</returns>
+        /// <param name="userId">
+        /// Ідентифікатор власника сесії.
+        ///
+        /// (The identifier of the session owner.)
+        /// </param>
+        /// <param name="userRestrictions">
+        /// Початковий набір активних обмежень.
+        ///
+        /// (The initial collection of active restrictions.)
+        /// </param>
+        /// <param name="now">
+        /// Час створення сесії.
+        ///
+        /// (The session creation timestamp.)
+        /// </param>
+        /// <returns>
+        /// Створена сесія обмежень.
+        ///
+        /// (The created restriction session.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обов’язкові дані відсутні або набір обмежень порожній.
+        /// Виникає, якщо обов’язкові дані відсутні або набір обмежень
+        /// порожній чи містить null-елементи.
+        ///
+        /// (Thrown when required data is missing or the restriction collection
+        /// is empty or contains null entries.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо обмеження належать різним користувачам,
-        /// мають різні типи або містять дублікати ідентифікаторів.
+        /// Виникає, якщо хоча б одне обмеження не належить власнику сесії,
+        /// типи обмежень різняться або ідентифікатори дублюються.
+        ///
+        /// (Thrown when a restriction does not belong to the session owner,
+        /// restriction types differ, or identifiers are duplicated.)
         /// </exception>
         /// <exception cref="OverflowException">
-        /// Виникає, якщо сумарна тривалість обмежень перевищує діапазон Int32.
+        /// Виникає, якщо сумарна тривалість виходить за межі Int32.
+        ///
+        /// (Thrown when the total restriction duration is outside the Int32 range.)
         /// </exception>
         internal static UserRestrictionSession Create(
             UserId userId,
@@ -107,7 +132,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                 (userId, nameof(userId)),
                 (userRestrictions, nameof(userRestrictions))
             );
-            
+
             var restrictions = userRestrictions.ToList();
 
             if (restrictions.Count == 0)
@@ -133,7 +158,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             {
                 throw DomainInvariantViolationException.BrokenState<UserRestrictionSession>(
                     "All restrictions used to create a restriction session " +
-                    "must belong to the same user.",
+                    "must belong to the session owner.",
                     new Dictionary<string, object?>
                     {
                         ["ExpectedUserId"] = userId.Value,
@@ -201,23 +226,54 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         ///
         /// (Restores a restriction session from its persisted state.)
         /// </summary>
-        /// <param name="userRestrictionSessionId">Ідентифікатор сесії.</param>
-        /// <param name="userId">Ідентифікатор власника сесії.</param>
+        /// <param name="userRestrictionSessionId">
+        /// Ідентифікатор сесії.
+        ///
+        /// (The session identifier.)
+        /// </param>
+        /// <param name="userId">
+        /// Ідентифікатор власника сесії.
+        ///
+        /// (The identifier of the session owner.)
+        /// </param>
         /// <param name="userRestrictionIds">
         /// Ідентифікатори активних обмежень сесії.
+        ///
+        /// (Identifiers of the session's active restrictions.)
         /// </param>
-        /// <param name="restrictionType">Тип обмежень сесії.</param>
+        /// <param name="restrictionType">
+        /// Тип обмежень сесії.
+        ///
+        /// (The session's restriction type.)
+        /// </param>
         /// <param name="totalBlockedMinutes">
         /// Збережена сумарна тривалість обмежень у хвилинах.
+        ///
+        /// (The persisted total restriction duration in minutes.)
         /// </param>
-        /// <param name="createdAt">Час створення сесії.</param>
-        /// <returns>Відновлена сесія обмежень.</returns>
+        /// <param name="createdAt">
+        /// Час створення сесії.
+        ///
+        /// (The session creation timestamp.)
+        /// </param>
+        /// <returns>
+        /// Відновлена сесія обмежень.
+        ///
+        /// (The restored restriction session.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо обов’язкові дані відсутні, тип не підтримується
-        /// або сумарна тривалість не є додатною.
+        /// Виникає, якщо обов’язкові дані відсутні, набір ідентифікаторів
+        /// порожній чи містить null-елементи, значення типу обмеження
+        /// не оголошене в enum або сумарна тривалість не є додатною.
+        ///
+        /// (Thrown when required data is missing, the identifier collection
+        /// is empty or contains null entries, the restriction type is undefined,
+        /// or the total duration is not positive.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо набір містить дублікати ідентифікаторів.
+        ///
+        /// (Thrown when the collection contains duplicate identifiers.)
         /// </exception>
         public static UserRestrictionSession Restore(
             UserRestrictionSessionId userRestrictionSessionId,
@@ -254,7 +310,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                 .Distinct()
                 .Count();
 
-            if(uniqueRestrictionIdCount != userRestrictionIds.Count)
+            if (uniqueRestrictionIdCount != userRestrictionIds.Count)
             {
                 throw DomainInvariantViolationException.BrokenState<UserRestrictionSession>(
                     "A restored restriction session cannot contain " +
@@ -272,7 +328,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                 OperationType.Restore,
                 (restrictionType, nameof(restrictionType))
             );
-            
+
             if (totalBlockedMinutes <= 0)
             {
                 throw DomainDataInconsistencyException.ValueOutOfRange<UserRestrictionSession>(
@@ -281,7 +337,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                     OperationType.Restore
                 );
             }
-                
+
             return new UserRestrictionSession(
                 userRestrictionSessionId,
                 userId,
@@ -301,6 +357,8 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <returns>
         /// Час створення сесії з доданою сумарною тривалістю обмежень.
+        ///
+        /// (The session creation timestamp plus the total restriction duration.)
         /// </returns>
         public DateTimeOffset GetExpirationDate()
         {
@@ -312,10 +370,17 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         ///
         /// (Determines whether the session is active at the specified time.)
         /// </summary>
-        /// <param name="now">Час, відносно якого виконується перевірка.</param>
+        /// <param name="now">
+        /// Час, відносно якого виконується перевірка.
+        ///
+        /// (The timestamp at which the session state is evaluated.)
+        /// </param>
         /// <returns>
         /// true, якщо час не передує створенню та є меншим за час завершення;
         /// інакше false.
+        ///
+        /// (true if the timestamp is not earlier than creation and is
+        /// earlier than expiration; otherwise, false.)
         /// </returns>
         public bool IsActive(DateTimeOffset now)
         {
@@ -328,10 +393,17 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         ///
         /// (Calculates the time remaining until the session expires.)
         /// </summary>
-        /// <param name="now">Час, відносно якого виконується обчислення.</param>
+        /// <param name="now">
+        /// Час, відносно якого виконується обчислення.
+        ///
+        /// (The timestamp used to calculate the remaining time.)
+        /// </param>
         /// <returns>
         /// Залишок часу або <see cref="TimeSpan.Zero"/>, якщо сесія
         /// ще не почалася чи вже завершилася.
+        ///
+        /// (The remaining time, or TimeSpan.Zero if the session
+        /// has not started or has already expired.)
         /// </returns>
         public TimeSpan GetRemainingTime(DateTimeOffset now)
         {
@@ -354,13 +426,23 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         ///
         /// The supplied time cannot precede the session creation time.)
         /// </summary>
-        /// <param name="now">Час, відносно якого виконується перевірка.</param>
+        /// <param name="now">
+        /// Час, відносно якого виконується перевірка.
+        ///
+        /// (The timestamp at which the session state is evaluated.)
+        /// </param>
         /// <returns>
         /// true, якщо вказаний час дорівнює часу завершення
         /// сесії або перевищує його; інакше false.
+        ///
+        /// (true if the supplied timestamp is greater than or equal
+        /// to the session expiration time; otherwise, false.)
         /// </returns>
-        /// <exception cref="DomainInvalidOperationException">
+        /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо переданий час передує часу створення сесії.
+        ///
+        /// (Thrown when the supplied timestamp precedes
+        /// the session creation time.)
         /// </exception>
         internal bool IsExpiredAt(DateTimeOffset now)
         {
@@ -390,10 +472,14 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="userRestrictions">
         /// Обмеження, можливість додавання яких необхідно перевірити.
+        ///
+        /// (The active restrictions to add to the session.)
         /// </param>
         /// <param name="now">
         /// Час операції, який використовується для перевірки
         /// часової послідовності.
+        ///
+        /// (The operation timestamp used to validate chronological order.)
         /// </param>
         internal void ValidateCanAddRestrictions(
             IReadOnlyCollection<UserRestriction> userRestrictions,
@@ -419,10 +505,14 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="userRestrictions">
         /// Активні обмеження, які необхідно додати.
+        ///
+        /// (The active restrictions to add to the session.)
         /// </param>
         /// <param name="now">
         /// Час операції, який використовується для повторної
         /// перевірки часової послідовності.
+        ///
+        /// (The operation timestamp used to revalidate chronological order.)
         /// </param>
         internal void AddRestrictions(
             IReadOnlyCollection<UserRestriction> userRestrictions,
@@ -457,26 +547,38 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="userRestrictions">
         /// Обмеження, які необхідно підготувати до додавання.
+        ///
+        /// (The active restrictions to add to the session.)
         /// </param>
         /// <param name="now">
         /// Час, відносно якого перевіряється хронологічна
         /// коректність операції.
+        ///
+        /// (The operation timestamp used to validate chronological order.)
         /// </param>
         /// <returns>
         /// Ідентифікатори нових обмежень і розрахована
         /// загальна тривалість блокування після їх додавання.
+        ///
+        /// (The new restriction identifiers and the calculated
+        /// total blocked duration after addition.)
         /// </returns>
         /// <exception cref="DomainInvalidOperationException">
-        /// Виникає, якщо колекція відсутня, порожня,
-        /// містить null-елементи або час операції
-        /// передує часу створення сесії.
+        /// Виникає, якщо колекція порожня або містить null-елементи.
+        ///
+        /// (Thrown when the collection is empty or contains null entries.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження неактивне, належить іншому
         /// користувачу, має інший тип або дублює ідентифікатор.
+        ///
+        /// (Thrown when a restriction is inactive, belongs to another user,
+        /// has a different type, or duplicates an incoming or existing identifier.)
         /// </exception>
         /// <exception cref="OverflowException">
         /// Виникає, якщо сумарна тривалість виходить за межі Int32.
+        ///
+        /// (Thrown when the total restriction duration is outside the Int32 range.)
         /// </exception>
         private (
             IReadOnlyCollection<UserRestrictionId> NewRestrictionIds,
@@ -515,7 +617,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             {
                 throw DomainInvalidOperationException.PreconditionFailed<UserRestrictionSession>(
                     nameof(PrepareAddition),
-                    "The restriction collection contains a null value.",
+                    "All restrictions must be non-null.",
                     OperationType.Update,
                     context: new Dictionary<string, object>
                     {
@@ -630,9 +732,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="userRestrictions">
         /// Обмеження, наслідок вилучення яких необхідно визначити.
+        ///
+        /// (The restrictions to remove from the session.)
         /// </param>
         /// <param name="now">
         /// Зафіксований час, відносно якого оцінюється стан сесії.
+        ///
+        /// (The fixed timestamp at which the session state is evaluated.)
         /// </param>
         /// <returns>
         /// <see cref="RestrictionSessionRemovalEffect.AlreadyExpired"/>,
@@ -643,14 +749,29 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// якщо після вилучення перерахований час завершення не пізніший за
         /// <paramref name="now"/>; інакше
         /// <see cref="RestrictionSessionRemovalEffect.RemainsActive"/>.
+        ///
+        /// (<see cref="RestrictionSessionRemovalEffect.AlreadyExpired"/>
+        /// if the session has already expired; otherwise,
+        /// <see cref="RestrictionSessionRemovalEffect.BecomesEmpty"/>
+        /// if no restrictions would remain after removal; otherwise,
+        /// <see cref="RestrictionSessionRemovalEffect.BecomesExpired"/>
+        /// if the recalculated expiration time is not later than
+        /// <paramref name="now"/>; otherwise,
+        /// <see cref="RestrictionSessionRemovalEffect.RemainsActive"/>.)
         /// </returns>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає, якщо колекція порожня або містить null-елементи.
+        ///
+        /// (Thrown when the collection is empty or contains null entries.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження не належать сесії, мають інший тип,
         /// належать іншому користувачу, дублюються або розрахований
         /// стан сесії є неконсистентним.
+        ///
+        /// (Thrown when restrictions do not belong to the session, have a
+        /// different type or owner, contain duplicate identifiers, or produce an
+        /// inconsistent session state.)
         /// </exception>
         internal RestrictionSessionRemovalEffect ValidateCanRemoveRestrictions(
             IReadOnlyCollection<UserRestriction> userRestrictions,
@@ -696,8 +817,16 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// The method modifies only the session state and does not
         /// change the statuses of the restrictions themselves.)
         /// </summary>
-        /// <param name="userRestrictions">Обмеження, які необхідно вилучити зі складу сесії.</param>
-        /// <param name="now">Зафіксований час виконання операції.</param>
+        /// <param name="userRestrictions">
+        /// Обмеження, які необхідно вилучити зі складу сесії.
+        ///
+        /// (The restrictions to remove from the session.)
+        /// </param>
+        /// <param name="now">
+        /// Зафіксований час виконання операції.
+        ///
+        /// (The fixed operation timestamp.)
+        /// </param>
         internal void RemoveRestrictions(
             IReadOnlyCollection<UserRestriction> userRestrictions,
             DateTimeOffset now)
@@ -729,21 +858,41 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="userRestrictions">
         /// Обмеження, які необхідно підготувати до вилучення.
+        ///
+        /// (The restrictions to remove from the session.)
         /// </param>
         /// <param name="now">
         /// Зафіксований час виконання операції.
+        ///
+        /// (The fixed operation timestamp.)
         /// </param>
         /// <returns>
         /// Ідентифікатори обмежень для вилучення та розрахована
         /// загальна тривалість блокування після операції.
+        ///
+        /// (The restriction identifiers to remove and the
+        /// calculated total blocked duration after removal.)
         /// </returns>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає, якщо колекція порожня або містить null-елементи.
+        ///
+        /// (Thrown when the collection is empty or contains null entries.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження не належить сесії, має інший тип,
         /// належить іншому користувачу, дублюється або призводить
         /// до неконсистентного стану сесії.
+        ///
+        /// (Thrown when restrictions do not belong to the session, have a
+        /// different type or owner, contain duplicate identifiers, or
+        /// produce an inconsistent session state.)
+        /// </exception>
+        /// <exception cref="OverflowException">
+        /// Виникає, якщо сумарна тривалість обмежень для вилучення
+        /// виходить за межі Int32.
+        ///
+        /// (Thrown when the total duration of restrictions to remove
+        /// is outside the Int32 range.)
         /// </exception>
         private (
             IReadOnlyCollection<UserRestrictionId> RestrictionIdsToRemove,
@@ -778,7 +927,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
                 );
             }
 
-            if(restrictions.Any(x => x is null))
+            if (restrictions.Any(x => x is null))
             {
                 throw DomainInvalidOperationException.PreconditionFailed<UserRestrictionSession>(
                     nameof(PrepareRemoval),
@@ -845,9 +994,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="userRestriction">
         /// Обмеження, належність якого необхідно перевірити.
+        ///
+        /// (The restriction whose session membership must be validated.)
         /// </param>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження не відповідає стану сесії.
+        ///
+        /// (Thrown when the restriction does not match the session's ownership, type, or membership.)
         /// </exception>
         private void ValidateSingleRestriction(UserRestriction userRestriction)
         {
@@ -909,13 +1062,19 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// </summary>
         /// <param name="remainingRestrictionCount">
         /// Кількість обмежень, що залишаться в сесії.
+        ///
+        /// (The number of restrictions that would remain in the session.)
         /// </param>
         /// <param name="updatedTotalBlockedMinutes">
         /// Загальна тривалість блокування після вилучення.
+        ///
+        /// (The total blocked duration after removal, in minutes.)
         /// </param>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо кількість обмежень і тривалість
         /// утворюють неконсистентний стан.
+        ///
+        /// (Thrown when the restriction count and duration form an inconsistent state.)
         /// </exception>
         private void EnsureSessionConsistency(
             int remainingRestrictionCount,
@@ -924,7 +1083,7 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             bool hasConsistentResult = (remainingRestrictionCount, updatedTotalBlockedMinutes) switch
             {
                 (0, 0) => true,
-                (> 0, > 0) => true,
+                ( > 0, > 0) => true,
                 _ => false
             };
 
@@ -958,10 +1117,21 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
         /// Compares both set membership and element count,
         /// so duplicates are also treated as a mismatch.)
         /// </summary>
-        /// <param name="restrictionIds">Ідентифікатори обмежень для порівняння.</param>
+        /// <param name="restrictionIds">
+        /// Ідентифікатори обмежень для порівняння.
+        ///
+        /// (The restriction identifiers to compare.)
+        /// </param>
         /// <returns>
         /// true, якщо набори ідентифікаторів повністю збігаються; інакше false.
+        ///
+        /// (true if the identifier collections match exactly; otherwise, false.)
         /// </returns>
+        /// <exception cref="DomainInvariantViolationException">
+        /// Виникає, якщо колекція ідентифікаторів містить елемент null.
+        ///
+        /// (Thrown when the identifier collection contains a null entry.)
+        /// </exception>
         internal bool ContainsExactly(IEnumerable<UserRestrictionId> restrictionIds)
         {
             DomainGuard.AgainstNull<UserRestrictionSession>(
@@ -986,25 +1156,6 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             return identifiers.Count == _activeRestrictionIds.Count &&
                 _activeRestrictionIds.SetEquals(identifiers);
         }
-
-        internal bool ContainsRestriction(UserRestrictionId restrictionId)
-        {
-            DomainGuard.AgainstNull<UserRestrictionSession>(
-                OperationType.Read,
-                (restrictionId, nameof(restrictionId))
-            );
-
-            return _activeRestrictionIds.Contains(restrictionId);
-        }
-
-        /// <summary>
-        /// Визначає, чи не залишилося в сесії активних обмежень.
-        ///
-        /// (Determines whether the session contains no active restrictions.)
-        /// </summary>
-        /// <returns>true, якщо сесія порожня; інакше false.</returns>
-        internal bool IsEmpty()
-            => _activeRestrictionIds.Count == 0;
         #endregion
     }
 }

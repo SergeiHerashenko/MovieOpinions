@@ -14,10 +14,21 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
         /// </summary>
         private sealed class RestrictionRuleValidationData : IHasOperationType
         {
+            /// <inheritdoc/>
             public required OperationType OperationType { get; init; }
 
+            /// <summary>
+            /// Назва правила обмеження, передана для перевірки.
+            ///
+            /// (The restriction rule name supplied for validation.)
+            /// </summary>
             public required string Name { get; init; }
 
+            /// <summary>
+            /// Тривалість обмеження у хвилинах, передана для перевірки.
+            ///
+            /// (The restriction duration in minutes supplied for validation.)
+            /// </summary>
             public required int DurationMinutes { get; init; }
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Authorization.Domain.Common.Models.Interfaces
+namespace Authorization.Domain.Common.Models.Interfaces
 {
     /// <summary>
     /// Контракт для доменних сутностей та агрегатів,

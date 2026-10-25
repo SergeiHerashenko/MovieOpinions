@@ -28,7 +28,11 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
         ///
         /// (Creates a new identifier based on a version 7 UUID.)
         /// </summary>
-        /// <returns>Новий ідентифікатор обмеження користувача.</returns>
+        /// <returns>
+        /// Новий ідентифікатор обмеження користувача.
+        ///
+        /// (The new user restriction identifier.)
+        /// </returns>
         internal static UserRestrictionId Create()
         {
             return new(Guid.CreateVersion7());
@@ -41,10 +45,20 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
         ///
         /// (Restores the identifier from a persisted scalar value.)
         /// </summary>
-        /// <param name="value">Збережене значення ідентифікатора.</param>
-        /// <returns>Відновлений ідентифікатор обмеження користувача.</returns>
+        /// <param name="value">
+        /// Збережене значення ідентифікатора.
+        ///
+        /// (The persisted identifier value.)
+        /// </param>
+        /// <returns>
+        /// Відновлений ідентифікатор обмеження користувача.
+        ///
+        /// (The restored user restriction identifier.)
+        /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережене значення дорівнює Guid.Empty.
+        ///
+        /// (Thrown when the persisted value is Guid.Empty.)
         /// </exception>
         public static UserRestrictionId Restore(Guid value)
         {
@@ -55,6 +69,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
         }
         #endregion
 
+        /// <summary>
+        /// Неявно перетворює ідентифікатор обмеження користувача
+        /// на його значення Guid.
+        ///
+        /// (Implicitly converts a user restriction identifier
+        /// to its Guid value.)
+        /// </summary>
         public static implicit operator Guid(UserRestrictionId data)
             => data.Value;
     }

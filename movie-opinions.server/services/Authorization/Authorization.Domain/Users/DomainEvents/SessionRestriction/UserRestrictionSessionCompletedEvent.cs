@@ -1,7 +1,7 @@
 using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.ValueObjects.LoginUser;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
-using Authorization.Domain.Users.ValueObjects.LoginUser;
 
 namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
 {
@@ -26,15 +26,31 @@ namespace Authorization.Domain.Users.DomainEvents.SessionRestriction
         public RestrictionType RestrictionType { get; }
 
         /// <summary>
-        /// Створює подію завершення сесії обмежень.
+        /// Створює подію завершення сесії обмежень користувача.
         ///
         /// (Creates an event representing the completion
-        /// of a restriction session.)
+        /// of a user restriction session.)
         /// </summary>
-        /// <param name="userRestrictionSessionId">Ідентифікатор завершеної сесії.</param>
-        /// <param name="login">Логін користувача, якому належала сесія.</param>
-        /// <param name="restrictionType">Тип завершеної сесії.</param>
-        /// <param name="occurredOn">Час фіксації завершення сесії.</param>
+        /// <param name="userRestrictionSessionId">
+        /// Ідентифікатор завершеної сесії.
+        ///
+        /// (The completed session identifier.)
+        /// </param>
+        /// <param name="login">
+        /// Логін користувача, якому належала сесія.
+        ///
+        /// (The login of the user who owned the session.)
+        /// </param>
+        /// <param name="restrictionType">
+        /// Тип обмежень завершеної сесії.
+        ///
+        /// (The restriction type of the completed session.)
+        /// </param>
+        /// <param name="occurredOn">
+        /// Час фіксації завершення сесії.
+        ///
+        /// (The time when session completion was recorded.)
+        /// </param>
         public UserRestrictionSessionCompletedEvent(
             UserRestrictionSessionId userRestrictionSessionId,
             Login login,
