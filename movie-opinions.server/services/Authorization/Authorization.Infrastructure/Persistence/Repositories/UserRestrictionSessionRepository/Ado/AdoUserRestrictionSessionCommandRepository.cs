@@ -20,9 +20,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Restriction_Session (id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Restriction_Session (id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes)
+                            VALUES
                                 (@Id, @CreatedAt, @UserId, @ActiveRestrictionsIds, @RestrictionType, @TotalBlockedMinutes);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -37,12 +37,12 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Restriction_Session 
-                            SET 
+                var sql = @"UPDATE
+                                User_Restriction_Session
+                            SET
                                 active_restrictions_ids = @ActiveRestrictionsIds,
                                 total_blocked_minutes = @TotalBlockedMinutes
-                            WHERE 
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -62,9 +62,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"DELETE FROM 
-                                User_Restriction_Session 
-                            WHERE 
+                var sql = @"DELETE FROM
+                                User_Restriction_Session
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);

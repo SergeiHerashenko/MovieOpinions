@@ -1,4 +1,4 @@
-﻿namespace Authorization.MessageHandling.Localization
+namespace Authorization.MessageHandling.Localization
 {
     internal static class ErrorMessageCatalog
     {
@@ -17,10 +17,10 @@
             );
 
         private static IReadOnlyDictionary<
-            string, 
+            string,
             IReadOnlyDictionary<string, string>> Merge(
                 params IReadOnlyDictionary<
-                    string, 
+                    string,
                     IReadOnlyDictionary<string, string>>[] catalogs)
         {
             return catalogs

@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users;
+using Authorization.Domain.Users;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
@@ -71,11 +71,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         #region Aggregate loading
         private async Task<UserData?> LoadUserDataByLoginAsync(NpgsqlConnection connection, Login login, CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts 
-                        FROM 
-                            User_Account 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts
+                        FROM
+                            User_Account
+                        WHERE
                             login = @Login;";
 
             await using var command = new NpgsqlCommand(sql, connection);
@@ -94,11 +94,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
 
         private async Task<UserData?> LoadUserDataByIdAsync(NpgsqlConnection connection, UserId userId, CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts 
-                        FROM 
-                            User_Account 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts
+                        FROM
+                            User_Account
+                        WHERE
                             id = @Id;";
 
             await using var command = new NpgsqlCommand(sql, connection);

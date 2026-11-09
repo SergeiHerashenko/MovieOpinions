@@ -22,7 +22,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
             public ValidationFailure? Validate(RestrictionRuleValidationData data)
             {
                 if (data.DurationMinutes > 0)
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

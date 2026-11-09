@@ -104,7 +104,9 @@ namespace Authorization.Domain.Users.Aggregate
             var requestedRestrictionIds = restrictionIds.ToList();
 
             if (requestedRestrictionIds.Count == 0)
+            {
                 return Result.Failure(UserErrors.EmptyRestrictionList<User>());
+            }
 
             if (requestedRestrictionIds.Any(x => x is null))
             {
@@ -123,7 +125,9 @@ namespace Authorization.Domain.Users.Aggregate
             var uniqueRequestedRestrictionIds = requestedRestrictionIds.ToHashSet();
 
             if (uniqueRequestedRestrictionIds.Count != requestedRestrictionIds.Count)
+            {
                 return Result.Failure(UserErrors.DuplicateRestrictionIdentifiers<User>());
+            }
 
             var matchedRestrictions = _restrictions
                 .Where(x => uniqueRequestedRestrictionIds.Contains(x.Id))
@@ -138,7 +142,9 @@ namespace Authorization.Domain.Users.Aggregate
                 .ToArray();
 
             if (missingRestrictionIds.Length > 0)
+            {
                 return Result.Failure(UserErrors.NotFoundRestriction<User>(missingRestrictionIds));
+            }
 
             var removalPlansResult = PrepareRestrictionRemovalPlans(
                 matchedRestrictions,
@@ -146,7 +152,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (removalPlansResult.IsFailure)
+            {
                 return Result.Failure(removalPlansResult.Errors);
+            }
 
             ApplyRestrictionRemovalPlans(
                 removalPlansResult.Value,
@@ -886,7 +894,9 @@ namespace Authorization.Domain.Users.Aggregate
                 };
 
                 if (planResult.IsFailure)
+                {
                     return Result<IReadOnlyCollection<RestrictionRemovalPlan>>.Failure(planResult.Errors);
+                }
 
                 plans.Add(planResult.Value);
             }
@@ -1050,7 +1060,9 @@ namespace Authorization.Domain.Users.Aggregate
                 var revocationValidationResult = restriction.ValidateRevocation(now);
 
                 if (revocationValidationResult.IsFailure)
+                {
                     return Result<RestrictionRemovalPlan>.Failure(revocationValidationResult.Errors);
+                }
             }
 
             foreach (var restriction in restrictionsToComplete)
@@ -1146,7 +1158,9 @@ namespace Authorization.Domain.Users.Aggregate
                 var revocationValidationResult = restriction.ValidateRevocation(now);
 
                 if (revocationValidationResult.IsFailure)
+                {
                     return Result<RestrictionRemovalPlan>.Failure(revocationValidationResult.Errors);
+                }
             }
 
             var plan = new SessionBecomesEmptyPlan(
@@ -1202,7 +1216,9 @@ namespace Authorization.Domain.Users.Aggregate
                 var revocationValidationResult = restriction.ValidateRevocation(now);
 
                 if (revocationValidationResult.IsFailure)
+                {
                     return Result<RestrictionRemovalPlan>.Failure(revocationValidationResult.Errors);
+                }
             }
 
             var plan = new SessionRemainsActivePlan(

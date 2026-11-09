@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
@@ -62,7 +62,7 @@ namespace Authorization.Application.Features.ChangingPassword.StartChangePasswor
         }
 
         public async Task<Result<StartChangePasswordResult>> Handle(
-            StartChangePasswordCommand command, 
+            StartChangePasswordCommand command,
             CancellationToken cancellationToken = default)
         {
             var ipAddressResult = IpAddress.Create(_userContext.GetIpAddress());
@@ -126,7 +126,7 @@ namespace Authorization.Application.Features.ChangingPassword.StartChangePasswor
             var startChange = startResult.Value;
 
             var channelsResult = await _pendingActionContactsCoordinator.GetAsync(
-                startChange.User.Id, 
+                startChange.User.Id,
                 startChange.Action.Id,
                 cancellationToken
             );
@@ -162,9 +162,9 @@ namespace Authorization.Application.Features.ChangingPassword.StartChangePasswor
                 }
 
                 var actionResult = currentUser.ActionChangePassword(
-                    plainNewPassword, 
-                    newPassword, 
-                    _passwordHasher.VerifyPassword, 
+                    plainNewPassword,
+                    newPassword,
+                    _passwordHasher.VerifyPassword,
                     _clock.UtcNow
                 );
 

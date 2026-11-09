@@ -1,8 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 {
-    public sealed class ConfirmationDeletingValidator 
+    public sealed class ConfirmationDeletingValidator
         : AbstractValidator<ConfirmationDeletingCommand>
     {
         public ConfirmationDeletingValidator()

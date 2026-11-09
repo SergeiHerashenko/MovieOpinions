@@ -11,14 +11,14 @@ namespace Authorization.Domain.Common.Models
     /// </summary>
     /// <typeparam name="TId">
     /// Тип значення ідентифікатора.
-    /// 
+    ///
     /// (The underlying identifier value type.)
     /// </typeparam>
     public abstract class StronglyTypedId<TId> : ValueObject
     {
         /// <summary>
         /// Значення ідентифікатора.
-        /// 
+        ///
         /// (The identifier value.)
         /// </summary>
         public abstract TId Value { get; }
@@ -34,7 +34,7 @@ namespace Authorization.Domain.Common.Models
         /// </summary>
         /// <returns>
         /// Впорядкована послідовність компонентів рівності.
-        /// 
+        ///
         /// (An ordered sequence of equality components.)
         /// </returns>
         public override IEnumerable<object?> GetEqualityComponents()

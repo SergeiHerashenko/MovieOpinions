@@ -64,7 +64,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         public static UserRefreshTokenId Restore(Guid value)
         {
             if (value == Guid.Empty)
+            {
                 throw DomainDataInconsistencyException.Empty<UserRefreshTokenId>(nameof(value));
+            }
 
             return new(value);
         }

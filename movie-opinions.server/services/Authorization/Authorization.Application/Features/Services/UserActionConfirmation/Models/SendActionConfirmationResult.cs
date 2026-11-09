@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Common.Enums;
+using Authorization.Application.Common.Enums;
 
 namespace Authorization.Application.Features.Services.UserActionConfirmation.Models
 {
@@ -9,7 +9,7 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation.Mod
         public string Message { get; }
 
         public SendActionConfirmationResult(
-            ConfirmationNextStep confirmationNextStep, 
+            ConfirmationNextStep confirmationNextStep,
             string message)
         {
             ConfirmationNextStep = confirmationNextStep;

@@ -1,9 +1,9 @@
-﻿using Authorization.Domain.Results;
+using Authorization.Domain.Results;
 using MediatR;
 
 namespace Authorization.Application.Features.ChangingPassword.StartChangePassword
 {
-    public sealed class StartChangePasswordCommand 
+    public sealed class StartChangePasswordCommand
         : IRequest<Result<StartChangePasswordResult>>
     {
         public string CurrentPassword { get; }
@@ -11,7 +11,7 @@ namespace Authorization.Application.Features.ChangingPassword.StartChangePasswor
         public string NewPassword { get; }
 
         public StartChangePasswordCommand(
-            string currentPassword, 
+            string currentPassword,
             string newPassword)
         {
             CurrentPassword = currentPassword;

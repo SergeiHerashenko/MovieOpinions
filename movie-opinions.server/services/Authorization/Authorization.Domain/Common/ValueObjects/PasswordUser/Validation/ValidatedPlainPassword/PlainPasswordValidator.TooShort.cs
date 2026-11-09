@@ -40,7 +40,9 @@ namespace Authorization.Domain.Common.ValueObjects.PasswordUser.Validation.Valid
                 }
 
                 if (data.Value.Length >= MIN_LENGTH_PLAIN_PASSWORD)
+                {
                     return null;
+                }
 
                 return new ErrorValidationFailure()
                 {

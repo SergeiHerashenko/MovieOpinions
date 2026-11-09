@@ -50,7 +50,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.DomainPa
                 }
 
                 if (EmailDomainRegex.IsMatch(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

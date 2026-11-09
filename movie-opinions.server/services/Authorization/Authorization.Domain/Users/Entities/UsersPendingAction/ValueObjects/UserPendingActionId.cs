@@ -63,7 +63,9 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects
         public static UserPendingActionId Restore(Guid value)
         {
             if (value == Guid.Empty)
+            {
                 throw DomainDataInconsistencyException.Empty<UserPendingActionId>(nameof(value));
+            }
 
             return new(value);
         }

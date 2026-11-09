@@ -18,7 +18,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // 1. НАЛАШТУВАННЯ ЛОГУВАННЯ (Serilog)
+        // 1. РќРђР›РђРЁРўРЈР’РђРќРќРЇ Р›РћР“РЈР’РђРќРќРЇ (Serilog)
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(builder.Configuration)
             .CreateLogger();
@@ -27,22 +27,22 @@ internal class Program
 
         try
         {
-            Log.Information("Запуск сервісу авторизації...");
+            Log.Information("Р—Р°РїСѓСЃРє СЃРµСЂРІС–СЃСѓ Р°РІС‚РѕСЂРёР·Р°С†С–С—...");
 
-            // 2. ПЕРЕВІРКА КОНФІГУРАЦІЇ
+            // 2. РџР•Р Р•Р’Р†Р РљРђ РљРћРќР¤Р†Р“РЈР РђР¦Р†Р‡
             var userJwtKey = builder.Configuration["Authentication:UserJwt:Key"];
             var serviceJwtKey = builder.Configuration["Authentication:ServiceJwt:Key"];
             if (string.IsNullOrEmpty(userJwtKey) || userJwtKey.Length < 32)
             {
-                throw new InvalidOperationException("UserJWT Key відсутній або надто короткий (мінімум 32 символи)!");
+                throw new InvalidOperationException("UserJWT Key РІС–РґСЃСѓС‚РЅС–Р№ Р°Р±Рѕ РЅР°РґС‚Рѕ РєРѕСЂРѕС‚РєРёР№ (РјС–РЅС–РјСѓРј 32 СЃРёРјРІРѕР»Рё)!");
             }
 
             if (string.IsNullOrEmpty(serviceJwtKey) || serviceJwtKey.Length < 32)
             {
-                throw new InvalidOperationException("ServiceJwt Key відсутній або надто короткий (мінімум 32 символи)!");
+                throw new InvalidOperationException("ServiceJwt Key РІС–РґСЃСѓС‚РЅС–Р№ Р°Р±Рѕ РЅР°РґС‚Рѕ РєРѕСЂРѕС‚РєРёР№ (РјС–РЅС–РјСѓРј 32 СЃРёРјРІРѕР»Рё)!");
             }
 
-            // 3. КОРС (CORS)
+            // 3. РљРћР РЎ (CORS)
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FrontendPolicy", policy =>
@@ -50,20 +50,20 @@ internal class Program
                     policy.WithOrigins("http://localhost:3000")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials(); // Дозволяємо передачу Cookies
+                          .AllowCredentials(); // Р”РѕР·РІРѕР»СЏС”РјРѕ РїРµСЂРµРґР°С‡Сѓ Cookies
                 });
             });
 
-            // 4. РЕЄСТРАЦІЯ ШАРІВ АРХІТЕКТУРИ
+            // 4. Р Р•Р„РЎРўР РђР¦Р†РЇ РЁРђР Р†Р’ РђР РҐР†РўР•РљРўРЈР Р
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddApplication();
             builder.Services.AddPresentation(builder.Configuration);
 
-            // 5. КОНТРОЛЕРИ
+            // 5. РљРћРќРўР РћР›Р•Р Р
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                 {
-                    // Щоб в JSON Enums відображалися як рядки ("Admin"), а не числа (0)
+                    // Р©РѕР± РІ JSON Enums РІС–РґРѕР±СЂР°Р¶Р°Р»РёСЃСЏ СЏРє СЂСЏРґРєРё ("Admin"), Р° РЅРµ С‡РёСЃР»Р° (0)
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
 
@@ -73,7 +73,7 @@ internal class Program
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "Authorization API", Version = "v1" });
 
-                // Налаштування Swagger для роботи з JWT Bearer
+                // РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ Swagger РґР»СЏ СЂРѕР±РѕС‚Рё Р· JWT Bearer
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -81,7 +81,7 @@ internal class Program
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Введіть JWT токен (без слова Bearer)"
+                    Description = "Р’РІРµРґС–С‚СЊ JWT С‚РѕРєРµРЅ (Р±РµР· СЃР»РѕРІР° Bearer)"
                 });
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -98,7 +98,7 @@ internal class Program
 
             builder.Services.AddHttpContextAccessor();
 
-            // 7. НАЛАШТУВАННЯ ПЕРЕДАЧІ ЗАГОЛОВКІВ (Forwarded Headers)
+            // 7. РќРђР›РђРЁРўРЈР’РђРќРќРЇ РџР•Р Р•Р”РђР§Р† Р—РђР“РћР›РћР’РљР†Р’ (Forwarded Headers)
             builder.Services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders =
@@ -110,7 +110,7 @@ internal class Program
                 options.KnownProxies.Clear();
             });
 
-            // 8. АВТЕНТИФІКАЦІЯ ТА JWT
+            // 8. РђР’РўР•РќРўРР¤Р†РљРђР¦Р†РЇ РўРђ JWT
             builder.Services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -130,7 +130,7 @@ internal class Program
                     ClockSkew = TimeSpan.Zero
                 };
 
-                // Логіка для витягування токена з Cookies (HTTP-only безпека)
+                // Р›РѕРіС–РєР° РґР»СЏ РІРёС‚СЏРіСѓРІР°РЅРЅСЏ С‚РѕРєРµРЅР° Р· Cookies (HTTP-only Р±РµР·РїРµРєР°)
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
@@ -144,11 +144,11 @@ internal class Program
                 };
             });
 
-            // 9. ОБРОБКА ПОМИЛОК
+            // 9. РћР‘Р РћР‘РљРђ РџРћРњРР›РћРљ
             builder.Services.AddExceptionHandler<AuthExceptionHandler>();
             builder.Services.AddProblemDetails();
 
-            // 10. ГЛОБАЛЬНИЙ РЕЙТ-ЛІМІТЕР
+            // 10. Р“Р›РћР‘РђР›Р¬РќРР™ Р Р•Р™Рў-Р›Р†РњР†РўР•Р 
             builder.Services.AddRateLimiter(options =>
             {
                 options.AddPolicy("FixedWindowPolicy", context =>
@@ -156,8 +156,8 @@ internal class Program
                         partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 100, 
-                            Window = TimeSpan.FromMinutes(1), 
+                            PermitLimit = 100,
+                            Window = TimeSpan.FromMinutes(1),
                             QueueLimit = 0
                         }));
 
@@ -166,11 +166,11 @@ internal class Program
 
             var app = builder.Build();
 
-            // 11. ЗАПУСК МІГРАЦІЙ
+            // 11. Р—РђРџРЈРЎРљ РњР†Р“Р РђР¦Р†Р™
             using (var scope = app.Services.CreateScope())
             {
                 var migrator = scope.ServiceProvider.GetRequiredService<DatabaseMigrator>();
-            
+
                 await migrator.MigrateAsync();
             }
 
@@ -199,7 +199,7 @@ internal class Program
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "Додаток не зміг запуститися!");
+            Log.Fatal(ex, "Р”РѕРґР°С‚РѕРє РЅРµ Р·РјС–Рі Р·Р°РїСѓСЃС‚РёС‚РёСЃСЏ!");
         }
         finally
         {

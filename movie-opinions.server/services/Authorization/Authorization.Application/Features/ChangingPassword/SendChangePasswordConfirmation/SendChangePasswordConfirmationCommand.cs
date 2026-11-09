@@ -1,9 +1,9 @@
-﻿using Authorization.Domain.Results;
+using Authorization.Domain.Results;
 using MediatR;
 
 namespace Authorization.Application.Features.ChangingPassword.SendChangePasswordConfirmation
 {
-    public sealed class SendChangePasswordConfirmationCommand 
+    public sealed class SendChangePasswordConfirmationCommand
         : IRequest<Result<SendChangePasswordConfirmationResult>>
     {
         public string ConfirmationToken { get; }
@@ -13,8 +13,8 @@ namespace Authorization.Application.Features.ChangingPassword.SendChangePassword
         public string MaskedValue { get; }
 
         public SendChangePasswordConfirmationCommand(
-            string confirmationToken, 
-            string contactId, 
+            string confirmationToken,
+            string contactId,
             string maskedValue)
         {
             ConfirmationToken = confirmationToken;

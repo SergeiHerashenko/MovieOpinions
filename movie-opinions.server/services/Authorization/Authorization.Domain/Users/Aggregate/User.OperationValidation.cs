@@ -27,13 +27,13 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="now">
         /// Час операції над агрегатом, який необхідно перевірити.
-        /// 
+        ///
         /// (User aggregate operation timestamp to validate.)
         /// </param>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо час операції передує одній із часових позначок,
         /// що перевіряються.
-        /// 
+        ///
         /// (Thrown when the operation timestamp precedes
         /// any of the timestamps being checked.)
         /// </exception>

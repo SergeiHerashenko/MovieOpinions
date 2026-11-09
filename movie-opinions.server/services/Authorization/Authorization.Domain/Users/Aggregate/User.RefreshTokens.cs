@@ -28,28 +28,28 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="deviceInfo">
         /// Інформація про клієнтський пристрій.
-        /// 
+        ///
         /// (Client-device information.)
         /// </param>
         /// <param name="ipAddress">
         /// IP-адреса клієнта.
-        /// 
+        ///
         /// (Client IP address.)
         /// </param>
         /// <param name="now">
         /// Час створення refresh-токена.
-        /// 
+        ///
         /// (Refresh-token creation time.)
         /// </param>
         /// <param name="city">
         /// Необов’язкова назва міста, пов’язана з токеном.
-        /// 
+        ///
         /// (Optional city name associated with the token.)
         /// </param>
         /// <returns>
         /// Успішний результат зі створеним refresh-токеном
         /// або помилка доступу до облікового запису.
-        /// 
+        ///
         /// (Success containing the created refresh token,
         /// or an account access error.)
         /// </returns>
@@ -70,7 +70,9 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return Result<UserRefreshToken>.Failure(access.Errors);
+            }
 
             var refreshToken = UserRefreshToken.Create(
                 Id,
@@ -117,18 +119,18 @@ namespace Authorization.Domain.Users.Aggregate
         /// </remarks>
         /// <param name="userRefreshTokenId">
         /// Ідентифікатор refresh-токена, який потрібно використати.
-        /// 
+        ///
         /// (Identifier of the refresh token to consume.)
         /// </param>
         /// <param name="now">
         /// Час використання refresh-токена.
-        /// 
+        ///
         /// (Refresh-token consumption time.)
         /// </param>
         /// <returns>
         /// Успіх після використання токена або помилка, якщо доступ
         /// заборонений, токен відсутній чи його неможливо використати.
-        /// 
+        ///
         /// (Success after consuming the token, or an error if access
         /// is denied, the token is missing, or it cannot be consumed.)
         /// </returns>
@@ -146,7 +148,9 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return Result.Failure(access.Errors);
+            }
 
             return ProcessRefreshToken(
                 userRefreshTokenId,
@@ -184,18 +188,18 @@ namespace Authorization.Domain.Users.Aggregate
         /// </remarks>
         /// <param name="userRefreshTokenId">
         /// Ідентифікатор refresh-токена, який потрібно відкликати.
-        /// 
+        ///
         /// (Identifier of the refresh token to revoke.)
         /// </param>
         /// <param name="now">
         /// Час відкликання refresh-токена.
-        /// 
+        ///
         /// (Refresh-token revocation time.)
         /// </param>
         /// <returns>
         /// Успіх після відкликання токена або помилка,
         /// якщо токен відсутній чи його неможливо відкликати.
-        /// 
+        ///
         /// (Success after revoking the token, or an error
         /// if the token is missing or cannot be revoked.)
         /// </returns>
@@ -279,7 +283,9 @@ namespace Authorization.Domain.Users.Aggregate
             var refreshTokens = _refreshTokens.ToArray();
 
             if (refreshTokens.Length == 0)
+            {
                 return;
+            }
 
             foreach (var refreshToken in refreshTokens)
             {
@@ -334,23 +340,23 @@ namespace Authorization.Domain.Users.Aggregate
         /// </remarks>
         /// <param name="userRefreshTokenId">
         /// Ідентифікатор refresh-токена для обробки.
-        /// 
+        ///
         /// (Identifier of the refresh token to process.)
         /// </param>
         /// <param name="now">
         /// Час операції, попередньо перевірений на рівні агрегату.
-        /// 
+        ///
         /// (Operation timestamp already validated at the aggregate level.)
         /// </param>
         /// <param name="tokenOperation">
         /// Операція над refresh-токеном, що повертає результат виконання.
-        /// 
+        ///
         /// (Refresh-token operation returning its execution result.)
         /// </param>
         /// <returns>
         /// Успіх після виконання операції та реєстрації зміни агрегату;
         /// інакше — помилка відсутності токена або результат невдалої операції.
-        /// 
+        ///
         /// (Success after executing the operation and recording the aggregate change;
         /// otherwise, a missing-token error or the failed operation result.)
         /// </returns>
@@ -369,7 +375,9 @@ namespace Authorization.Domain.Users.Aggregate
                 .FirstOrDefault(x => x.Id == userRefreshTokenId);
 
             if (refreshToken is null)
+            {
                 return Result.Failure(UserErrors.NotFoundToken<User>());
+            }
 
             var statusBeforeOperation = refreshToken.TokenStatus;
 
@@ -382,7 +390,7 @@ namespace Authorization.Domain.Users.Aggregate
                 statusBeforeOperation == TokenStatus.Active &&
                 refreshToken.TokenStatus == TokenStatus.Expired;
 
-            if(operationResult.IsSuccess || becameExpired)
+            if (operationResult.IsSuccess || becameExpired)
             {
                 _refreshTokens.Remove(refreshToken);
 

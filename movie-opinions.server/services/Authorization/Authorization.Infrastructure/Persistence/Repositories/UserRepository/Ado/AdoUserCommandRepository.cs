@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users;
+using Authorization.Domain.Users;
 using Authorization.Domain.Users.ValueObjects;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Infrastructure.Persistence.Context;
@@ -30,9 +30,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Account (id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Account (id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts)
+                            VALUES
                                 (@Id, @CreatedAt, @LoginType, @Login, @CountryCode, @EmailDomain, @PasswordHash, @Role, @UpdatedAt, @LastLoginAt, @IsLoginConfirmed, @FailedPasswordAttempts);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -48,9 +48,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Account 
-                            SET 
+                var sql = @"UPDATE
+                                User_Account
+                            SET
                                 login = @Login,
                                 login_type = @LoginType,
                                 country_code = @CountryCode,
@@ -60,7 +60,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
                                 updated_at = @UpdatedAt,
                                 last_login_at = @LastLoginAt,
                                 is_login_confirmed = @IsLoginConfirmed,
-                                failed_password_attempts = @FailedPasswordAttempts 
+                                failed_password_attempts = @FailedPasswordAttempts
                             WHERE
                                 id = @Id;";
 
@@ -88,14 +88,14 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         private async Task<UserData?> LoadUserByIdForUpdateAsync(
             NpgsqlConnection connection,
             NpgsqlTransaction transaction,
-            UserId userId, 
+            UserId userId,
             CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts 
-                        FROM 
-                            User_Account 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, login_type, login, country_code, email_domain, password_hash, role, updated_at, last_login_at, is_login_confirmed, failed_password_attempts
+                        FROM
+                            User_Account
+                        WHERE
                             id = @Id
                         FOR UPDATE;";
 
@@ -118,8 +118,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
             command.Parameters.Add(new NpgsqlParameter("@Id", NpgsqlDbType.Uuid) { Value = entity.Id.Value });
             command.Parameters.Add(new NpgsqlParameter("@LoginType", NpgsqlDbType.Varchar) { Value = entity.Login.Type.ToString() });
             command.Parameters.Add(new NpgsqlParameter("@Login", NpgsqlDbType.Varchar) { Value = entity.Login.Value });
-            command.Parameters.Add(new NpgsqlParameter("@CountryCode", NpgsqlDbType.Varchar) 
-            { 
+            command.Parameters.Add(new NpgsqlParameter("@CountryCode", NpgsqlDbType.Varchar)
+            {
                 Value = entity.Login switch
                 {
                     PhoneLogin phoneLogin => phoneLogin.Phone.PhoneCountryCode.Value,

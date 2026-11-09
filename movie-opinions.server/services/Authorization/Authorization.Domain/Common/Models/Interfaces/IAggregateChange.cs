@@ -13,7 +13,7 @@ namespace Authorization.Domain.Common.Models.Interfaces
     {
         /// <summary>
         /// Дата та час настання зміни агрегату.
-        /// 
+        ///
         /// (Date and time when the aggregate change occurred.)
         /// </summary>
         DateTimeOffset OccurredOn { get; }

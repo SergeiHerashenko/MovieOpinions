@@ -41,7 +41,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.Emails
                 }
 
                 if (!data.Value.Any(char.IsWhiteSpace))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

@@ -480,7 +480,7 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
 
             var first = DomainDataInconsistencyException.ValueOutOfRange<Error>(
                 fieldName: fieldNameFirst,
-                value: valueFirst,                                         
+                value: valueFirst,
                 context: new Dictionary<string, object> { ["A"] = 1 }
             );
 
@@ -489,7 +489,7 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
 
             var second = DomainDataInconsistencyException.ValueOutOfRange<Error>(
                 fieldName: fieldNameSecond,
-                value: valueSecond,                                      
+                value: valueSecond,
                 context: new Dictionary<string, object> { ["B"] = 2 }
             );
 

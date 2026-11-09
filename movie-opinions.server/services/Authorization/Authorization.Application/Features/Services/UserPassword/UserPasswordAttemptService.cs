@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
@@ -39,25 +39,25 @@ namespace Authorization.Application.Features.Services.UserPassword
         }
 
         public Task<Result<User>> ProcessAsync(
-            UserId userId, 
-            string rawPassword, 
+            UserId userId,
+            string rawPassword,
             CancellationToken cancellationToken = default)
         {
             return ProcessCoreAsync(
-                ct => _userRepository.GetUserByIdAsync(userId, ct), 
-                userId.Value.ToString(), 
+                ct => _userRepository.GetUserByIdAsync(userId, ct),
+                userId.Value.ToString(),
                 rawPassword,
                 cancellationToken
             );
         }
 
         public Task<Result<User>> ProcessAsync(
-            Login login, 
-            string rawPassword, 
+            Login login,
+            string rawPassword,
             CancellationToken cancellationToken = default)
         {
             return ProcessCoreAsync(
-                ct => _userRepository.GetUserByLoginAsync(login, ct), 
+                ct => _userRepository.GetUserByLoginAsync(login, ct),
                 login.Value,
                 rawPassword,
                 cancellationToken

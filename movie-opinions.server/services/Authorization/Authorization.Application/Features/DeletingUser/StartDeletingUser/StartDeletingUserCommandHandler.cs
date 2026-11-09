@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
@@ -16,7 +16,7 @@ using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
 {
-    public class StartDeletingUserCommandHandler 
+    public class StartDeletingUserCommandHandler
         : IRequestHandler<StartDeletingUserCommand, Result<StartDeletingUserResult>>
     {
         private readonly IRateLimiter _rateLimiter;
@@ -56,7 +56,7 @@ namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
         }
 
         public async Task<Result<StartDeletingUserResult>> Handle(
-            StartDeletingUserCommand command, 
+            StartDeletingUserCommand command,
             CancellationToken cancellationToken)
         {
             var ipAddressResult = IpAddress.Create(_userContext.GetIpAddress());

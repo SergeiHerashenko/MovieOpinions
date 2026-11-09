@@ -75,7 +75,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
             );
 
             if (failure is not null)
+            {
                 return Result<EmailLocalPart>.Failure(failure.Value);
+            }
 
             return Result<EmailLocalPart>.Success(new EmailLocalPart(normalizedLocalPart));
         }
@@ -126,7 +128,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             var normalizedLocalPart = storedEmailLocalPart.Trim().ToLowerInvariant();
 

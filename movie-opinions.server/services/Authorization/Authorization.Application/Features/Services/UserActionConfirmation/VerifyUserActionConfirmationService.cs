@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Mapping;
 using Authorization.Application.Abstractions.RateLimiter;
 using Authorization.Application.Abstractions.Services.UserActionConfirmation;
@@ -35,8 +35,8 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
         }
 
         public async Task<Result<VerifiedUserActionResult>> VerifyAsync<TAction>(
-            VerifiedUserActionData data, 
-            CancellationToken cancellationToken = default) 
+            VerifiedUserActionData data,
+            CancellationToken cancellationToken = default)
             where TAction : UserAction
         {
             var userId = UserId.Restore(_userContext.GetUserId());
@@ -73,9 +73,9 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
                 verificationConfig.VerificationType,
                 data.VerificationValue
             );
-            
+
             var resultVerify = await _verificationSender.VerifyCodeAsync(verificationCommand, cancellationToken);
-            
+
             if (resultVerify.IsFailure)
                 return Result<VerifiedUserActionResult>.Failure(resultVerify.Errors);
 

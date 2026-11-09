@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.ValueObjects.LoginUser;
+using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingRegistration;
 using Authorization.Domain.UsersPendingRegistration.ValueObjects;
 using Authorization.Infrastructure.Persistence.Context;
@@ -20,9 +20,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Pending_Registration (id, login, login_type, country_code, email_domain, password_hash, registration_token, expires_at, created_at) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Pending_Registration (id, login, login_type, country_code, email_domain, password_hash, registration_token, expires_at, created_at)
+                            VALUES
                                 (@Id, @Login, @LoginType, @CountryCode, @EmailDomain, @PasswordHash, @RegistrationToken, @ExpiresAt, @CreatedAt);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -37,13 +37,13 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Pending_Registration 
-                            SET 
-                                password_hash = @PasswordHash, 
+                var sql = @"UPDATE
+                                User_Pending_Registration
+                            SET
+                                password_hash = @PasswordHash,
                                 registration_token = @RegistrationToken,
-                                expires_at = @ExpiresAt 
-                            WHERE 
+                                expires_at = @ExpiresAt
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -61,9 +61,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"DELETE FROM 
-                                User_Pending_Registration 
-                            WHERE 
+                var sql = @"DELETE FROM
+                                User_Pending_Registration
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);

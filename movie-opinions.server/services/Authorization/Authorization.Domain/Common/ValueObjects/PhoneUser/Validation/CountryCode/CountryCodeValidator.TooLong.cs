@@ -45,7 +45,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.CountryC
                 }
 
                 if (data.Value.Length <= MAX_LENGTH_PHONE_COUNTRY_CODE)
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

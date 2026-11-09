@@ -11,7 +11,7 @@ namespace Authorization.Domain.Common.Models.Interfaces
     {
         /// <summary>
         /// Накопичені зміни агрегату, що очікують обробки або збереження.
-        /// 
+        ///
         /// (Accumulated aggregate changes awaiting processing or persistence.)
         /// </summary>
         IReadOnlyList<IAggregateChange> AggregateChanges { get; }

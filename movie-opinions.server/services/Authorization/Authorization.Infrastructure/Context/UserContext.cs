@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.UserContext;
+using Authorization.Application.Abstractions.UserContext;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo;
 using Authorization.Infrastructure.Exceptions;
@@ -121,7 +121,7 @@ namespace Authorization.Infrastructure.Context
                 return null;
             }
         }
-        
+
         public Guid GetUserId()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);

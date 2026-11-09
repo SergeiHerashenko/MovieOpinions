@@ -13,14 +13,14 @@ namespace Authorization.Domain.Common.Models
     {
         /// <summary>
         /// Дата та час настання доменної події.
-        /// 
+        ///
         /// (Date and time when the domain event occurred.)
         /// </summary>
         public DateTimeOffset OccurredOn { get; }
 
         /// <summary>
         /// Ініціалізує новий екземпляр доменної події.
-        /// 
+        ///
         /// (Initializes a new instance of a domain event.)
         /// </summary>
         /// <param name="occurredOn">

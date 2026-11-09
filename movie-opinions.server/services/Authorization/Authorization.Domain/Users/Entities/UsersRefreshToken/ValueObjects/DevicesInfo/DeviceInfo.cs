@@ -1,9 +1,9 @@
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.Enums;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo.Validation;
-using Authorization.Domain.Common.Exceptions.DomainException;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.DevicesInfo
 {
@@ -119,7 +119,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             );
 
             if (failure is not null)
+            {
                 return Result<DeviceInfo>.Failure(failure.Value);
+            }
 
             return Result<DeviceInfo>.Success(
                 new DeviceInfo(
@@ -192,9 +194,16 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
-            return new(deviceType, operatingSystem, browser, deviceModel);
+            return new(
+                deviceType,
+                operatingSystem,
+                browser,
+                deviceModel
+            );
         }
         #endregion
 

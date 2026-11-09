@@ -9,7 +9,7 @@ namespace Authorization.Domain.Common.Models
     /// </summary>
     /// <typeparam name="TId">
     /// Тип значення ідентифікатора.
-    /// 
+    ///
     /// (The underlying identifier value type.)
     /// </typeparam>
     public abstract class AggregateRootId<TId> : StronglyTypedId<TId>

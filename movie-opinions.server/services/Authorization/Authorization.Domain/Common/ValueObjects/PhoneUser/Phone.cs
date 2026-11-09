@@ -113,7 +113,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
             );
 
             if (validationPhone is not null)
+            {
                 return Result<Phone>.Failure(validationPhone.Value);
+            }
 
             return Result<Phone>.Success(new Phone(phoneCountryCode, phoneNationalNumber));
         }
@@ -191,7 +193,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
             );
 
             if (validationPhone is not null)
+            {
                 throw validationPhone.Value;
+            }
 
             return new Phone(phoneCountryCode, phoneNationalNumber);
         }
@@ -206,7 +210,7 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
         /// </summary>
         /// <returns>
         /// Повний телефонний номер у канонічному форматі.
-        /// 
+        ///
         ///(The complete telephone number in canonical form.)
         /// </returns>
         public string GetFullNumber()

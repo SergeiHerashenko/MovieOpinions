@@ -11,7 +11,7 @@ namespace Authorization.Domain.Common.Models.Interfaces
     {
         /// <summary>
         /// Накопичені доменні події, що очікують публікації.
-        /// 
+        ///
         /// (Accumulated domain events awaiting dispatch.)
         /// </summary>
         IReadOnlyList<IDomainEvent> DomainEvents { get; }

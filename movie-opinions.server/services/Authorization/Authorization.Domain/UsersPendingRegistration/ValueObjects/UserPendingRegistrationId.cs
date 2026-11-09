@@ -49,7 +49,9 @@ namespace Authorization.Domain.UsersPendingRegistration.ValueObjects
         public static UserPendingRegistrationId Restore(Guid value)
         {
             if (value == Guid.Empty)
+            {
                 throw DomainDataInconsistencyException.Empty<UserPendingRegistrationId>(nameof(value));
+            }
 
             return new(value);
         }

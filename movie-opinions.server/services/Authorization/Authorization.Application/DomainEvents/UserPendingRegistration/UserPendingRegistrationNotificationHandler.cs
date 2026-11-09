@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
 using Authorization.Application.DTOs.Communication;
@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserPendingRegistration
 {
-    public sealed class UserPendingRegistrationNotificationHandler 
+    public sealed class UserPendingRegistrationNotificationHandler
         : INotificationHandler<DomainEventNotification<UserRegistrationRequestedEvent>>
     {
         private readonly INotificationSender _notificationSender;
@@ -30,9 +30,9 @@ namespace Authorization.Application.DomainEvents.UserPendingRegistration
                 : CommunicationChannel.Phone;
 
             var notificationCommand = NotificationRequest.Create(
-                domainEvent.Id, 
+                domainEvent.Id,
                 domainEvent.Login,
-                NotificationType.StartRegistration, 
+                NotificationType.StartRegistration,
                 channel
             );
 

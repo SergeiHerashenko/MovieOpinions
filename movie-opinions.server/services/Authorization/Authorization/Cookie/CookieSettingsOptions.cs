@@ -1,4 +1,4 @@
-﻿namespace Authorization.Cookie
+namespace Authorization.Cookie
 {
     public class CookieSettingsOptions
     {
@@ -8,6 +8,6 @@
 
         public int AccessTokenExpirationMinutes { get; init; }
 
-        public int RefreshTokenExpirationDays { get; init; } 
+        public int RefreshTokenExpirationDays { get; init; }
     }
 }

@@ -337,13 +337,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// <summary>
         /// Перевіряє, чи може активне обмеження системно перейти
         /// у завершений стан, не змінюючи його.
-        /// 
+        ///
         /// Неактивний статус у цьому внутрішньому сценарії
         /// вважається порушенням доменного стану.
-        /// 
+        ///
         /// (Checks the preconditions for a system operation that marks
         /// an active restriction as completed, without modifying its state.
-        /// 
+        ///
         /// A non-active status in this internal scenario
         /// is treated as a domain-state violation.)
         /// </summary>
@@ -378,7 +378,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
             );
 
             if (Status == RestrictionStatus.Active)
+            {
                 return;
+            }
 
             throw DomainInvariantViolationException.BrokenState<UserRestriction>(
                  "Only an active restriction can transition to the 'Completed' state.",
@@ -394,12 +396,12 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
 
         /// <summary>
         /// Системно переводить активне обмеження у завершений стан.
-        /// 
+        ///
         /// Перед зміною повторно перевіряє внутрішні передумови переходу.
-        /// 
+        ///
         /// (Marks an active restriction as completed
         /// as part of a system operation.
-        /// 
+        ///
         /// Revalidates the internal transition preconditions
         /// before modifying the state.)
         /// </summary>
@@ -433,13 +435,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// <summary>
         /// Перевіряє можливість дострокового зняття обмеження
         /// без зміни його поточного стану.
-        /// 
+        ///
         /// Завершене або вже зняте обмеження повертає
         /// очікувану доменну помилку.
-        /// 
+        ///
         /// (Verifies that the restriction can be revoked early
         /// without modifying its current state.
-        /// 
+        ///
         /// A completed or already revoked restriction returns
         /// an expected domain error.)
         /// </summary>
@@ -471,7 +473,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
             );
 
             if (Status == RestrictionStatus.Active)
+            {
                 return Result.Success();
+            }
 
             Error error = Status switch
             {
@@ -494,12 +498,12 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// <summary>
         /// Достроково знімає активне обмеження
         /// та записує час його зняття.
-        /// 
+        ///
         /// Перед зміною повторно перевіряє внутрішні передумови переходу.
-        /// 
+        ///
         /// (Revokes an active restriction early
         /// and records its revocation time.
-        /// 
+        ///
         /// Revalidates the internal transition preconditions
         /// before modifying the state.)
         /// </summary>
@@ -533,13 +537,13 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// <summary>
         /// Виконує внутрішній перехід активного обмеження
         /// у завершений або достроково знятий стан.
-        /// 
+        ///
         /// Метод приймає лише <see cref="RestrictionStatus.Completed"/>
         /// та <see cref="RestrictionStatus.Revoked"/> як цільові статуси.
-        /// 
+        ///
         /// (Performs the internal transition of an active restriction
         /// to the completed or revoked state.
-        /// 
+        ///
         /// The method accepts only <see cref="RestrictionStatus.Completed"/>
         /// and <see cref="RestrictionStatus.Revoked"/> as target statuses.)
         /// </summary>

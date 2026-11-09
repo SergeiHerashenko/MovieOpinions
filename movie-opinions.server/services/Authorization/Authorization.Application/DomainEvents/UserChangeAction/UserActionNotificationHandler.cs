@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Mapping;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
@@ -9,11 +9,11 @@ using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserChangeAction
 {
-    public sealed class UserActionNotificationHandler 
+    public sealed class UserActionNotificationHandler
         : INotificationHandler<DomainEventNotification<UserActionEvent>>
     {
         private readonly INotificationSender _notificationSender;
-        private readonly IUserActionNotificationMapper _userActionNotificationMapper; 
+        private readonly IUserActionNotificationMapper _userActionNotificationMapper;
 
         public UserActionNotificationHandler(
             INotificationSender notificationSender,
@@ -24,7 +24,7 @@ namespace Authorization.Application.DomainEvents.UserChangeAction
         }
 
         public async Task Handle(
-            DomainEventNotification<UserActionEvent> notification, 
+            DomainEventNotification<UserActionEvent> notification,
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;
@@ -36,9 +36,9 @@ namespace Authorization.Application.DomainEvents.UserChangeAction
             var messageAction = _userActionNotificationMapper.ToMessageActionType(domainEvent.UserAction);
 
             var notificationCommand = NotificationRequest.Create(
-                domainEvent.UserPendingActionId, 
-                domainEvent.Login, 
-                messageAction, 
+                domainEvent.UserPendingActionId,
+                domainEvent.Login,
+                messageAction,
                 channel
             );
 

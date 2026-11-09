@@ -4,7 +4,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 {
     /// <summary>
     /// Виняток, що виникає при порушенні консистентності даних у доменному шарі.
-    /// 
+    ///
     /// (Exception that occurs when data consistency is violated in the domain layer.)
     /// </summary>
     public sealed class DomainDataInconsistencyException : BaseException
@@ -32,7 +32,9 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             };
 
             if (context is null)
+            {
                 return data;
+            }
 
             foreach (var (key, value) in context)
             {
@@ -51,36 +53,36 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// </summary>
         /// <typeparam name="TType">
         /// Тип доменного об’єкта, в якому виявлено проблему.
-        /// 
+        ///
         /// (The type of the domain object in which the issue was detected.)
         /// </typeparam>
         /// <param name="fieldName">
         /// Назва поля, з яким пов’язана проблема.
-        /// 
+        ///
         /// (The name of the field associated with the issue.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Restore.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Restore.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
@@ -95,7 +97,11 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
         {
-            var data = BuildContext<TType>(fieldName, operationType, context);
+            var data = BuildContext<TType>(
+                fieldName,
+                operationType,
+                context
+            );
 
             var errorMessage = message ?? BuildEmptyMessage<TType>(
                 fieldName,
@@ -126,43 +132,43 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// </summary>
         /// <typeparam name="TType">
         /// Тип доменного об’єкта, в якому виявлено проблему.
-        /// 
+        ///
         /// (The type of the domain object in which the issue was detected.)
         /// </typeparam>
         /// <param name="fieldName">
         /// Назва поля, з яким пов’язана проблема.
-        /// 
+        ///
         /// (The name of the field associated with the issue.)
         /// </param>
         /// <param name="value">
         /// Значення, назва типу якого додається до діагностичного контексту.
         /// Для null записується "null".
-        /// 
+        ///
         /// (A value whose type name is added to the diagnostic context.
         /// For null, "null" is recorded.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Restore.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Restore.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
@@ -178,7 +184,11 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
         {
-            var data = BuildContext<TType>(fieldName, operationType, context);
+            var data = BuildContext<TType>(
+                fieldName,
+                operationType,
+                context
+            );
 
             data["ValueType"] = value?.GetType().Name ?? "null";
 
@@ -206,49 +216,49 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         #region UnsupportedDiscriminator
         /// <summary>
         /// Створює виняток для випадку, коли отримано непідтримуваний дискримінатор.
-        /// 
+        ///
         /// (Creates an exception when an unsupported discriminator is received.)
         /// </summary>
         /// <typeparam name="TType">
         /// Тип доменного об’єкта, в якому виявлено проблему.
-        /// 
+        ///
         /// (The type of the domain object in which the issue was detected.)
         /// </typeparam>
         /// <param name="fieldName">
         /// Назва поля, з яким пов’язана проблема.
-        /// 
+        ///
         /// (The name of the field associated with the issue.)
         /// </param>
         /// <param name="discriminatorValue">
         /// Непідтримуване значення дискримінатора.
         /// Якщо null, у контексті та стандартному повідомленні
         /// використовується "Unknown".
-        /// 
+        ///
         /// (The unsupported discriminator value.
         /// If null, "Unknown" is used in the context and default message.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Restore.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Restore.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
@@ -264,7 +274,11 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
         {
-            var data = BuildContext<TType>(fieldName, operationType, context);
+            var data = BuildContext<TType>(
+                fieldName,
+                operationType,
+                context
+            );
 
             data["Value"] = discriminatorValue ?? "Unknown";
 
@@ -297,43 +311,43 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// </summary>
         /// <typeparam name="TType">
         /// Тип доменного об’єкта, в якому виявлено проблему.
-        /// 
+        ///
         /// (The type of the domain object in which the issue was detected.)
         /// </typeparam>
         /// <param name="fieldName">
         /// Назва поля, з яким пов’язана проблема.
-        /// 
+        ///
         /// (The name of the field associated with the issue.)
         /// </param>
         /// <param name="value">
         /// Значення, назва типу якого додається до діагностичного контексту.
         /// Для null записується "null".
-        /// 
+        ///
         /// (A value whose type name is added to the diagnostic context.
         /// For null, "null" is recorded.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Restore.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Restore.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
@@ -349,7 +363,11 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
             IReadOnlyDictionary<string, object>? context = null,
             Exception? innerException = null)
         {
-            var data = BuildContext<TType>(fieldName, operationType, context);
+            var data = BuildContext<TType>(
+                fieldName,
+                operationType,
+                context
+            );
 
             data["ValueType"] = value?.GetType().Name ?? "null";
 

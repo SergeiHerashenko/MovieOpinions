@@ -25,19 +25,19 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// </summary>
         /// <typeparam name="TType">
         /// Тип доменного об’єкта, інваріант якого порушено.
-        /// 
+        ///
         /// (The type of the domain object whose invariant was violated.)
         /// </typeparam>
         /// <param name="ruleDescription">
         /// Опис порушеного інваріанта.
-        /// 
+        ///
         /// (A description of the violated invariant.)
         /// </param>
         /// <param name="stateContext">
         /// Діагностичні дані стану. Ключі додаються до контексту
         /// з префіксом "State_".
         /// Значення null зберігаються як рядок "null".
-        /// 
+        ///
         /// (Diagnostic state data. Keys are added to the context
         /// with the "State_" prefix.
         /// Null values are stored as the string "null".)
@@ -45,23 +45,23 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// <param name="operationType">
         /// Операція, під час якої виявлено порушення.
         /// За замовчуванням — Restore.
-        /// 
+        ///
         /// (The operation during which the violation was detected.
         /// Defaults to Restore.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
         /// Створений виняток порушення доменного інваріанта.
-        /// 
+        ///
         /// (The created domain invariant violation exception.)
         /// </returns>
         public static DomainInvariantViolationException BrokenState<TType>(

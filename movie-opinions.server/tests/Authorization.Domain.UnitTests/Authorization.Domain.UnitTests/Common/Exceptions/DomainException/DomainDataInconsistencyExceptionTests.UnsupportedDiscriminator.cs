@@ -225,7 +225,7 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
                 fieldName: fieldName,
                 discriminatorValue: reference
             );
-            
+
             Assert.Same(
                 reference,
                 exception.Context["Value"]

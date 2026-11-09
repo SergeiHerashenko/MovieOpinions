@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Events;
@@ -68,7 +68,7 @@ namespace Authorization.Infrastructure
                 configuration.GetSection(ServiceJwtProviderOptions.SectionName));
 
             services.Configure<UserJwtProviderOptions>(
-                configuration.GetSection(UserJwtProviderOptions.SectionName)); 
+                configuration.GetSection(UserJwtProviderOptions.SectionName));
 
             services.Configure<ServiceIdentityOptions>(
                 configuration.GetSection(ServiceIdentityOptions.SectionName));

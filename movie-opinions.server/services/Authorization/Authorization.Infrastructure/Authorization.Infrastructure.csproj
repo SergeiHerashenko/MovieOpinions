@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -31,7 +31,7 @@
 	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
 
 	<PackageReference Include="Npgsql" />
-	  
+
 	<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
@@ -39,11 +39,11 @@
 	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
 	<PackageReference Include="Microsoft.Extensions.Http" />
-	
+
 	<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
-	
+
 	<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
-	
+
 	<PackageReference Include="UAParser" />
   </ItemGroup>
 

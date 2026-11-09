@@ -119,7 +119,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.Phones
             );
 
             if (structuralFailure is not null)
+            {
                 return structuralFailure;
+            }
 
             return DomainValidationExecutor.ValidateForError(
                 _creationPolicyValidation,

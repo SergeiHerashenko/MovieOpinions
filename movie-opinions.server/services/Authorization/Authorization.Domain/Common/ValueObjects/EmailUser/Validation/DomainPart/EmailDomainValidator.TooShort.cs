@@ -45,7 +45,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.DomainPa
                 }
 
                 if (data.Value.Length >= MIN_LENGTH_EMAIL_DOMAIN)
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

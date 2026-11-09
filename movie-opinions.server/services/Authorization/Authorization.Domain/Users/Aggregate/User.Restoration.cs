@@ -407,7 +407,7 @@ namespace Authorization.Domain.Users.Aggregate
                 );
             }
 
-            if(lastLoginAt is not null && updatedAt is null)
+            if (lastLoginAt is not null && updatedAt is null)
             {
                 throw DomainInvariantViolationException.BrokenState<User>(
                     "UpdatedAt must be set when LastLoginAt is set.",
@@ -1164,7 +1164,7 @@ namespace Authorization.Domain.Users.Aggregate
                     (userCreatedAt, nameof(userCreatedAt))
                 );
 
-                if(userDeletion.Status == DeletionStatus.Restored)
+                if (userDeletion.Status == DeletionStatus.Restored)
                 {
                     throw DomainInvariantViolationException.BrokenState<User>(
                         "A restored deletion record cannot be attached " +
@@ -1218,7 +1218,9 @@ namespace Authorization.Domain.Users.Aggregate
             where TEntity : IUserOwned
         {
             if (entity.UserId == expectedUserId)
+            {
                 return;
+            }
 
             throw DomainInvariantViolationException.BrokenState<User>(
                 $"A '{typeof(TEntity).Name}' belonging to another user cannot " +
@@ -1290,7 +1292,9 @@ namespace Authorization.Domain.Users.Aggregate
                 .FirstOrDefault(session => session.RestrictionType == RestrictionType.Ban);
 
             if (banSession is null)
+            {
                 return;
+            }
 
             var banExpiresAt = banSession.GetExpirationDate();
 
@@ -1423,7 +1427,9 @@ namespace Authorization.Domain.Users.Aggregate
                 deletion is not null;
 
             if (!requiresUpdateAt)
+            {
                 return;
+            }
 
             if (userUpdatedAt is null)
             {

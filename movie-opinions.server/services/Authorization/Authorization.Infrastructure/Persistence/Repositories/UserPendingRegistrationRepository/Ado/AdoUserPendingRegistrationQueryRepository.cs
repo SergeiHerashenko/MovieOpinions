@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.ValueObjects.LoginUser;
+using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingRegistration;
 using Authorization.Domain.UsersPendingRegistration.ValueObjects;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
@@ -22,11 +22,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
         {
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
-                var sql = @"SELECT 
-                                id, login, login_type, country_code, email_domain, password_hash, registration_token, expires_at, created_at 
-                            FROM 
-                                User_Pending_Registration 
-                            WHERE 
+                var sql = @"SELECT
+                                id, login, login_type, country_code, email_domain, password_hash, registration_token, expires_at, created_at
+                            FROM
+                                User_Pending_Registration
+                            WHERE
                                 login = @Login;";
 
                 await using var command = new NpgsqlCommand(sql, connection);
@@ -48,11 +48,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
         {
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
-                var sql = @"SELECT 
-                                id, login, login_type, country_code, email_domain, password_hash, registration_token, expires_at, created_at 
-                            FROM 
-                                User_Pending_Registration 
-                            WHERE 
+                var sql = @"SELECT
+                                id, login, login_type, country_code, email_domain, password_hash, registration_token, expires_at, created_at
+                            FROM
+                                User_Pending_Registration
+                            WHERE
                                 registration_token = @RegistrationToken;";
 
                 await using var command = new NpgsqlCommand(sql, connection);

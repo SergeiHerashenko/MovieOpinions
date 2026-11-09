@@ -83,7 +83,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (result.IsFailure)
+            {
                 return result;
+            }
 
             AddDomainEvent(new UserLoginChangeConfirmedEvent(
                 Id,
@@ -168,7 +170,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (result.IsFailure)
+            {
                 return result;
+            }
 
             AddDomainEvent(new UserPasswordChangeConfirmedEvent(
                 Id,
@@ -271,7 +275,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (result.IsFailure)
+            {
                 return result;
+            }
 
             var deletion = _deletion;
 
@@ -392,18 +398,26 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return access;
+            }
 
             var currentAction = _action;
 
             if (currentAction is null)
+            {
                 return Result.Failure(UserErrors.EmptyAction<User>());
+            }
 
             if (currentAction.Id != actionId)
+            {
                 return Result.Failure(UserErrors.NotFoundAction<User>());
+            }
 
             if (currentAction.UserAction is not TAction action)
+            {
                 return Result.Failure(UserErrors.InvalidActionType<User>());
+            }
 
             var confirmValidation = currentAction.ValidateConfirmation(
                 confirmationToken,
@@ -411,12 +425,16 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (confirmValidation.IsFailure)
+            {
                 return confirmValidation;
+            }
 
             var applyResult = applyAction(action);
 
             if (applyResult.IsFailure)
+            {
                 return Result.Failure(applyResult.Errors);
+            }
 
             currentAction.MarkAsConfirmed(
                 confirmationToken,

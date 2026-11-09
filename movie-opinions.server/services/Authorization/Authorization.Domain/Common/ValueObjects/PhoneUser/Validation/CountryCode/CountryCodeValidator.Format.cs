@@ -51,7 +51,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.CountryC
                 }
 
                 if (HasValidFormat(data.Value))
+                {
                     return null;
+                }
 
                 return CreateFailure(data.Value);
             }
@@ -76,15 +78,21 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.CountryC
             private static bool HasValidFormat(string value)
             {
                 if (!value.StartsWith('+'))
+                {
                     return false;
+                }
 
                 var digits = value[1..];
 
                 if (!digits.All(char.IsAsciiDigit))
+                {
                     return false;
+                }
 
                 if (digits.Length > 0 && digits[0] == '0')
+                {
                     return false;
+                }
 
                 return true;
             }

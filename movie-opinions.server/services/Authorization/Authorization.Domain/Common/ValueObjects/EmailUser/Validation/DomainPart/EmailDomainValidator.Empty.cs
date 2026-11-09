@@ -29,7 +29,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.DomainPa
             public ValidationFailure? Validate(EmailDomainValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

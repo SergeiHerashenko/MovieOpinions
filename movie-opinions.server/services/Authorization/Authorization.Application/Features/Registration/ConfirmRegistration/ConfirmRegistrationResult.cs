@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Models;
+using Authorization.Domain.Common.Models;
 using Authorization.Domain.Users.Enums;
 
 namespace Authorization.Application.Features.Registration.ConfirmRegistration
@@ -33,7 +33,7 @@ namespace Authorization.Application.Features.Registration.ConfirmRegistration
         public static ConfirmRegistrationResult<TId> Success<TId>(
             AggregateRootId<TId> aggregateId,
             Role role,
-            string accessToken, 
+            string accessToken,
             string refreshToken,
             string? message = null)
         {

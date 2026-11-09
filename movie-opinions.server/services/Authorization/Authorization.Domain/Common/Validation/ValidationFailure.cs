@@ -15,7 +15,7 @@ namespace Authorization.Domain.Common.Validation
     {
         /// <summary>
         /// Доменна помилка, яка описує причину невдалої перевірки.
-        /// 
+        ///
         /// (Domain error describing the validation failure.)
         /// </summary>
         public required Error Error { get; init; }

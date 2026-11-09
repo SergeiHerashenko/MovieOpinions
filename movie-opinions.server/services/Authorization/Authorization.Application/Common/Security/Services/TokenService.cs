@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Clock;
+using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Security.JWT;
 using Authorization.Application.Abstractions.Services;
 using Authorization.Application.Abstractions.UserContext;
@@ -28,7 +28,7 @@ namespace Authorization.Application.Common.Security.Services
         public Result<TokenResponse> CreateUserSession(User user, CancellationToken cancellationToken = default)
         {
             var userSessionDTO = UserSessionDTO.Create(
-                user.Id, 
+                user.Id,
                 user.Login,
                 user.Role
             );

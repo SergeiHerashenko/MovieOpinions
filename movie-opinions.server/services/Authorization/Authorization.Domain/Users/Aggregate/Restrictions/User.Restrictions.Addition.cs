@@ -120,7 +120,9 @@ namespace Authorization.Domain.Users.Aggregate
             var restrictionData = restrictionDataCollection.ToList();
 
             if (restrictionData.Count == 0)
+            {
                 return Result.Failure(UserErrors.EmptyRestrictionList<User>());
+            }
 
             if (restrictionData.Any(x => x is null))
             {
@@ -167,7 +169,7 @@ namespace Authorization.Domain.Users.Aggregate
                 now
             );
 
-            if(preparedGroups.Any(
+            if (preparedGroups.Any(
                 group => group.RestrictionType == RestrictionType.Ban))
             {
                 TerminateAllRefreshToken(now);

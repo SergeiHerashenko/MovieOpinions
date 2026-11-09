@@ -62,7 +62,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.DomainPa
                 }
 
                 if (!BlockedDomains.Contains(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

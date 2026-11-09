@@ -68,7 +68,9 @@ namespace Authorization.Domain.Common.ValueObjects.PasswordUser
             );
 
             if (failure is not null)
+            {
                 return Result<PlainPassword>.Failure(failure.Value);
+            }
 
             return Result<PlainPassword>.Success(new PlainPassword(password));
         }

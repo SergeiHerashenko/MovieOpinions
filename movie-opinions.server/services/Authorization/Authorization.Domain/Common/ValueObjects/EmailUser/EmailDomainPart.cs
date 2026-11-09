@@ -66,7 +66,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
             );
 
             if (failure is not null)
+            {
                 return Result<EmailDomainPart>.Failure(failure.Value);
+            }
 
             return Result<EmailDomainPart>.Success(new EmailDomainPart(normalizedDomain));
         }
@@ -119,7 +121,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             var normalizedDomain = storedEmailDomain.Trim().ToLowerInvariant();
 

@@ -11,28 +11,28 @@ namespace Authorization.Domain.Common.Validation.Enums
     {
         /// <summary>
         /// Перевірка наявності обов'язкового значення.
-        /// 
+        ///
         /// (Checks whether a required value is present.)
         /// </summary>
         Presence = 10,
 
         /// <summary>
         /// Перевірка доменних або бізнес-обмежень.
-        /// 
+        ///
         /// (Checks domain or business constraints.)
         /// </summary>
         BusinessRule = 20,
 
         /// <summary>
         /// Перевірка формату значення.
-        /// 
+        ///
         /// (Checks the value format.)
         /// </summary>
         Format = 30,
 
         /// <summary>
         /// Перевірка довжини або розміру значення.
-        /// 
+        ///
         /// (Checks the value length or size.)
         /// </summary>
         Length = 40,

@@ -22,7 +22,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
             public ValidationFailure? Validate(RestrictionRuleValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Name))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

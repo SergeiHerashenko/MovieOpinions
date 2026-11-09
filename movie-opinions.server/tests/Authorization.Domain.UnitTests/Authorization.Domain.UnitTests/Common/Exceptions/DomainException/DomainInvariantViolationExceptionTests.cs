@@ -74,7 +74,7 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
                 "Broken rule: Errors must not contain null entries.";
 
             var stateContext = new Dictionary<string, object?>();
-            
+
             var exception = DomainInvariantViolationException.BrokenState<Error>(
                 ruleDescription: ruleDescription,
                 stateContext: stateContext

@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Errors;
 
 namespace Authorization.MessageHandling.Localization
 {
@@ -12,7 +12,7 @@ namespace Authorization.MessageHandling.Localization
                 string,
                 IReadOnlyDictionary<string, string>>
             {
-                [DomainErrorCodes.Identifier.Empty] = 
+                [DomainErrorCodes.Identifier.Empty] =
                     new Dictionary<string, string>
                     {
                         [SupportedCultures.Ukrainian] =

@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Common.Errors;
+using Authorization.Application.Common.Errors;
 using Authorization.Domain.Common.Errors;
 
 namespace Authorization.MessageHandling.Localization
@@ -16,10 +16,10 @@ namespace Authorization.MessageHandling.Localization
                 [DomainErrorCodes.Password.EmptyPlainPassword] =
                     new Dictionary<string, string>
                     {
-                        [SupportedCultures.Ukrainian] = 
+                        [SupportedCultures.Ukrainian] =
                             "Пароль не може бути порожнім!",
 
-                        [SupportedCultures.English] = 
+                        [SupportedCultures.English] =
                             "Password cannot be empty!"
                     },
 
@@ -66,10 +66,10 @@ namespace Authorization.MessageHandling.Localization
                 [DomainErrorCodes.Password.TooShortPlainPassword] =
                     new Dictionary<string, string>
                     {
-                        [SupportedCultures.Ukrainian] = 
+                        [SupportedCultures.Ukrainian] =
                             "Довжина паролю повинна бути не менше 8 символів!",
 
-                        [SupportedCultures.English] = 
+                        [SupportedCultures.English] =
                             "The password must be at least 8 characters long!"
                     },
 

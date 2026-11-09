@@ -79,7 +79,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects
         public static RefreshToken Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 throw DomainDataInconsistencyException.Empty<RefreshToken>(nameof(value));
+            }
 
             if (value.Length != ENCODED_TOKEN_LENGTH)
             {

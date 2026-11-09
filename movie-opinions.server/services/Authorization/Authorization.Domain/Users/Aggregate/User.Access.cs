@@ -27,27 +27,33 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="now">
         /// Час, відносно якого перевіряється активність бану.
-        /// 
+        ///
         /// (Time used to evaluate whether the ban is still effective.)
         /// </param>
         /// <returns>
         /// Успіх, якщо доступ дозволений; інакше — відповідна доменна помилка.
-        /// 
+        ///
         /// (Success if access is allowed; otherwise, the corresponding domain error.)
         /// </returns>
         private Result ProvideAccess(DateTimeOffset now)
         {
             if (_deletion is not null)
+            {
                 return Result.Failure(UserErrors.UserDeleted<User>());
+            }
 
             var banSession = _restrictionSessions
                 .FirstOrDefault(x => x.RestrictionType == RestrictionType.Ban);
 
             if (banSession is null)
+            {
                 return Result.Success();
+            }
 
             if (banSession.IsExpiredAt(now))
+            {
                 return Result.Success();
+            }
 
             return Result.Failure(UserErrors.UserBlocked<User>());
         }

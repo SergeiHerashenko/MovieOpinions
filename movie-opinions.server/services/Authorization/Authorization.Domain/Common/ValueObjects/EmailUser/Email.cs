@@ -1,8 +1,8 @@
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Models;
-using Authorization.Domain.Results;
-using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.ValueObjects.EmailUser.Validation.Emails;
+using Authorization.Domain.Results;
 
 namespace Authorization.Domain.Common.ValueObjects.EmailUser
 {
@@ -82,19 +82,25 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
             );
 
             if (failure is not null)
+            {
                 return Result<Email>.Failure(failure.Value);
+            }
 
             var (localPart, domainPart) = Split(normalizedEmail);
 
             var localResult = EmailLocalPart.Create(localPart);
 
             if (localResult.IsFailure)
+            {
                 return Result<Email>.Failure(localResult.Errors);
+            }
 
             var domainResult = EmailDomainPart.Create(domainPart);
 
             if (domainResult.IsFailure)
+            {
                 return Result<Email>.Failure(domainResult.Errors);
+            }
 
             return Result<Email>.Success(new Email(localResult.Value, domainResult.Value));
         }
@@ -146,7 +152,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             var (localPart, domainPart) = Split(storedEmail);
 

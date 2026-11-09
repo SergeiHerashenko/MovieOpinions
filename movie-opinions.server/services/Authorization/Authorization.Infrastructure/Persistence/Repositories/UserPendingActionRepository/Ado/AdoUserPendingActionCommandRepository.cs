@@ -22,15 +22,15 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingActio
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Pending_Action (id, user_id, confirmation_token, action_type, login_type, action_data, expires_at, confirmation_time, expired_at, cancelled_time, status, created_at) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Pending_Action (id, user_id, confirmation_token, action_type, login_type, action_data, expires_at, confirmation_time, expired_at, cancelled_time, status, created_at)
+                            VALUES
                                 (@Id, @UserId, @ConfirmationToken, @ActionType, @LoginType, @ActionData, @ExpiresAt, @ConfirmatonTime, @ExpiredAt, @CancelledTime, @Status, @CreatedAt);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
 
-                AddPendingActionUserParameters(command, entity);    
-                
+                AddPendingActionUserParameters(command, entity);
+
                 await command.ExecuteNonQueryAsync(ct);
 
             }, cancellationToken);
@@ -40,14 +40,14 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingActio
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Pending_Action 
-                            SET 
+                var sql = @"UPDATE
+                                User_Pending_Action
+                            SET
                                 confirmation_time = @ConfirmatonTime,
                                 expired_at = @ExpiredAt,
                                 cancelled_time = @CancelledTime,
-                                status = @Status 
-                            WHERE 
+                                status = @Status
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -68,8 +68,8 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingActio
             command.Parameters.Add(new NpgsqlParameter("@UserId", NpgsqlDbType.Uuid) { Value = entity.UserId.Value });
             command.Parameters.Add(new NpgsqlParameter("@ConfirmationToken", NpgsqlDbType.Varchar) { Value = entity.ConfirmationToken.Value });
             command.Parameters.Add(new NpgsqlParameter("@ActionType", NpgsqlDbType.Varchar) { Value = entity.UserAction.ActionType.ToString() });
-            command.Parameters.Add(new NpgsqlParameter("@LoginType", NpgsqlDbType.Varchar) 
-            { 
+            command.Parameters.Add(new NpgsqlParameter("@LoginType", NpgsqlDbType.Varchar)
+            {
                 Value = entity.UserAction switch
                 {
                     ChangeLoginAction loginAction => loginAction.Value,

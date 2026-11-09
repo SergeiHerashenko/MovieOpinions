@@ -410,7 +410,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             var expiration = GetExpirationDate();
 
             if (now < CreatedAt || now >= expiration)
+            {
                 return TimeSpan.Zero;
+            }
 
             return expiration - now;
         }
@@ -783,17 +785,23 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession
             );
 
             if (IsExpiredAt(now))
+            {
                 return RestrictionSessionRemovalEffect.AlreadyExpired;
+            }
 
             var remainingRestrictionCount = _activeRestrictionIds.Count - removal.RestrictionIdsToRemove.Count;
 
             if (remainingRestrictionCount == 0)
+            {
                 return RestrictionSessionRemovalEffect.BecomesEmpty;
+            }
 
             var updatedExpirationDate = CreatedAt.AddMinutes(removal.UpdatedTotalBlockedMinutes);
 
             if (now >= updatedExpirationDate)
+            {
                 return RestrictionSessionRemovalEffect.BecomesExpired;
+            }
 
             return RestrictionSessionRemovalEffect.RemainsActive;
         }

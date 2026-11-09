@@ -1,7 +1,7 @@
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses.Validation;
 
 namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpAddresses
@@ -64,7 +64,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
             );
 
             if (failure is not null)
+            {
                 return Result<IpAddress>.Failure(failure.Value);
+            }
 
             return Result<IpAddress>.Success(new IpAddress(normalizedIpAddress));
         }
@@ -110,7 +112,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             return new IpAddress(value);
         }

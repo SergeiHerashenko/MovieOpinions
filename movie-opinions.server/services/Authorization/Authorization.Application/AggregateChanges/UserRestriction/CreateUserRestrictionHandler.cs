@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Persistence;
+using Authorization.Application.Abstractions.Persistence;
 using Authorization.Application.Common.AggregateChanges;
 using Authorization.Domain.Users.AggregateChanges.Restriction;
 using MediatR;
@@ -15,7 +15,7 @@ namespace Authorization.Application.AggregateChanges.UserRestriction
         }
 
         public async Task Handle(
-            AggregateChangeRequest<UserRestrictionCreated> change, 
+            AggregateChangeRequest<UserRestrictionCreated> change,
             CancellationToken cancellationToken = default)
         {
             await _userRestrictionRepository.CreateRestrictionAsync(change.AggregateChange.Restriction, cancellationToken);

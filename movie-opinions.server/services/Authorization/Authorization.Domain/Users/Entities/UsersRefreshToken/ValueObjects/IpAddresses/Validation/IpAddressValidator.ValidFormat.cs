@@ -45,7 +45,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
                 }
 
                 if (IsValidIPv4(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {
@@ -83,21 +85,31 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
                 var octets = value.Split('.');
 
                 if (octets.Length != IPV4_OCTET_COUNT)
+                {
                     return false;
+                }
 
                 foreach (var octet in octets)
                 {
                     if (octet.Length is < 1 or > MAX_IPV4_OCTET_LENGTH)
+                    {
                         return false;
+                    }
 
                     if (octet.Length > 1 && octet[0] == '0')
+                    {
                         return false;
+                    }
 
                     if (!octet.All(char.IsAsciiDigit))
+                    {
                         return false;
+                    }
 
                     if (!byte.TryParse(octet, out _))
+                    {
                         return false;
+                    }
                 }
 
                 return true;

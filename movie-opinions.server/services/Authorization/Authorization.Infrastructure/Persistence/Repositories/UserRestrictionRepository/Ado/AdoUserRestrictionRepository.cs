@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Persistence;
+using Authorization.Application.Abstractions.Persistence;
 using Authorization.Domain.Users.Entities.UsersRestriction;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects;
 
@@ -10,7 +10,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
         private readonly AdoUserRestrictionCommandRepository _adoUserRestrictionCommandRepository;
 
         public AdoUserRestrictionRepository(
-            AdoUserRestrictionQueryRepository adoUserRestrictionQueryRepository, 
+            AdoUserRestrictionQueryRepository adoUserRestrictionQueryRepository,
             AdoUserRestrictionCommandRepository adoUserRestrictionCommandRepository)
         {
             _adoUserRestrictionQueryRepository = adoUserRestrictionQueryRepository;

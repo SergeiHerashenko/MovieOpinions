@@ -24,7 +24,9 @@ namespace Authorization.Domain.Common.Models
         public override bool Equals(object? obj)
         {
             if (obj is null || obj.GetType() != GetType())
+            {
                 return false;
+            }
 
             var valueObject = (ValueObject)obj;
 
@@ -38,12 +40,12 @@ namespace Authorization.Domain.Common.Models
 
         /// <summary>
         /// Порівнює два об’єкти на рівність.
-        /// 
+        ///
         /// (Compares two objects for equality.)
         /// </summary>
         /// <param name="left">
         /// Лівий операнд.
-        /// 
+        ///
         /// (The left operand.)
         /// </param>
         /// <param name="right">
@@ -53,7 +55,7 @@ namespace Authorization.Domain.Common.Models
         /// </param>
         /// <returns>
         /// true, якщо об’єкти рівні або обидва дорівнюють null; інакше false.
-        /// 
+        ///
         /// (true if the objects are equal or both are null; otherwise, false.)
         /// </returns>
         public static bool operator ==(
@@ -63,7 +65,7 @@ namespace Authorization.Domain.Common.Models
 
         /// <summary>
         /// Порівнює два об’єкти на нерівність.
-        /// 
+        ///
         /// (Compares two objects for inequality.)
         /// </summary>
         /// <param name="left">
@@ -78,7 +80,7 @@ namespace Authorization.Domain.Common.Models
         /// </param>
         /// <returns>
         /// true, якщо об’єкти нерівні; інакше false.
-        /// 
+        ///
         /// (true if the objects are unequal; otherwise, false.)
         /// </returns>
         public static bool operator !=(

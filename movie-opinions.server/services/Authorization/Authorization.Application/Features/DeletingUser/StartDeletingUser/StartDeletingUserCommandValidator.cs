@@ -1,8 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
 {
-    public class StartDeletingUserCommandValidator 
+    public class StartDeletingUserCommandValidator
         : AbstractValidator<StartDeletingUserCommand>
     {
         public StartDeletingUserCommandValidator()

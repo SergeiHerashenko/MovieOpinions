@@ -27,7 +27,7 @@ namespace Authorization.Domain.Common.Models
 
         /// <summary>
         /// Ініціалізує базовий стан зміни агрегату.
-        /// 
+        ///
         /// (Initializes the base state of an aggregate change.)
         /// </summary>
         /// <param name="occurredOn">

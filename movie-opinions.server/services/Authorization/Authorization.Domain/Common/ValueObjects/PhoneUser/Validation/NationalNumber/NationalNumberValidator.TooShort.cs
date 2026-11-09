@@ -50,7 +50,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.National
                 int digitsCount = data.Value.Count(char.IsAsciiDigit);
 
                 if (digitsCount >= MIN_LENGTH_PHONE_NATIONAL_NUMBER)
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

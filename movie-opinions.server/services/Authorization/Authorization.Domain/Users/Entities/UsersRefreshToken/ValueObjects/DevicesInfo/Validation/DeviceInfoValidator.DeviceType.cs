@@ -25,7 +25,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             public ValidationFailure? Validate(DeviceInfoValidationData data)
             {
                 if (Enum.IsDefined(typeof(DeviceType), data.DeviceType))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

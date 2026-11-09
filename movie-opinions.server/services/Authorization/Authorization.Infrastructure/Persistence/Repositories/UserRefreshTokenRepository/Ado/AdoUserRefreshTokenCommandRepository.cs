@@ -23,15 +23,15 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRefreshToken
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Refresh_Token (id, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at, created_at) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Refresh_Token (id, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at, created_at)
+                            VALUES
                                 (@Id, @UserId, @RefreshToken, @DeviceInfo, @IpAddress, @City, @TokenStatus, @ExpiresAt, @ConsumedAt, @RevokedAt, @CreatedAt);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
 
                 AddUserRefreshTokenParameters(command, userRefreshToken);
-                
+
                 await command.ExecuteNonQueryAsync(ct);
             }, cancellationToken);
         }
@@ -40,9 +40,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRefreshToken
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Refresh_Token 
-                            SET 
+                var sql = @"UPDATE
+                                User_Refresh_Token
+                            SET
                                 token_status = @TokenStatus,
                                 consumed_at = @ConsumedAt,
                                 revoked_at = @RevokedAt
@@ -64,12 +64,12 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRefreshToken
         {
             return await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"SELECT 
-                        id, created_at, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at 
-                    FROM 
-                        user_refresh_token 
-                    WHERE 
-                        refresh_token = @RefreshToken 
+                var sql = @"SELECT
+                        id, created_at, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at
+                    FROM
+                        user_refresh_token
+                    WHERE
+                        refresh_token = @RefreshToken
                     FOR UPDATE;";
 
                 await using var command = new NpgsqlCommand(sql, connection);
@@ -93,9 +93,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRefreshToken
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Refresh_Token 
-                            SET 
+                var sql = @"UPDATE
+                                User_Refresh_Token
+                            SET
                                 token_status = @TokenStatus,
                                 consumed_at = @ConsumedAt,
                                 revoked_at = @RevokedAt

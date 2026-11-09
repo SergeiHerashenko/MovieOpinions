@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersDeletion;
+using Authorization.Domain.Users.Entities.UsersDeletion;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Infrastructure.Persistence.Context;
 using Authorization.Infrastructure.Persistence.Repositories.Base;
@@ -19,9 +19,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserDeletedRepos
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Deleted (id, user_id, login, login_type, country_code, email_domain, reason, restore_until, restored_at, status, updated_at, created_at) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Deleted (id, user_id, login, login_type, country_code, email_domain, reason, restore_until, restored_at, status, updated_at, created_at)
+                            VALUES
                                 (@Id, @UserId, @Login, @LoginType, @CountryCode, @EmailDomain, @Reason, @RestoreUntil, @RestoredAt, @Status, @UpdateAt, @CreatedAt);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -36,13 +36,13 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserDeletedRepos
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Deleted 
-                            SET 
+                var sql = @"UPDATE
+                                User_Deleted
+                            SET
                                 status = @Status,
                                 restored_at = @RestoredAt,
-                                updated_at = @UpdateAt 
-                            WHERE 
+                                updated_at = @UpdateAt
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -62,13 +62,13 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserDeletedRepos
             command.Parameters.Add(new NpgsqlParameter("@UserId", NpgsqlDbType.Uuid) { Value = entity.UserId.Value });
             command.Parameters.Add(new NpgsqlParameter("@Login", NpgsqlDbType.Varchar) { Value = entity.Login.Value });
             command.Parameters.Add(new NpgsqlParameter("@LoginType", NpgsqlDbType.Varchar) { Value = entity.Login.Type.ToString() });
-            command.Parameters.Add(new NpgsqlParameter("@CountryCode", NpgsqlDbType.Varchar) 
-            { 
+            command.Parameters.Add(new NpgsqlParameter("@CountryCode", NpgsqlDbType.Varchar)
+            {
                 Value = entity.Login switch
                 {
                     PhoneLogin phoneLogin => phoneLogin.Phone.PhoneCountryCode.Value,
                     _ => DBNull.Value
-                } 
+                }
             });
             command.Parameters.Add(new NpgsqlParameter("@EmailDomain", NpgsqlDbType.Varchar)
             {

@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Services.UserActiveContacts;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Errors.Users;
@@ -25,30 +25,30 @@ namespace Authorization.Application.Features.Services.UserActiveContacts
         }
 
         public async Task<Result<IReadOnlyCollection<ActiveContactChannel>>> GetActiveContactsAsync(
-            UserId userId, 
+            UserId userId,
             CancellationToken cancellationToken = default)
         {
             var request = ActiveChannelsRequest.Create(userId);
-            
+
             var contactsResult = await _contactsSender.GetActiveContactsAsync(
-                request, 
+                request,
                 cancellationToken
             );
-            
+
             if (contactsResult.IsFailure)
             {
                 return Result<IReadOnlyCollection<ActiveContactChannel>>
                     .Failure(contactsResult.Errors);
             }
-                
-            
+
+
             if (contactsResult.Value.Channels.Count == 0)
             {
                 _logger.LogCritical(
                     "User {UserId} has no active verified contact channels. The user-contact invariant is violated!",
                     userId.Value
                 );
-            
+
                 return Result<IReadOnlyCollection<ActiveContactChannel>>.
                     Failure(ContactErrors.ContactInvariantViolated<ActiveContactsProvider>(userId.Value.ToString()));
             }

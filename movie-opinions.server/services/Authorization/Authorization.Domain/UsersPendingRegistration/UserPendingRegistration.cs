@@ -281,10 +281,12 @@ namespace Authorization.Domain.UsersPendingRegistration
             RegistrationFlowToken = RegistrationFlowToken.Create();
             ExpiresAt = now.Add(RegistrationLifetime);
 
-            AddDomainEvent(new UserRegistrationRequestedEvent(
-                Id,
-                Login,
-                now)
+            AddDomainEvent(
+                new UserRegistrationRequestedEvent(
+                    Id,
+                    Login,
+                    now
+                )
             );
         }
 

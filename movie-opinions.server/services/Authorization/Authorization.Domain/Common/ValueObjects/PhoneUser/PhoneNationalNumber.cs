@@ -75,7 +75,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
             );
 
             if (failure is not null)
+            {
                 return Result<PhoneNationalNumber>.Failure(failure.Value);
+            }
 
             var normalizedNationalNumber = Normalize(rawNationalNumber);
 
@@ -128,7 +130,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             var normalizedNationalNumber = Normalize(storedNationalNumber);
 

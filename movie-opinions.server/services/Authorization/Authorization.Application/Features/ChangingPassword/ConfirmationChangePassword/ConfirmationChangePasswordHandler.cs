@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
@@ -40,7 +40,7 @@ namespace Authorization.Application.Features.ChangingPassword.ConfirmationChange
         }
 
         public async Task<Result> Handle(
-            ConfirmationChangePasswordCommand command, 
+            ConfirmationChangePasswordCommand command,
             CancellationToken cancellationToken = default)
         {
             var verifyData = new VerifiedUserActionData(

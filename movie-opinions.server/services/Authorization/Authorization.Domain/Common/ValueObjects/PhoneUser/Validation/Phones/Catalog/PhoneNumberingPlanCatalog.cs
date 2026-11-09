@@ -2103,13 +2103,15 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.Phones.C
                 .ToList();
 
             if (!matchingPhones.Any())
+            {
                 return new PhoneNumberingPlanCheckResult(PhoneNumberingPlanCheckStatus.UnknownCountryCode);
+            }
 
             var validLengths = matchingPhones
                 .SelectMany(info => info.NationalNumberLengths)
                 .ToHashSet();
 
-            if(validLengths.Count == 0)
+            if (validLengths.Count == 0)
             {
                 throw DomainInvariantViolationException.BrokenState<Phone>(
                     "The phone numbering plan catalog contains entries for the specified country calling code, " +
@@ -2130,13 +2132,19 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.Phones.C
             int maxLength = validLengths.Max();
 
             if (validLengths.Contains(lengthNumber))
+            {
                 return new PhoneNumberingPlanCheckResult(PhoneNumberingPlanCheckStatus.Valid);
+            }
 
             if (lengthNumber < minLength)
+            {
                 return new PhoneNumberingPlanCheckResult(PhoneNumberingPlanCheckStatus.NationalNumberTooShort);
+            }
 
             if (lengthNumber > maxLength)
+            {
                 return new PhoneNumberingPlanCheckResult(PhoneNumberingPlanCheckStatus.NationalNumberTooLong);
+            }
 
             return new PhoneNumberingPlanCheckResult(PhoneNumberingPlanCheckStatus.UnsupportedNationalNumberLength);
         }

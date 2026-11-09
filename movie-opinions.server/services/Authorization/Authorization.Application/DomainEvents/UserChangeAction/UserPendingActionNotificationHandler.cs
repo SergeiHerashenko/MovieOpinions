@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Mapping;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserChangeAction
 {
-    public sealed class UserPendingActionNotificationHandler 
+    public sealed class UserPendingActionNotificationHandler
         : INotificationHandler<DomainEventNotification<UserPendingActionEvent>>
     {
         private readonly INotificationSender _notificationSender;
@@ -36,9 +36,9 @@ namespace Authorization.Application.DomainEvents.UserChangeAction
             var messageAction = _userPendingActionNotificationMapper.ToMessageActionType(domainEvent.UserAction);
 
             var notificationCommand = NotificationRequest.Create(
-                domainEvent.UserPendingActionId, 
-                domainEvent.Login, 
-                messageAction, 
+                domainEvent.UserPendingActionId,
+                domainEvent.Login,
+                messageAction,
                 channel
             );
 

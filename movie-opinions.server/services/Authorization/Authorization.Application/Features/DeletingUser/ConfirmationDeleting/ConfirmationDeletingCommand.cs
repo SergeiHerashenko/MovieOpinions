@@ -1,9 +1,9 @@
-﻿using Authorization.Domain.Results;
+using Authorization.Domain.Results;
 using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 {
-    public sealed class ConfirmationDeletingCommand 
+    public sealed class ConfirmationDeletingCommand
         : IRequest<Result>
     {
         public string ConfirmationToken { get; set; }
@@ -11,7 +11,7 @@ namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
         public string VerificationValue { get; set; }
 
         public ConfirmationDeletingCommand(
-            string confirmationToken, 
+            string confirmationToken,
             string verificationValue)
         {
             ConfirmationToken = confirmationToken;

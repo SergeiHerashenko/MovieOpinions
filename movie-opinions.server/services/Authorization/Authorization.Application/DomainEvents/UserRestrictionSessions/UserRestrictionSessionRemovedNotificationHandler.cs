@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
 using Authorization.Application.DTOs.Communication;
@@ -20,7 +20,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
         }
 
         public async Task Handle(
-            DomainEventNotification<UserRestrictionSessionRemovedEvent> notification, 
+            DomainEventNotification<UserRestrictionSessionRemovedEvent> notification,
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;

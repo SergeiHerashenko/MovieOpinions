@@ -21,11 +21,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRefreshToken
         {
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
-                var sql = @"SELECT 
-                                id, created_at, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at 
-                            FROM 
-                                user_refresh_token 
-                            WHERE 
+                var sql = @"SELECT
+                                id, created_at, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at
+                            FROM
+                                user_refresh_token
+                            WHERE
                                 refresh_token = @RefreshToken;";
 
                 await using var command = new NpgsqlCommand(sql, connection);

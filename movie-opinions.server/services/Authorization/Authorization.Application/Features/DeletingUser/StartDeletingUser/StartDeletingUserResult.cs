@@ -10,7 +10,7 @@ namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
         public IReadOnlyCollection<ActiveContactChannel> Channels { get; }
 
         public StartDeletingUserResult(
-            ConfirmationFlowToken confirmationToken, 
+            ConfirmationFlowToken confirmationToken,
             IReadOnlyCollection<ActiveContactChannel> channels)
         {
             ConfirmationToken = confirmationToken;

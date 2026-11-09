@@ -1,17 +1,17 @@
-﻿using Authorization.Domain.Results;
+using Authorization.Domain.Results;
 using Authorization.ResponseHandling.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authorization.ResponseHandling
 {
-    public class AuthResultDispatcher 
+    public class AuthResultDispatcher
         : IAuthResultDispatcher
     {
         private readonly IAuthErrorResponseHandler _authErrorResponseHandler;
         private readonly IAuthSuccessResponseHandler _authSuccessResponseHandler;
 
         public AuthResultDispatcher(
-            IAuthErrorResponseHandler authErrorResponseHandler, 
+            IAuthErrorResponseHandler authErrorResponseHandler,
             IAuthSuccessResponseHandler authSuccessResponseHandler)
         {
             _authErrorResponseHandler = authErrorResponseHandler;
@@ -19,7 +19,7 @@ namespace Authorization.ResponseHandling
         }
 
         public async Task<IActionResult> DispatchAsync<T>(
-            Result<T> result, 
+            Result<T> result,
             CancellationToken cancellationToken = default)
         {
             if (result.IsFailure)
@@ -34,7 +34,7 @@ namespace Authorization.ResponseHandling
         }
 
         public async Task<IActionResult> DispatchAsync(
-            Result result, 
+            Result result,
             CancellationToken cancellationToken = default)
         {
             if (result.IsFailure)

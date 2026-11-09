@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Common.Enums;
+using Authorization.Application.Common.Enums;
 using Authorization.Application.DTOs.Communication.Notifications.Enums;
 
 namespace Authorization.Application.Features.Services.UserActionConfirmation.Mappers.Models
@@ -10,7 +10,7 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation.Map
         public NotificationType NotificationType { get; }
 
         public ActionNotificationConfig(
-            RateLimitAction rateLimitAction, 
+            RateLimitAction rateLimitAction,
             NotificationType notificationType)
         {
             RateLimitAction = rateLimitAction;

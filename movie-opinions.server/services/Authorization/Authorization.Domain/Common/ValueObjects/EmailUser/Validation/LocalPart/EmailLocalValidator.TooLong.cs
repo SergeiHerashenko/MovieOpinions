@@ -45,7 +45,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.LocalPar
                 }
 
                 if (data.Value.Length <= MAX_LENGTH_EMAIL_LOCAL_PART)
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

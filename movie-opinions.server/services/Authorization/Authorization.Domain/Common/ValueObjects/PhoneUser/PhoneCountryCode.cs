@@ -77,7 +77,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
             );
 
             if (failure is not null)
+            {
                 return Result<PhoneCountryCode>.Failure(failure.Value);
+            }
 
             return Result<PhoneCountryCode>.Success(new PhoneCountryCode(normalizedCountryCode));
         }
@@ -123,7 +125,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             return new PhoneCountryCode(storedCountryCode);
         }

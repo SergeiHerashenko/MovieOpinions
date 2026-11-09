@@ -24,9 +24,9 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
         }
 
         public async Task<Result<UserPendingAction>> RetrieverAsync<TAction>(
-            UserId userId, 
-            string confirmationToken, 
-            CancellationToken cancellationToken = default) 
+            UserId userId,
+            string confirmationToken,
+            CancellationToken cancellationToken = default)
             where TAction : UserAction
         {
             var existingUser = await _userRepository.GetUserByIdAsync(userId, cancellationToken);

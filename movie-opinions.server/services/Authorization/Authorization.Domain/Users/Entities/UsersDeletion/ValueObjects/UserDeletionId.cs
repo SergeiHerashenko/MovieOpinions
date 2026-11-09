@@ -63,7 +63,9 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects
         public static UserDeletionId Restore(Guid value)
         {
             if (value == Guid.Empty)
+            {
                 throw DomainDataInconsistencyException.Empty<UserDeletionId>(nameof(value));
+            }
 
             return new(value);
         }

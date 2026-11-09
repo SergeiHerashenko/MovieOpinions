@@ -62,7 +62,9 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects
                 : rawReason.Trim();
 
             if (normalizedReason.Length > MAX_REASON_LENGTH)
+            {
                 return Result<DeletionReason>.Failure(UserDeletionErrors.TooLongReason<DeletionReason>());
+            }
 
             return Result<DeletionReason>.Success(new DeletionReason(normalizedReason));
         }
@@ -98,12 +100,16 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion.ValueObjects
         public static DeletionReason Restore(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 throw DomainDataInconsistencyException.Empty<DeletionReason>(nameof(value));
+            }
 
             var normalizedReason = value.Trim();
 
             if (normalizedReason.Length > MAX_REASON_LENGTH)
+            {
                 throw DomainDataInconsistencyException.ValueOutOfRange<DeletionReason>(nameof(value));
+            }
 
             return new(normalizedReason);
         }

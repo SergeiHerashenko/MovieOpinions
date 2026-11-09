@@ -1,11 +1,11 @@
-﻿using Npgsql;
+using Npgsql;
 
 namespace Authorization.Infrastructure.Persistence.Context
 {
     public interface ITransactionContextSetter
     {
         void Set(
-            NpgsqlConnection connection, 
+            NpgsqlConnection connection,
             NpgsqlTransaction transaction);
 
         void Clear();

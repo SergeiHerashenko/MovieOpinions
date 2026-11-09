@@ -21,7 +21,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         internal async Task<User?> BuildUserAggregateAsync(
             NpgsqlConnection connection,
             NpgsqlTransaction? transaction,
-            UserData userData, 
+            UserData userData,
             CancellationToken cancellationToken = default)
         {
             var restrictionSessions = await LoadUserRestrictionSession(connection, transaction, userData.Id, cancellationToken);
@@ -61,15 +61,15 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
 
         private async Task<IReadOnlyList<UserRestrictionSession>> LoadUserRestrictionSession(
             NpgsqlConnection connection,
-            NpgsqlTransaction? transaction, 
-            UserId userId, 
+            NpgsqlTransaction? transaction,
+            UserId userId,
             CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes 
-                        FROM 
-                            User_Restriction_Session 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes
+                        FROM
+                            User_Restriction_Session
+                        WHERE
                             user_id = @UserId;";
 
             await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -92,15 +92,15 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
 
         private async Task<IReadOnlyList<UserRestriction>> LoadUserRestrictionAsync(
             NpgsqlConnection connection,
-            NpgsqlTransaction? transaction, 
-            IReadOnlyList<UserRestrictionId> restrictionsIds, 
+            NpgsqlTransaction? transaction,
+            IReadOnlyList<UserRestrictionId> restrictionsIds,
             CancellationToken cancellationToken = default)
         {
             var sql = @"SELECT
-                            id, created_at, user_id, restriction_rule, restriction_type, reason, restricted_by, is_revoked, cancellation_date 
-                        FROM 
-                            User_Restriction 
-                        WHERE 
+                            id, created_at, user_id, restriction_rule, restriction_type, reason, restricted_by, is_revoked, cancellation_date
+                        FROM
+                            User_Restriction
+                        WHERE
                             id = ANY(@Ids);";
 
             await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -127,14 +127,14 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
         private async Task<UserDeletion?> LoadUserDeletionAsync(
             NpgsqlConnection connection,
             NpgsqlTransaction? transaction,
-            UserId userId, 
+            UserId userId,
             CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, user_id, login, login_type, country_code, email_domain, reason, restore_until, restored_at, status, updated_at 
-                        FROM 
-                            User_Deleted 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, user_id, login, login_type, country_code, email_domain, reason, restore_until, restored_at, status, updated_at
+                        FROM
+                            User_Deleted
+                        WHERE
                             user_id = @UserId;";
 
             await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -153,15 +153,15 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
 
         private async Task<IReadOnlyList<UserRefreshToken>> LoadUserRefreshTokenAsync(
             NpgsqlConnection connection,
-            NpgsqlTransaction? transaction, 
-            UserId userId, 
+            NpgsqlTransaction? transaction,
+            UserId userId,
             CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at 
-                        FROM 
-                            User_Refresh_Token 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, user_id, refresh_token, device_info, ip_address, city, token_status, expires_at, consumed_at, revoked_at
+                        FROM
+                            User_Refresh_Token
+                        WHERE
                             user_id = @UserId AND token_status = @Status";
 
             await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -185,15 +185,15 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRepository.A
 
         private async Task<UserPendingAction?> LoadUserPendingActionAsync(
             NpgsqlConnection connection,
-            NpgsqlTransaction? transaction, 
-            UserId userId, 
+            NpgsqlTransaction? transaction,
+            UserId userId,
             CancellationToken cancellationToken = default)
         {
-            var sql = @"SELECT 
-                            id, created_at, user_id, confirmation_token, action_type, login_type, action_data, expires_at, confirmation_time, expired_at, cancelled_time, status 
-                        FROM 
-                            User_Pending_Action 
-                        WHERE 
+            var sql = @"SELECT
+                            id, created_at, user_id, confirmation_token, action_type, login_type, action_data, expires_at, confirmation_time, expired_at, cancelled_time, status
+                        FROM
+                            User_Pending_Action
+                        WHERE
                             user_id = @UserId AND status = @Status;";
 
             await using var command = new NpgsqlCommand(sql, connection, transaction);

@@ -90,7 +90,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.Phones
                 );
 
                 if (checkedResult.IsSuccess)
+                {
                     return null;
+                }
 
                 var reason = checkedResult.Status.ToString();
 

@@ -36,7 +36,9 @@ namespace Authorization.Domain.Common.ValueObjects.PasswordUser.Validation.Valid
                 }
 
                 if (data.Value.Any(char.IsLower))
+                {
                     return null;
+                }
 
                 return new ErrorValidationFailure()
                 {

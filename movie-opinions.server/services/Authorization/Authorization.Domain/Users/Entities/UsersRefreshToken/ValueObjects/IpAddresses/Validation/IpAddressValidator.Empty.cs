@@ -22,7 +22,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.IpA
             public ValidationFailure? Validate(IpAddressValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

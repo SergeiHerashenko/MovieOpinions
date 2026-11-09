@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Clock;
+using Authorization.Application.Abstractions.Clock;
 using Authorization.Infrastructure.Exceptions;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Npgsql;
@@ -71,9 +71,9 @@ namespace Authorization.Infrastructure.Persistence.Migrations
 
                     // Фіксуємо міграцію
                     string logSql = @"
-                                    INSERT INTO 
-                                        migration_history (version_name, applied_at) 
-                                    VALUES 
+                                    INSERT INTO
+                                        migration_history (version_name, applied_at)
+                                    VALUES
                                         (@Name, @Now);";
 
                     using var logCmd = new NpgsqlCommand(logSql, connection, transaction);
@@ -98,9 +98,9 @@ namespace Authorization.Infrastructure.Persistence.Migrations
         private async Task EnsureHistoryTableExistsAsync(NpgsqlConnection connection)
         {
             const string sql = @"
-                CREATE TABLE IF NOT EXISTS migration_history ( 
-                    id SERIAL PRIMARY KEY, 
-                    version_name VARCHAR(255) NOT NULL UNIQUE, 
+                CREATE TABLE IF NOT EXISTS migration_history (
+                    id SERIAL PRIMARY KEY,
+                    version_name VARCHAR(255) NOT NULL UNIQUE,
                     applied_at TIMESTAMPTZ NOT NULL
                 );";
 

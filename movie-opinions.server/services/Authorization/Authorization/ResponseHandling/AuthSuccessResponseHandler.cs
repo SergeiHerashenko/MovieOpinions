@@ -1,4 +1,4 @@
-﻿using Authorization.ResponseHandling.Abstractions;
+using Authorization.ResponseHandling.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authorization.ResponseHandling
@@ -12,7 +12,7 @@ namespace Authorization.ResponseHandling
         }
 
         public Task<IActionResult> HandleAsync<T>(
-            T value, 
+            T value,
             CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

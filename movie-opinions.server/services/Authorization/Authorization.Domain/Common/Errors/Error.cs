@@ -46,17 +46,17 @@ namespace Authorization.Domain.Common.Errors
         /// </summary>
         /// <param name="code">
         /// Стабільний непорожній код помилки.
-        /// 
+        ///
         /// (A stable, non-blank error code.)
         /// </param>
         /// <param name="message">
         /// Непорожній внутрішній нелокалізований опис помилки.
-        /// 
+        ///
         /// (A non-blank internal, non-localized error description.)
         /// </param>
         /// <param name="errorType">
         /// Визначене значення категорії очікуваної помилки.
-        /// 
+        ///
         /// (A defined category of the expected error.)
         /// </param>
         /// <exception cref="DomainDataInconsistencyException">

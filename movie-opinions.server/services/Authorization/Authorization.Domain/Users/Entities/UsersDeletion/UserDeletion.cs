@@ -350,13 +350,19 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             );
 
             if (Status == DeletionStatus.Restored)
+            {
                 return Result.Failure(UserDeletionErrors.AlreadyRestored<UserDeletion>());
+            }
 
             if (Status == DeletionStatus.PermanentlyDeleted)
+            {
                 return Result.Failure(UserDeletionErrors.RestorationPeriodExpired<UserDeletion>());
+            }
 
             if (now >= RestoreUntil)
+            {
                 return Result.Failure(UserDeletionErrors.RestorationPeriodExpired<UserDeletion>());
+            }
 
             Status = DeletionStatus.Restored;
             RestoredAt = now;
@@ -411,13 +417,19 @@ namespace Authorization.Domain.Users.Entities.UsersDeletion
             );
 
             if (Status == DeletionStatus.Restored)
+            {
                 return false;
+            }
 
             if (Status == DeletionStatus.PermanentlyDeleted)
+            {
                 return false;
+            }
 
             if (now < RestoreUntil)
+            {
                 return false;
+            }
 
             Status = DeletionStatus.PermanentlyDeleted;
             UpdatedAt = now;

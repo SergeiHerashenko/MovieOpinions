@@ -19,7 +19,7 @@ namespace Authorization.Domain.Common.Validation
         /// </summary>
         /// <param name="rules">
         /// Непорожня колекція правил для виконання.
-        /// 
+        ///
         /// (A non-empty collection of rules to execute.)
         /// </param>
         /// <exception cref="DomainInvalidOperationException">
@@ -58,13 +58,13 @@ namespace Authorization.Domain.Common.Validation
         /// </summary>
         /// <param name="value">
         /// Дані для перевірки.
-        /// 
+        ///
         /// (The data to validate.)
         /// </param>
         /// <returns>
         /// Перше виявлене порушення або null,
         /// якщо всі правила виконані.
-        /// 
+        ///
         /// (The first detected violation, or null
         /// when all rules succeed.)
         /// </returns>
@@ -75,7 +75,9 @@ namespace Authorization.Domain.Common.Validation
                 var failure = rule.Validate(value);
 
                 if (failure is not null)
+                {
                     return failure;
+                }
             }
 
             return null;

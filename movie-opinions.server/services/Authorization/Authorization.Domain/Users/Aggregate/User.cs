@@ -162,22 +162,22 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="login">
         /// Перевірений логін користувача.
-        /// 
+        ///
         /// (Validated user login.)
         /// </param>
         /// <param name="password">
         /// Доменне представлення пароля користувача, що містить його хеш.
-        /// 
+        ///
         /// (Domain representation of the user's password, containing its hash.)
         /// </param>
         /// <param name="now">
         /// Час створення користувача.
-        /// 
+        ///
         /// (Time the user was created.)
         /// </param>
         /// <returns>
         /// Створений агрегат користувача.
-        /// 
+        ///
         /// (Created user aggregate.)
         /// </returns>
         public static User Create(

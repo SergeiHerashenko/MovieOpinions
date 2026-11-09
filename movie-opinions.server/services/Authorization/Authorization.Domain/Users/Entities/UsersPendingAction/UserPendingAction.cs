@@ -424,7 +424,9 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
             EnsureActiveState(now);
 
             if (now >= GetExpirationDate())
+            {
                 return Result.Failure(PendingActionErrors.ExpiredAction<UserPendingAction>());
+            }
 
             return ValidateConfirmationToken(confirmationFlowToken);
         }
@@ -540,7 +542,9 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
             EnsureActiveState(now);
 
             if (now >= GetExpirationDate())
+            {
                 return Result.Failure(PendingActionErrors.ExpiredAction<UserPendingAction>());
+            }
 
             return ValidateConfirmationToken(confirmationFlowToken);
         }
@@ -790,7 +794,9 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
             );
 
             if (confirmationFlowToken != ConfirmationToken)
+            {
                 return Result.Failure(PendingActionErrors.InvalidConfirmationToken<UserPendingAction>());
+            }
 
             return Result.Success();
         }
@@ -873,10 +879,12 @@ namespace Authorization.Domain.Users.Entities.UsersPendingAction
             DateTimeOffset? cancelledTime)
         {
             if (!Enum.IsDefined(actionStatus))
+            {
                 throw DomainDataInconsistencyException.UnsupportedDiscriminator<UserPendingAction>(
                     nameof(actionStatus),
                     actionStatus
                 );
+            }
 
             if (expiresAt <= createdAt)
             {

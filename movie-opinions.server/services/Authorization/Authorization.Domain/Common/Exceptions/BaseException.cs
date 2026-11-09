@@ -14,21 +14,21 @@ namespace Authorization.Domain.Common.Exceptions
         #region Properties
         /// <summary>
         /// Стабільний діагностичний код виду винятку.
-        /// 
+        ///
         /// (Stable diagnostic code identifying the exception kind.)
         /// </summary>
         public string ExceptionCode { get; }
 
         /// <summary>
         /// Категорія винятку, що визначає спосіб його обробки.
-        /// 
+        ///
         /// (The category of the exception, which determines how it should be handled.)
         /// </summary>
         public ExceptionType ExceptionType { get; }
 
         /// <summary>
-        /// Додаткові дані про стан системи під час виникнення винятку для полегшення дебагу. 
-        /// 
+        /// Додаткові дані про стан системи під час виникнення винятку для полегшення дебагу.
+        ///
         /// (Additional data about the system state when an exception occurs to facilitate debugging.)
         /// </summary>
         public IReadOnlyDictionary<string, object> Context { get; }
@@ -36,32 +36,32 @@ namespace Authorization.Domain.Common.Exceptions
 
         /// <summary>
         /// Конструктор для ініціалізації базового винятку.
-        /// 
+        ///
         /// (Constructor for initializing the base exception.)
         /// </summary>
         /// <param name="exceptionCode">
         /// Діагностичний код винятку.
-        /// 
+        ///
         /// (Diagnostic exception code.)
         /// </param>
         /// <param name="exceptionType">
         /// Категорія винятку.
-        /// 
+        ///
         /// (Exception category.)
         /// </param>
         /// <param name="message">
         /// Опис винятку для розробників або логів.
-        /// 
+        ///
         /// (A description of the exception for developers or logs.)
         /// </param>
         /// <param name="context">
         /// Словник з додатковими даними (опціонально).
-        /// 
+        ///
         /// (A dictionary with additional data (optional).)
         /// </param>
         /// <param name="innerException">
         /// Оригінальний виняток, що спричинив цей виняток (опціонально).
-        /// 
+        ///
         /// (The original exception that caused this exception (optional).)
         /// </param>
         protected BaseException(

@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Common.AggregateChanges;
 using Authorization.Domain.Common.Models.Interfaces;
 using MediatR;
@@ -24,7 +24,7 @@ namespace Authorization.Infrastructure.AggregateChanges
 
             if (request is IRequest mediatrRequest)
             {
-                // TODO - додати ексепшин помилки 
+                // TODO - додати ексепшин помилки
             }
 
             await _mediator.Send(request, cancellationToken);

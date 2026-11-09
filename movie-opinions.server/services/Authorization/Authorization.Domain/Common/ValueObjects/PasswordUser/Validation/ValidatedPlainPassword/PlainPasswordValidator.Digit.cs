@@ -35,7 +35,9 @@ namespace Authorization.Domain.Common.ValueObjects.PasswordUser.Validation.Valid
                 }
 
                 if (data.Value.Any(char.IsAsciiDigit))
+                {
                     return null;
+                }
 
                 return new ErrorValidationFailure()
                 {

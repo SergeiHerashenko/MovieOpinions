@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Events;
 using Authorization.Application.Abstractions.Persistence;
@@ -12,7 +12,7 @@ using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 {
-    public class ConfirmationDeletingHandler 
+    public class ConfirmationDeletingHandler
         : IRequestHandler<ConfirmationDeletingCommand, Result>
     {
         private readonly IClock _clock;
@@ -65,7 +65,7 @@ namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
 
                 var deletionResult = currentUser.ConfirmDeleting(
                     command.ConfirmationToken,
-                    verificationResult.Value.ActionId, 
+                    verificationResult.Value.ActionId,
                     _clock.UtcNow
                 );
 
@@ -81,7 +81,7 @@ namespace Authorization.Application.Features.DeletingUser.ConfirmationDeleting
                 }
 
                 await _aggregateChangesDispatcher.DispatchAsync(currentUser.AggregateChanges, ct);
-                
+
                 currentUser.ClearAggregateChanges();
 
                 return Result<User>.Success(currentUser);

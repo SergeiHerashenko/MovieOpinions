@@ -30,7 +30,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.CountryC
             public ValidationFailure? Validate(CountryCodeValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

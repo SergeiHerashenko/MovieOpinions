@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
 using Authorization.Application.DTOs.Communication;
@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserRegistered
 {
-    public sealed class UserRegisteredNotificationHandler 
+    public sealed class UserRegisteredNotificationHandler
         : INotificationHandler<DomainEventNotification<UserRegisteredEvent>>
     {
         private readonly INotificationSender _notificationSender;
@@ -20,7 +20,7 @@ namespace Authorization.Application.DomainEvents.UserRegistered
         }
 
         public async Task Handle(
-            DomainEventNotification<UserRegisteredEvent> notification, 
+            DomainEventNotification<UserRegisteredEvent> notification,
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;
@@ -30,9 +30,9 @@ namespace Authorization.Application.DomainEvents.UserRegistered
                 : CommunicationChannel.Phone;
 
             var notificationCommand = NotificationRequest.Create(
-                domainEvent.UserId, 
+                domainEvent.UserId,
                 domainEvent.Login,
-                NotificationType.ConfirmRegistration, 
+                NotificationType.ConfirmRegistration,
                 channel
             );
 

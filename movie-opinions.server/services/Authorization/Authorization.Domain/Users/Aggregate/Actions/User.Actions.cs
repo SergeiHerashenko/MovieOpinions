@@ -68,10 +68,14 @@ namespace Authorization.Domain.Users.Aggregate
             var resultAccess = ValidateAccessForPendingActionRequest(now);
 
             if (resultAccess.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(resultAccess.Errors);
+            }
 
             if (newLogin == Login)
+            {
                 return Result<UserPendingAction>.Failure(UserErrors.NoUpdateNeeded<User>());
+            }
 
             var userAction = UserAction.From(newLogin);
 
@@ -81,7 +85,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (requestResult.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(requestResult.Errors);
+            }
 
             var pendingAction = requestResult.Value;
 
@@ -187,7 +193,9 @@ namespace Authorization.Domain.Users.Aggregate
             var resultAccess = ValidateAccessForPendingActionRequest(now);
 
             if (resultAccess.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(resultAccess.Errors);
+            }
 
             var newPasswordMatchesPlainPassword = newPassword.Matches(
                 plainNewPassword,
@@ -213,7 +221,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (matchesCurrentPassword)
+            {
                 return Result<UserPendingAction>.Failure(UserErrors.NoUpdateNeeded<User>());
+            }
 
             var userAction = UserAction.From(newPassword);
 
@@ -223,7 +233,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (requestResult.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(requestResult.Errors);
+            }
 
             var pendingAction = requestResult.Value;
 
@@ -290,12 +302,16 @@ namespace Authorization.Domain.Users.Aggregate
             var resultAccess = ValidateAccessForPendingActionRequest(now);
 
             if (resultAccess.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(resultAccess.Errors);
+            }
 
             var deletionReason = DeletionReason.Create(reason);
 
             if (deletionReason.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(deletionReason.Errors);
+            }
 
             var userAction = UserAction.From(deletionReason.Value);
 
@@ -305,7 +321,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (requestResult.IsFailure)
+            {
                 return Result<UserPendingAction>.Failure(requestResult.Errors);
+            }
 
             var pendingAction = requestResult.Value;
 
@@ -355,7 +373,9 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return Result.Failure(access.Errors);
+            }
 
             return Result.Success();
         }
@@ -501,7 +521,9 @@ namespace Authorization.Domain.Users.Aggregate
             }
 
             if (currentAction.IsActive(now))
+            {
                 return Result<PendingActionRequestPlan>.Failure(UserErrors.ActionAlreadyExists<User>());
+            }
 
             currentAction.ValidateCanExpire(now);
 

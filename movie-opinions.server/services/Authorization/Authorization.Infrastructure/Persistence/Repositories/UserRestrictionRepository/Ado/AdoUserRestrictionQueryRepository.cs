@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRestriction;
+using Authorization.Domain.Users.Entities.UsersRestriction;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
 using Authorization.Infrastructure.Persistence.Repositories.Base;
@@ -22,10 +22,10 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
                 var sql = @"SELECT
-                                id, created_at, user_id, restriction_rule, restriction_type, reason, restricted_by, is_revoked, cancellation_date 
-                            FROM 
-                                User_Restriction 
-                            WHERE 
+                                id, created_at, user_id, restriction_rule, restriction_type, reason, restricted_by, is_revoked, cancellation_date
+                            FROM
+                                User_Restriction
+                            WHERE
                                 id = ANY(@Ids);";
 
                 await using var command = new NpgsqlCommand(sql, connection);

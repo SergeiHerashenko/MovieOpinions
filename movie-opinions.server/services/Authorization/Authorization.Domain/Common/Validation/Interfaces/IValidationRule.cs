@@ -13,12 +13,12 @@ namespace Authorization.Domain.Common.Validation.Interfaces
     /// </summary>
     /// <typeparam name="TData">
     /// Тип даних, які перевіряються.
-    /// 
+    ///
     /// (The type of the data being validated.)
     /// </typeparam>
     /// <typeparam name="TFailure">
     /// Тип представлення виявленого порушення.
-    /// 
+    ///
     /// (The representation type of a detected violation.)
     /// </typeparam>
     internal interface IValidationRule<TData, TFailure>
@@ -27,7 +27,7 @@ namespace Authorization.Domain.Common.Validation.Interfaces
     {
         /// <summary>
         /// Пріоритет, який визначає порядок виконання правила.
-        /// 
+        ///
         /// (Priority that determines the rule execution order.)
         /// </summary>
         ValidationPriority Priority { get; }
@@ -39,13 +39,13 @@ namespace Authorization.Domain.Common.Validation.Interfaces
         /// </summary>
         /// <param name="data">
         /// Дані для перевірки.
-        /// 
+        ///
         /// (The data to validate.)
         /// </param>
         /// <returns>
         /// Опис виявленого порушення або null,
         /// якщо правило виконано.
-        /// 
+        ///
         /// (A description of the detected violation,
         /// or null when the rule succeeds.)
         /// </returns>

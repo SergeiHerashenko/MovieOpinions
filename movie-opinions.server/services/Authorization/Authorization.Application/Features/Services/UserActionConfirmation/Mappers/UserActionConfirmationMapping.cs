@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Mapping;
+using Authorization.Application.Abstractions.Mapping;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Exceptions;
 using Authorization.Application.DTOs.Communication.Notifications.Enums;
@@ -15,13 +15,13 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation.Map
         {
             return typeof(TAction) switch
             {
-                var t when t == typeof(PasswordChangeAction) 
+                var t when t == typeof(PasswordChangeAction)
                     => new(RateLimitAction.PasswordChange, NotificationType.PendingChangePassword),
 
-                var t when t == typeof(LoginChangeAction) 
+                var t when t == typeof(LoginChangeAction)
                     => new(RateLimitAction.LoginChange, NotificationType.PendingChangeLogin),
 
-                var t when t == typeof(DeleteAccountAction) 
+                var t when t == typeof(DeleteAccountAction)
                     => new(RateLimitAction.SendChangeDeletionConfirmation, NotificationType.PendingDeletingUser),
 
                 _ => throw ApplicationInvalidOperationException.UnsupportedValue<UserActionConfirmationMapping>(typeof(TAction).Name)
@@ -33,10 +33,10 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation.Map
         {
             return typeof(TAction) switch
             {
-                var t when t == typeof(PasswordChangeAction) 
+                var t when t == typeof(PasswordChangeAction)
                     => new(RateLimitAction.PasswordChange, VerificationType.ChangePassword),
 
-                var t when t == typeof(LoginChangeAction) 
+                var t when t == typeof(LoginChangeAction)
                     => new(RateLimitAction.LoginChange, VerificationType.ChangeLogin),
 
                 var t when t == typeof(DeleteAccountAction)

@@ -49,7 +49,9 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return access;
+            }
 
             var nextFailedPasswordAttempts = checked(FailedPasswordAttempts + 1);
 
@@ -123,7 +125,9 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return access;
+            }
 
             var isNewDevice = IsNewDevice(
                 deviceInfo,
@@ -175,7 +179,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (ruleResult.IsFailure)
+            {
                 return Result<RestrictionData>.Failure(ruleResult.Errors);
+            }
 
             return Result<RestrictionData>.Success(new RestrictionData
             {
@@ -214,7 +220,9 @@ namespace Authorization.Domain.Users.Aggregate
             var restrictionData = CreateFailedPasswordAttemptBanData();
 
             if (restrictionData.IsFailure)
+            {
                 return restrictionData;
+            }
 
             var addResult = AddRestrictions(
                 new[] { restrictionData.Value },
@@ -222,7 +230,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (addResult.IsFailure)
+            {
                 return addResult;
+            }
 
             FailedPasswordAttempts = 0;
             UpdatedAt = now;

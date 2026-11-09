@@ -536,7 +536,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         public TimeSpan GetRemainingUsableTime(DateTimeOffset now)
         {
             if (!CanBeUsed(now))
+            {
                 return TimeSpan.Zero;
+            }
 
             return ExpiresAt - now;
         }
@@ -685,7 +687,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
             }
 
             if (TryMarkAsExpired(now))
+            {
                 return;
+            }
 
             RevokedAt = now;
             TokenStatus = TokenStatus.Revoked;
@@ -750,7 +754,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
             );
 
             if (TryMarkAsExpired(now))
+            {
                 return Result.Failure(TokenStatusErrors.ExpiredToken<UserRefreshToken>());
+            }
 
             if (TokenStatus != TokenStatus.Active)
             {
@@ -786,10 +792,14 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         private bool TryMarkAsExpired(DateTimeOffset now)
         {
             if (TokenStatus != TokenStatus.Active)
+            {
                 return false;
+            }
 
             if (now < ExpiresAt)
+            {
                 return false;
+            }
 
             TokenStatus = TokenStatus.Expired;
 

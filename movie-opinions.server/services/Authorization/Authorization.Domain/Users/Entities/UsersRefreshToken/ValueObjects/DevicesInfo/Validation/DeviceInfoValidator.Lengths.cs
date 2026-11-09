@@ -64,7 +64,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 }
 
                 if (operatingSystem.Length <= MAX_OPERATING_SYSTEM_LENGTH)
+                {
                     return null;
+                }
 
                 return CreateFailure(
                     nameof(DeviceInfo.OperatingSystem),
@@ -90,7 +92,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 }
 
                 if (browser.Length <= MAX_BROWSER_LENGTH)
+                {
                     return null;
+                }
 
                 return CreateFailure(
                     nameof(DeviceInfo.Browser),
@@ -116,7 +120,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
                 }
 
                 if (deviceModel.Length <= MAX_DEVICE_MODEL_LENGTH)
+                {
                     return null;
+                }
 
                 return CreateFailure(
                     nameof(DeviceInfo.DeviceModel),

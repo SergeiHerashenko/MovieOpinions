@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Common.Enums;
+using Authorization.Application.Common.Enums;
 
 namespace Authorization.Application.Features.Services.UserActiveContacts.Models
 {
@@ -11,8 +11,8 @@ namespace Authorization.Application.Features.Services.UserActiveContacts.Models
         public string MaskedValue { get; }
 
         public ActiveContactChannel(
-            Guid contactId, 
-            CommunicationChannel channel, 
+            Guid contactId,
+            CommunicationChannel channel,
             string maskedValue)
         {
             ContactId = contactId;

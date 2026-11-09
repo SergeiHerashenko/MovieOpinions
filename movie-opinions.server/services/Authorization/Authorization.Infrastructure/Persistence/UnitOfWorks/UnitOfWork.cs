@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Persistence;
+using Authorization.Application.Abstractions.Persistence;
 using Authorization.Infrastructure.Exceptions;
 using Authorization.Infrastructure.Persistence.Context;
 using Authorization.Infrastructure.Persistence.Context.AdoNet;
@@ -34,14 +34,14 @@ namespace Authorization.Infrastructure.Persistence.UnitOfWorks
         }
 
         public Task<TResult> ExecuteAsync<TResult>(
-            Func<CancellationToken, Task<TResult>> action, 
+            Func<CancellationToken, Task<TResult>> action,
             CancellationToken cancellationToken = default)
         {
             return ExecuteTransactionAsync(action, cancellationToken);
         }
 
         private async Task<TResult> ExecuteTransactionAsync<TResult>(
-            Func<CancellationToken, Task<TResult>> action, 
+            Func<CancellationToken, Task<TResult>> action,
             CancellationToken cancellationToken = default)
         {
             EnsureNoTransaction();

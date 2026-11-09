@@ -1,11 +1,11 @@
-﻿using Authorization.Domain.Results;
+using Authorization.Domain.Results;
 using MediatR;
 
 namespace Authorization.Application.Features.DeletingUser.StartDeletingUser
 {
     public sealed class StartDeletingUserCommand : IRequest<Result<StartDeletingUserResult>>
     {
-        public string Password { get; } 
+        public string Password { get; }
 
         public string? Reason { get; }
 

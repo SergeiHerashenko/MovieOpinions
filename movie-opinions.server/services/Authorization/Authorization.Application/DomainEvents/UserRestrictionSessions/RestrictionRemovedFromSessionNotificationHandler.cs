@@ -38,7 +38,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
             IReadOnlyCollection<RestrictionInfo> restrictionCollection = [restrictionItem];
 
             var sessionData = new SessionRestrictionNotificationData(
-                restrictionCollection, 
+                restrictionCollection,
                 domainEvent.TotalBlockedMinutes,
                 domainEvent.RestrictionType.ToString()
             );

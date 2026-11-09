@@ -493,13 +493,13 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
         {
             var first = DomainDataInconsistencyException.InvalidFieldFormat<Error>(
                 fieldName: "Code",
-                value: 42,                                          
+                value: 42,
                 context: new Dictionary<string, object> { ["A"] = 1 }
             );
 
             var second = DomainDataInconsistencyException.InvalidFieldFormat<Error>(
                 fieldName: "Login",
-                value: "text",                                      
+                value: "text",
                 context: new Dictionary<string, object> { ["B"] = 2 }
             );
 

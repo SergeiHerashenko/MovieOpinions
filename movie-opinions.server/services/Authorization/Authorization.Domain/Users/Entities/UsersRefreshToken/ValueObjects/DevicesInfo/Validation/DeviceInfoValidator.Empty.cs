@@ -32,7 +32,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             private static ValidationFailure? ValidateOperatingSystem(string operatingSystem)
             {
                 if (!string.IsNullOrWhiteSpace(operatingSystem))
+                {
                     return null;
+                }
 
                 return CreateFailure(
                     nameof(DeviceInfo.OperatingSystem),
@@ -43,7 +45,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             private static ValidationFailure? ValidateBrowser(string browser)
             {
                 if (!string.IsNullOrWhiteSpace(browser))
+                {
                     return null;
+                }
 
                 return CreateFailure(
                     nameof(DeviceInfo.Browser),
@@ -54,7 +58,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken.ValueObjects.Dev
             private static ValidationFailure? ValidateDeviceModel(string deviceModel)
             {
                 if (!string.IsNullOrWhiteSpace(deviceModel))
+                {
                     return null;
+                }
 
                 return CreateFailure(
                     nameof(DeviceInfo.DeviceModel),

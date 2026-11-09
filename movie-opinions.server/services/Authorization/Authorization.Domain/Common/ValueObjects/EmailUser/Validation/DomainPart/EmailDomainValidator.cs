@@ -1,7 +1,7 @@
 using Authorization.Domain.Common.Errors;
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Validation;
-using Authorization.Domain.Common.Exceptions.DomainException;
 
 namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.DomainPart
 {
@@ -104,7 +104,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.DomainPa
             );
 
             if (structuralFailure is not null)
+            {
                 return structuralFailure;
+            }
 
             return DomainValidationExecutor.ValidateForError(
                 _creationPolicyValidation,

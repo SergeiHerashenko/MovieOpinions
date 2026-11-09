@@ -19,9 +19,9 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"INSERT INTO 
-                                User_Restriction (id, created_at, user_id, restriction_rule, restriction_type, reason, restricted_by, is_revoked, cancellation_date) 
-                            VALUES 
+                var sql = @"INSERT INTO
+                                User_Restriction (id, created_at, user_id, restriction_rule, restriction_type, reason, restricted_by, is_revoked, cancellation_date)
+                            VALUES
                                 (@Id, @CreatedAt, @UserId, @RestrictionRule, @RestrictionType, @Reason, @RestrictedBy, @IsRevoked, @CancellationDate);";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -36,13 +36,13 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionR
         {
             await ExecuteCommandAsync(async (connection, transaction, ct) =>
             {
-                var sql = @"UPDATE 
-                                User_Restriction 
-                            SET 
+                var sql = @"UPDATE
+                                User_Restriction
+                            SET
                                 reason = @Reason,
                                 is_revoked = @IsRevoked,
-                                cancellation_date = @CancellationDate 
-                            WHERE 
+                                cancellation_date = @CancellationDate
+                            WHERE
                                 id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection, transaction);

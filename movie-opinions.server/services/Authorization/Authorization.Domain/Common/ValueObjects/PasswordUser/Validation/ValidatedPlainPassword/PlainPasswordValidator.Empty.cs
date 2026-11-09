@@ -23,7 +23,9 @@ namespace Authorization.Domain.Common.ValueObjects.PasswordUser.Validation.Valid
             public ErrorValidationFailure? Validate(PlainPasswordValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Value))
+                {
                     return null;
+                }
 
                 return new ErrorValidationFailure()
                 {

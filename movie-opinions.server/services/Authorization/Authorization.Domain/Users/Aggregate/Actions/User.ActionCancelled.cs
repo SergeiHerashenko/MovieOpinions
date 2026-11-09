@@ -1,5 +1,5 @@
-using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Exceptions.DomainException;
+using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Guard;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.AggregateChanges.Action;
@@ -114,15 +114,21 @@ namespace Authorization.Domain.Users.Aggregate
             var access = ProvideAccess(now);
 
             if (access.IsFailure)
+            {
                 return access;
+            }
 
             var currentAction = _action;
 
             if (currentAction is null)
+            {
                 return Result.Failure(UserErrors.EmptyAction<User>());
+            }
 
             if (currentAction.Id != actionId)
+            {
                 return Result.Failure(UserErrors.NotFoundAction<User>());
+            }
 
             var cancellationValidation = currentAction.ValidateCancellation(
                 confirmationToken,
@@ -130,7 +136,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (cancellationValidation.IsFailure)
+            {
                 return cancellationValidation;
+            }
 
             currentAction.MarkAsCancelled(
                 confirmationToken,
@@ -147,6 +155,6 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             return Result.Success();
-        } 
+        }
     }
 }

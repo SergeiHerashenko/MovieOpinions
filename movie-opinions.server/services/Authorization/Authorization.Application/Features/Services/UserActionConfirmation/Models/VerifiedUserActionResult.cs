@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
+using Authorization.Domain.Users.Entities.UsersPendingAction.ValueObjects;
 using Authorization.Domain.Users.ValueObjects;
 
 namespace Authorization.Application.Features.Services.UserActionConfirmation.Models
@@ -10,7 +10,7 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation.Mod
         public UserPendingActionId ActionId { get; }
 
         public VerifiedUserActionResult(
-            UserId userId, 
+            UserId userId,
             UserPendingActionId actionId)
         {
             UserId = userId;

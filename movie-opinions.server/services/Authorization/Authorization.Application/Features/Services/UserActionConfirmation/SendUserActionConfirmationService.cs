@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Abstractions.Mapping;
 using Authorization.Application.Abstractions.RateLimiter;
 using Authorization.Application.Abstractions.Services.UserActionConfirmation;
@@ -41,8 +41,8 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
         }
 
         public async Task<Result<SendActionConfirmationResult>> SendAsync<TAction>(
-            SendActionConfirmationData data, 
-            CancellationToken cancellationToken = default) 
+            SendActionConfirmationData data,
+            CancellationToken cancellationToken = default)
             where TAction : UserAction
         {
             if (!Guid.TryParse(data.ContactId, out Guid contactId))

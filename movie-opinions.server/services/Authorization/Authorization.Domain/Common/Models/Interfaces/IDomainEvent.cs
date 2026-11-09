@@ -11,7 +11,7 @@ namespace Authorization.Domain.Common.Models.Interfaces
     {
         /// <summary>
         /// Дата та час настання доменної події.
-        /// 
+        ///
         /// (Date and time when the domain event occurred.)
         /// </summary>
         DateTimeOffset OccurredOn { get; }

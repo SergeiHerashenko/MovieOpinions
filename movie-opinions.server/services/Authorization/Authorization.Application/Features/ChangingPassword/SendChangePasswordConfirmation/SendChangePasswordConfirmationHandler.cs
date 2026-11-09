@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Services.UserActionConfirmation;
+using Authorization.Application.Abstractions.Services.UserActionConfirmation;
 using Authorization.Application.Features.Services.UserActionConfirmation.Models;
 using Authorization.Domain.Results;
 using Authorization.Domain.Users.Entities.UsersPendingAction.Action;
@@ -18,7 +18,7 @@ namespace Authorization.Application.Features.ChangingPassword.SendChangePassword
         }
 
         public async Task<Result<SendChangePasswordConfirmationResult>> Handle(
-            SendChangePasswordConfirmationCommand command, 
+            SendChangePasswordConfirmationCommand command,
             CancellationToken cancellationToken = default)
         {
             var sendData = new SendActionConfirmationData(

@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Communication;
+using Authorization.Application.Abstractions.Communication;
 using Authorization.Application.Common.Enums;
 using Authorization.Application.Common.Events;
 using Authorization.Application.DomainEvents.UserSignedInFromNewDevice.Data;
@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserSignedInFromNewDevice
 {
-    public sealed class UserSignedInFromNewDeviceNotificationHandler 
+    public sealed class UserSignedInFromNewDeviceNotificationHandler
         : INotificationHandler<DomainEventNotification<UserSignedInFromNewDeviceEvent>>
     {
         private readonly INotificationSender _notificationSender;
@@ -40,10 +40,10 @@ namespace Authorization.Application.DomainEvents.UserSignedInFromNewDevice
             );
 
             var notificationCommand = NotificationRequest.Create(
-                domainEvent.UserId, 
+                domainEvent.UserId,
                 domainEvent.Login,
                 NotificationType.NewLogin,
-                channel, 
+                channel,
                 newDeviceLoginNotificationData
             );
 

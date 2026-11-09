@@ -30,7 +30,9 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser.Validation.National
             public ValidationFailure? Validate(NationalNumberValidationData data)
             {
                 if (!string.IsNullOrWhiteSpace(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

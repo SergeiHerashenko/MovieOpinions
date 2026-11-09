@@ -1,7 +1,7 @@
+using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Common.Exceptions.Enums;
 using Authorization.Domain.Common.Models;
 using Authorization.Domain.Results;
-using Authorization.Domain.Common.Exceptions.DomainException;
 using Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction.Validation;
 
 namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Restriction
@@ -65,7 +65,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
             );
 
             if (failure is not null)
+            {
                 return Result<RestrictionRule>.Failure(failure.Value);
+            }
 
             return Result<RestrictionRule>.Success(
                 new RestrictionRule(
@@ -111,7 +113,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects.Rest
             );
 
             if (failure is not null)
+            {
                 throw failure.Value;
+            }
 
             return new RestrictionRule(
                 name,

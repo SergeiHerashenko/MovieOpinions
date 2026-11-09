@@ -9,7 +9,7 @@ namespace Authorization.Domain.Common.Validation
     /// </summary>
     /// <typeparam name="TFailure">
     /// Тип представлення невдалої перевірки, наприклад Error або Exception.
-    /// 
+    ///
     /// (The validation failure representation type, such as Error or Exception.)
     /// </typeparam>
     internal sealed class ValidationRulesFailure<TFailure>
@@ -29,7 +29,7 @@ namespace Authorization.Domain.Common.Validation
         /// </summary>
         /// <param name="value">
         /// Вибране представлення невдалої перевірки.
-        /// 
+        ///
         /// (The selected validation failure representation.)
         /// </param>
         internal ValidationRulesFailure(TFailure value)

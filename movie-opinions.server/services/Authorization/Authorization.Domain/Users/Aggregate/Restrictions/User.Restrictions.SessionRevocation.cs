@@ -500,7 +500,9 @@ namespace Authorization.Domain.Users.Aggregate
             );
 
             if (preparationResult.IsFailure)
+            {
                 return Result.Failure(preparationResult.Errors);
+            }
 
             var plan = preparationResult.Value;
 
@@ -754,7 +756,9 @@ namespace Authorization.Domain.Users.Aggregate
                 var validationResult = restriction.ValidateRevocation(now);
 
                 if (validationResult.IsFailure)
+                {
                     return Result<RemovalSessionPlan>.Failure(validationResult.Errors);
+                }
             }
 
             RemovalSessionPlan plan = new RevokeActiveRestrictionSessionPlan(

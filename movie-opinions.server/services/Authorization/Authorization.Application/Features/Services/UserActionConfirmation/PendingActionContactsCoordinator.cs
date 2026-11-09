@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.AggregateChanges;
+using Authorization.Application.Abstractions.AggregateChanges;
 using Authorization.Application.Abstractions.Clock;
 using Authorization.Application.Abstractions.Persistence;
 using Authorization.Application.Abstractions.Services.UserActionConfirmation;
@@ -42,8 +42,8 @@ namespace Authorization.Application.Features.Services.UserActionConfirmation
         }
 
         public async Task<Result<IReadOnlyCollection<ActiveContactChannel>>> GetAsync(
-            UserId userId, 
-            UserPendingActionId actionId, 
+            UserId userId,
+            UserPendingActionId actionId,
             CancellationToken cancellationToken = default)
         {
             var activeChannelsResult = await _activeContactsProvider.GetActiveContactsAsync(

@@ -4,7 +4,7 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
 {
     /// <summary>
     /// Виняток, що виникає при спробі виконати недопустиму операцію у доменному шарі.
-    /// 
+    ///
     /// (Exception that occurs when an attempt is made to perform an invalid operation in the domain layer.)
     /// </summary>
     public sealed class DomainInvalidOperationException : BaseException
@@ -21,42 +21,42 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// <summary>
         /// Створює виняток для випадку, коли здійснюється спроба отримати значення,
         /// доступ до якого неможливий у поточному стані системи.
-        /// 
+        ///
         /// (Creates an exception for cases when an attempt is made to access a value that is
         /// unavailable in the current state.)
         /// </summary>
         /// <typeparam name="TType">
         /// Тип, у якому виконується некоректна операція.
-        /// 
+        ///
         /// (The type in which the invalid operation is performed.)
         /// </typeparam>
         /// <param name="valueName">
         /// Назва значення або властивості, до яких намагалися отримати доступ.
-        /// 
+        ///
         /// (The name of the value or property that was accessed.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Read.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Read.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
@@ -107,41 +107,41 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         #region NullCallback
         /// <summary>
         /// Створює виняток для випадку, коли переданий колбек (функція зворотного виклику) виявився null.
-        /// 
+        ///
         /// (Creates an exception for cases when a provided callback delegate is null.)
         /// </summary>
         /// <typeparam name="TType">
         /// Тип, у якому виконується некоректна операція.
-        /// 
+        ///
         /// (The type in which the invalid operation is performed.)
         /// </typeparam>
         /// <param name="callbackName">
         /// Назва колбеку, значення якого дорівнює null.
-        /// 
+        ///
         /// (The name of the callback whose value is null.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Read.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Read.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>
@@ -198,50 +198,50 @@ namespace Authorization.Domain.Common.Exceptions.DomainException
         /// <summary>
         /// Створює виняток для випадку, коли порушено передумову (precondition)
         /// або необхідний стан для виконання операції.
-        /// 
+        ///
         /// (Creates an exception for cases when a precondition or required state for executing an
         /// operation is violated.)
         /// </summary>
         /// <typeparam name="TType">
         /// Тип, у якому виконується некоректна операція.
-        /// 
+        ///
         /// (The type in which the invalid operation is performed.)
         /// </typeparam>
         /// <param name="sourceContext">
         /// Назва компонента, правила або методу,
         /// у якому виявлено порушення передумови.
-        /// 
+        ///
         /// (The name of the component, rule, or method
         /// where the precondition violation was detected.)
         /// </param>
         /// <param name="prerequisite">
         /// Опис умови, яка має виконуватися для здійснення операції.
-        /// 
+        ///
         /// (A description of the condition that must hold
         /// for the operation to proceed.)
         /// </param>
         /// <param name="operationType">
         /// Операція, під час якої виявлено проблему.
         /// За замовчуванням — Read.
-        /// 
+        ///
         /// (The operation during which the issue was detected.
         /// Defaults to Read.)
         /// </param>
         /// <param name="message">
         /// Діагностичне повідомлення. Якщо null, формується стандартне.
-        /// 
+        ///
         /// (The diagnostic message. If null, a default message is generated.)
         /// </param>
         /// <param name="context">
         /// Додаткові дані, ключі яких додаються до контексту
         /// з префіксом "Custom_".
-        /// 
+        ///
         /// (Additional data whose keys are added to the context
         /// with the "Custom_" prefix.)
         /// </param>
         /// <param name="innerException">
         /// Початковий виняток, що спричинив проблему, якщо він є.
-        /// 
+        ///
         /// (The original exception that caused the issue, if any.)
         /// </param>
         /// <returns>

@@ -1,4 +1,4 @@
-﻿using Authorization.Application.Abstractions.Persistence;
+using Authorization.Application.Abstractions.Persistence;
 using Authorization.Domain.Users.ValueObjects.LoginUser;
 using Authorization.Domain.UsersPendingRegistration;
 using Authorization.Domain.UsersPendingRegistration.ValueObjects;
@@ -11,7 +11,7 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserPendingRegis
         private readonly AdoUserPendingRegistrationCommandRepository _adoUserPendingRegistrationCommandRepository;
 
         public AdoUserPendingRegistrationRepository(
-            AdoUserPendingRegistrationQueryRepository adoUserPendingRegistrationQueryRepository, 
+            AdoUserPendingRegistrationQueryRepository adoUserPendingRegistrationQueryRepository,
             AdoUserPendingRegistrationCommandRepository adoUserPendingRegistrationCommandRepository)
         {
             _adoUserPendingRegistrationQueryRepository = adoUserPendingRegistrationQueryRepository;

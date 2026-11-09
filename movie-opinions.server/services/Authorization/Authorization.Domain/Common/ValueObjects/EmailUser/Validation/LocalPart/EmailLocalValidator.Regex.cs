@@ -55,7 +55,9 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser.Validation.LocalPar
                 }
 
                 if (EmailLocalRegex.IsMatch(data.Value))
+                {
                     return null;
+                }
 
                 return new ValidationFailure()
                 {

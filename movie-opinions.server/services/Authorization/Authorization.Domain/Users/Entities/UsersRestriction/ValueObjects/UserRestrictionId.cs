@@ -63,7 +63,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction.ValueObjects
         public static UserRestrictionId Restore(Guid value)
         {
             if (value == Guid.Empty)
+            {
                 throw DomainDataInconsistencyException.Empty<UserRestrictionId>(nameof(value));
+            }
 
             return new(value);
         }

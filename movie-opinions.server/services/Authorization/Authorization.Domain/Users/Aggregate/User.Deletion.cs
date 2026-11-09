@@ -36,18 +36,18 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="now">
         /// Час видалення облікового запису.
-        /// 
+        ///
         /// (Time the account is marked as deleted.)
         /// </param>
         /// <param name="reason">
         /// Причина видалення облікового запису.
-        /// 
+        ///
         /// (Account deletion reason.)
         /// </param>
         /// <returns>
         /// Успіх після створення стану видалення або помилка,
         /// якщо обліковий запис уже видалений.
-        /// 
+        ///
         /// (Success after establishing the deletion state,
         /// or an error if the account is already deleted.)
         /// </returns>
@@ -63,7 +63,9 @@ namespace Authorization.Domain.Users.Aggregate
             EnsureValidOperationTimestamp(now);
 
             if (IsDeleted)
+            {
                 return Result.Failure(UserErrors.UserAlreadyDeleted<User>());
+            }
 
             var deletion = UserDeletion.Create(
                 Id,
@@ -108,12 +110,12 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="now">
         /// Час відновлення облікового запису.
-        /// 
+        ///
         /// (Time the account is restored.)
         /// </param>
         /// <returns>
         /// Успіх після відновлення або відповідна доменна помилка.
-        /// 
+        ///
         /// (Success after restoration, or the corresponding domain error.)
         /// </returns>
         public Result Undelete(DateTimeOffset now)
@@ -123,12 +125,16 @@ namespace Authorization.Domain.Users.Aggregate
             var deletion = _deletion;
 
             if (deletion is null)
+            {
                 return Result.Failure(UserErrors.UserNotDeleted<User>());
+            }
 
             var result = deletion.Undelete(now);
 
             if (result.IsFailure)
+            {
                 return result;
+            }
 
             _deletion = null;
             UpdatedAt = now;
@@ -173,13 +179,13 @@ namespace Authorization.Domain.Users.Aggregate
         /// </summary>
         /// <param name="now">
         /// Час перевірки та можливої фіналізації стану видалення.
-        /// 
+        ///
         /// (Time of the check and possible finalization of the deletion state.)
         /// </param>
         /// <returns>
         /// <see langword="true"/>, якщо сутність видалення переведено
         /// в остаточний стан; інакше — <see langword="false"/>.
-        /// 
+        ///
         /// (<see langword="true"/> if the deletion entity transitions
         /// to its final state; otherwise, <see langword="false"/>.)
         /// </returns>
@@ -190,10 +196,14 @@ namespace Authorization.Domain.Users.Aggregate
             var deletion = _deletion;
 
             if (deletion is null)
+            {
                 return false;
+            }
 
             if (!deletion.TryMarkAsPermanentlyDeleted(now))
+            {
                 return false;
+            }
 
             AddDomainEvent(new UserAccountDeletionFinalizedEvent(
                 Id,
@@ -230,7 +240,9 @@ namespace Authorization.Domain.Users.Aggregate
         public Result<UserDeletion> GetDeletion()
         {
             if (_deletion is null)
+            {
                 return Result<UserDeletion>.Failure(UserErrors.UserNotDeleted<User>());
+            }
 
             return Result<UserDeletion>.Success(_deletion);
         }

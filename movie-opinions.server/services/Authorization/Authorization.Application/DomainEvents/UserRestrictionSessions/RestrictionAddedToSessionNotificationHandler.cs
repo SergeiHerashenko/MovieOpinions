@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Authorization.Application.DomainEvents.UserRestrictionSessions
 {
-    public sealed class RestrictionAddedToSessionNotificationHandler 
+    public sealed class RestrictionAddedToSessionNotificationHandler
         : INotificationHandler<DomainEventNotification<UserRestrictionsAddedToSessionEvent>>
     {
         private readonly INotificationSender _notificationSender;
@@ -21,7 +21,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
         }
 
         public async Task Handle(
-            DomainEventNotification<UserRestrictionsAddedToSessionEvent> notification, 
+            DomainEventNotification<UserRestrictionsAddedToSessionEvent> notification,
             CancellationToken cancellationToken = default)
         {
             var domainEvent = notification.DomainEvent;
@@ -35,7 +35,7 @@ namespace Authorization.Application.DomainEvents.UserRestrictionSessions
                 .ToList();
 
             var sessionData = new SessionRestrictionNotificationData(
-                restrictionItems, 
+                restrictionItems,
                 domainEvent.TotalBlockedMinutes,
                 domainEvent.RestrictionType.ToString()
             );

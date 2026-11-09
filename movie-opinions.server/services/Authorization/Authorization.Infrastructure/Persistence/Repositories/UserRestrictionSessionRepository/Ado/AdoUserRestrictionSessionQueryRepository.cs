@@ -1,4 +1,4 @@
-﻿using Authorization.Domain.Users.Entities.UsersRestrictionSession;
+using Authorization.Domain.Users.Entities.UsersRestrictionSession;
 using Authorization.Domain.Users.Entities.UsersRestrictionSession.ValueObjects;
 using Authorization.Domain.Users.Enums;
 using Authorization.Domain.Users.ValueObjects;
@@ -23,11 +23,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
         {
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
-                var sql = @"SELECT 
-                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes 
-                        FROM 
-                            User_Restriction_Session 
-                        WHERE 
+                var sql = @"SELECT
+                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes
+                        FROM
+                            User_Restriction_Session
+                        WHERE
                             id = @Id;";
 
                 await using var command = new NpgsqlCommand(sql, connection);
@@ -51,11 +51,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
         {
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
-                var sql = @"SELECT 
-                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes 
-                        FROM 
-                            User_Restriction_Session 
-                        WHERE 
+                var sql = @"SELECT
+                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes
+                        FROM
+                            User_Restriction_Session
+                        WHERE
                             user_id = @UserId AND restriction_type = @RestrictionType;";
 
                 await using var command = new NpgsqlCommand(sql, connection);
@@ -80,11 +80,11 @@ namespace Authorization.Infrastructure.Persistence.Repositories.UserRestrictionS
         {
             return await ExecuteQueryAsync(async (connection, ct) =>
             {
-                var sql = @"SELECT 
-                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes 
-                        FROM 
-                            User_Restriction_Session 
-                        WHERE 
+                var sql = @"SELECT
+                            id, created_at, user_id, active_restrictions_ids, restriction_type, total_blocked_minutes
+                        FROM
+                            User_Restriction_Session
+                        WHERE
                             user_id = @UserId;";
 
                 await using var command = new NpgsqlCommand(sql, connection);
