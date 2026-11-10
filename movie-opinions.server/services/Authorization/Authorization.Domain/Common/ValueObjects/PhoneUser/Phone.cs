@@ -66,10 +66,10 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
         /// </param>
         /// <returns>
         /// Успішний результат із повним телефонним номером
-        /// або перша виявлена помилка політики.
+        /// або перша виявлена помилка структурної валідації чи політики.
         ///
         /// (A successful result containing the complete telephone
-        /// number, or the first policy error.)
+        /// number, or the first structural-validation or policy error.)
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо одна зі складових відсутня.

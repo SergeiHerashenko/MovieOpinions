@@ -5,13 +5,18 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
 {
     public class ConfirmationFlowTokenTests
     {
+        #region Helpers: test data
+        // Фіксовані байти дозволяють змінювати формат токена без випадкових даних.
+        // Fixed bytes let the tests vary token format without random input.
         private static string Base64ForBytes(byte fillValue = 0, int byteCount = 64)
         {
             var bytes = new byte[byteCount];
             Array.Fill(bytes, fillValue);
             return Convert.ToBase64String(bytes);
         }
+        #endregion
 
+        #region Create
         [Fact]
         public void Create_GeneratesValidBase64Token()
         {
@@ -68,7 +73,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
                 parsed.GetHashCode()
             );
         }
+        #endregion
 
+        #region Parse: valid tokens
         [Theory]
         [InlineData((byte)0)]
         [InlineData((byte)251)]
@@ -88,7 +95,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
                 result.Value.Value
             );
         }
+        #endregion
 
+        #region Parse: required value
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -143,7 +152,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
                 error.Code
             );
         }
+        #endregion
 
+        #region Parse: length validation
         [Theory]
         [InlineData(1)]
         [InlineData(87)]
@@ -201,7 +212,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
                 error.Code
             );
         }
+        #endregion
 
+        #region Parse: Base64 format
         [Theory]
         [InlineData('!')]
         [InlineData('@')]
@@ -268,6 +281,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
             AssertInvalidFormat(endsWithTripleEquals);
         }
 
+        // Однакова довжина Base64 не гарантує потрібної кількості декодованих байтів.
+        // The expected Base64 length does not guarantee the required decoded byte count.
         [Theory]
         [InlineData(65)]
         [InlineData(66)]
@@ -363,7 +378,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
 
             AssertInvalidFormat(invalidValue);
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidToken_ReturnsSingleStringComponent()
         {
@@ -394,7 +411,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
             Assert.False(firstResult.Value.Equals((object)secondResult.Value));
             Assert.False(secondResult.Value.Equals((object)firstResult.Value));
         }
+        #endregion
 
+        #region Helpers: assertions
         private static void AssertInvalidFormat(string value)
         {
             var result = ConfirmationFlowToken.Parse(value);
@@ -420,5 +439,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Value
                 error.Message
             );
         }
+        #endregion
     }
 }

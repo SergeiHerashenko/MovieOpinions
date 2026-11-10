@@ -4,6 +4,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
 {
     public class FlowTokenTests
     {
+        #region Helpers
+        // Тестовий нащадок відкриває protected-операції без зміни production-класу.
+        // The test subclass exposes protected operations without changing the production class.
         private sealed class TestFlowToken : FlowToken
         {
             public TestFlowToken(string value)
@@ -39,7 +42,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
 
             return Convert.ToBase64String(bytes);
         }
+        #endregion
 
+        #region Constructor
         [Fact]
         public void Constructor_ProvidedValue_SetsValue()
         {
@@ -52,7 +57,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
                 token.Value
             );
         }
+        #endregion
 
+        #region Token generation
         [Fact]
         public void ExpectedEncodedLength_Returns88()
         {
@@ -79,7 +86,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
                 value
             );
         }
+        #endregion
 
+        #region HasExpectedLength
         [Fact]
         public void HasExpectedLength_Exactly88Characters_ReturnsTrue()
         {
@@ -108,7 +117,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
 
             Assert.True(TestFlowToken.CheckLength(value));
         }
+        #endregion
 
+        #region HasValidFormat
         [Theory]
         [InlineData((byte)0)]
         [InlineData((byte)251)]
@@ -133,6 +144,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
             Assert.False(TestFlowToken.CheckFormat(value));
         }
 
+        // Однакова довжина Base64 не гарантує однакову кількість декодованих байтів.
+        // The same Base64 length does not guarantee the same decoded byte count.
         [Theory]
         [InlineData(65)]
         [InlineData(66)]
@@ -180,6 +193,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
             Assert.False(TestFlowToken.CheckFormat(new string(chars)));
         }
 
+        // Декодування допускає пробіли, але перевірка довжини враховує їх.
+        // Decoding accepts whitespace, while the length check still counts it.
         [Theory]
         [InlineData(0)]
         [InlineData(8)]
@@ -216,7 +231,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
 
             Assert.False(TestFlowToken.CheckFormat(value));
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidToken_ReturnsSingleStringComponent()
         {
@@ -274,5 +291,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

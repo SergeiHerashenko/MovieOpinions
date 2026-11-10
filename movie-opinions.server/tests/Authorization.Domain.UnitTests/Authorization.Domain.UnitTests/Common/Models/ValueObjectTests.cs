@@ -4,6 +4,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
 {
     public class ValueObjectTests
     {
+        #region Helpers
         private class TestValueObject : ValueObject
         {
             private readonly object?[] _components;
@@ -17,6 +18,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
                 => _components;
         }
 
+        // Окремий конкретний тип для перевірок рівності.
+        // A distinct concrete type used in equality tests.
         private sealed class DerivedTestValueObject : TestValueObject
         {
             public DerivedTestValueObject(params object?[] components)
@@ -24,7 +27,11 @@ namespace Authorization.Domain.UnitTests.Common.Models
             {
             }
         }
+        #endregion
 
+        #region Test data
+        // Спільна матриця даних для теорій рівності.
+        // Shared data matrix for equality theories.
         public static TheoryData<object?[], object?[], bool> EqualityCases => new()
         {
             {
@@ -49,7 +56,11 @@ namespace Authorization.Domain.UnitTests.Common.Models
             { new object?[] { "" }, new object?[] { null }, false },
             { new object?[] { "ABC" }, new object?[] { "abc" }, false }
         };
+        #endregion
 
+        #region Equals(object)
+        // Цей метод використовує спільну матрицю EqualityCases.
+        // This method uses the shared EqualityCases matrix.
         [Theory]
         [MemberData(nameof(EqualityCases))]
         public void EqualsObject_SameType_ReturnsExpectedResult(
@@ -68,94 +79,6 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.Equal(
                 expected,
                 second.Equals((object)first)
-            );
-        }
-
-        [Theory]
-        [MemberData(nameof(EqualityCases))]
-        public void EqualsTyped_SameType_ReturnsExpectedResult(
-            object?[] firstComponents,
-            object?[] secondComponents,
-            bool expected)
-        {
-            var first = new TestValueObject(firstComponents);
-            var second = new TestValueObject(secondComponents);
-
-            Assert.Equal(
-                expected,
-                first.Equals((ValueObject)second)
-            );
-
-            Assert.Equal(
-                expected,
-                second.Equals((ValueObject)first)
-            );
-        }
-
-        [Theory]
-        [MemberData(nameof(EqualityCases))]
-        public void EqualityOperator_SameType_ReturnsExpectedResult(
-            object?[] firstComponents,
-            object?[] secondComponents,
-            bool expected)
-        {
-            ValueObject? left = new TestValueObject(firstComponents);
-            ValueObject? right = new TestValueObject(secondComponents);
-
-            Assert.Equal(
-                expected,
-                left == right
-            );
-
-            Assert.Equal(
-                expected,
-                right == left
-            );
-        }
-
-        [Theory]
-        [MemberData(nameof(EqualityCases))]
-        public void InequalityOperator_SameType_ReturnsExpectedResult(
-            object?[] firstComponents,
-            object?[] secondComponents,
-            bool expected)
-        {
-            ValueObject? left = new TestValueObject(firstComponents);
-            ValueObject? right = new TestValueObject(secondComponents);
-
-            Assert.Equal(
-                !expected,
-                left != right
-            );
-
-            Assert.Equal(
-                !expected,
-                right != left
-            );
-        }
-
-        [Theory]
-        [MemberData(nameof(EqualityCases))]
-        public void HashSet_SameType_ReturnsExpectedCount(
-            object?[] firstComponents,
-            object?[] secondComponents,
-            bool expected)
-        {
-            var set = new HashSet<ValueObject>();
-
-            var firstAdded = set.Add(new TestValueObject(firstComponents));
-            var secondAdded = set.Add(new TestValueObject(secondComponents));
-
-            Assert.True(firstAdded);
-
-            Assert.Equal(
-                !expected,
-                secondAdded
-            );
-
-            Assert.Equal(
-                expected ? 1 : 2,
-                set.Count
             );
         }
 
@@ -218,6 +141,31 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
+
+        #region Typed Equals
+        // Цей метод використовує спільну матрицю EqualityCases.
+        // This method uses the shared EqualityCases matrix.
+        [Theory]
+        [MemberData(nameof(EqualityCases))]
+        public void EqualsTyped_SameType_ReturnsExpectedResult(
+            object?[] firstComponents,
+            object?[] secondComponents,
+            bool expected)
+        {
+            var first = new TestValueObject(firstComponents);
+            var second = new TestValueObject(secondComponents);
+
+            Assert.Equal(
+                expected,
+                first.Equals((ValueObject)second)
+            );
+
+            Assert.Equal(
+                expected,
+                second.Equals((ValueObject)first)
+            );
+        }
 
         [Fact]
         public void EqualsTyped_Null_ReturnsFalse()
@@ -243,6 +191,31 @@ namespace Authorization.Domain.UnitTests.Common.Models
 
             Assert.False(baseObject.Equals((ValueObject)derivedObject));
             Assert.False(derivedObject.Equals((ValueObject)baseObject));
+        }
+        #endregion
+
+        #region operator ==
+        // Цей метод використовує спільну матрицю EqualityCases.
+        // This method uses the shared EqualityCases matrix.
+        [Theory]
+        [MemberData(nameof(EqualityCases))]
+        public void EqualityOperator_SameType_ReturnsExpectedResult(
+            object?[] firstComponents,
+            object?[] secondComponents,
+            bool expected)
+        {
+            ValueObject? left = new TestValueObject(firstComponents);
+            ValueObject? right = new TestValueObject(secondComponents);
+
+            Assert.Equal(
+                expected,
+                left == right
+            );
+
+            Assert.Equal(
+                expected,
+                right == left
+            );
         }
 
         [Fact]
@@ -290,6 +263,31 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.False(left == right);
             Assert.False(right == left);
         }
+        #endregion
+
+        #region operator !=
+        // Цей метод використовує спільну матрицю EqualityCases.
+        // This method uses the shared EqualityCases matrix.
+        [Theory]
+        [MemberData(nameof(EqualityCases))]
+        public void InequalityOperator_SameType_ReturnsExpectedResult(
+            object?[] firstComponents,
+            object?[] secondComponents,
+            bool expected)
+        {
+            ValueObject? left = new TestValueObject(firstComponents);
+            ValueObject? right = new TestValueObject(secondComponents);
+
+            Assert.Equal(
+                !expected,
+                left != right
+            );
+
+            Assert.Equal(
+                !expected,
+                right != left
+            );
+        }
 
         [Fact]
         public void InequalityOperator_BothNull_ReturnsFalse()
@@ -336,7 +334,55 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.True(left != right);
             Assert.True(right != left);
         }
+        #endregion
 
+        #region Equality in HashSet
+        // Цей метод використовує спільну матрицю EqualityCases.
+        // This method uses the shared EqualityCases matrix.
+        [Theory]
+        [MemberData(nameof(EqualityCases))]
+        public void HashSet_SameType_ReturnsExpectedCount(
+            object?[] firstComponents,
+            object?[] secondComponents,
+            bool expected)
+        {
+            var set = new HashSet<ValueObject>();
+
+            var firstAdded = set.Add(new TestValueObject(firstComponents));
+            var secondAdded = set.Add(new TestValueObject(secondComponents));
+
+            Assert.True(firstAdded);
+
+            Assert.Equal(
+                !expected,
+                secondAdded
+            );
+
+            Assert.Equal(
+                expected ? 1 : 2,
+                set.Count
+            );
+        }
+
+        [Fact]
+        public void HashSet_DifferentConcreteTypesWithSameComponents_AreStoredSeparately()
+        {
+            var set = new HashSet<ValueObject>();
+
+            var firstAdded = set.Add(new TestValueObject("abc", 42));
+            var secondAdded = set.Add(new DerivedTestValueObject("abc", 42));
+
+            Assert.True(firstAdded);
+            Assert.True(secondAdded);
+
+            Assert.Equal(
+                2,
+                set.Count
+            );
+        }
+        #endregion
+
+        #region GetHashCode
         [Fact]
         public void GetHashCode_SameInstance_ReturnsStableValue()
         {
@@ -407,22 +453,6 @@ namespace Authorization.Domain.UnitTests.Common.Models
                 second.GetHashCode()
             );
         }
-
-        [Fact]
-        public void HashSet_DifferentConcreteTypesWithSameComponents_AreStoredSeparately()
-        {
-            var set = new HashSet<ValueObject>();
-
-            var firstAdded = set.Add(new TestValueObject("abc", 42));
-            var secondAdded = set.Add(new DerivedTestValueObject("abc", 42));
-
-            Assert.True(firstAdded);
-            Assert.True(secondAdded);
-
-            Assert.Equal(
-                2,
-                set.Count
-            );
-        }
+        #endregion
     }
 }

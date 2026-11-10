@@ -6,6 +6,7 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
 {
     public class UserPendingRegistrationIdTests
     {
+        #region Create
         [Fact]
         public void Create_ReturnsNonEmptyVersion7Guid()
         {
@@ -33,7 +34,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 second.Value
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData("11111111-1111-4111-8111-111111111111")]
         [InlineData("0197f1a0-1234-7abc-8def-0123456789ab")]
@@ -88,7 +91,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Implicit conversion
         [Fact]
         public void ImplicitConversion_ValidId_ReturnsUnderlyingGuid()
         {
@@ -102,7 +107,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 actual
             );
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidId_ReturnsSingleGuidComponent()
         {
@@ -157,5 +164,6 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

@@ -14,12 +14,17 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
 {
     public class UserRefreshTokenTests
     {
+        #region Test data
+        // Фіксовані моменти задають початок, середину та кінець строку дії токена.
+        // Fixed instants define the start, middle, and end of the token lifetime.
         private static readonly DateTimeOffset T0 = new(
             2026, 11, 5, 12, 0, 0, TimeSpan.Zero);
 
         private static readonly DateTimeOffset D = T0.AddDays(7);
         private static readonly DateTimeOffset Mid = T0.AddDays(3);
+        #endregion
 
+        #region Helpers: factories
         private static UserId CreateUserId()
             => UserId.Restore(Guid.Parse("11111111-1111-4111-8111-111111111111"));
 
@@ -85,7 +90,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
                 revokedAt
             );
         }
+        #endregion
 
+        #region Helpers: state assertions
+        // Очікуваний стан фіксується до операції, щоб виявити навіть часткову зміну.
+        // The expected state is captured before the operation to detect even partial mutation.
         private static void CaptureAndAssertUnchanged(
             UserRefreshToken entity,
             Action act)
@@ -162,7 +171,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
             Assert.Empty(entity.DomainEvents);
             Assert.Empty(entity.AggregateChanges);
         }
+        #endregion
 
+        #region Helpers: exception assertions
         private static void AssertEmptyField(
             DomainDataInconsistencyException exception,
             string field,
@@ -483,7 +494,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
             Assert.Empty(entity.DomainEvents);
             Assert.Empty(entity.AggregateChanges);
         }
+        #endregion
 
+        #region Create
         [Fact]
         public void Create_ValidArguments_InitializesActiveToken()
         {
@@ -671,7 +684,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
             Assert.Throws<ArgumentOutOfRangeException>(() =>
                 CreateActive(now));
         }
+        #endregion
 
+        #region Restore: valid state
         [Theory]
         [InlineData(TokenStatus.Active)]
         [InlineData(TokenStatus.Expired)]
@@ -819,7 +834,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
                 entity.ExpiresAt
             );
         }
+        #endregion
 
+        #region Restore: required arguments and status
         [Theory]
         [InlineData("userRefreshTokenId")]
         [InlineData("userId")]
@@ -937,7 +954,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
                 exception.Message
             );
         }
+        #endregion
 
+        #region Restore: lifecycle timestamps
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
@@ -1018,6 +1037,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
             );
         }
 
+        // Матриця містить лише несумісні поєднання статусу й часових міток.
+        // The matrix includes only inconsistent status and timestamp-presence combinations.
         public static TheoryData<TokenStatus, bool, bool> InconsistentPresenceCases()
         {
             var data = new TheoryData<TokenStatus, bool, bool>();
@@ -1271,7 +1292,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
                 "Restore"
             );
         }
+        #endregion
 
+        #region Queries
         public static TheoryData<TokenStatus, long, bool> CanBeUsedCases()
         {
             var data = new TheoryData<TokenStatus, long, bool>();
@@ -1434,7 +1457,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
                 }
             }
         }
+        #endregion
 
+        #region Consume and Revoke
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -1537,6 +1562,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
             }
         }
 
+        // Невдале використання простроченого токена водночас переводить його в Expired.
+        // A failed attempt to use an expired token also moves its status to Expired.
         [Theory]
         [InlineData(true, 0)]
         [InlineData(true, 1)]
@@ -1707,7 +1734,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
                 });
             }
         }
+        #endregion
 
+        #region Terminate
         [Theory]
         [InlineData(0)]
         [InlineData(3)]
@@ -1906,5 +1935,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken
 
             Assert.Null(entity.ConsumedAt);
         }
+        #endregion
     }
 }

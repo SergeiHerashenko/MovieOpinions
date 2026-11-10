@@ -14,9 +14,14 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
 {
     public class UserRestrictionSessionTests
     {
+        #region Test data
+        // Фіксований час робить перевірки тривалості й часових меж відтворюваними.
+        // A fixed timestamp makes duration and time boundary checks reproducible.
         private static readonly DateTimeOffset T0 = new(
             2026, 11, 5, 12, 0, 0, TimeSpan.Zero);
+        #endregion
 
+        #region Helpers: factories
         private static UserId User(string suffix = "111111111111")
             => UserId.Restore(Guid.Parse($"11111111-1111-4111-8111-{suffix}"));
 
@@ -94,7 +99,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 )
 
             };
+        #endregion
 
+        #region Helpers: exception assertions
         private static void AssertEmptyField(
             DomainDataInconsistencyException exception,
             string field,
@@ -287,7 +294,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 }
             }
         }
+        #endregion
 
+        #region Helpers: state assertions
+        // Копія ідентифікаторів до операції не залежить від подальших змін сесії.
+        // The identifier snapshot taken before the operation is independent of later session changes.
         private static void CaptureAndAssertUnchanged(
             UserRestrictionSession session,
             Action act)
@@ -335,7 +346,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
             Assert.Empty(session.DomainEvents);
             Assert.Empty(session.AggregateChanges);
         }
+        #endregion
 
+        #region Helpers: collection operations
+        // Один набір сценаріїв перевіряє спільний контракт валідації та зміни колекції.
+        // One scenario set checks the shared contract of collection validation and mutation.
         public enum CollectionOp
         {
             ValidateAdd,
@@ -381,7 +396,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                     break;
             }
         }
+        #endregion
 
+        #region Create: valid state
         [Theory]
         [InlineData(RestrictionType.Ban)]
         [InlineData(RestrictionType.CommentMute)]
@@ -511,7 +528,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 session.TotalBlockedMinutes
             );
         }
+        #endregion
 
+        #region Create: required values and collection contents
         [Theory]
         [InlineData(true, false, "userId")]
         [InlineData(false, true, "userRestrictions")]
@@ -593,7 +612,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 "Create"
             );
         }
+        #endregion
 
+        #region Create: owner and restriction consistency
         [Fact]
         public void Create_RestrictionForDifferentUser_ThrowsInvariant()
         {
@@ -726,7 +747,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 exception.Context["State_TotalCount"]
             );
         }
+        #endregion
 
+        #region Create: duration limits
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -797,7 +820,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 )
             );
         }
+        #endregion
 
+        #region Create: input collection independence
         [Fact]
         public void Create_SourceCollectionChanges_DoNotChangeSession()
         {
@@ -822,6 +847,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
             );
         }
 
+        // Локальний ітератор рахує фактичні проходи вхідною послідовністю.
+        // The local iterator counts actual enumerations of the input sequence.
         [Fact]
         public void Create_EnumerableInput_IsEnumeratedOnce()
         {
@@ -849,7 +876,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 session.TotalBlockedMinutes
             );
         }
+        #endregion
 
+        #region Create: validation order
         [Fact]
         public void Create_ValidationOrder_ReportsFirstViolation()
         {
@@ -958,7 +987,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 dupBeforeOverflow.Context["Rule"]!.ToString()
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData(RestrictionType.Ban, 1)]
         [InlineData(RestrictionType.ChatMute, 60)]
@@ -1312,7 +1343,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 typeBeforeDuration.Context["Field"]
             );
         }
+        #endregion
 
+        #region Time queries and snapshots
         [Theory]
         [InlineData(1)]
         [InlineData(60)]
@@ -1435,6 +1468,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
             });
         }
 
+        // Попередні знімки ідентифікаторів зберігають свій склад після зміни сесії.
+        // Earlier identifier snapshots retain their contents after the session changes.
         [Fact]
         public void ActiveRestrictionIds_ReturnsIndependentSnapshots()
         {
@@ -1496,6 +1531,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
             );
         }
 
+        // Результат залежить від того, чи дійде запит до обчислення дати завершення.
+        // The outcome depends on whether the query reaches the expiration date calculation.
         [Fact]
         public void Queries_ExpirationDateOverflow_ObserveCurrentBehavior()
         {
@@ -1522,7 +1559,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
             Assert.Throws<ArgumentOutOfRangeException>(() =>
                 session.IsExpiredAt(DateTimeOffset.MaxValue));
         }
+        #endregion
 
+        #region ContainsExactly
         [Fact]
         public void ContainsExactly_SameIdsInDifferentOrder_ReturnsTrue()
         {
@@ -1659,7 +1698,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
             CaptureAndAssertUnchanged(session, () =>
                 Assert.True(session.ContainsExactly(Array.Empty<UserRestrictionId>())));
         }
+        #endregion
 
+        #region Test data: collection operations
         public static TheoryData<CollectionOp> AllCollectionOps()
             => new()
             {
@@ -1668,7 +1709,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 CollectionOp.ValidateRemove,
                 CollectionOp.Remove
             };
+        #endregion
 
+        #region Collection operations: common validation
         [Theory]
         [MemberData(nameof(AllCollectionOps))]
         public void CollectionOperations_NullCollection_ThrowsDataInconsistency(CollectionOp op)
@@ -1854,7 +1897,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 );
             });
         }
+        #endregion
 
+        #region Adding restrictions: validation
         [Theory]
         [InlineData(true, RestrictionStatus.Completed)]
         [InlineData(true, RestrictionStatus.Revoked)]
@@ -2356,7 +2401,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 });
             });
         }
+        #endregion
 
+        #region ValidateCanAddRestrictions
         [Fact]
         public void ValidateCanAddRestrictions_ValidBatch_DoesNotMutateSession()
         {
@@ -2385,7 +2432,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 )
             );
         }
+        #endregion
 
+        #region AddRestrictions
         [Fact]
         public void AddRestrictions_ValidBatch_AddsIdsAndDuration()
         {
@@ -2563,7 +2612,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 );
             });
         }
+        #endregion
 
+        #region Removing restrictions: validation
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -2987,7 +3038,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 );
             });
         }
+        #endregion
 
+        #region ValidateCanRemoveRestrictions
         [Theory]
         [InlineData(30, 0, (int)RestrictionSessionRemovalEffect.RemainsActive)]
         [InlineData(30, 29, (int)RestrictionSessionRemovalEffect.RemainsActive)]
@@ -3024,7 +3077,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 );
             });
         }
+        #endregion
 
+        #region RemoveRestrictions
         [Fact]
         public void RemoveRestrictions_PartialBatch_RemovesIdsAndSubtractsDuration()
         {
@@ -3223,7 +3278,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
                 );
             });
         }
+        #endregion
 
+        #region Queries after removing all restrictions
         [Fact]
         public void Queries_AfterRemovingAllRestrictions_ReturnEmptySessionResults()
         {
@@ -3249,5 +3306,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestrictionSession
 
             Assert.True(session.IsExpiredAt(T0));
         }
+        #endregion
     }
 }

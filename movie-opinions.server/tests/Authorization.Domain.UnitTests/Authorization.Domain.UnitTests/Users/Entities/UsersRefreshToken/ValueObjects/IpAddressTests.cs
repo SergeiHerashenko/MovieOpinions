@@ -7,6 +7,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
 {
     public class IpAddressTests
     {
+        #region Helpers
+        // Спільні перевірки розрізняють Result для Create та винятки для Restore.
+        // Shared assertions distinguish Create results from Restore exceptions.
         private static void AssertCreateSuccess(
             string? input,
             string expectedValue)
@@ -173,7 +176,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 exception.Message
             );
         }
+        #endregion
 
+        #region Create and Restore: valid IPv4
         [Theory]
         [InlineData("0.0.0.0")]
         [InlineData("255.255.255.255")]
@@ -202,7 +207,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
         {
             AssertRestoreSuccess(value);
         }
+        #endregion
 
+        #region Create and Restore: required value
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -224,7 +231,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
         {
             AssertRestoreEmpty(value);
         }
+        #endregion
 
+        #region Create and Restore: surrounding whitespace
+        // Create прибирає зовнішні пробіли, тоді як Restore вимагає вже нормалізованого значення.
+        // Create trims surrounding whitespace, while Restore requires an already normalized value.
         [Theory]
         [InlineData(" 192.168.1.1")]
         [InlineData("192.168.1.1 ")]
@@ -247,7 +258,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
         {
             AssertRestoreInvalidFormat(value);
         }
+        #endregion
 
+        #region Create and Restore: IPv4 octets
         [Theory]
         [InlineData("127")]
         [InlineData("127.1")]
@@ -373,7 +386,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
         {
             AssertRestoreInvalidFormat(value);
         }
+        #endregion
 
+        #region Create and Restore: characters and whitespace
         [Theory]
         [InlineData("١.2.3.4")]
         [InlineData("۱.2.3.4")]
@@ -431,7 +446,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
         {
             AssertRestoreInvalidFormat(value);
         }
+        #endregion
 
+        #region Create and Restore: unsupported address forms
         [Theory]
         [InlineData("::1")]
         [InlineData("2001:db8::1")]
@@ -465,7 +482,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
         {
             AssertRestoreInvalidFormat(value);
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidAddress_ReturnsSingleStringComponent()
         {
@@ -529,5 +548,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

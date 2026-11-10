@@ -7,6 +7,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
 {
     public class PhoneCountryCodeTests
     {
+        #region Create
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -378,7 +379,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 error.Code
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -518,6 +521,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             );
         }
 
+        // Restore вимагає канонічний код і не виконує нормалізацію Create.
+        // Restore requires a canonical code and does not apply Create normalization.
         [Theory]
         [InlineData(" +380")]
         [InlineData("+380 ")]
@@ -693,7 +698,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 exception.ExceptionType
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidCode_ReturnsSingleStringComponent()
         {
@@ -718,7 +725,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_TrimmedValue_PreservesEqualityAndHashCode()
         {
@@ -753,5 +762,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

@@ -8,6 +8,7 @@ namespace Authorization.Domain.UnitTests.Results
 {
     public class ResultOfTTests
     {
+        #region Helpers
         private static Error CreateError(
             string code,
             string message,
@@ -19,7 +20,9 @@ namespace Authorization.Domain.UnitTests.Results
                 errorType
             );
         }
+        #endregion
 
+        #region Success
         [Fact]
         public void Success_ReferenceValue_PreservesSameInstance()
         {
@@ -103,7 +106,9 @@ namespace Authorization.Domain.UnitTests.Results
                 result.Value
             );
         }
+        #endregion
 
+        #region Value: successful result
         [Fact]
         public void Value_SuccessfulResult_RepeatedReadsPreserveValueAndState()
         {
@@ -124,7 +129,9 @@ namespace Authorization.Domain.UnitTests.Results
             Assert.False(result.IsFailure);
             Assert.Empty(result.Errors);
         }
+        #endregion
 
+        #region Failure
         [Fact]
         public void Failure_SingleError_ReturnsFailureWithSameError()
         {
@@ -278,7 +285,9 @@ namespace Authorization.Domain.UnitTests.Results
                 exception.Context["Type"]
             );
         }
+        #endregion
 
+        #region Value: failed result
         [Fact]
         public void Value_FailedResultWithValueType_ThrowsDomainInvalidOperationException()
         {
@@ -364,7 +373,11 @@ namespace Authorization.Domain.UnitTests.Results
                 result.Errors.ElementAt(1)
             );
         }
+        #endregion
 
+        #region Helpers: value access diagnostics
+        // Спільна перевірка контракту помилки читання Value для різних типів T.
+        // Shared verification of the Value access error contract across different T types.
         private static void AssertValueAccessOnFailure<T>(Result<T> result)
         {
             var exception = Assert.Throws<DomainInvalidOperationException>(() =>
@@ -401,5 +414,6 @@ namespace Authorization.Domain.UnitTests.Results
                 exception.Context["ValueName"]
             );
         }
+        #endregion
     }
 }

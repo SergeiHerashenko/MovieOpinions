@@ -8,6 +8,7 @@ namespace Authorization.Domain.UnitTests.Common.Guard
 {
     public partial class DomainGuardTests
     {
+        #region AgainstNull
         [Fact]
         public void AgainstNull_NoFields_DoesNotThrow()
         {
@@ -151,6 +152,8 @@ namespace Authorization.Domain.UnitTests.Common.Guard
             Assert.Equal("Email", exception.Context["Type"]);
         }
 
+        // Nullable<T> зі значенням боксується як базовий тип T.
+        // A populated Nullable<T> boxes as its underlying type T.
         [Fact]
         public void AgainstNull_NullableValueWithValue_DoesNotThrow()
         {
@@ -162,6 +165,8 @@ namespace Authorization.Domain.UnitTests.Common.Guard
             );
         }
 
+        // Порожній Nullable<T> під час boxing перетворюється на null.
+        // Boxing an empty Nullable<T> produces null.
         [Fact]
         public void AgainstNull_NullableValueWithoutValue_ThrowsDomainDataInconsistencyException()
         {
@@ -179,5 +184,6 @@ namespace Authorization.Domain.UnitTests.Common.Guard
                 exception.Context["Field"]
             );
         }
+        #endregion
     }
 }

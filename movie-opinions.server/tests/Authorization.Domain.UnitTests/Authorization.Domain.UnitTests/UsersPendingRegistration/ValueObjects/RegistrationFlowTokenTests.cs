@@ -5,13 +5,18 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
 {
     public class RegistrationFlowTokenTests
     {
+        #region Helpers: token data
+        // Керовані байти дають відтворювані Base64-значення потрібного розміру.
+        // Controlled bytes provide reproducible Base64 values of the requested size.
         private static string Base64ForBytes(byte fillValue = 0, int byteCount = 64)
         {
             var bytes = new byte[byteCount];
             Array.Fill(bytes, fillValue);
             return Convert.ToBase64String(bytes);
         }
+        #endregion
 
+        #region Create
         [Fact]
         public void Create_GeneratesValidBase64Token()
         {
@@ -68,7 +73,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 parsed.GetHashCode()
             );
         }
+        #endregion
 
+        #region Parse: valid values
         [Theory]
         [InlineData((byte)0)]
         [InlineData((byte)251)]
@@ -88,7 +95,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 result.Value.Value
             );
         }
+        #endregion
 
+        #region Parse: empty values
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -143,7 +152,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 error.Code
             );
         }
+        #endregion
 
+        #region Parse: length and validation order
         [Theory]
         [InlineData(1)]
         [InlineData(87)]
@@ -201,7 +212,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 error.Code
             );
         }
+        #endregion
 
+        #region Parse: format and decoded size
         [Theory]
         [InlineData('!')]
         [InlineData('@')]
@@ -268,6 +281,8 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
             AssertInvalidFormat(endsWithTripleEquals);
         }
 
+        // Однакова довжина Base64 не гарантує очікуваної кількості декодованих байтів.
+        // The same Base64 length does not guarantee the expected decoded byte count.
         [Theory]
         [InlineData(65)]
         [InlineData(66)]
@@ -283,7 +298,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
 
             AssertInvalidFormat(value);
         }
+        #endregion
 
+        #region Parse: padding and whitespace
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -363,7 +380,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
 
             AssertInvalidFormat(invalidValue);
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidToken_ReturnsSingleStringComponent()
         {
@@ -394,7 +413,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
             Assert.False(firstResult.Value.Equals((object)secondResult.Value));
             Assert.False(secondResult.Value.Equals((object)firstResult.Value));
         }
+        #endregion
 
+        #region Helpers: format assertions
         private static void AssertInvalidFormat(string value)
         {
             var result = RegistrationFlowToken.Parse(value);
@@ -420,5 +441,6 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration.ValueObjects
                 error.Message
             );
         }
+        #endregion
     }
 }

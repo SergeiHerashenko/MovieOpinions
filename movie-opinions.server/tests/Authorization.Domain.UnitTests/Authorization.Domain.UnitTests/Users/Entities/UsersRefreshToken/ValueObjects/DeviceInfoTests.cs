@@ -8,10 +8,15 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
 {
     public class DeviceInfoTests
     {
+        #region Test data
         private const string ValidOs = "Windows 11";
         private const string ValidBrowser = "Chrome";
         private const string ValidModel = "Model X";
+        #endregion
 
+        #region Helpers
+        // Перевірки враховують різні контракти помилок Create і Restore.
+        // Assertions account for the different Create and Restore failure contracts.
         private static void AssertCreateSuccess(
             DeviceType deviceType,
             string operatingSystem,
@@ -294,7 +299,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 exception.Message
             );
         }
+        #endregion
 
+        #region Create and Restore: valid arguments
         [Theory]
         [InlineData(DeviceType.Desktop)]
         [InlineData(DeviceType.Mobile)]
@@ -348,7 +355,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 new string('c', modelLength)
             );
         }
+        #endregion
 
+        #region Create and Restore: exact stored values
         [Fact]
         public void Create_WhitespaceAndCase_PreservesExactValues()
         {
@@ -392,7 +401,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 "iPhone 15 Pro 🙂"
             );
         }
+        #endregion
 
+        #region Create and Restore: length semantics
         [Theory]
         [InlineData("OperatingSystem", 100)]
         [InlineData("Browser", 100)]
@@ -478,6 +489,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             );
         }
 
+        // Один emoji займає дві кодові одиниці UTF-16 у String.Length.
+        // One emoji occupies two UTF-16 code units in String.Length.
         [Theory]
         [InlineData("OperatingSystem", 100)]
         [InlineData("Browser", 100)]
@@ -530,6 +543,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             );
         }
 
+        // Для збережених рядків межа також рахується в кодових одиницях UTF-16.
+        // Stored string boundaries are also measured in UTF-16 code units.
         [Theory]
         [InlineData("OperatingSystem", 100)]
         [InlineData("Browser", 100)]
@@ -572,7 +587,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 maxLength
             );
         }
+        #endregion
 
+        #region Create and Restore: required fields
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -692,7 +709,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 "DeviceModel"
             );
         }
+        #endregion
 
+        #region Create and Restore: device type
         [Theory]
         [InlineData(-1)]
         [InlineData(999)]
@@ -728,7 +747,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 deviceType
             );
         }
+        #endregion
 
+        #region Create and Restore: maximum lengths
         [Theory]
         [InlineData(101)]
         [InlineData(102)]
@@ -842,7 +863,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 200
             );
         }
+        #endregion
 
+        #region Validation order
+        // Кілька порушень задаються разом, щоб перевірити пріоритет повідомленої помилки.
+        // Multiple violations are combined to verify which error takes precedence.
         [Theory]
         [InlineData(true, true, false, "DEVICE_INFO.EMPTY_OPERATING_SYSTEM")]
         [InlineData(true, false, true, "DEVICE_INFO.EMPTY_OPERATING_SYSTEM")]
@@ -1008,7 +1033,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 maximumLength
             );
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidDeviceInfo_ReturnsComponentsInOrder()
         {
@@ -1158,5 +1185,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

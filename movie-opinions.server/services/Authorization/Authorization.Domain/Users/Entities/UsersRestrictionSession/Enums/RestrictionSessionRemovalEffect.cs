@@ -29,9 +29,9 @@ namespace Authorization.Domain.Users.Entities.UsersRestrictionSession.Enums
         BecomesExpired,
 
         /// <summary>
-        /// Строк дії сесії завершився ще до поточної операції.
+        /// Час завершення строку дії сесії вже настав до вилучення обмежень.
         ///
-        /// (The session had already expired before the current operation.)
+        /// (The session expiration time has been reached before any restrictions are removed.)
         /// </summary>
         AlreadyExpired
     }

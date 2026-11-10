@@ -8,12 +8,17 @@ namespace Authorization.Domain.UnitTests.Common.Guard
 {
     public partial class DomainGuardTests
     {
+        #region Test data
+        // Фіксовані дати для відтворюваних часових сценаріїв.
+        // Fixed timestamps for reproducible time-based cases.
         private static readonly DateTimeOffset Minimum = new(
             2026, 10, 30,
             12, 0, 0,
             TimeSpan.Zero
         );
+        #endregion
 
+        #region AgainstEarlierThan
         [Fact]
         public void AgainstEarlierThan_ActualAfterMinimum_DoesNotThrow()
         {
@@ -179,6 +184,8 @@ namespace Authorization.Domain.UnitTests.Common.Guard
             );
         }
 
+        // Різні UTC-зсуви можуть представляти той самий момент часу.
+        // Different UTC offsets can represent the same instant.
         [Fact]
         public void AgainstEarlierThan_SameInstantWithDifferentOffsets_DoesNotThrow()
         {
@@ -191,6 +198,8 @@ namespace Authorization.Domain.UnitTests.Common.Guard
             );
         }
 
+        // Порівнюємо абсолютні моменти часу, попри протилежний порядок локальних годин.
+        // Compare absolute instants despite the opposite ordering of local clock times.
         [Fact]
         public void AgainstEarlierThan_LaterInstantWithEarlierLocalTime_DoesNotThrow()
         {
@@ -205,6 +214,8 @@ namespace Authorization.Domain.UnitTests.Common.Guard
             );
         }
 
+        // Порівнюємо абсолютні моменти часу, попри протилежний порядок локальних годин.
+        // Compare absolute instants despite the opposite ordering of local clock times.
         [Fact]
         public void AgainstEarlierThan_EarlierInstantWithLaterLocalTime_ThrowsDomainDataInconsistencyException()
         {
@@ -220,5 +231,6 @@ namespace Authorization.Domain.UnitTests.Common.Guard
                 )
             );
         }
+        #endregion
     }
 }

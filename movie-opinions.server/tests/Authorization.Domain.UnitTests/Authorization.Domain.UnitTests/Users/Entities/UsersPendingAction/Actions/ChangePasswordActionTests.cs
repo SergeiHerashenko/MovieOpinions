@@ -8,6 +8,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
 {
     public class ChangePasswordActionTests
     {
+        #region Helpers
+        // Для перевірки дії достатньо готового хешу; відкритий пароль тут не потрібний.
+        // The action tests need an existing hash rather than a plaintext password.
         private static Password CreatePassword(string hashValue)
             => Password.Create(PasswordHash.Create(hashValue));
 
@@ -46,7 +49,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Create
         [Theory]
         [InlineData("TEST.HASH")]
         [InlineData("AbCdEf0123+/=")]
@@ -86,7 +91,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 "Create"
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData("TEST.HASH")]
         [InlineData("AbCdEf0123+/=")]
@@ -128,7 +135,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 "Restore"
             );
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidAction_ReturnsSinglePasswordComponent()
         {
@@ -202,5 +211,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

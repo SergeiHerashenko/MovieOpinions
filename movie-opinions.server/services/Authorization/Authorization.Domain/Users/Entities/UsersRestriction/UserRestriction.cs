@@ -412,10 +412,10 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// </param>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо переданий час передує часу створення обмеження
-        /// або поточний чи цільовий статус не підтримується.
+        /// або поточний статус не підтримується.
         ///
         /// (Thrown when the supplied time precedes the restriction
-        /// creation time or the current or target status is unsupported.)
+        /// creation time or the current status is unsupported.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження вже не є активним.
@@ -514,10 +514,10 @@ namespace Authorization.Domain.Users.Entities.UsersRestriction
         /// </param>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо переданий час передує часу створення
-        /// обмеження або поточний чи цільовий статус не підтримується.
+        /// обмеження або поточний статус не підтримується.
         ///
         /// (Thrown when the supplied time precedes the restriction creation
-        /// time or the current or target status is unsupported.)
+        /// time or the current status is unsupported.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
         /// Виникає, якщо обмеження вже не є активним.

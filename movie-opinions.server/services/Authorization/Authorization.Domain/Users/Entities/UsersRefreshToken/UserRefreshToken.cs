@@ -733,9 +733,9 @@ namespace Authorization.Domain.Users.Entities.UsersRefreshToken
         /// caused by expiration or a non-active token status.)
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо час операції передує часу створення токена.
+        /// Виникає, якщо час операції передує створенню токена або цільовий статус не підтримується.
         ///
-        /// (Thrown when the operation time precedes the token creation time.)
+        /// (Thrown when the operation time precedes token creation or the target status is unsupported.)
         /// </exception>
         private Result ChangeTokenStatus(
             DateTimeOffset now,

@@ -5,6 +5,9 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions
 {
     public class BaseExceptionTests
     {
+        #region Helpers
+        // Мінімальний нащадок для доступу до protected-конструктора.
+        // Minimal subtype exposing the protected constructor.
         private sealed class TestException : BaseException
         {
             public TestException(
@@ -22,7 +25,9 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions
             {
             }
         }
+        #endregion
 
+        #region Constructor
         [Theory]
         [InlineData(ExceptionType.DataInconsistency)]
         [InlineData(ExceptionType.InvalidOperation)]
@@ -190,5 +195,6 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions
                 exception.Message
             );
         }
+        #endregion
     }
 }

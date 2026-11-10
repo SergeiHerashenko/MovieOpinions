@@ -10,8 +10,11 @@ namespace Authorization.Domain.UnitTests.Common.Validation
 {
     public class ValidationOrchestratorTests
     {
+        #region Helpers
         private sealed class TestValidationData : IValidationData { }
 
+        // Кероване правило для спостереження за викликами валідатора.
+        // Controllable rule for observing validator calls.
         private sealed class TestRule
             : IValidationRule<TestValidationData, ErrorValidationFailure>
         {
@@ -42,7 +45,9 @@ namespace Authorization.Domain.UnitTests.Common.Validation
                 return _validate(data);
             }
         }
+        #endregion
 
+        #region Constructor
         [Fact]
         public void Constructor_NullRules_ThrowsDomainInvalidOperationException()
         {
@@ -140,6 +145,8 @@ namespace Authorization.Domain.UnitTests.Common.Validation
             );
         }
 
+        // Зміна початкового списку не повинна змінювати збережений склад.
+        // Changing the input list must not alter the stored collection contents.
         [Fact]
         public void Constructor_InputCollectionChanges_DoNotChangeConfiguredRules()
         {
@@ -188,7 +195,9 @@ namespace Authorization.Domain.UnitTests.Common.Validation
                 third.CallCount
             );
         }
+        #endregion
 
+        #region Validate
         [Fact]
         public void Validate_AllRulesPass_ReturnsNullAndExecutesEachRuleOnce()
         {
@@ -287,6 +296,8 @@ namespace Authorization.Domain.UnitTests.Common.Validation
             );
         }
 
+        // За однакового пріоритету важливий початковий порядок правил.
+        // The original rule order matters when priorities are equal.
         [Fact]
         public void Validate_EqualPriorities_PreserveInputOrder()
         {
@@ -487,6 +498,8 @@ namespace Authorization.Domain.UnitTests.Common.Validation
             );
         }
 
+        // Першу помилку визначає пріоритет виконання правил.
+        // Rule execution priority determines the first failure.
         [Fact]
         public void Validate_MultipleFailingRules_ReturnsFirstByPriority()
         {
@@ -735,5 +748,6 @@ namespace Authorization.Domain.UnitTests.Common.Validation
                 secondRule.CallCount
             );
         }
+        #endregion
     }
 }

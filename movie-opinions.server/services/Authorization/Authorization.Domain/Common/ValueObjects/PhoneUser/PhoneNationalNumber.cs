@@ -48,10 +48,10 @@ namespace Authorization.Domain.Common.ValueObjects.PhoneUser
         /// </summary>
         /// <param name="rawNationalNumber">
         /// Зовнішнє представлення національного номера.
-        /// Значення не повинно бути null.
+        /// null розглядається як очікувана помилка валідації.
         ///
         /// (The external national-number representation.
-        /// The value must not be null.)
+        /// null is treated as an expected validation failure.)
         /// </param>
         /// <returns>
         /// Успішний результат із канонічним номером або перша

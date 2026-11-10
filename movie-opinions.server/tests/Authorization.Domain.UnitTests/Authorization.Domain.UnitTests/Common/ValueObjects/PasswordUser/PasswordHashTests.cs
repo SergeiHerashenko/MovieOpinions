@@ -6,6 +6,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
 {
     public class PasswordHashTests
     {
+        #region Create
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -80,6 +81,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
             );
         }
 
+        // Хеш є непрозорим значенням: пробіли не обрізаються.
+        // The hash is an opaque value: whitespace is not trimmed.
         [Theory]
         [InlineData(" TEST.HASH")]
         [InlineData("TEST.HASH ")]
@@ -110,7 +113,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 hash.Value
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -206,7 +211,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 hash.Value
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidHash_ReturnsSingleStringComponent()
         {
@@ -236,7 +243,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_PreservesValueEqualityAndHashCode()
         {
@@ -268,5 +277,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

@@ -12,12 +12,17 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
 {
     public class UserRestrictionTests
     {
+        #region Test data
+        // Фіксовані моменти задають початок, проміжний час і кінець дії правила.
+        // Fixed instants define the start, an intermediate time, and the end of the rule duration.
         private static readonly DateTimeOffset T0 = new(
             2026, 11, 5, 12, 0, 0, TimeSpan.Zero);
 
         private static readonly DateTimeOffset T1 = T0.AddMinutes(30);
         private static readonly DateTimeOffset AfterRule = T0.AddMinutes(60);
+        #endregion
 
+        #region Helpers: factories
         private static UserId CreateUserId()
             => UserId.Restore(Guid.Parse("11111111-1111-4111-8111-111111111111"));
 
@@ -68,7 +73,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 createdAt ?? T0,
                 revokedAt
             );
+        #endregion
 
+        #region Helpers: state assertions
+        // Знімаємо стан до виклику, щоб незалежно перевірити відсутність змін.
+        // Capture state before the call to verify independently that nothing changed.
         private static void CaptureAndAssertUnchanged(
             UserRestriction entity,
             Action act)
@@ -182,7 +191,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
             Assert.Empty(entity.DomainEvents);
             Assert.Empty(entity.AggregateChanges);
         }
+        #endregion
 
+        #region Helpers: exception assertions
         private static void AssertEmptyField(
             DomainDataInconsistencyException exception,
             string field,
@@ -408,7 +419,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 exception.Context["State_TargetStatus"]
             );
         }
+        #endregion
 
+        #region Create: valid state
         [Theory]
         [InlineData(RestrictionType.Ban)]
         [InlineData(RestrictionType.CommentMute)]
@@ -517,7 +530,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 entity.Reason
             );
         }
+        #endregion
 
+        #region Create: validation
         [Theory]
         [InlineData("userId")]
         [InlineData("restrictionRule")]
@@ -644,7 +659,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 "Create"
             );
         }
+        #endregion
 
+        #region Create: date limits and identity
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -673,7 +690,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 second.Id.Value
             );
         }
+        #endregion
 
+        #region Restore: stored values
         [Theory]
         [InlineData(RestrictionStatus.Active, RestrictionType.Ban)]
         [InlineData(RestrictionStatus.Completed, RestrictionType.CommentMute)]
@@ -803,7 +822,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 entity.Reason
             );
         }
+        #endregion
 
+        #region Restore: validation
         [Theory]
         [InlineData("userRestrictionId")]
         [InlineData("userId")]
@@ -976,7 +997,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 exception.Context["State_RevokedAt"]
             );
         }
+        #endregion
 
+        #region Restore: revocation time boundaries
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -1001,6 +1024,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
             );
         }
 
+        // Різні UTC-зсуви можуть представляти той самий момент відкликання.
+        // Different UTC offsets can represent the same revocation instant.
         [Fact]
         public void Restore_RevokedAtAtCreationWithDifferentOffset_Succeeds()
         {
@@ -1021,7 +1046,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 entity.RevokedAt!.Value.Offset
             );
         }
+        #endregion
 
+        #region Restore: validation order and date limits
         [Fact]
         public void Restore_ValidationOrder_ReportsFirstViolation()
         {
@@ -1169,7 +1196,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 );
             }
         }
+        #endregion
 
+        #region ValidateCanComplete
         [Theory]
         [InlineData(0)]
         [InlineData(30)]
@@ -1256,7 +1285,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 );
             });
         }
+        #endregion
 
+        #region ValidateRevocation
         [Theory]
         [InlineData(0)]
         [InlineData(30)]
@@ -1351,7 +1382,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 );
             });
         }
+        #endregion
 
+        #region Complete and Revoke
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -1610,5 +1643,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction
                 });
             }
         }
+        #endregion
     }
 }

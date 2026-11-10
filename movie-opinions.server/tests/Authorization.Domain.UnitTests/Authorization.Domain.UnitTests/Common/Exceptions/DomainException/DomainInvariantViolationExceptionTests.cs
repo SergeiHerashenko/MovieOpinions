@@ -7,6 +7,7 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
 {
     public class DomainInvariantViolationExceptionTests
     {
+        #region BrokenState
         [Fact]
         public void BrokenState_DefaultArguments_SetsExceptionMetadata()
         {
@@ -265,6 +266,8 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
             );
         }
 
+        // У контекст потрапляє рядок "null", а не null-посилання.
+        // The context stores the string "null", not a null reference.
         [Fact]
         public void BrokenState_StateContext_NullValue_IsStoredAsStringNull()
         {
@@ -348,6 +351,8 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
             );
         }
 
+        // Префікс додається знову навіть до вже префіксованого ключа.
+        // The prefix is applied again even to an already-prefixed key.
         [Fact]
         public void BrokenState_AlreadyPrefixedStateKey_AddsPrefixAgain()
         {
@@ -514,5 +519,6 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
 
             Assert.False(second.Context.ContainsKey("State_A"));
         }
+        #endregion
     }
 }

@@ -16,12 +16,17 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
 {
     public class UserPendingActionTests
     {
+        #region Test data
+        // Фіксовані моменти роблять перевірки меж строку дії відтворюваними.
+        // Fixed instants make lifetime boundary checks reproducible.
         private static readonly DateTimeOffset T0 =
             new(2026, 11, 5, 12, 0, 0, TimeSpan.Zero);
 
         private static readonly DateTimeOffset T1 = T0.AddMinutes(1);
         private static readonly DateTimeOffset D = T0.AddMinutes(30);
+        #endregion
 
+        #region Helpers: factories
         private static UserId CreateUserId()
             => UserId.Restore(Guid.Parse("11111111-1111-4111-8111-111111111111"));
 
@@ -122,7 +127,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 D, null, expiredAt, null,
                 ActionStatus.Expired, T0
             );
+        #endregion
 
+        #region Helpers: state assertions
         private static void AssertUnchanged(
             UserPendingAction entity,
             UserPendingActionId expectedId,
@@ -190,6 +197,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
             Assert.Empty(entity.AggregateChanges);
         }
 
+        // Знімок властивостей робиться до виклику, а не після отримання результату.
+        // Properties are captured before the call rather than after obtaining its result.
         private static void CaptureAndAssertUnchanged(
             UserPendingAction entity,
             Action act)
@@ -221,7 +230,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 expectedCancelledTime
             );
         }
+        #endregion
 
+        #region Helpers: exception assertions
         private static void AssertEmptyField(
             DomainDataInconsistencyException exception,
             string field,
@@ -581,7 +592,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 exception.Context["Custom_CurrentTime"]
             );
         }
+        #endregion
 
+        #region Create
         [Theory]
         [InlineData("password")]
         [InlineData("email")]
@@ -761,7 +774,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 )
             );
         }
+        #endregion
 
+        #region Restore: arguments and stored state
         [Theory]
         [InlineData(ActionStatus.Active)]
         [InlineData(ActionStatus.Confirmed)]
@@ -955,7 +970,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 exception.Context["Value"]
             );
         }
+        #endregion
 
+        #region Restore: lifecycle timestamps
         [Theory]
         [InlineData(-1)]
         [InlineData(0)]
@@ -1068,6 +1085,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
             );
         }
 
+        // Генеруємо всі несумісні поєднання статусу та наявності кінцевих часових міток.
+        // Generate every inconsistent combination of status and terminal timestamp presence.
         public static TheoryData<ActionStatus, bool, bool, bool> InconsistentPresenceCases()
         {
             var data = new TheoryData<ActionStatus, bool, bool, bool>();
@@ -1421,7 +1440,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 entity.CancelledTime
             );
         }
+        #endregion
 
+        #region Queries
         [Theory]
         [InlineData(ActionStatus.Active)]
         [InlineData(ActionStatus.Confirmed)]
@@ -1525,7 +1546,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 Assert.False(entity.IsActive(D.ToOffset(TimeSpan.FromMinutes(-15))));
             });
         }
+        #endregion
 
+        #region Validate confirmation and cancellation
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -1887,7 +1910,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 );
             });
         }
+        #endregion
 
+        #region Mark as confirmed or cancelled
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -2314,7 +2339,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 entity.CancelledTime
             );
         }
+        #endregion
 
+        #region ValidateCanExpire
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
@@ -2433,7 +2460,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 });
             }
         }
+        #endregion
 
+        #region MarkAsExpired
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -2609,7 +2638,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 entity.ExpiredAt!.Value.Offset
             );
         }
+        #endregion
 
+        #region Restore: domain operation round trip
+        // Відновлюємо стани, отримані реальними доменними переходами, а не лише фабриками тестів.
+        // Restore states produced by actual domain transitions as well as test factories.
         [Fact]
         public void Restore_StateProducedByDomainOperations_ReconstructsSameState()
         {
@@ -2706,5 +2739,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction
                 expired.CancelledTime
             );
         }
+        #endregion
     }
 }

@@ -132,10 +132,10 @@ namespace Authorization.Domain.Common.ValueObjects.EmailUser
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо збережена email-адреса або одна з її
-        /// складових порушує доменні правила.
+        /// складових порушує структурні правила або канонічний формат.
         ///
         /// (Thrown when the persisted email address or one
-        /// of its components violates domain rules.)
+        /// of its components violates structural rules or canonical form.)
         /// </exception>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає, якщо порушено внутрішню передумову

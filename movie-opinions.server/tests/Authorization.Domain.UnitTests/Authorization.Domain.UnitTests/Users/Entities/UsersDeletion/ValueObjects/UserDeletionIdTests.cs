@@ -6,6 +6,7 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
 {
     public class UserDeletionIdTests
     {
+        #region Create
         [Fact]
         public void Create_ReturnsNonEmptyVersion7Guid()
         {
@@ -33,7 +34,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
                 second.Value
             );
         }
+        #endregion
 
+        #region Restore
+        // Відновлення приймає непорожні GUID різних версій, а не лише згенеровані v7.
+        // Restoration accepts nonempty GUIDs of different versions, beyond generated v7 values.
         [Theory]
         [InlineData("00000000-0000-0000-0000-000000000001")]
         [InlineData("11111111-1111-4111-8111-111111111111")]
@@ -88,7 +93,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Implicit conversion
         [Fact]
         public void ImplicitConversion_ValidId_ReturnsUnderlyingGuid()
         {
@@ -102,7 +109,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
                 actual
             );
         }
+        #endregion
 
+        #region GetEqualityComponents
         [Fact]
         public void GetEqualityComponents_ValidId_ReturnsSingleGuidComponent()
         {
@@ -118,7 +127,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
 
             Assert.IsType<Guid>(component);
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void CreateThenRestore_PreservesValueEqualityAndHashCode()
         {
@@ -158,5 +169,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

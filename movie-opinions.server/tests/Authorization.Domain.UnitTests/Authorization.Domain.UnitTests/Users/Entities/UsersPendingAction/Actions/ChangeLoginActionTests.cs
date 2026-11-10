@@ -11,6 +11,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
 {
     public class ChangeLoginActionTests
     {
+        #region Helpers
+        // Фабрики відновлюють логіни, щоб перевіряти контракт дії окремо від правил реєстрації.
+        // Factories restore logins to test the action contract separately from registration rules.
         private static Login CreateEmailLogin(string address = "serhii@example.com")
             => Login.From(Email.Restore(address));
 
@@ -59,7 +62,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Create
         [Theory]
         [InlineData(true, "serhii@example.com", null, null, "serhii@example.com")]
         [InlineData(false, null, "+380", "981234567", "+380981234567")]
@@ -111,6 +116,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
             );
         }
 
+        // Історичний заблокований логін передається як уже відновлене значення.
+        // A historically blocked login is supplied as an already restored value.
         [Theory]
         [InlineData("email", "serhii@mail.ru", null, null, "serhii@mail.ru")]
         [InlineData("phone", null, "+7", "9012345678", "+79012345678")]
@@ -147,7 +154,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 action.Value
             );
         }
+        #endregion
 
+        #region Restore: email
         [Theory]
         [InlineData("serhii@example.com")]
         [InlineData("a.b@sub.example.com")]
@@ -225,7 +234,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 action.Value
             );
         }
+        #endregion
 
+        #region Restore: phone
         [Theory]
         [InlineData("+380", "981234567", "+380981234567")]
         [InlineData("+1", "2025550123", "+12025550123")]
@@ -312,7 +323,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 action.Value
             );
         }
+        #endregion
 
+        #region Equality
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -445,5 +458,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
             Assert.False(emailAction.Equals((object)phoneAction));
             Assert.False(phoneAction.Equals((object)emailAction));
         }
+        #endregion
     }
 }

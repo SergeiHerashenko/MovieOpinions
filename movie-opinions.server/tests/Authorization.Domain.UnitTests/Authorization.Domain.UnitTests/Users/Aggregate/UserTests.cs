@@ -15,12 +15,17 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
 {
     public partial class UserTests
     {
+        #region Test data
+        // Фіксований час відокремлює перевірки агрегату від системного годинника.
+        // A fixed timestamp keeps aggregate checks independent of the system clock.
         private static readonly DateTimeOffset T0 = new(
             2026, 11, 5,
             12, 0, 0,
             TimeSpan.Zero
         );
+        #endregion
 
+        #region Helpers
         private static Login CreateEmailLogin()
             => Login.From(Email.Restore("serhii@example.com"));
 
@@ -69,7 +74,9 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
                 exception.Context["Field"]
             );
         }
+        #endregion
 
+        #region Create: initial state and event
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -169,7 +176,9 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
                 domainEvent.OccurredOn
             );
         }
+        #endregion
 
+        #region Create: required arguments
         [Fact]
         public void Create_NullLogin_ThrowsDomainDataInconsistencyException()
         {
@@ -220,7 +229,9 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
                 "login"
             );
         }
+        #endregion
 
+        #region Create: timestamps
         [Theory]
         [InlineData(0)]
         [InlineData(2)]
@@ -290,7 +301,9 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
                 domainEvent.OccurredOn
             );
         }
+        #endregion
 
+        #region Create: independent instances
         [Fact]
         public void Create_SeparateCalls_CreateIndependentUsers()
         {
@@ -347,7 +360,9 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
                 second.DomainEvents[0]
             );
         }
+        #endregion
 
+        #region Read-only collections
         [Fact]
         public void RefreshTokens_NewUser_RejectsExternalMutation()
         {
@@ -395,5 +410,6 @@ namespace Authorization.Domain.UnitTests.Users.Aggregate
 
             Assert.Empty(user.RestrictionSessions);
         }
+        #endregion
     }
 }

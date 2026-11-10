@@ -149,24 +149,26 @@ namespace Authorization.Domain.Users.Aggregate
         /// <exception cref="DomainDataInconsistencyException">
         /// Виникає, якщо обов’язкове збережене значення відсутнє,
         /// роль не підтримується, кількість невдалих спроб виходить
-        /// за допустимі межі або пов’язаний об’єкт був створений
-        /// раніше за користувача.
+        /// за допустимі межі, пов’язаний об’єкт був створений
+        /// раніше за користувача або час оновлення користувача передує
+        /// відомій даті створення чи оновлення пов’язаної сутності.
         ///
         /// (Thrown when a required stored value is missing,
         /// the role is unsupported, the failed password attempt count
-        /// is outside the allowed range, or a related object was created
-        /// before the user.)
+        /// is outside the allowed range, a related object was created
+        /// before the user, or the user update time precedes a known
+        /// creation or update timestamp of a related entity.)
         /// </exception>
         /// <exception cref="DomainInvariantViolationException">
-        /// Виникає, якщо час останнього оновлення або входу передує
-        /// створенню користувача чи пов’язані об’єкти порушують вимоги
-        /// до складу колекцій, належності користувачу, статусів
-        /// або взаємної узгодженості.
+        /// Виникає, якщо часові позначки користувача неузгоджені,
+        /// необхідний час оновлення відсутній або пов’язані об’єкти
+        /// порушують вимоги до складу колекцій, належності користувачу,
+        /// статусів чи взаємної узгодженості.
         ///
-        /// (Thrown when the last update or login time precedes
-        /// user creation, or related objects violate requirements
-        /// for collection contents, ownership, statuses,
-        /// or mutual consistency.)
+        /// (Thrown when user timestamps are inconsistent,
+        /// a required update timestamp is missing, or related objects
+        /// violate requirements for collection contents, ownership,
+        /// statuses, or mutual consistency.)
         /// </exception>
         public static User Restore(
             UserId userId,
@@ -686,8 +688,8 @@ namespace Authorization.Domain.Users.Aggregate
         /// Переконується, що набори типів обмежень і сесій точно збігаються,
         /// набір ідентифікаторів у кожній сесії точно відповідає набору
         /// активних обмежень її типу, загальна тривалість сесії дорівнює
-        /// сумі тривалостей цих обмежень, а жодне обмеження не було
-        /// створене раніше за відповідну сесію.
+        /// сумі тривалостей цих обмежень, а кожне обмеження створене
+        /// не раніше початку та строго раніше завершення відповідної сесії.
         ///
         /// Порожні колекції є допустимими, якщо обмеження та сесії
         /// одночасно відсутні.
@@ -698,8 +700,8 @@ namespace Authorization.Domain.Users.Aggregate
         /// Ensures that restriction and session type sets match exactly,
         /// each session's restriction identifier set exactly matches
         /// the active restrictions of its type, its total blocked duration
-        /// equals the sum of their durations, and no restriction was created
-        /// before its corresponding session.
+        /// equals the sum of their durations, and every restriction was created
+        /// at or after its session's start and strictly before its expiration.
         ///
         /// Empty collections are valid when both restrictions and sessions
         /// are absent.)

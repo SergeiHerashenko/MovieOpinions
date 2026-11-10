@@ -7,6 +7,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
 {
     public class PhoneNationalNumberTests
     {
+        #region Create
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -266,6 +267,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             );
         }
 
+        // Межі стосуються кількості цифр після видалення дозволеного форматування.
+        // The boundaries apply to digit count after removing allowed formatting.
         [Theory]
         [InlineData(4)]
         [InlineData(13)]
@@ -361,7 +364,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 error.Code
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -762,7 +767,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 exception.ExceptionType
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidNumber_ReturnsSingleStringComponent()
         {
@@ -787,7 +794,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_FormattedNumber_PreservesEqualityAndHashCode()
         {
@@ -822,5 +831,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

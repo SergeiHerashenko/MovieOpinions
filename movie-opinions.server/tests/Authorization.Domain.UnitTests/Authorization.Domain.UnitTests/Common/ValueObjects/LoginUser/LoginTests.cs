@@ -9,6 +9,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
 {
     public class LoginTests
     {
+        #region From: supported login types
         [Theory]
         [InlineData("serhii@example.com")]
         [InlineData("a.b@sub.example.com")]
@@ -68,7 +69,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 login.Value
             );
         }
+        #endregion
 
+        #region From: required arguments
         [Fact]
         public void From_NullEmail_ThrowsDomainDataInconsistencyException()
         {
@@ -148,7 +151,11 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region From: restored business state
+        // From обгортає відновлений VO без повторного застосування правил Create.
+        // From wraps a restored value object without reapplying the Create rules.
         [Fact]
         public void From_RestoredBlockedEmail_ReturnsEmailLogin()
         {
@@ -202,5 +209,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 login.Value
             );
         }
+        #endregion
     }
 }

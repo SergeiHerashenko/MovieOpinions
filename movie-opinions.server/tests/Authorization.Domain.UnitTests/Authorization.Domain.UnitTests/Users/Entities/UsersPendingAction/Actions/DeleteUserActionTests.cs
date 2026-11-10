@@ -8,6 +8,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
 {
     public class DeleteUserActionTests
     {
+        #region Helpers
+        // Фабрика перевіряє успішність підготовки причини до створення самої дії.
+        // The factory checks that preparing the reason succeeds before creating the action.
         private static DeletionReason CreateReason(string? rawReason)
         {
             var result = DeletionReason.Create(rawReason);
@@ -49,7 +52,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Create
         [Theory]
         [InlineData("Account closed", "Account closed")]
         [InlineData("Причина видалення", "Причина видалення")]
@@ -90,7 +95,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 "Create"
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData("Account closed", "Account closed")]
         [InlineData("Причина видалення", "Причина видалення")]
@@ -131,7 +138,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 "Restore"
             );
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidAction_ReturnsSingleReasonComponent()
         {
@@ -203,5 +212,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

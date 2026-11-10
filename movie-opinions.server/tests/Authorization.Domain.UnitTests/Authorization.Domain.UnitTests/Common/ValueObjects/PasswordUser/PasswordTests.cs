@@ -6,6 +6,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
 {
     public class PasswordTests
     {
+        #region Create
         [Fact]
         public void Create_NullHash_ThrowsDomainDataInconsistencyException()
         {
@@ -59,7 +60,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 password.Value
             );
         }
+        #endregion
 
+        #region Restore
         [Fact]
         public void Restore_NullHash_ThrowsDomainDataInconsistencyException()
         {
@@ -113,7 +116,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 password.Value
             );
         }
+        #endregion
 
+        #region Matches
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -146,6 +151,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
             );
         }
 
+        // Callback перевіряє делегування оригінальних об’єктів без власного хешування.
+        // The callback verifies delegation of original objects without performing hashing.
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -417,7 +424,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 secondReceivedHash
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidPassword_ReturnsSingleHashString()
         {
@@ -453,7 +462,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_EquivalentHashes_PreservesEqualityAndHashCode()
         {
@@ -491,5 +502,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

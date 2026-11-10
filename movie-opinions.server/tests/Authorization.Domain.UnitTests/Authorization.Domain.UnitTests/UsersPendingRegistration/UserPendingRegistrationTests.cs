@@ -12,12 +12,17 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
 {
     public class UserPendingRegistrationTests
     {
+        #region Test data
+        // Фіксовані дати забезпечують відтворюваність сценаріїв строку дії.
+        // Fixed timestamps make lifetime scenarios reproducible.
         private static readonly DateTimeOffset T0 = new(
             2026, 11, 3,
             12, 0, 0,
             TimeSpan.Zero
         );
+        #endregion
 
+        #region Helpers
         private static Login CreateEmailLogin()
             => Login.From(Email.Restore("serhii@example.com"));
 
@@ -114,6 +119,8 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
             );
         }
 
+        // Очікуваний стан передається зі знімка, зробленого до операції.
+        // Expected state comes from a snapshot captured before the operation.
         private static void AssertUnchangedState(
             UserPendingRegistration aggregate,
             UserPendingRegistrationId expectedId,
@@ -174,7 +181,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
 
             Assert.Empty(aggregate.AggregateChanges);
         }
+        #endregion
 
+        #region Create
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -381,7 +390,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 Assert.Single(second.DomainEvents)
             );
         }
+        #endregion
 
+        #region Restore: stored state
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -441,7 +452,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
             Assert.Empty(aggregate.DomainEvents);
             Assert.Empty(aggregate.AggregateChanges);
         }
+        #endregion
 
+        #region Restore: required arguments
         [Fact]
         public void Restore_NullId_ThrowsDomainDataInconsistencyException()
         {
@@ -554,7 +567,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 "Restore"
             );
         }
+        #endregion
 
+        #region Restore: lifetime and validation order
         [Theory]
         [InlineData(-TimeSpan.TicksPerMinute)]
         [InlineData(-1L)]
@@ -645,6 +660,8 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
             );
         }
 
+        // Restore зберігає історичний строк дії, навіть якщо перевірка вже показує спливання.
+        // Restore preserves the stored lifetime even when an expiration check reports it elapsed.
         [Fact]
         public void Restore_ExpiredFlow_PreservesStoredState()
         {
@@ -678,6 +695,8 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
             );
         }
 
+        // Різні UTC-зсуви можуть представляти той самий момент часу.
+        // Different UTC offsets can represent the same instant.
         [Fact]
         public void Restore_EqualInstantsWithDifferentOffsets_ThrowsDomainInvariantViolationException()
         {
@@ -800,7 +819,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 "Restore"
             );
         }
+        #endregion
 
+        #region Refresh: state and event
         [Fact]
         public void Refresh_ValidArguments_RenewsFlowAndPreservesIdentity()
         {
@@ -884,7 +905,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 domainEvent.OccurredOn
             );
         }
+        #endregion
 
+        #region Refresh: invalid arguments
         [Fact]
         public void Refresh_NullPassword_ThrowsWithoutChangingState()
         {
@@ -1045,7 +1068,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 aggregate.RegistrationFlowToken.Value
             );
         }
+        #endregion
 
+        #region Refresh: timestamps and renewal
         [Theory]
         [InlineData(0)]
         [InlineData(2)]
@@ -1196,7 +1221,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 domainEvent.OccurredOn.Offset
             );
         }
+        #endregion
 
+        #region Refresh: repeated calls and events
         [Fact]
         public void Refresh_ExistingEvents_AppendsWithoutRemovingThem()
         {
@@ -1326,6 +1353,8 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
             );
         }
 
+        // Межа тут — CreatedAt: переданий час може передувати попередньому Refresh.
+        // The boundary here is CreatedAt: the supplied time may precede the previous Refresh.
         [Fact]
         public void Refresh_TimeBeforePreviousRefreshButNotBeforeCreation_UsesProvidedTime()
         {
@@ -1385,7 +1414,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 secondEvent.OccurredOn
             );
         }
+        #endregion
 
+        #region IsExpired
         [Theory]
         [InlineData(-TimeSpan.TicksPerHour)]
         [InlineData(0)]
@@ -1500,7 +1531,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
             Assert.False(aggregate.IsExpired(T0.AddHours(1)));
             Assert.True(aggregate.IsExpired(T0.AddMinutes(30).AddHours(1)));
         }
+        #endregion
 
+        #region Restoration round trips
         [Fact]
         public void CreateThenRestore_PreservesStateWithoutRecordingEvents()
         {
@@ -1601,7 +1634,9 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
 
             Assert.Empty(restored.DomainEvents);
         }
+        #endregion
 
+        #region Timestamp limits
         [Fact]
         public void Create_BoundaryTimestampsWithinRange_Succeeds()
         {
@@ -1668,5 +1703,6 @@ namespace Authorization.Domain.UnitTests.UsersPendingRegistration
                 aggregate.Refresh(CreateOtherPassword(), overflowTime)
             );
         }
+        #endregion
     }
 }

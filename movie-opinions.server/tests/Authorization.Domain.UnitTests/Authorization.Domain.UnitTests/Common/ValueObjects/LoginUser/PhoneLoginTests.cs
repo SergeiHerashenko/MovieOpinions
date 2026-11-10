@@ -8,6 +8,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
 {
     public class PhoneLoginTests
     {
+        #region Restore: value and component validation
         [Theory]
         [InlineData("+380", "981234567", "+380981234567")]
         [InlineData("+1", "2025550123", "+12025550123")]
@@ -555,7 +556,11 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 exception.Message
             );
         }
+        #endregion
 
+        #region Restore: stored business state and validation priority
+        // Відновлення логіна зберігає історичний номер без бізнес-перевірок Create.
+        // Login restoration preserves a historical phone without the Create business checks.
         [Theory]
         [InlineData("+7", "9012345678", "+79012345678")]
         [InlineData("+7", "3012345678", "+73012345678")]
@@ -641,7 +646,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 exception.Context["Field"]
                 );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidLogin_ReturnsSinglePhoneComponent()
         {
@@ -680,7 +687,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region From and Restore
         [Fact]
         public void FromThenRestore_NormalizedPhone_PreservesEqualityAndHashCode()
         {
@@ -761,5 +770,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

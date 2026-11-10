@@ -13,6 +13,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
 {
     public class UserDeletionTests
     {
+        #region Test data
+        // Фіксовані дати відділяють момент видалення від граничного строку відновлення.
+        // Fixed dates distinguish the deletion instant from the restoration deadline.
         private static readonly DateTimeOffset T0 = new(
             2026, 11, 5,
             12, 0, 0,
@@ -21,7 +24,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
 
         private static readonly DateTimeOffset D = T0.AddDays(30);
         private static readonly DateTimeOffset T1 = T0.AddDays(1);
+        #endregion
 
+        #region Helpers: factories
         private static UserId CreateUserId()
             => UserId.Restore(Guid.Parse("11111111-1111-4111-8111-111111111111"));
 
@@ -102,7 +107,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 DeletionStatus.PermanentlyDeleted,
                 updatedAt
             );
+        #endregion
 
+        #region Helpers: exception assertions
         private static void AssertEmptyField(
             DomainDataInconsistencyException exception,
             string field,
@@ -213,7 +220,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 exception.Context["State_RestoreUntil"]
             );
         }
+        #endregion
 
+        #region Helpers: state assertions
+        // Порівнюємо всі поля зі знімком до операції, а не лише ідентичність сутності.
+        // Compare every field with its pre-operation snapshot, beyond entity identity.
         private static void AssertUnchanged(
             UserDeletion entity,
             UserDeletionId expectedId,
@@ -274,7 +285,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
             Assert.Empty(entity.DomainEvents);
             Assert.Empty(entity.AggregateChanges);
         }
+        #endregion
 
+        #region Create
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -462,7 +475,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 )
             );
         }
+        #endregion
 
+        #region Restore: valid stored states
         [Theory]
         [InlineData(1)]
         [InlineData(TimeSpan.TicksPerDay)]
@@ -579,7 +594,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
 
             Assert.Null(entity.RestoredAt);
         }
+        #endregion
 
+        #region Restore: required values and status
         [Theory]
         [InlineData("userDeletionId")]
         [InlineData("userId")]
@@ -681,7 +698,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 exception.Context["Value"]
             );
         }
+        #endregion
 
+        #region Restore: timestamp and state consistency
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
@@ -998,7 +1017,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 D
             );
         }
+        #endregion
 
+        #region Restore: offsets and date limits
+        // Часові мітки з різними зсувами можуть означати один момент переходу.
+        // Timestamps with different offsets can represent the same transition instant.
         [Fact]
         public void Restore_SameTransitionInstantWithDifferentOffsets_Succeeds()
         {
@@ -1092,7 +1115,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 entity.UpdatedAt
             );
         }
+        #endregion
 
+        #region Undelete
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -1211,6 +1236,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
             );
         }
 
+        // Сам момент граничного строку вже не входить до дозволеного часу відновлення.
+        // The deadline instant itself is already outside the permitted restoration window.
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -1428,7 +1455,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 entity.UpdatedAt!.Value.Offset
             );
         }
+        #endregion
 
+        #region TryMarkAsPermanentlyDeleted
         [Theory]
         [InlineData(DeletionStatus.Deleted)]
         [InlineData(DeletionStatus.Restored)]
@@ -1691,7 +1720,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 entity.UpdatedAt!.Value.Offset
             );
         }
+        #endregion
 
+        #region Restore: states produced by domain operations
+        // Відновлення має приймати стани, отримані через реальні доменні переходи.
+        // Restoration must accept states produced by actual domain transitions.
         [Fact]
         public void Restore_StateProducedByDomainOperations_ReconstructsSameState()
         {
@@ -1795,5 +1828,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion
                 afterPermanent.UpdatedAt
             );
         }
+        #endregion
     }
 }

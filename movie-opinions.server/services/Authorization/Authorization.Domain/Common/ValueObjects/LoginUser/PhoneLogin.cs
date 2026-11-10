@@ -63,11 +63,11 @@ namespace Authorization.Domain.Common.ValueObjects.LoginUser
         /// (The restored telephone login.)
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо одна зі збережених складових порушує
-        /// доменні правила або не відповідає канонічному формату.
+        /// Виникає, якщо збережені складові або їхнє поєднання
+        /// порушують структурні правила чи канонічний формат номера.
         ///
-        /// (Thrown when a persisted component violates domain rules
-        /// or does not match the canonical format.)
+        /// (Thrown when a persisted component or the component combination
+        /// violates structural rules or the canonical telephone-number format.)
         /// </exception>
         /// <exception cref="DomainInvalidOperationException">
         /// Виникає, якщо порушено внутрішню передумову

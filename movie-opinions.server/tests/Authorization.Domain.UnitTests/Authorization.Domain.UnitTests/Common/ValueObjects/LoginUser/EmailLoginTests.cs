@@ -8,6 +8,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
 {
     public class EmailLoginTests
     {
+        #region Restore: value and component validation
         [Theory]
         [InlineData("serhii@example.com", "serhii", "example.com")]
         [InlineData("a.b@sub.example.com", "a.b", "sub.example.com")]
@@ -372,7 +373,11 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Restore: stored business state
+        // Відновлення логіна допускає історичну адресу із заблокованим доменом.
+        // Login restoration accepts a historical address with a blocked domain.
         [Theory]
         [InlineData("serhii@mail.ru", "serhii", "mail.ru")]
         [InlineData("serhii@yandex.ru", "serhii", "yandex.ru")]
@@ -403,7 +408,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 login.Type
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidLogin_ReturnsSingleEmailComponent()
         {
@@ -430,7 +437,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region From and Restore
         [Fact]
         public void FromThenRestore_NormalizedEmail_PreservesEqualityAndHashCode()
         {
@@ -474,5 +483,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.LoginUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

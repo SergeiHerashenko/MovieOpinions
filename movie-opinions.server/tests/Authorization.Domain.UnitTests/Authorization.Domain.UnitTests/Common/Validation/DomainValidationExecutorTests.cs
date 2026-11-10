@@ -9,6 +9,7 @@ namespace Authorization.Domain.UnitTests.Common.Validation
 {
     public class DomainValidationExecutorTests
     {
+        #region Helpers
         private sealed class TestValidationData : IValidationData { }
 
         private sealed class TestOperationData : IHasOperationType
@@ -21,6 +22,8 @@ namespace Authorization.Domain.UnitTests.Common.Validation
             }
         }
 
+        // Кероване правило для спостереження за викликами валідатора.
+        // Controllable rule for observing validator calls.
         private sealed class TestRule<TData, TFailure>
             : IValidationRule<TData, TFailure>
             where TData : class, IValidationData
@@ -48,7 +51,9 @@ namespace Authorization.Domain.UnitTests.Common.Validation
                 return _validate(data);
             }
         }
+        #endregion
 
+        #region ValidateForError
         [Fact]
         public void ValidateForError_AllRulesPass_ReturnsNull()
         {
@@ -240,7 +245,9 @@ namespace Authorization.Domain.UnitTests.Common.Validation
                 rule.CallCount
             );
         }
+        #endregion
 
+        #region ValidateForException
         [Fact]
         public void ValidateForException_AllRulesPass_ReturnsNull()
         {
@@ -331,8 +338,7 @@ namespace Authorization.Domain.UnitTests.Common.Validation
         [InlineData(OperationType.Delete)]
         [InlineData(OperationType.Read)]
         [InlineData(OperationType.Compare)]
-        public void ValidateForException_ExceptionFactory_ReceivesOperationType(
-    OperationType operationType)
+        public void ValidateForException_ExceptionFactory_ReceivesOperationType(OperationType operationType)
         {
             var data = new TestOperationData(operationType);
 
@@ -591,5 +597,6 @@ namespace Authorization.Domain.UnitTests.Common.Validation
                 rule.LastData
             );
         }
+        #endregion
     }
 }

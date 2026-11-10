@@ -5,6 +5,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
 {
     public class PlainPasswordTests
     {
+        #region Create: required value and length
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -134,7 +135,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 error.Message
             );
         }
+        #endregion
 
+        #region Create: character requirements
         [Fact]
         public void Create_MissingLowercase_ReturnsMissingLowercaseFailure()
         {
@@ -265,7 +268,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 result.Value.Value
             );
         }
+        #endregion
 
+        #region Create: original value and Unicode length
         [Theory]
         [InlineData("Abcdefg1!")]
         [InlineData("Abcdefg1🙂")]
@@ -350,6 +355,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
             );
         }
 
+        // Емодзі займає дві кодові одиниці UTF-16, які входять до string.Length.
+        // The emoji occupies two UTF-16 code units, both counted by string.Length.
         [Fact]
         public void Create_SupplementaryCharacterAtMaximumLength_Succeeds()
         {
@@ -398,7 +405,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 error.Message
             );
         }
+        #endregion
 
+        #region Create: validation priority
         [Theory]
         [InlineData("12345678", "PLAIN_PASSWORD.MISSING_LOWERCASE_LETTER_PLAIN_PASSWORD")]
         [InlineData("ABCDEFGH", "PLAIN_PASSWORD.MISSING_LOWERCASE_LETTER_PLAIN_PASSWORD")]
@@ -471,7 +480,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 error.Code
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidPassword_ReturnsSingleStringComponent()
         {
@@ -545,5 +556,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PasswordUser
                 second.GetHashCode()
             );
         }
+        #endregion
     }
 }

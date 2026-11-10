@@ -8,6 +8,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
 {
     public class EmailDomainPartTests
     {
+        #region Helpers
+        // Перші мітки мають допустиму довжину, щоб перевіряти загальну межу домену.
+        // The first labels have valid lengths to isolate the total domain length boundary.
         private static string BuildDomainOfLength(int length)
         {
             return
@@ -16,7 +19,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 new string('c', 63) + "." +
                 new string('d', length - 192);
         }
+        #endregion
 
+        #region Create: format and length
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -290,7 +295,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 error.Message
             );
         }
+        #endregion
 
+        #region Create: blocked domains
         [Theory]
         [InlineData("mail.ru")]
         [InlineData("yandex.ru")]
@@ -366,7 +373,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 result.Value.Value
             );
         }
+        #endregion
 
+        #region Create: normalization and validation priority
         [Theory]
         [InlineData(" example.com", "example.com")]
         [InlineData("example.com ", "example.com")]
@@ -508,7 +517,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 error.Code
             );
         }
+        #endregion
 
+        #region Restore: format and length
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -670,6 +681,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
             AssertInvalidFormatOnRestore("a." + new string('b', 64));
         }
 
+        #region Helpers: Restore diagnostics
+        // Спільна перевірка діагностики для різних порушень формату домену.
+        // Shared diagnostic assertions for different domain format violations.
         private static void AssertInvalidFormatOnRestore(string value)
         {
             var exception = Assert.Throws<DomainDataInconsistencyException>(() =>
@@ -711,6 +725,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 exception.Context["ValueType"]
             );
         }
+        #endregion
 
         [Theory]
         [InlineData(254)]
@@ -768,7 +783,11 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 exception.Context["Custom_MaximumLength"]
             );
         }
+        #endregion
 
+        #region Restore: stored business state and canonical form
+        // Restore зберігає історичний домен попри заборону для нових значень.
+        // Restore preserves a historical domain despite the restriction on new values.
         [Theory]
         [InlineData("mail.ru")]
         [InlineData("yandex.ru")]
@@ -895,7 +914,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 exception.ExceptionType
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidValue_ReturnsSingleStringComponent()
         {
@@ -920,7 +941,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_NormalizedValue_PreservesEqualityAndHashCode()
         {
@@ -955,5 +978,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

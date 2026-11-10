@@ -56,10 +56,10 @@ namespace Authorization.Domain.Common.ValueObjects.LoginUser
         /// (The restored email login.)
         /// </returns>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо збережена email-адреса порушує доменні правила
+        /// Виникає, якщо збережена email-адреса порушує структурні правила
         /// або не відповідає канонічному формату.
         ///
-        /// (Thrown when the persisted email address violates domain
+        /// (Thrown when the persisted email address violates structural
         /// rules or does not match the canonical format.)
         /// </exception>
         /// <exception cref="DomainInvalidOperationException">

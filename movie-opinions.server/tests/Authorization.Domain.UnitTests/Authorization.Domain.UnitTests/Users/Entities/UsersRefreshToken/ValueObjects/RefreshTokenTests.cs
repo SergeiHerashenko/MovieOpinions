@@ -6,6 +6,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
 {
     public class RefreshTokenTests
     {
+        #region Helpers: test data
+        // Фіксовані байти ізолюють перевірки формату від генерації випадкового токена.
+        // Fixed bytes isolate format checks from random token generation.
         private static string Base64ForBytes(
             byte fillValue = 0,
             int byteCount = 64)
@@ -14,7 +17,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             Array.Fill(bytes, fillValue);
             return Convert.ToBase64String(bytes);
         }
+        #endregion
 
+        #region Helpers: assertions
         private static void AssertEmptyValue(DomainDataInconsistencyException exception)
         {
             Assert.Equal(
@@ -153,7 +158,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 exception.Message
             );
         }
+        #endregion
 
+        #region Create
         [Fact]
         public void Create_GeneratesValidBase64Token()
         {
@@ -215,7 +222,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 restored.GetHashCode()
             );
         }
+        #endregion
 
+        #region Restore: valid tokens
         [Theory]
         [InlineData((byte)0)]
         [InlineData((byte)251)]
@@ -231,7 +240,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 token.Value
             );
         }
+        #endregion
 
+        #region Restore: required value
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -261,7 +272,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
 
             AssertEmptyValue(exception);
         }
+        #endregion
 
+        #region Restore: length validation
         [Theory]
         [InlineData(1)]
         [InlineData(87)]
@@ -281,6 +294,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             );
         }
 
+        // За одночасних порушень довжина перевіряється раніше за формат.
+        // When both rules fail, length validation takes precedence over format.
         [Theory]
         [InlineData(87)]
         [InlineData(89)]
@@ -297,7 +312,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
                 length
             );
         }
+        #endregion
 
+        #region Restore: Base64 format
         [Theory]
         [InlineData('!')]
         [InlineData('@')]
@@ -366,6 +383,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             );
         }
 
+        // Довжина рядка може бути правильною, хоча токен кодує зайві байти.
+        // The string length can be correct while the token encodes too many bytes.
         [Theory]
         [InlineData(65)]
         [InlineData(66)]
@@ -467,7 +486,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
 
             AssertInvalidFormat(exception);
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidToken_ReturnsSingleStringComponent()
         {
@@ -493,5 +514,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRefreshToken.ValueO
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

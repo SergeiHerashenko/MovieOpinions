@@ -6,6 +6,7 @@ namespace Authorization.Domain.UnitTests.Common.Errors
 {
     public class ErrorTests
     {
+        #region Constructor
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -124,5 +125,6 @@ namespace Authorization.Domain.UnitTests.Common.Errors
                 error.ErrorType
             );
         }
+        #endregion
     }
 }

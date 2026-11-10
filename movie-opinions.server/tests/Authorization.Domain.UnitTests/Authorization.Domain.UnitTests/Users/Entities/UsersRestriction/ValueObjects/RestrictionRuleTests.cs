@@ -7,9 +7,12 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
 {
     public class RestrictionRuleTests
     {
+        #region Test data
         private const string ValidName = "LoginAttemptLimit";
         private const int ValidDuration = 60;
+        #endregion
 
+        #region Helpers: successful results
         private static void AssertCreateSuccess(
             string name,
             int durationMinutes)
@@ -53,7 +56,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
                 rule.DurationMinutes
             );
         }
+        #endregion
 
+        #region Helpers: Create failures
         private static void AssertCreateEmptyName(
             string? name,
             int durationMinutes)
@@ -116,7 +121,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
                 error.Message
             );
         }
+        #endregion
 
+        #region Helpers: Restore exceptions
+        // Для збережених некоректних даних перевіряємо виняток і діагностичний контекст.
+        // Invalid stored data is checked through its exception and diagnostic context.
         private static void AssertRestoreEmptyName(
             string? name,
             int durationMinutes)
@@ -217,7 +226,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
                 exception.Message
             );
         }
+        #endregion
 
+        #region Create and Restore: valid values
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -332,7 +343,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
                 ValidDuration
             );
         }
+        #endregion
 
+        #region Create and Restore: validation
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -387,6 +400,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
             );
         }
 
+        // За двох порушень порожня назва має пріоритет над некоректною тривалістю.
+        // When both values are invalid, the empty name takes priority over the invalid duration.
         [Theory]
         [InlineData(null, 0)]
         [InlineData("", -1)]
@@ -418,7 +433,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
                 durationMinutes
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidRule_ReturnsComponentsInOrder()
         {
@@ -543,5 +560,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersRestriction.ValueOb
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

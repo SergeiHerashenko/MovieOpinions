@@ -4,9 +4,10 @@ namespace Authorization.Domain.UnitTests.Common.Models
 {
     public class StronglyTypedIdTests
     {
+        #region Helpers
         private sealed class TestId<TValue> : StronglyTypedId<TValue>
         {
-            public override TValue  Value { get; }
+            public override TValue Value { get; }
 
             public TestId(TValue value)
             {
@@ -14,6 +15,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             }
         }
 
+        // Окремий конкретний тип для перевірок рівності.
+        // A distinct concrete type used in equality tests.
         private sealed class OtherTestId<TValue> : StronglyTypedId<TValue>
         {
             public override TValue Value { get; }
@@ -23,7 +26,9 @@ namespace Authorization.Domain.UnitTests.Common.Models
                 Value = value;
             }
         }
+        #endregion
 
+        #region GetEqualityComponents
         [Fact]
         public void GetEqualityComponents_GuidValue_ReturnsSingleComponent()
         {
@@ -102,6 +107,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.Null(component);
         }
 
+        // Порожній Nullable<T> під час boxing перетворюється на null.
+        // Boxing an empty Nullable<T> produces null.
         [Fact]
         public void GetEqualityComponents_NullableValueWithoutValue_ReturnsSingleNullComponent()
         {
@@ -112,6 +119,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.Null(component);
         }
 
+        // Nullable<T> зі значенням боксується як базовий тип T.
+        // A populated Nullable<T> boxes as its underlying type T.
         [Theory]
         [InlineData(0)]
         [InlineData(42)]
@@ -163,7 +172,9 @@ namespace Authorization.Domain.UnitTests.Common.Models
                 second
             );
         }
+        #endregion
 
+        #region Equals
         [Fact]
         public void Equals_SameConcreteTypeAndValue_ReturnsTrue()
         {
@@ -200,5 +211,6 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

@@ -7,6 +7,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
 {
     public class PhoneTests
     {
+        #region Create
         [Fact]
         public void Create_NullCountryCode_ThrowsDomainDataInconsistencyException()
         {
@@ -150,6 +151,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             );
         }
 
+        // Один код країни може мати кілька допустимих довжин у каталозі.
+        // A shared country code can have several valid lengths in the catalog.
         [Theory]
         [InlineData("1234")]
         [InlineData("12345")]
@@ -455,7 +458,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 result.Value.GetFullNumber()
             );
         }
+        #endregion
 
+        #region Restore
         [Fact]
         public void Restore_NullCountryCode_ThrowsDomainDataInconsistencyException()
         {
@@ -641,6 +646,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             );
         }
 
+        // Історичний номер зберігається без повторного застосування заборони Create.
+        // The stored phone is preserved without reapplying the Create restriction.
         [Theory]
         [InlineData("9")]
         [InlineData("3")]
@@ -669,7 +676,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 phone.PhoneNationalNumber
             );
         }
+        #endregion
 
+        #region GetFullNumber
         [Theory]
         [InlineData("+380", "981234567", "+380981234567")]
         [InlineData("+1", "2025550123", "+12025550123")]
@@ -689,7 +698,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 phone.GetFullNumber()
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidPhone_ReturnsCodeThenNumber()
         {
@@ -739,7 +750,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_ValidPhone_PreservesValuesAndEquality()
         {
@@ -808,5 +821,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.PhoneUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

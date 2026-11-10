@@ -8,6 +8,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
 {
     public class EmailTests
     {
+        #region Helpers
+        // Фіксуємо локальну частину й мітки домену, щоб ізолювати загальну довжину.
+        // Fix the local part and domain labels to isolate the total email length.
         private static string BuildEmailOfLength(int length)
         {
             var domainLength = length - 51;
@@ -19,7 +22,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
 
             return new string('a', 50) + "@" + domain;
         }
+        #endregion
 
+        #region Create: structure and normalization
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -212,7 +217,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 CultureInfo.CurrentCulture = previousCulture;
             }
         }
+        #endregion
 
+        #region Create: length boundaries
         [Theory]
         [InlineData(7)]
         [InlineData(8)]
@@ -316,7 +323,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 error.Message
             );
         }
+        #endregion
 
+        #region Create: component failures and validation priority
         [Theory]
         [InlineData("a..b@example.com")]
         [InlineData(".ab@example.com")]
@@ -553,7 +562,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 error.Message
             );
         }
+        #endregion
 
+        #region Restore: structure and length
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -796,7 +807,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 exception.Context["Custom_MaximumLength"]
             );
         }
+        #endregion
 
+        #region Restore: component state and validation priority
         [Theory]
         [InlineData("a..b@example.com")]
         [InlineData(".ab@example.com")]
@@ -996,6 +1009,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
             );
         }
 
+        // Збережену адресу не відхиляємо лише через поточну бізнес-заборону Create.
+        // A stored address is not rejected solely by the current Create business restriction.
         [Theory]
         [InlineData("serhii@mail.ru", "serhii", "mail.ru")]
         [InlineData("serhii@yandex.ru", "serhii", "yandex.ru")]
@@ -1142,7 +1157,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 exception.Context["Custom_MaximumLength"]
             );
         }
+        #endregion
 
+        #region GetFullEmail
         [Theory]
         [InlineData("serhii@example.com")]
         [InlineData("a.b@sub.example.com")]
@@ -1156,7 +1173,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 email.GetFullEmail()
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidEmail_ReturnsLocalThenDomain()
         {
@@ -1193,7 +1212,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_NormalizedEmail_PreservesValuesAndEquality()
         {
@@ -1244,5 +1265,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

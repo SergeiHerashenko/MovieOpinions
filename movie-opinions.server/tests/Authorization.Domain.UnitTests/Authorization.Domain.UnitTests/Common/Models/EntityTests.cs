@@ -5,6 +5,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
 {
     public class EntityTests
     {
+        #region Helpers
         private class TestEntity : Entity<Guid>
         {
             public TestEntity(
@@ -19,6 +20,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
                 => AddAggregateChange(aggregateChange);
         }
 
+        // Окремий конкретний тип для перевірок рівності.
+        // A distinct concrete type used in equality tests.
         private sealed class DerivedTestEntity : TestEntity
         {
             public DerivedTestEntity(
@@ -44,6 +47,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
             {
             }
         }
+        #endregion
 
         #region Constructor
         [Fact]
@@ -77,6 +81,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             );
         }
 
+        // Поточний час перевіряється в межах вікна до та після виклику.
+        // Current time is checked within a before-and-after invocation window.
         [Fact]
         public void Constructor_NullCreatedAt_UsesCurrentUtcTime()
         {
@@ -115,7 +121,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
         }
         #endregion
 
-        #region EqualsObject
+        #region Equals(object)
         [Fact]
         public void EqualsObject_Null_ReturnsFalse()
         {
@@ -195,6 +201,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.False(derivedEntity.Equals((object)baseEntity));
         }
 
+        // Час створення не входить до ідентичності сутності.
+        // Creation time is not part of entity identity.
         [Fact]
         public void EqualsObject_SameTypeAndIdWithDifferentCreatedAt_ReturnsTrue()
         {
@@ -214,7 +222,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
         }
         #endregion
 
-        #region EqualsTyped
+        #region Typed Equals
         [Fact]
         public void EqualsTyped_Null_ReturnsFalse()
         {
@@ -285,6 +293,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.False(derivedEntity.Equals((Entity<Guid>)baseEntity));
         }
 
+        // Час створення не входить до ідентичності сутності.
+        // Creation time is not part of entity identity.
         [Fact]
         public void EqualsTyped_SameTypeAndIdWithDifferentCreatedAt_ReturnsTrue()
         {
@@ -304,7 +314,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
         }
         #endregion
 
-        #region EqualityOperator
+        #region operator ==
         [Fact]
         public void EqualityOperator_BothNull_ReturnsTrue()
         {
@@ -396,6 +406,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.False(right == left);
         }
 
+        // Час створення не входить до ідентичності сутності.
+        // Creation time is not part of entity identity.
         [Fact]
         public void EqualityOperator_SameTypeAndIdWithDifferentCreatedAt_ReturnsTrue()
         {
@@ -415,7 +427,7 @@ namespace Authorization.Domain.UnitTests.Common.Models
         }
         #endregion
 
-        #region InequalityOperator
+        #region operator !=
         [Fact]
         public void InequalityOperator_BothNull_ReturnsFalse()
         {
@@ -507,6 +519,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             Assert.True(right != left);
         }
 
+        // Час створення не входить до ідентичності сутності.
+        // Creation time is not part of entity identity.
         [Fact]
         public void InequalityOperator_SameTypeAndIdWithDifferentCreatedAt_ReturnsFalse()
         {
@@ -573,6 +587,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             );
         }
 
+        // Час створення не входить до ідентичності сутності.
+        // Creation time is not part of entity identity.
         [Fact]
         public void GetHashCode_SameTypeAndIdWithDifferentCreatedAt_ReturnsSameHashCode()
         {
@@ -868,6 +884,8 @@ namespace Authorization.Domain.UnitTests.Common.Models
             );
         }
 
+        // Це живе read-only представлення, а не незалежний знімок.
+        // This is a live read-only view rather than an independent snapshot.
         [Fact]
         public void DomainEvents_PreviouslyObtainedView_ReflectsAddAndClear()
         {

@@ -54,11 +54,13 @@ namespace Authorization.Domain.Users.Aggregate
         /// (Identifiers of the restrictions to remove.)
         /// </param>
         /// <param name="now">
-        /// Фіксований час усієї операції, який не може передувати
-        /// часу створення користувача.
+        /// Фіксований час усієї операції, не раніший за створення,
+        /// останнє оновлення й останній вхід користувача, а також
+        /// за створення оброблюваних обмежень і сесій.
         ///
-        /// (Fixed time for the entire operation, which cannot precede
-        /// the user's creation time.)
+        /// (Fixed time for the entire operation, no earlier than the user's
+        /// creation, last update, or last login, or the creation of the
+        /// restrictions and sessions being processed.)
         /// </param>
         /// <returns>
         /// Успіх після застосування планів; інакше — доменна помилка,
@@ -84,11 +86,14 @@ namespace Authorization.Domain.Users.Aggregate
         /// full-removal validation produces an unexpected result.)
         /// </exception>
         /// <exception cref="DomainDataInconsistencyException">
-        /// Виникає, якщо сесія повернула непідтримуваний
+        /// Виникає, якщо колекція ідентифікаторів відсутня,
+        /// час операції порушує часові передумови користувача,
+        /// обмежень чи сесій або сесія повернула непідтримуваний
         /// результат перевірки наслідків зняття обмежень.
         ///
-        /// (Thrown when a session returns an unsupported result
-        /// from restriction-removal effect validation.)
+        /// (Thrown when the identifier collection is null, the operation time
+        /// violates user, restriction, or session timestamp preconditions,
+        /// or a session returns an unsupported restriction-removal effect.)
         /// </exception>
         public Result RemoveRestrictions(
             IEnumerable<UserRestrictionId> restrictionIds,

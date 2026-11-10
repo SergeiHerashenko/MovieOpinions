@@ -7,8 +7,11 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
 {
     public class DeletionReasonTests
     {
+        #region Test data
         private const string DefaultReason = "No deletion reason was provided.";
+        #endregion
 
+        #region Create: normalization and length
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -164,6 +167,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
             );
         }
 
+        // Обмеження довжини застосовується після обрізання крайніх пробілів.
+        // The length limit applies after trimming surrounding whitespace.
         [Fact]
         public void Create_RawLengthAboveLimitButNormalizedLengthValid_Succeeds()
         {
@@ -181,6 +186,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
             );
         }
 
+        // Емодзі займає дві кодові одиниці UTF-16 у властивості string.Length.
+        // The emoji occupies two UTF-16 code units in string.Length.
         [Fact]
         public void Create_SupplementaryCharacters_UsesUtf16Length()
         {
@@ -216,7 +223,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
                 error.Code
             );
         }
+        #endregion
 
+        #region Restore: normalization and length
         [Theory]
         [InlineData("Account closed by user")]
         [InlineData("Користувач видалив обліковий запис")]
@@ -413,6 +422,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
             );
         }
 
+        // Під час відновлення довжина також рахується в кодових одиницях UTF-16.
+        // Restoration also measures length in UTF-16 code units.
         [Fact]
         public void Restore_SupplementaryCharacters_UsesUtf16Length()
         {
@@ -445,7 +456,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
                 exception.ExceptionCode
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_NormalizedReason_ReturnsSingleStringComponent()
         {
@@ -512,5 +525,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersDeletion.ValueObjec
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

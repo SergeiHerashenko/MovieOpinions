@@ -8,6 +8,9 @@ namespace Authorization.Domain.UnitTests.Results
 {
     public class ResultTests
     {
+        #region Helpers
+        // Конкретний підтип відкриває захищений конструктор Result для перевірок.
+        // A concrete subtype exposes the protected Result constructor for testing.
         private sealed class TestResult : Result
         {
             public TestResult(
@@ -29,7 +32,9 @@ namespace Authorization.Domain.UnitTests.Results
                 errorType
             );
         }
+        #endregion
 
+        #region Constructor
         [Fact]
         public void Constructor_SuccessWithEmptyErrors_CreatesSuccessfulResult()
         {
@@ -387,7 +392,9 @@ namespace Authorization.Domain.UnitTests.Results
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Errors);
         }
+        #endregion
 
+        #region Success
         [Fact]
         public void Success_ReturnsSuccessfulResultWithoutErrors()
         {
@@ -398,7 +405,9 @@ namespace Authorization.Domain.UnitTests.Results
             Assert.NotNull(result.Errors);
             Assert.Empty(result.Errors);
         }
+        #endregion
 
+        #region Failure
         [Fact]
         public void Failure_SingleError_ReturnsFailureWithSameError()
         {
@@ -659,7 +668,9 @@ namespace Authorization.Domain.UnitTests.Results
                 result.Errors.ElementAt(1)
             );
         }
+        #endregion
 
+        #region Errors
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -696,7 +707,11 @@ namespace Authorization.Domain.UnitTests.Results
                 Assert.Single(failure.Errors)
             );
         }
+        #endregion
 
+        #region Failure: enumeration
+        // Лічильник виявляє повторне перелічення під час створення чи читання Errors.
+        // The counter detects repeated enumeration during construction or Errors access.
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -751,6 +766,8 @@ namespace Authorization.Domain.UnitTests.Results
             );
         }
 
+        // Виняток виникає під час перелічення, уже після першого елемента.
+        // The exception occurs during enumeration, after the first item has been yielded.
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -784,5 +801,6 @@ namespace Authorization.Domain.UnitTests.Results
                 thrown
             );
         }
+        #endregion
     }
 }

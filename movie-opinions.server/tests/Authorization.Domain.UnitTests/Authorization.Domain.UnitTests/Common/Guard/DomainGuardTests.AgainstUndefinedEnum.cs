@@ -9,6 +9,7 @@ namespace Authorization.Domain.UnitTests.Common.Guard
 {
     public partial class DomainGuardTests
     {
+        #region AgainstUndefinedEnum
         [Fact]
         public void AgainstUndefinedEnum_NoFields_DoesNotThrow()
         {
@@ -196,5 +197,6 @@ namespace Authorization.Domain.UnitTests.Common.Guard
                 exception.Context["Type"]
             );
         }
+        #endregion
     }
 }

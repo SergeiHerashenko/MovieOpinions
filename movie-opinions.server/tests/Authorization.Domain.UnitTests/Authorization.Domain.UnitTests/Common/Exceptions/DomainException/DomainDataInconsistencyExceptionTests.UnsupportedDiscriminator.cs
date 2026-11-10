@@ -8,6 +8,7 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
 {
     public partial class DomainDataInconsistencyExceptionTests
     {
+        #region UnsupportedDiscriminator
         [Fact]
         public void UnsupportedDiscriminator_DefaultArguments_SetsExceptionMetadata()
         {
@@ -403,6 +404,8 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
             );
         }
 
+        // Префікс додається знову навіть до вже префіксованого ключа.
+        // The prefix is applied again even to an already-prefixed key.
         [Fact]
         public void UnsupportedDiscriminator_AlreadyPrefixedContextKey_AddsPrefixAgain()
         {
@@ -591,5 +594,6 @@ namespace Authorization.Domain.UnitTests.Common.Exceptions.DomainException
 
             Assert.False(second.Context.ContainsKey("Custom_A"));
         }
+        #endregion
     }
 }

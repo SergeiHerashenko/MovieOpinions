@@ -6,6 +6,7 @@ namespace Authorization.Domain.UnitTests.Users.ValueObjects
 {
     public class UserIdTests
     {
+        #region Create
         [Fact]
         public void Create_ReturnsNonEmptyVersion7Guid()
         {
@@ -33,7 +34,9 @@ namespace Authorization.Domain.UnitTests.Users.ValueObjects
                 second.Value
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData("00000000-0000-0000-0000-000000000001")]
         [InlineData("11111111-1111-4111-8111-111111111111")]
@@ -85,7 +88,9 @@ namespace Authorization.Domain.UnitTests.Users.ValueObjects
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region Implicit conversion
         [Fact]
         public void ImplicitConversion_ValidId_ReturnsUnderlyingGuid()
         {
@@ -99,7 +104,9 @@ namespace Authorization.Domain.UnitTests.Users.ValueObjects
                 actual
             );
         }
+        #endregion
 
+        #region Equality
         [Fact]
         public void GetEqualityComponents_ValidId_ReturnsSingleGuidComponent()
         {
@@ -154,5 +161,6 @@ namespace Authorization.Domain.UnitTests.Users.ValueObjects
             Assert.False(first.Equals((object)second));
             Assert.False(second.Equals((object)first));
         }
+        #endregion
     }
 }

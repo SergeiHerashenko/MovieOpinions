@@ -8,6 +8,7 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
 {
     public class EmailLocalPartTests
     {
+        #region Create: format and length
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -229,7 +230,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 error.Code
             );
         }
+        #endregion
 
+        #region Create: normalization and validation priority
         [Theory]
         [InlineData(" serhii", "serhii")]
         [InlineData("serhii ", "serhii")]
@@ -269,6 +272,8 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
             );
         }
 
+        // Турецька культура допомагає виявити залежність регістру від поточної локалі.
+        // The Turkish culture helps detect casing that depends on the current locale.
         [Theory]
         [InlineData("en-US")]
         [InlineData("uk-UA")]
@@ -389,7 +394,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 error.Code
             );
         }
+        #endregion
 
+        #region Restore
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -753,7 +760,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 exception.ExceptionType
             );
         }
+        #endregion
 
+        #region Equality and hash code
         [Fact]
         public void GetEqualityComponents_ValidValue_ReturnsSingleStringComponent()
         {
@@ -779,7 +788,9 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
 
             Assert.False(second.Equals((object)first));
         }
+        #endregion
 
+        #region Create and Restore
         [Fact]
         public void CreateThenRestore_NormalizedValue_PreservesEqualityAndHashCode()
         {
@@ -813,5 +824,6 @@ namespace Authorization.Domain.UnitTests.Common.ValueObjects.EmailUser
                 restored.GetHashCode()
             );
         }
+        #endregion
     }
 }

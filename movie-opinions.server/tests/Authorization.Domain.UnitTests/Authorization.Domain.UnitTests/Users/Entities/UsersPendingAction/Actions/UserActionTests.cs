@@ -13,6 +13,7 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
 {
     public class UserActionTests
     {
+        #region From: password
         [Theory]
         [InlineData("TEST.HASH")]
         [InlineData("AbCdEf0123+/=")]
@@ -80,7 +81,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 exception.Context["Operation"]
             );
         }
+        #endregion
 
+        #region From: login
         [Theory]
         [InlineData("serhii@example.com")]
         [InlineData("a.b@sub.example.com")]
@@ -193,6 +196,8 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
             );
         }
 
+        // Дія зберігає відновлений логін без повторного застосування правил його створення.
+        // The action preserves a restored login without reapplying its creation rules.
         [Theory]
         [InlineData("email")]
         [InlineData("phone")]
@@ -239,7 +244,9 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 action.Value
             );
         }
+        #endregion
 
+        #region From: deletion reason
         [Theory]
         [InlineData("Account closed", "Account closed")]
         [InlineData(null, "No deletion reason was provided.")]
@@ -312,5 +319,6 @@ namespace Authorization.Domain.UnitTests.Users.Entities.UsersPendingAction.Actio
                 exception.Context["Operation"]
             );
         }
+        #endregion
     }
 }
